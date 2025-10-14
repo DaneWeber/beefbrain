@@ -1,0 +1,12 @@
+{
+  "name": "bnb-cli",
+  "version": "0.0.1",
+  "description": "Command-line interface for Beef Brain. This, git, and a text editor is all you need to manage your TTRPG characters and creatures.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
