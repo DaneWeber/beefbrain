@@ -150,7 +150,7 @@ character:
 `)
         expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(expected)
       })
-      it('should calculate all six abilities with multiple components', () => {
+      describe('all six abilities with multiple components', () => {
         const yamlContent = `
 ---
 character:
@@ -162,7 +162,7 @@ character:
     wisdom: [0, wis: 0, { base: 11, orc: -2 }]
     charisma: [0, cha: 0, { base: 18, orc: -2, cloak: 4 }]
 `
-        const expected = parseYAML(`
+        const expectedYaml = `
 ---
 character:
   abilities:
@@ -172,8 +172,12 @@ character:
     intelligence: [10, int: 0, { base: 10, orc: -2, crown: 2 }]
     wisdom: [9, wis: -1, { base: 11, orc: -2 }]
     charisma: [20, cha: 5, { base: 18, orc: -2, cloak: 4 }]
-`)
-        expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(expected)
+`
+        it('should calculate all six abilities with multiple components', () => {
+          expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(
+            parseYAML(expectedYaml),
+          )
+        })
       })
     })
   })
