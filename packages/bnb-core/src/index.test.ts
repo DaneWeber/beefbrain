@@ -56,5 +56,12 @@ character:
 `
       expect(updateCalculatedFields(yamlContent)).toBe(yamlContent)
     })
+    it('should fail on invalid YAML', () => {
+      const yamlContent = `
+---
+character: abilities: strength: [15, str: 2, { base: 11, orc: 2, hd: 2 }]
+`
+      expect(() => updateCalculatedFields(yamlContent)).toThrowError()
+    })
   })
 })

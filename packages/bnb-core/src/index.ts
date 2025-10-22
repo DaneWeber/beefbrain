@@ -37,6 +37,13 @@ export function validateBeefBrainData(yamlContent: string): boolean {
  * @public
  */
 export function updateCalculatedFields(yamlContent: string): string {
+  // Validate YAML first - throw error if invalid
+  try {
+    parseYAML(yamlContent)
+  } catch (error) {
+    throw new Error(`Invalid YAML content: ${error}`)
+  }
+
   // TODO: Implement calculated field updates
   return yamlContent
 }
