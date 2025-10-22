@@ -178,6 +178,9 @@ character:
             parseYAML(expectedYaml),
           )
         })
+        it('should preserve the compact formatting', () => {
+          expect(updateCalculatedFields(yamlContent)).toEqual(expectedYaml)
+        })
       })
     })
   })

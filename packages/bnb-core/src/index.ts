@@ -1,4 +1,4 @@
-import { parse as parseYAML, stringify as stringifyYAML } from 'yaml'
+import { parse as parseYAML, Document, YAMLSeq, YAMLMap } from 'yaml'
 
 /**
  * Beef Brain Core Library
@@ -116,7 +116,44 @@ export function updateCalculatedFields(yamlContent: string): string {
 
   // Only convert back to YAML if there were changes
   if (hasChanges) {
-    return stringifyYAML(data)
+    // Create a Document from the updated data
+    const doc = new Document(data)
+
+    // Set ability arrays to flow style to maintain compact formatting
+    for (const abilityName of Object.keys(abilities)) {
+      const abilityArrayNode = doc.getIn(
+        ['character', 'abilities', abilityName],
+        true,
+      )
+      if (abilityArrayNode instanceof YAMLSeq) {
+        abilityArrayNode.flow = true
+
+        // Set the calculation details object (third element) to flow style
+        const calculationNode = abilityArrayNode.get(2, true)
+        if (calculationNode instanceof YAMLMap) {
+          calculationNode.flow = true
+        }
+      }
+    }
+
+    // Convert to string and then fix the modifier formatting
+    let result = String(doc)
+
+    // Fix the modifier formatting from { key: value } to key: value
+    // This regex finds patterns like "[ number, { key: value }, { ... } ]"
+    // and converts them to "[ number, key: value, { ... } ]"
+    result = result.replace(
+      /(\[)\s*(\d+),\s*\{\s*([^:]+):\s*([^}]+)\s*\},\s*(\{[^}]*\})\s*(\])/g,
+      '$1$2, $3: $4, $5$6',
+    )
+
+    // Fix any extra spaces around the modifier
+    result = result.replace(/(\w+):\s*(-?\d+)\s*,/g, '$1: $2,')
+
+    // Add YAML document markers to match expected format
+    result = '\n---\n' + result
+
+    return result
   } else {
     return yamlContent
   }
