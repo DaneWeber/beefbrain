@@ -1,4 +1,5 @@
 import { describe, it, expect } from '@jest/globals'
+import { parse as parseYAML } from 'yaml'
 import {
   validateBeefBrainData,
   updateCalculatedFields,
@@ -62,6 +63,23 @@ character:
 character: abilities: strength: [15, str: 2, { base: 11, orc: 2, hd: 2 }]
 `
       expect(() => updateCalculatedFields(yamlContent)).toThrowError()
+    })
+    describe('DnD 3.5e specific tests', () => {
+      it('should calculate the correct strength without modifiers', () => {
+        const yamlContent = `
+---
+character:
+  abilities:
+    strength: [99, str: 99, { base: 10 }]
+`
+        const expected = parseYAML(`
+---
+character:
+  abilities:
+    strength: [10, str: 0, { base: 10 }]
+`)
+        expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(expected)
+      })
     })
   })
 })
