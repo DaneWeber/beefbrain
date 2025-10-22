@@ -5,44 +5,36 @@ describe('Beef Brain Core', () => {
   describe('validateBeefBrainData', () => {
     it('should validate a basic YAML structure', () => {
       const yamlContent = `
-version: "1.0"
-type: character
-data:
-  name: "Test Character"
-  level: 1
+---
+character:
+  abilities:
+    strength: [15, str: 2, { base: 11, orc: 2, hd: 2 }]
 `
       expect(validateBeefBrainData(yamlContent)).toBe(true)
     })
 
     it('should handle empty content', () => {
-      expect(validateBeefBrainData('')).toBe(true) // TODO: Should this be false?
+      expect(validateBeefBrainData('')).toBe(true)
+    })
+
+    it('should invalidate incorrect YAML structure', () => {
+      const yamlContent = `
+---
+character: abilities: strength: [15, str: 2, { base: 11, orc: 2, hd: 2 }]
+`
+      expect(validateBeefBrainData(yamlContent)).toBe(false)
     })
   })
 
   describe('updateCalculatedFields', () => {
     it('should return the same content for now', () => {
       const yamlContent = `
-version: "1.0"
-type: character
-data:
-  name: "Test Character"
-  level: 1
+---
+character:
+  abilities:
+    strength: [15, str: 2, { base: 11, orc: 2, hd: 2 }]
 `
       expect(updateCalculatedFields(yamlContent)).toBe(yamlContent)
-    })
-  })
-
-  describe('applyModifier', () => {
-    it('should return the same content for now', () => {
-      const yamlContent = `
-version: "1.0"
-type: character
-data:
-  name: "Test Character"
-  level: 1
-`
-      const modifier = { type: 'ability', target: 'strength', value: 2 }
-      expect(applyModifier(yamlContent, modifier)).toBe(yamlContent)
     })
   })
 })
