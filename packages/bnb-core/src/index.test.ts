@@ -110,6 +110,31 @@ character:
 `)
         expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(expected)
       })
+      it('should calculate all six abilities with only base values', () => {
+        const yamlContent = `
+---
+character:
+  abilities:
+    strength: [0, str: 0, { base: 1 }]
+    dexterity: [0, dex: 0, { base: 5 }]
+    constitution: [0, con: 0, { base: 6 }]
+    intelligence: [0, int: 0, { base: 10 }]
+    wisdom: [0, wis: 0, { base: 11 }]
+    charisma: [0, cha: 0, { base: 18 }]
+`
+        const expected = parseYAML(`
+---
+character:
+  abilities:
+    strength: [1, str: -5, { base: 1 }]
+    dexterity: [5, dex: -3, { base: 5 }]
+    constitution: [6, con: -2, { base: 6 }]
+    intelligence: [10, int: 0, { base: 10 }]
+    wisdom: [11, wis: 0, { base: 11 }]
+    charisma: [18, cha: 4, { base: 18 }]
+`)
+        expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(expected)
+      })
     })
   })
 })
