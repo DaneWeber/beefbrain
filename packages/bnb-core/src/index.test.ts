@@ -80,6 +80,36 @@ character:
 `)
         expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(expected)
       })
+      it('should calculate the lowest strength without modifiers', () => {
+        const yamlContent = `
+---
+character:
+  abilities:
+    strength: [10, str: 0, { base: 1 }]
+`
+        const expected = parseYAML(`
+---
+character:
+  abilities:
+    strength: [1, str: -5, { base: 1 }]
+`)
+        expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(expected)
+      })
+      it('should calculate the first negative modifier', () => {
+        const yamlContent = `
+---
+character:
+  abilities:
+    strength: [0, str: 0, { base: 9 }]
+`
+        const expected = parseYAML(`
+---
+character:
+  abilities:
+    strength: [9, str: -1, { base: 9 }]
+`)
+        expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(expected)
+      })
     })
   })
 })
