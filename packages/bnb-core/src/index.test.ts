@@ -22,11 +22,25 @@ character:
     })
 
     describe('invalid YAML cases', () => {
-      it('should invalidate incorrect YAML structure', () => {
+      it('should invalidate all keys on one line', () => {
         const yamlContent = `
-        ---
-        character: abilities: strength: [15, str: 2, { base: 11, orc: 2, hd: 2 }]
-        `
+---
+character: abilities: strength: [15, str: 2, { base: 11, orc: 2, hd: 2 }]
+`
+        expect(validateBeefBrainData(yamlContent)).toBe(false)
+      })
+      it('should invalidate bad indentation', () => {
+        const yamlContent = `
+---
+character:
+abilities:
+  strength: [15, 
+    str: 2,
+  { base: 11,
+  orc: 2,
+  hd: 2 }
+]
+`
         expect(validateBeefBrainData(yamlContent)).toBe(false)
       })
     })
