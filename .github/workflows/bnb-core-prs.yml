@@ -27,3 +27,11 @@ jobs:
       - name: Run bnb-core tests
         run: pnpm run test
         working-directory: packages/bnb-core
+
+      - name: Run bnb-core linting
+        run: pnpm run lint
+        working-directory: packages/bnb-core
+
+      - name: Run bnb-core formatting
+        run: pnpm run format
+        working-directory: packages/bnb-core
