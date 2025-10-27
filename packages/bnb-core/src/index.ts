@@ -8,6 +8,30 @@ import { parse as parseYAML, Document, YAMLSeq, YAMLMap } from 'yaml'
  * @public
  */
 
+// Type definitions
+interface CalculationDetails {
+  base: number
+  [key: string]: number
+}
+
+interface ModifierData {
+  [key: string]: number
+}
+
+type AbilityData = [number, ModifierData, CalculationDetails]
+
+interface Abilities {
+  [abilityName: string]: AbilityData
+}
+
+interface Character {
+  abilities: Abilities
+}
+
+interface BeefBrainData {
+  character?: Character
+}
+
 /**
  * Validates that a YAML file is a valid Beef Brain data file.
  * @param yamlContent - The YAML content to validate
@@ -38,9 +62,9 @@ export function validateBeefBrainData(yamlContent: string): boolean {
  */
 export function updateCalculatedFields(yamlContent: string): string {
   // Validate YAML first - throw error if invalid
-  let data: any
+  let data: BeefBrainData
   try {
-    data = parseYAML(yamlContent)
+    data = parseYAML(yamlContent) as BeefBrainData
   } catch (error) {
     throw new Error(`Invalid YAML content: ${error}`)
   }
@@ -56,11 +80,8 @@ export function updateCalculatedFields(yamlContent: string): string {
 
   for (const [abilityName, abilityData] of Object.entries(abilities)) {
     if (Array.isArray(abilityData) && abilityData.length >= 3) {
-      const [currentScore, modifierData, calculationDetails] = abilityData as [
-        number,
-        any,
-        any,
-      ]
+      const [currentScore, modifierData, calculationDetails] =
+        abilityData as AbilityData
 
       if (
         calculationDetails &&
@@ -168,12 +189,7 @@ export function updateCalculatedFields(yamlContent: string): string {
  */
 export function applyModifier(yamlContent: string, modifier: unknown): string {
   // TODO: Implement modifier application
-  console.log(
-    'Applying modifier:',
-    modifier,
-    'to content of length:',
-    yamlContent.length,
-  )
+  // Note: modifier applied to content of length: yamlContent.length
   return yamlContent
 }
 
