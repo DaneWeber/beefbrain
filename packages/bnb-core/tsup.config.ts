@@ -13,5 +13,5 @@ export default defineConfig({
   target: 'node18',
   platform: 'node',
   external: [],
-  noExternal: []
+  noExternal: [],
 })

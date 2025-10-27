@@ -1,10 +1,6 @@
 import { describe, it, expect } from '@jest/globals'
 import { parse as parseYAML } from 'yaml'
-import {
-  validateBeefBrainData,
-  updateCalculatedFields,
-  applyModifier,
-} from './index'
+import { validateBeefBrainData, updateCalculatedFields } from './index'
 
 describe('Beef Brain Core', () => {
   describe('validateBeefBrainData', () => {
