@@ -178,6 +178,27 @@ character:
           expect(updateCalculatedFields(yamlContent)).toEqual(expectedYaml)
         })
       })
+      describe('skills based on abilities', () => {
+        it('should update skill modifiers based on ability changes', () => {
+          const yamlContent = `
+---
+character:
+  abilities:
+    dexterity: [14, dex: 2]
+  skills:
+    tumble: [4, { dex: 0, ranks: 4}]
+`
+          const expectedYaml = `
+---
+character:
+  abilities:
+    dexterity: [14, dex: 2]
+  skills:
+    tumble: [6, { dex: 2, ranks: 4}]
+`
+          expect(updateCalculatedFields(yamlContent)).toEqual(expectedYaml)
+        })
+      })
     })
   })
 })
