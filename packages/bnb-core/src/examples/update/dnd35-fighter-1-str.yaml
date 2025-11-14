@@ -49,7 +49,7 @@ character:
   movement:
     speed: [20, { base: 30, medium-load: -10 }]
     run: [80, { base: x4 }]
-    load: [49 lbs, { equipped: 49 lbs }]
+    load: [75.5 lbs, {equipped: 49 lbs, pack: 26.5 lbs}]
     capacity: { light: 33 lbs, medium: 66 lbs, heavy: 100 lbs, lift: 200 lbs, drag: 600 lbs }
   skills:
     _ranks: [12, { fighter: 8, int: 0, human: 4, cc: -2 }]
