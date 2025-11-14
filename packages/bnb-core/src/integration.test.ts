@@ -28,9 +28,9 @@ describe('Beef Brain Core Integration', () => {
   })
 
   describe('should produce updated output for update input', () => {
-    describe('dnd35-fighter-1.yaml', () => {
+    describe('dnd35-fighter-1-str.yaml', () => {
       const input = readFileSync(
-        __dirname + '/examples/update/dnd35-fighter-1.yaml',
+        __dirname + '/examples/update/dnd35-fighter-1-str.yaml',
         'utf8',
       )
       const expected = readFileSync(
