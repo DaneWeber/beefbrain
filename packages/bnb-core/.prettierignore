@@ -1,6 +1,9 @@
 # Taken from https://github.com/github/gitignore/blob/main/Node.gitignore
 # and added custom ignores
 
+# Special YAML files
+src/examples/**/*.yaml
+
 # Logs
 logs
 *.log

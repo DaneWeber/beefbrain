@@ -146,28 +146,53 @@ character:
 `)
         expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(expected)
       })
+      it('should calculate modifiers with assumed base values', () => {
+        const yamlContent = `
+---
+character:
+  abilities:
+    strength: [1, str: 0]
+    dexterity: [5, dex: 0]
+    constitution: [6, con: 0]
+    intelligence: [10, int: 0]
+    wisdom: [11, wis: 0]
+    charisma: [18, cha: 0]
+`
+        const expected = parseYAML(`
+---
+character:
+  abilities:
+    strength: [1, str: -5]
+    dexterity: [5, dex: -3]
+    constitution: [6, con: -2]
+    intelligence: [10, int: 0]
+    wisdom: [11, wis: 0]
+    charisma: [18, cha: 4]
+`)
+        expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(expected)
+      })
       describe('all six abilities with multiple components', () => {
         const yamlContent = `
 ---
 character:
   abilities:
-    strength: [0, str: 0, { base: 1, orc: 4, hd: 2, belt: 4 }]
-    dexterity: [0, dex: 0, { base: 5, gloves: 2 }]
-    constitution: [0, con: 0, { base: 6, inherent: 1 }]
-    intelligence: [0, int: 0, { base: 10, orc: -2, crown: 2 }]
-    wisdom: [0, wis: 0, { base: 11, orc: -2 }]
-    charisma: [0, cha: 0, { base: 18, orc: -2, cloak: 4 }]
+    strength: [0, str: 0, {base: 1, orc: 4, hd: 2, belt: 4}]
+    dexterity: [0, dex: 0, {base: 5, gloves: 2}]
+    constitution: [0, con: 0, {base: 6, inherent: 1}]
+    intelligence: [0, int: 0, {base: 10, orc: -2, crown: 2}]
+    wisdom: [0, wis: 0, {base: 11, orc: -2}]
+    charisma: [0, cha: 0, {base: 18, orc: -2, cloak: 4}]
 `
         const expectedYaml = `
 ---
 character:
   abilities:
-    strength: [11, str: 0, { base: 1, orc: 4, hd: 2, belt: 4 }]
-    dexterity: [7, dex: -2, { base: 5, gloves: 2 }]
-    constitution: [7, con: -2, { base: 6, inherent: 1 }]
-    intelligence: [10, int: 0, { base: 10, orc: -2, crown: 2 }]
-    wisdom: [9, wis: -1, { base: 11, orc: -2 }]
-    charisma: [20, cha: 5, { base: 18, orc: -2, cloak: 4 }]
+    strength: [11, str: 0, {base: 1, orc: 4, hd: 2, belt: 4}]
+    dexterity: [7, dex: -2, {base: 5, gloves: 2}]
+    constitution: [7, con: -2, {base: 6, inherent: 1}]
+    intelligence: [10, int: 0, {base: 10, orc: -2, crown: 2}]
+    wisdom: [9, wis: -1, {base: 11, orc: -2}]
+    charisma: [20, cha: 5, {base: 18, orc: -2, cloak: 4}]
 `
         it('should calculate all six abilities with multiple components', () => {
           expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(
