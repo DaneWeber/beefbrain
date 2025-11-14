@@ -84,7 +84,9 @@ character:
       - [Blind-Fight, level: 1, [combat.defense, blind-fight, combat.attack.melee, blind-fight]]
       - [Improved Initiative, human: 1, [combat.initiative, 4]]
   inventory:
+    _on: [equipped, pack]
     money:
+      _total: 20.5 gp
       coins: [20.5 gp, 0.5 lbs, pack, {pp: 0, gp: 20, sp: 5, cp: 0}, 0.02 lbs]
     equipped:
       - [longsword, 1, weapon, 4 lbs, 15 gp, {damage: 1d8 slashing, crit: 19-20/x2}, [m, martial, melee]]

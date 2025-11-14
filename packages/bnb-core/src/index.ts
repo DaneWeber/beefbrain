@@ -69,12 +69,8 @@ const flowStylePaths = [
   'character.movement.capacity',
   'character.skills.*',
   'character.special.feats.*',
-  'character.inventory.money.coins',
-  'character.inventory.equipped.*',
-  'character.inventory.pack.*',
-  'character.inventory.saddle-bags.*',
-  'character.inventory.cart.*',
-  'character.inventory.tavern-safe.*',
+  'character.inventory._on',
+  'character.inventory.*.*',
 ]
 
 function setSelectiveFlowStyle(node: unknown, path: string[] = []) {
