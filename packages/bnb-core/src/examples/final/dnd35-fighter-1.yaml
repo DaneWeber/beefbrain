@@ -36,7 +36,7 @@ character:
       bab: [1, fighter: 1]
       melee:
         _: [3, {bab: 1, str: 2}, [blind-fight]]
-        longsword: [4, 1d8+2 slashing, 19-20/x2, {_: 2, special: 1}, str: 2, {}, [longsword, weapon-focus-longsword]]
+        longsword: [4, 1d8+2 slashing, 19-20/x2, {_: 3, special: 1}, str: 2, {}, [longsword, weapon-focus-longsword]]
       ranged:
         _: [1, {bab: 1, dex: 1}]
       grapple: [3, {bab: 1, str: 2}]
