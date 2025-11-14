@@ -29,9 +29,9 @@ character:
   combat:
     initiative: [5, {dex: 1, feats: 4}]
     saves:
-      fortitude: [2, fighter: 2]
-      reflex: [0, fighter: 0]
-      will: [0, fighter: 0]
+      fortitude: [3, {fighter: 2, con: 1}]
+      reflex: [1, {fighter: 0, dex: 1}]
+      will: [-1, {fighter: 0, wis: -1}]
     attack:
       bab: [1, fighter: 1]
       melee:
