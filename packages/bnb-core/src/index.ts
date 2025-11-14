@@ -121,29 +121,32 @@ export function updateCalculatedFields(yamlContent: string): string {
       strengthScore = abilities.strength[0]
     }
     if (typeof strengthScore === 'number') {
-      // D&D 3.5e carrying capacity table for STR 18
-      // light: 100 lbs, medium: 200 lbs, heavy: 300 lbs, lift: 600 lbs, drag: 1500 lbs
-      // For STR 10: light: 33 lbs, medium: 66 lbs, heavy: 100 lbs, lift: 200 lbs, drag: 500 lbs
-      // Use a lookup table for common values, otherwise calculate proportionally
-      const capacityTable: Record<string, number[]> = {
-        '10': [33, 66, 100, 200, 500],
-        '18': [100, 200, 300, 600, 1500],
-      }
-      let values = capacityTable[String(strengthScore)]
-      if (!values) {
-        // Linear interpolation for other scores (approximate)
-        // D&D 3.5e: Each +10 STR doubles capacity
-        // Find nearest lower multiple of 10
-        let base = 10
-        let multiplier = 1
-        while (strengthScore > base) {
-          base += 10
-          multiplier *= 2
+      // Official D&D 3.5e carrying capacity table for STR 1–29
+      const heavyTable = [
+        10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 115, 130, 150, 175, 200, 230,
+        260, 300, 350, 400, 460, 520, 600, 700, 800, 920, 1040, 1200, 1400,
+      ]
+      let heavy = 10
+      if (strengthScore >= 1 && strengthScore <= 29) {
+        heavy = heavyTable[strengthScore - 1] ?? 10
+      } else if (strengthScore >= 30) {
+        // For STR 30+, every +10 doubles the heavy load from STR 20
+        const base = 400 // STR 20 heavy load
+        const extra = strengthScore - 20
+        const factor = Math.floor(extra / 10)
+        heavy = base * Math.pow(2, factor)
+        // For scores between multiples of 10, scale proportionally
+        const remainder = extra % 10
+        if (remainder > 0) {
+          // Use next doubling as upper bound
+          const nextHeavy = base * Math.pow(2, factor + 1)
+          heavy = Math.floor(heavy + (nextHeavy - heavy) * (remainder / 10))
         }
-        // Use STR 10 as base
-        values = [33, 66, 100, 200, 500].map((v) => v * multiplier)
       }
-      const [light, medium, heavy, lift, drag] = values
+      const medium = Math.floor((2 * heavy) / 3)
+      const light = Math.floor(heavy / 3)
+      const lift = heavy * 2
+      const drag = heavy * 5
       const cap = data.character.movement.capacity
       if (cap.light !== `${light} lbs`) {
         cap.light = `${light} lbs`
@@ -182,7 +185,10 @@ export function updateCalculatedFields(yamlContent: string): string {
       // Update generic melee attack
       const melee = data.character.combat.attack.melee
       if (melee && melee._ && Array.isArray(melee._) && melee._.length >= 2) {
-        const [currentValue, modifiers] = melee._ as [number, Record<string, number>]
+        const [currentValue, modifiers] = melee._ as [
+          number,
+          Record<string, number>,
+        ]
         if (modifiers && typeof modifiers === 'object') {
           if (modifiers.str !== strengthMod) {
             modifiers.str = strengthMod
@@ -212,7 +218,11 @@ export function updateCalculatedFields(yamlContent: string): string {
             }
           }
           // Propagate generic melee bonus to weaponArr[3]._
-          if (melee._ && Array.isArray(melee._) && typeof melee._[0] === 'number') {
+          if (
+            melee._ &&
+            Array.isArray(melee._) &&
+            typeof melee._[0] === 'number'
+          ) {
             if (weaponArr[3] && typeof weaponArr[3] === 'object') {
               if (weaponArr[3]._ !== melee._[0]) {
                 weaponArr[3]._ = melee._[0]
@@ -233,7 +243,10 @@ export function updateCalculatedFields(yamlContent: string): string {
           }
           // Update weapon damage string (e.g., '1d8+2 slashing')
           if (typeof weaponArr[1] === 'string') {
-            weaponArr[1] = weaponArr[1].replace(/1d8\+[0-9]+/, `1d8+${strengthMod}`)
+            weaponArr[1] = weaponArr[1].replace(
+              /1d8\+[0-9]+/,
+              `1d8+${strengthMod}`,
+            )
             hasChanges = true
           }
         }
@@ -253,10 +266,19 @@ export function updateCalculatedFields(yamlContent: string): string {
       }
     }
     if (typeof strengthMod === 'number') {
-      for (const [skillName, skillArr] of Object.entries(data.character.skills)) {
+      for (const [skillName, skillArr] of Object.entries(
+        data.character.skills,
+      )) {
         if (Array.isArray(skillArr) && skillArr.length >= 2) {
-          const [currentValue, modifiers] = skillArr as [number, Record<string, number>]
-          if (modifiers && typeof modifiers === 'object' && 'str' in modifiers) {
+          const [currentValue, modifiers] = skillArr as [
+            number,
+            Record<string, number>,
+          ]
+          if (
+            modifiers &&
+            typeof modifiers === 'object' &&
+            'str' in modifiers
+          ) {
             // Update str modifier
             if (modifiers.str !== strengthMod) {
               modifiers.str = strengthMod
@@ -280,12 +302,23 @@ export function updateCalculatedFields(yamlContent: string): string {
 
   // Ability score calculation logic (focus on strength)
   if (data.character?.abilities) {
-    for (const [abilityName, abilityArr] of Object.entries(data.character.abilities)) {
+    for (const [abilityName, abilityArr] of Object.entries(
+      data.character.abilities,
+    )) {
       if (Array.isArray(abilityArr)) {
         // If calculation details are present, use them
         if (abilityArr.length >= 3) {
-          const [currentScore, modifierData, calculationDetails] = abilityArr as [number, Record<string, number>, Record<string, number>]
-          if (calculationDetails && typeof calculationDetails === 'object' && typeof calculationDetails.base === 'number') {
+          const [currentScore, modifierData, calculationDetails] =
+            abilityArr as [
+              number,
+              Record<string, number>,
+              Record<string, number>,
+            ]
+          if (
+            calculationDetails &&
+            typeof calculationDetails === 'object' &&
+            typeof calculationDetails.base === 'number'
+          ) {
             let totalScore = calculationDetails.base
             for (const [key, value] of Object.entries(calculationDetails)) {
               if (key !== 'base' && typeof value === 'number') {
@@ -311,8 +344,15 @@ export function updateCalculatedFields(yamlContent: string): string {
           }
         } else if (abilityArr.length === 2) {
           // If only [score, {mod}] is present, recalculate modifier from score
-          const [score, modifierData] = abilityArr as [number, Record<string, number>]
-          if (typeof score === 'number' && typeof modifierData === 'object' && modifierData !== null) {
+          const [score, modifierData] = abilityArr as [
+            number,
+            Record<string, number>,
+          ]
+          if (
+            typeof score === 'number' &&
+            typeof modifierData === 'object' &&
+            modifierData !== null
+          ) {
             const modifier = Math.floor((score - 10) / 2)
             const firstKey = Object.keys(modifierData)[0]
             if (firstKey && modifierData[firstKey] !== modifier) {
