@@ -93,7 +93,7 @@ character:
       medium: 133 lbs
       heavy: 200 lbs
       lift: 400 lbs
-      drag: 1200 lbs
+      drag: 1000 lbs
 `
         const output = parseYAML(updateCalculatedFields(yamlContent))
         // Should update capacity values based on new strength

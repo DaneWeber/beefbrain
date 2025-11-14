@@ -51,7 +51,7 @@ character:
     speed: [20, {base: 30, medium-load: -10}]
     run: [80, base: x4]
     load: [75.5 lbs, {equipped: 49 lbs, pack: 26.5 lbs}]
-    capacity: {light: 66 lbs, medium: 133 lbs, heavy: 200 lbs, lift: 400 lbs, drag: 1200 lbs}
+    capacity: {light: 66 lbs, medium: 133 lbs, heavy: 200 lbs, lift: 400 lbs, drag: 1000 lbs}
   skills:
     _ranks: [12, {fighter: 8, int: 0, human: 4, cc: -2}]
     appraise: [2, {int: 0, ranks: 2}]
