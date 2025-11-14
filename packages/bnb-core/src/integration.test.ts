@@ -1,4 +1,5 @@
 import { describe, it, expect } from '@jest/globals'
+// import { readFileSync, writeFileSync } from 'fs'
 import { readFileSync } from 'fs'
 import { parse as parseYAML } from 'yaml'
 import { updateCalculatedFields } from './index'
@@ -36,6 +37,11 @@ describe('Beef Brain Core Integration', () => {
         __dirname + '/examples/final/dnd35-fighter-1.yaml',
         'utf8',
       )
+      // Write output for manual inspection
+      // writeFileSync(
+      //   __dirname + '/ultra-compact-dnd35-fighter-1.yaml',
+      //   updateCalculatedFields(input),
+      // )
 
       it('should produce accurately updated output', () => {
         expect(parseYAML(updateCalculatedFields(input))).toEqual(

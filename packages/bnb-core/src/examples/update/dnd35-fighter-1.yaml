@@ -14,7 +14,7 @@ character:
     complexion: Fair
     build: Ripped
   abilities:
-    strength: [14, str: 2]
+    strength: [14, str: 0]
     dexterity: [13, dex: 1]
     constitution: [12, con: 1]
     intelligence: [10, int: 0]

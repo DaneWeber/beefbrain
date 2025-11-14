@@ -54,6 +54,57 @@ export function validateBeefBrainData(yamlContent: string): boolean {
   }
 }
 
+// Paths to apply flow style (wildcards supported for arrays)
+const flowStylePaths = [
+  'character.abilities.*',
+  'character.levels.*',
+  'character.combat.initiative',
+  'character.combat.saves.*',
+  'character.combat.attack.bab',
+  'character.combat.attack.grapple',
+  'character.combat.attack.melee.*',
+  'character.combat.attack.ranged.*',
+  'character.combat.defense.*',
+  'character.movement.*',
+  'character.movement.capacity',
+  'character.skills.*',
+  'character.special.feats.*',
+  'character.inventory.money.coins',
+  'character.inventory.equipped.*',
+  'character.inventory.pack.*',
+  'character.inventory.saddle-bags.*',
+  'character.inventory.cart.*',
+  'character.inventory.tavern-safe.*',
+]
+
+function setSelectiveFlowStyle(node: unknown, path: string[] = []) {
+  const pathStr = path.join('.')
+  for (const pattern of flowStylePaths) {
+    const patternParts = pattern.split('.')
+    const pathParts = path
+    if (
+      patternParts.length === pathParts.length &&
+      patternParts.every((part, i) => part === '*' || part === pathParts[i])
+    ) {
+      if (node instanceof YAMLSeq || node instanceof YAMLMap) {
+        node.flow = true
+      }
+      break
+    }
+  }
+  if (node instanceof YAMLSeq) {
+    node.items.forEach((item, idx) =>
+      setSelectiveFlowStyle(item, [...path, idx.toString()]),
+    )
+  } else if (node instanceof YAMLMap) {
+    node.items.forEach((item) => {
+      if (item && item.key && item.value) {
+        setSelectiveFlowStyle(item.value, [...path, String(item.key)])
+      }
+    })
+  }
+}
+
 /**
  * Updates the calculated fields in a Beef Brain data file.
  * @param yamlContent - The YAML content to update
@@ -163,36 +214,15 @@ export function updateCalculatedFields(yamlContent: string): string {
     // Create a Document from the updated data
     const doc = new Document(data)
 
-    // Set ability arrays to flow style to maintain compact formatting
-    for (const abilityName of Object.keys(abilities)) {
-      const abilityArrayNode = doc.getIn(
-        ['character', 'abilities', abilityName],
-        true,
-      )
-      if (abilityArrayNode instanceof YAMLSeq) {
-        abilityArrayNode.flow = true
+    // Recursively set flow style only for schema-defined paths
+    setSelectiveFlowStyle(doc.contents)
 
-        // Set the calculation details object (third element) to flow style
-        const calculationNode = abilityArrayNode.get(2, true)
-        if (calculationNode instanceof YAMLMap) {
-          calculationNode.flow = true
-        }
-      }
-    }
+    // Convert to string with no line length restriction and no flow collection padding, then fix the modifier formatting
+    let result = doc.toString({ lineWidth: 0, flowCollectionPadding: false })
 
-    // Convert to string and then fix the modifier formatting
-    let result = String(doc)
-
-    // Fix the modifier formatting from { key: value } to key: value
-    // This regex finds patterns like "[ number, { key: value }, { ... } ]"
-    // and converts them to "[ number, key: value, { ... } ]"
-    result = result.replace(
-      /(\[)\s*(\d+),\s*\{\s*([^:]+):\s*([^}]+)\s*\},\s*(\{[^}]*\})\s*(\])/g,
-      '$1$2, $3: $4, $5$6',
-    )
-
-    // Fix any extra spaces around the modifier
-    result = result.replace(/(\w+):\s*(-?\d+)\s*,/g, '$1: $2,')
+    // Strip curly braces from single-key maps in flow-style arrays
+    // e.g. [14, {str: 2}] => [14, str: 2], but leave multi-key maps untouched
+    result = result.replace(/\{\s*([a-zA-Z0-9_-]+):\s*([^},]+)\s*\}/g, '$1: $2')
 
     // Add YAML document markers to match expected format
     result = '\n---\n' + result
