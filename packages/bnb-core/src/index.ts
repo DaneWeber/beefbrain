@@ -26,6 +26,7 @@ interface Abilities {
 
 interface Character {
   abilities: Abilities
+  skills?: Record<string, [number, Record<string, number>]>
 }
 
 interface BeefBrainData {
@@ -108,6 +109,7 @@ function setSelectiveFlowStyle(node: unknown, path: string[] = []) {
  * @public
  */
 export function updateCalculatedFields(yamlContent: string): string {
+  let hasChanges = false
   // Validate YAML first - throw error if invalid
   let data: BeefBrainData
   try {
@@ -123,7 +125,46 @@ export function updateCalculatedFields(yamlContent: string): string {
 
   // Process abilities
   const abilities = data.character.abilities
-  let hasChanges = false
+
+  // Update skills section for strength modifier propagation
+  if (data.character?.skills && abilities.strength) {
+    const strengthMod = Array.isArray(abilities.strength)
+      ? (abilities.strength[1] as Record<string, number>).str
+      : undefined
+    if (typeof strengthMod === 'number') {
+      for (const [skillName, skillDataRaw] of Object.entries(
+        data.character.skills,
+      )) {
+        if (Array.isArray(skillDataRaw) && skillDataRaw.length >= 2) {
+          const [currentValue, modifiers] = skillDataRaw as [
+            number,
+            Record<string, number>,
+          ]
+          if (
+            modifiers &&
+            typeof modifiers === 'object' &&
+            'str' in modifiers
+          ) {
+            // Update str modifier
+            if (modifiers.str !== strengthMod) {
+              modifiers.str = strengthMod
+              hasChanges = true
+            }
+            // Recalculate skill value
+            let newValue = 0
+            for (const [key, value] of Object.entries(modifiers)) {
+              newValue += value
+            }
+            if (currentValue !== newValue) {
+              skillDataRaw[0] = newValue
+              hasChanges = true
+            }
+          }
+        }
+      }
+    }
+  }
+  // let hasChanges = false (already declared at top)
 
   for (const [abilityName, abilityDataRaw] of Object.entries(abilities)) {
     const abilityData = abilityDataRaw as

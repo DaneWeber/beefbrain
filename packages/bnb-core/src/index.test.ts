@@ -44,6 +44,87 @@ abilities:
   })
 
   describe('updateCalculatedFields', () => {
+    describe('strength modifier propagation', () => {
+      it('should update melee attack bonus and weapon damage in combat', () => {
+        const yamlContent = `
+---
+character:
+  abilities:
+    strength: [18, str: 4]
+  combat:
+    attack:
+      melee:
+        _:
+          - 3
+          - bab: 1
+            str: 2
+          - [blind-fight]
+        longsword:
+          - 4
+          - 1d8+2 slashing
+          - 19-20/x2
+          - _: 2
+            special: 1
+          - str: 2
+          - {}
+          - [longsword, weapon-focus-longsword]
+`
+        const output = parseYAML(updateCalculatedFields(yamlContent))
+        // Should update all str: 2 to str: 4 and 1d8+2 slashing to 1d8+4 slashing
+        expect(output.character.combat.attack.melee._[0]).toBe(5)
+        expect(output.character.combat.attack.melee._[1].str).toBe(4)
+        expect(output.character.combat.attack.melee.longsword[0]).toBe(6)
+        expect(output.character.combat.attack.melee.longsword[3]._).toBe(5)
+        expect(output.character.combat.attack.melee.longsword[4].str).toBe(4)
+        expect(output.character.combat.attack.melee.longsword[1]).toBe(
+          '1d8+4 slashing',
+        )
+      })
+
+      it('should update carrying capacity in movement', () => {
+        const yamlContent = `
+---
+character:
+  abilities:
+    strength: [18, str: 4]
+  movement:
+    capacity:
+      light: 66 lbs
+      medium: 133 lbs
+      heavy: 200 lbs
+      lift: 400 lbs
+      drag: 1200 lbs
+`
+        const output = parseYAML(updateCalculatedFields(yamlContent))
+        // Should update capacity values based on new strength
+        expect(output.character.movement.capacity.light).toBe('100 lbs')
+        expect(output.character.movement.capacity.medium).toBe('200 lbs')
+        expect(output.character.movement.capacity.heavy).toBe('300 lbs')
+        expect(output.character.movement.capacity.lift).toBe('600 lbs')
+        expect(output.character.movement.capacity.drag).toBe('1500 lbs')
+      })
+
+      it('should update skill bonuses that depend on strength', () => {
+        const yamlContent = `
+---
+character:
+  abilities:
+    strength: [18, str: 4]
+  skills:
+    climb: [3, {str: 2, acp: -3, ranks: 4}]
+    jump: [-1, {str: 2, acp: -3}]
+    swim: [-4, {str: 2, acp: -6}]
+`
+        const output = parseYAML(updateCalculatedFields(yamlContent))
+        // Should update all str: 2 to str: 4 in skills
+        expect(output.character.skills.climb[0]).toBe(5)
+        expect(output.character.skills.climb[1].str).toBe(4)
+        expect(output.character.skills.jump[0]).toBe(1)
+        expect(output.character.skills.jump[1].str).toBe(4)
+        expect(output.character.skills.swim[0]).toBe(-2)
+        expect(output.character.skills.swim[1].str).toBe(4)
+      })
+    })
     it('should return the same content for now', () => {
       const yamlContent = `
 ---
