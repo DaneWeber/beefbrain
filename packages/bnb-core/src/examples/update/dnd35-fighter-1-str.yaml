@@ -34,11 +34,11 @@ character:
     attack:
       bab: [1, { fighter: 1 }]
       melee:
-        _: [3, { bab: 1, str: 2 }, ['blind-fight']]
-        longsword: [4, '1d8+2 slashing', '19-20/x2', { _: 3, special: 1 }, { str: 2 }, {}, ['longsword', 'weapon-focus-longsword']]
+        _: [1, { bab: 1, str: 0 }, ['blind-fight']]
+        longsword: [2, '1d8+0 slashing', '19-20/x2', { _: 1, special: 1 }, { str: 0 }, {}, ['longsword', 'weapon-focus-longsword']]
       ranged:
         _: [1, { bab: 1, dex: 1 }]
-      grapple: [3, { bab: 1, str: 2 }]
+      grapple: [1, { bab: 1, str: 0 }]
     defense:
       ac: [11, { base: 10, dex: 1 }]
       touch-ac: [11, { base: 10, dex: 1 }]
@@ -49,14 +49,14 @@ character:
   movement:
     speed: [20, { base: 30, medium-load: -10 }]
     run: [80, { base: x4 }]
-    load: [75.5 lbs, { equipped: 49 lbs, pack: 26.5 lbs }]
-    capacity: { light: 66 lbs, medium: 133 lbs, heavy: 200 lbs, lift: 400 lbs, drag: 1200 lbs }
+    load: [49 lbs, { equipped: 49 lbs }]
+    capacity: { light: 33 lbs, medium: 66 lbs, heavy: 100 lbs, lift: 200 lbs, drag: 600 lbs }
   skills:
     _ranks: [12, { fighter: 8, int: 0, human: 4, cc: -2 }]
     appraise: [2, { int: 0, ranks: 2 }]
     balance: [-2, { dex: 1, acp: -3 }]
     bluff: [-2, { cha: -2 }]
-    climb: [3, { str: 2, acp: -3, ranks: 4 }]
+    climb: [1, { str: 0, acp: -3, ranks: 4 }]
     concentration: [1, { con: 1 }]
     diplomacy: [-2, { cha: -2 }]
     disguise: [-2, { cha: -2 }]
@@ -66,7 +66,7 @@ character:
     heal: [-1, { wis: -1 }]
     hide: [-2, { dex: 1, acp: -3 }]
     intimidate: [2, { cha: -2, ranks: 4 }]
-    jump: [-1, { str: 2, acp: -3 }]
+    jump: [-3, { str: 0, acp: -3 }]
     listen: [-1, { wis: -1 }]
     move-silently: [-2, { dex: 1, acp: -3 }]
     perform-x: [-2, { cha: -2 }]
@@ -75,7 +75,7 @@ character:
     sense-motive: [-1, { wis: -1 }]
     spot: [-1, { wis: -1 }]
     survival: [-1, { wis: -1 }]
-    swim: [-4, { str: 2, acp: -6 }]
+    swim: [-6, { str: 0, acp: -6 }]
     use-rope: [1, { dex: 1 }]
   special:
     feats:
