@@ -78,57 +78,80 @@ export function updateCalculatedFields(yamlContent: string): string {
   const abilities = data.character.abilities
   let hasChanges = false
 
-  for (const [abilityName, abilityData] of Object.entries(abilities)) {
-    if (Array.isArray(abilityData) && abilityData.length >= 3) {
-      const [currentScore, modifierData, calculationDetails] =
-        abilityData as AbilityData
-
-      if (
-        calculationDetails &&
-        typeof calculationDetails === 'object' &&
-        calculationDetails.base !== undefined
-      ) {
-        // Calculate the ability score from base
-        const baseScore = calculationDetails.base
-        let totalScore = baseScore
-
-        // Add other modifiers from the calculation details
-        for (const [key, value] of Object.entries(calculationDetails)) {
-          if (key !== 'base' && typeof value === 'number') {
-            totalScore += value
+  for (const [abilityName, abilityDataRaw] of Object.entries(abilities)) {
+    const abilityData = abilityDataRaw as
+      | [number, Record<string, number>]
+      | [number, Record<string, number>, Record<string, number>]
+    if (Array.isArray(abilityData)) {
+      // If calculation details are present, use them
+      if (abilityData.length >= 3) {
+        const [currentScore, modifierData, calculationDetails] =
+          abilityData as [
+            number,
+            Record<string, number>,
+            Record<string, number>,
+          ]
+        if (
+          calculationDetails &&
+          typeof calculationDetails === 'object' &&
+          typeof (calculationDetails as Record<string, number>).base ===
+            'number'
+        ) {
+          // Calculate the ability score from base
+          const baseScore =
+            (calculationDetails as Record<string, number>).base ?? 0
+          let totalScore: number = baseScore
+          for (const [key, value] of Object.entries(
+            calculationDetails as Record<string, number>,
+          )) {
+            if (key !== 'base' && typeof value === 'number') {
+              totalScore += value
+            }
           }
-        }
-
-        // Calculate D&D 3.5e modifier: (score - 10) / 2 rounded down
-        const modifier = Math.floor((totalScore - 10) / 2)
-
-        // Check if we need to update the values
-        let needsUpdate = false
-
-        if (currentScore !== totalScore) {
-          needsUpdate = true
-        }
-
-        // Check if modifier needs updating
-        if (typeof modifierData === 'object' && modifierData !== null) {
-          const firstKey = Object.keys(modifierData)[0]
-          if (firstKey && modifierData[firstKey] !== modifier) {
+          const modifier = Math.floor((totalScore - 10) / 2)
+          let needsUpdate = false
+          if (currentScore !== totalScore) {
             needsUpdate = true
           }
-        }
-
-        // Update the array with calculated values only if needed
-        if (needsUpdate) {
-          hasChanges = true
-          abilityData[0] = totalScore
-
-          // Update the modifier object - assuming it has a structure like { str: value }
           if (typeof modifierData === 'object' && modifierData !== null) {
-            // Find the first key in the modifier object and update its value
             const firstKey = Object.keys(modifierData)[0]
-            if (firstKey) {
-              abilityData[1] = { [firstKey]: modifier }
+            if (
+              firstKey &&
+              (modifierData as Record<string, number>)[firstKey] !== modifier
+            ) {
+              needsUpdate = true
             }
+          }
+          if (needsUpdate) {
+            hasChanges = true
+            abilityData[0] = totalScore
+            if (typeof modifierData === 'object' && modifierData !== null) {
+              const firstKey = Object.keys(modifierData)[0]
+              if (firstKey) {
+                abilityData[1] = { [firstKey]: modifier }
+              }
+            }
+          }
+        }
+      } else if (Array.isArray(abilityData) && abilityData.length === 2) {
+        // If only [score, {mod}] is present, recalculate modifier from score
+        const [score, modifierData] = abilityData as [
+          number,
+          Record<string, number>,
+        ]
+        if (
+          typeof score === 'number' &&
+          typeof modifierData === 'object' &&
+          modifierData !== null
+        ) {
+          const modifier = Math.floor((score - 10) / 2)
+          const firstKey = Object.keys(modifierData)[0]
+          if (
+            firstKey &&
+            (modifierData as Record<string, number>)[firstKey] !== modifier
+          ) {
+            hasChanges = true
+            abilityData[1] = { [firstKey]: modifier }
           }
         }
       }

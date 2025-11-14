@@ -146,6 +146,31 @@ character:
 `)
         expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(expected)
       })
+      it('should calculate modifiers with assumed base values', () => {
+        const yamlContent = `
+---
+character:
+  abilities:
+    strength: [1, str: 0]
+    dexterity: [5, dex: 0]
+    constitution: [6, con: 0]
+    intelligence: [10, int: 0]
+    wisdom: [11, wis: 0]
+    charisma: [18, cha: 0]
+`
+        const expected = parseYAML(`
+---
+character:
+  abilities:
+    strength: [1, str: -5]
+    dexterity: [5, dex: -3]
+    constitution: [6, con: -2]
+    intelligence: [10, int: 0]
+    wisdom: [11, wis: 0]
+    charisma: [18, cha: 4]
+`)
+        expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(expected)
+      })
       describe('all six abilities with multiple components', () => {
         const yamlContent = `
 ---
