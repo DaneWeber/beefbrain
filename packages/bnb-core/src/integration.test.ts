@@ -52,5 +52,29 @@ describe('Beef Brain Core Integration', () => {
         expect(updateCalculatedFields(input)).toEqual(expected)
       })
     })
+    describe('dnd35-fighter-1-dex.yaml recalculate dexterity', () => {
+      const input = readFileSync(
+        __dirname + '/examples/update/dnd35-fighter-1-dex.yaml',
+        'utf8',
+      )
+      const expected = readFileSync(
+        __dirname + '/examples/final/dnd35-fighter-1.yaml',
+        'utf8',
+      )
+      // Write output for manual inspection
+      // writeFileSync(
+      //   __dirname + '/ultra-compact-dnd35-fighter-1.yaml',
+      //   updateCalculatedFields(input),
+      // )
+
+      it('should produce accurately updated output', () => {
+        expect(parseYAML(updateCalculatedFields(input))).toEqual(
+          parseYAML(expected),
+        )
+      })
+      it('should produce otherwise identical updated output', () => {
+        expect(updateCalculatedFields(input)).toEqual(expected)
+      })
+    })
   })
 })
