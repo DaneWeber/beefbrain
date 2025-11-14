@@ -110,30 +110,127 @@ function setSelectiveFlowStyle(node: unknown, path: string[] = []) {
  * @public
  */
 export function updateCalculatedFields(yamlContent: string): string {
-  // Parse YAML content
   const data = parseYAML(yamlContent)
   let hasChanges = false
   const abilities = data.character?.abilities || {}
 
+  // Combat update logic: propagate strength modifier to melee attacks and weapons
+  if (data.character?.combat?.attack && abilities.strength) {
+    let strengthMod: number | undefined
+    if (Array.isArray(abilities.strength)) {
+      const modObj = abilities.strength[1]
+      if (modObj && typeof modObj === 'object' && 'str' in modObj) {
+        strengthMod = modObj.str
+      }
+    }
+    if (typeof strengthMod === 'number') {
+      // Update generic melee attack
+      const melee = data.character.combat.attack.melee
+      if (melee && melee._ && Array.isArray(melee._) && melee._.length >= 2) {
+        const [currentValue, modifiers] = melee._ as [number, Record<string, number>]
+        if (modifiers && typeof modifiers === 'object') {
+          if (modifiers.str !== strengthMod) {
+            modifiers.str = strengthMod
+            hasChanges = true
+          }
+          // Recalculate melee attack value
+          let newValue = 0
+          for (const value of Object.values(modifiers)) {
+            newValue += typeof value === 'number' ? value : 0
+          }
+          if (currentValue !== newValue) {
+            melee._[0] = newValue
+            hasChanges = true
+          }
+        }
+      }
+      // Update named melee weapons
+      for (const [weaponName, weaponArr] of Object.entries(melee)) {
+        if (weaponName === '_') continue
+        if (Array.isArray(weaponArr) && weaponArr.length >= 5) {
+          // weaponArr[4] is usually the str modifier object
+          const strObj = weaponArr[4]
+          if (strObj && typeof strObj === 'object' && 'str' in strObj) {
+            if (strObj.str !== strengthMod) {
+              strObj.str = strengthMod
+              hasChanges = true
+            }
+          }
+          // Propagate generic melee bonus to weaponArr[3]._
+          if (melee._ && Array.isArray(melee._) && typeof melee._[0] === 'number') {
+            if (weaponArr[3] && typeof weaponArr[3] === 'object') {
+              if (weaponArr[3]._ !== melee._[0]) {
+                weaponArr[3]._ = melee._[0]
+                hasChanges = true
+              }
+            }
+          }
+          // Sum all numeric values in weaponArr[3] for total attack bonus
+          let atkBonus = 0
+          if (weaponArr[3] && typeof weaponArr[3] === 'object') {
+            for (const value of Object.values(weaponArr[3])) {
+              atkBonus += typeof value === 'number' ? value : 0
+            }
+          }
+          if (typeof weaponArr[0] === 'number' && weaponArr[0] !== atkBonus) {
+            weaponArr[0] = atkBonus
+            hasChanges = true
+          }
+          // Update weapon damage string (e.g., '1d8+2 slashing')
+          if (typeof weaponArr[1] === 'string') {
+            weaponArr[1] = weaponArr[1].replace(/1d8\+[0-9]+/, `1d8+${strengthMod}`)
+            hasChanges = true
+          }
+        }
+      }
+    }
+  }
+  // ...existing code...
+
+  // Skill update logic: propagate strength modifier to skills
+  if (data.character?.skills && abilities.strength) {
+    // Determine strength modifier
+    let strengthMod: number | undefined
+    if (Array.isArray(abilities.strength)) {
+      const modObj = abilities.strength[1]
+      if (modObj && typeof modObj === 'object' && 'str' in modObj) {
+        strengthMod = modObj.str
+      }
+    }
+    if (typeof strengthMod === 'number') {
+      for (const [skillName, skillArr] of Object.entries(data.character.skills)) {
+        if (Array.isArray(skillArr) && skillArr.length >= 2) {
+          const [currentValue, modifiers] = skillArr as [number, Record<string, number>]
+          if (modifiers && typeof modifiers === 'object' && 'str' in modifiers) {
+            // Update str modifier
+            if (modifiers.str !== strengthMod) {
+              modifiers.str = strengthMod
+              hasChanges = true
+            }
+            // Recalculate skill value
+            let newValue = 0
+            for (const value of Object.values(modifiers)) {
+              newValue += typeof value === 'number' ? value : 0
+            }
+            if (currentValue !== newValue) {
+              skillArr[0] = newValue
+              hasChanges = true
+            }
+          }
+        }
+      }
+    }
+  }
+  // ...existing code...
+
   // Ability score calculation logic (focus on strength)
   if (data.character?.abilities) {
-    for (const [abilityName, abilityArr] of Object.entries(
-      data.character.abilities,
-    )) {
+    for (const [abilityName, abilityArr] of Object.entries(data.character.abilities)) {
       if (Array.isArray(abilityArr)) {
         // If calculation details are present, use them
         if (abilityArr.length >= 3) {
-          const [currentScore, modifierData, calculationDetails] =
-            abilityArr as [
-              number,
-              Record<string, number>,
-              Record<string, number>,
-            ]
-          if (
-            calculationDetails &&
-            typeof calculationDetails === 'object' &&
-            typeof calculationDetails.base === 'number'
-          ) {
+          const [currentScore, modifierData, calculationDetails] = abilityArr as [number, Record<string, number>, Record<string, number>]
+          if (calculationDetails && typeof calculationDetails === 'object' && typeof calculationDetails.base === 'number') {
             let totalScore = calculationDetails.base
             for (const [key, value] of Object.entries(calculationDetails)) {
               if (key !== 'base' && typeof value === 'number') {
@@ -159,15 +256,8 @@ export function updateCalculatedFields(yamlContent: string): string {
           }
         } else if (abilityArr.length === 2) {
           // If only [score, {mod}] is present, recalculate modifier from score
-          const [score, modifierData] = abilityArr as [
-            number,
-            Record<string, number>,
-          ]
-          if (
-            typeof score === 'number' &&
-            typeof modifierData === 'object' &&
-            modifierData !== null
-          ) {
+          const [score, modifierData] = abilityArr as [number, Record<string, number>]
+          if (typeof score === 'number' && typeof modifierData === 'object' && modifierData !== null) {
             const modifier = Math.floor((score - 10) / 2)
             const firstKey = Object.keys(modifierData)[0]
             if (firstKey && modifierData[firstKey] !== modifier) {

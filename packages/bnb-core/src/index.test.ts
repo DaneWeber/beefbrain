@@ -71,10 +71,10 @@ character:
 `
         const output = parseYAML(updateCalculatedFields(yamlContent))
         // Should update all str: 2 to str: 4 and 1d8+2 slashing to 1d8+4 slashing
-        expect(output.character.combat.attack.melee._[0]).toBe(5)
         expect(output.character.combat.attack.melee._[1].str).toBe(4)
-        expect(output.character.combat.attack.melee.longsword[0]).toBe(6)
+        expect(output.character.combat.attack.melee._[0]).toBe(5)
         expect(output.character.combat.attack.melee.longsword[3]._).toBe(5)
+        expect(output.character.combat.attack.melee.longsword[0]).toBe(6)
         expect(output.character.combat.attack.melee.longsword[4].str).toBe(4)
         expect(output.character.combat.attack.melee.longsword[1]).toBe(
           '1d8+4 slashing',
