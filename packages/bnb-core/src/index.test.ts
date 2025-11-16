@@ -44,9 +44,26 @@ abilities:
   })
 
   describe('updateCalculatedFields', () => {
-    describe('strength modifier propagation', () => {
-      it('should update melee attack bonus and weapon damage in combat', () => {
-        const yamlContent = `
+    it('should return the same content for now', () => {
+      const yamlContent = `
+---
+character:
+  abilities:
+    strength: [15, str: 2, { base: 11, orc: 2, hd: 2 }]
+`
+      expect(updateCalculatedFields(yamlContent)).toBe(yamlContent)
+    })
+    it('should fail on invalid YAML', () => {
+      const yamlContent = `
+---
+character: abilities: strength: [15, str: 2, { base: 11, orc: 2, hd: 2 }]
+`
+      expect(() => updateCalculatedFields(yamlContent)).toThrowError()
+    })
+    describe('DnD 3.5e specific tests', () => {
+      describe('strength modifier propagation', () => {
+        it('should update melee attack bonus and weapon damage in combat', () => {
+          const yamlContent = `
 ---
 character:
   abilities:
@@ -69,20 +86,19 @@ character:
           - {}
           - [longsword, weapon-focus-longsword]
 `
-        const output = parseYAML(updateCalculatedFields(yamlContent))
-        // Should update all str: 2 to str: 4 and 1d8+2 slashing to 1d8+4 slashing
-        expect(output.character.combat.attack.melee._[1].str).toBe(4)
-        expect(output.character.combat.attack.melee._[0]).toBe(5)
-        expect(output.character.combat.attack.melee.longsword[3]._).toBe(5)
-        expect(output.character.combat.attack.melee.longsword[0]).toBe(6)
-        expect(output.character.combat.attack.melee.longsword[4].str).toBe(4)
-        expect(output.character.combat.attack.melee.longsword[1]).toBe(
-          '1d8+4 slashing',
-        )
-      })
-
-      it('should update carrying capacity in movement', () => {
-        const yamlContent = `
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          // Should update all str: 2 to str: 4 and 1d8+2 slashing to 1d8+4 slashing
+          expect(output.character.combat.attack.melee._[1].str).toBe(4)
+          expect(output.character.combat.attack.melee._[0]).toBe(5)
+          expect(output.character.combat.attack.melee.longsword[3]._).toBe(5)
+          expect(output.character.combat.attack.melee.longsword[0]).toBe(6)
+          expect(output.character.combat.attack.melee.longsword[4].str).toBe(4)
+          expect(output.character.combat.attack.melee.longsword[1]).toBe(
+            '1d8+4 slashing',
+          )
+        })
+        it('should update carrying capacity in movement', () => {
+          const yamlContent = `
 ---
 character:
   abilities:
@@ -95,17 +111,16 @@ character:
       lift: 400 lbs
       drag: 1000 lbs
 `
-        const output = parseYAML(updateCalculatedFields(yamlContent))
-        // Should update capacity values based on new strength
-        expect(output.character.movement.capacity.light).toBe('100 lbs')
-        expect(output.character.movement.capacity.medium).toBe('200 lbs')
-        expect(output.character.movement.capacity.heavy).toBe('300 lbs')
-        expect(output.character.movement.capacity.lift).toBe('600 lbs')
-        expect(output.character.movement.capacity.drag).toBe('1500 lbs')
-      })
-
-      it('should update skill bonuses that depend on strength', () => {
-        const yamlContent = `
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          // Should update capacity values based on new strength
+          expect(output.character.movement.capacity.light).toBe('100 lbs')
+          expect(output.character.movement.capacity.medium).toBe('200 lbs')
+          expect(output.character.movement.capacity.heavy).toBe('300 lbs')
+          expect(output.character.movement.capacity.lift).toBe('600 lbs')
+          expect(output.character.movement.capacity.drag).toBe('1500 lbs')
+        })
+        it('should update skill bonuses that depend on strength', () => {
+          const yamlContent = `
 ---
 character:
   abilities:
@@ -115,33 +130,108 @@ character:
     jump: [-1, {str: 2, acp: -3}]
     swim: [-4, {str: 2, acp: -6}]
 `
-        const output = parseYAML(updateCalculatedFields(yamlContent))
-        // Should update all str: 2 to str: 4 in skills
-        expect(output.character.skills.climb[0]).toBe(5)
-        expect(output.character.skills.climb[1].str).toBe(4)
-        expect(output.character.skills.jump[0]).toBe(1)
-        expect(output.character.skills.jump[1].str).toBe(4)
-        expect(output.character.skills.swim[0]).toBe(-2)
-        expect(output.character.skills.swim[1].str).toBe(4)
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          // Should update all str: 2 to str: 4 in skills
+          expect(output.character.skills.climb[0]).toBe(5)
+          expect(output.character.skills.climb[1].str).toBe(4)
+          expect(output.character.skills.jump[0]).toBe(1)
+          expect(output.character.skills.jump[1].str).toBe(4)
+          expect(output.character.skills.swim[0]).toBe(-2)
+          expect(output.character.skills.swim[1].str).toBe(4)
+        })
       })
-    })
-    it('should return the same content for now', () => {
-      const yamlContent = `
+      describe('dexterity modifier propagation', () => {
+        it('should update ranged attack bonus', () => {
+          const yamlContent = `
 ---
 character:
   abilities:
-    strength: [15, str: 2, { base: 11, orc: 2, hd: 2 }]
+    dexterity: [15, dex: -4]
+  combat:
+    attack:
+      ranged:
+        _:
+          - -3
+          - bab: 1
+            dex: -4
+          - [blind-fight]
+        shortbow:
+          - -2
+          - 1d6 piercing
+          - 19-20/x2
+          - _: -3
+            mw: 1
+          - {}
+          - {}
+          - [shortbow, mw]
 `
-      expect(updateCalculatedFields(yamlContent)).toBe(yamlContent)
-    })
-    it('should fail on invalid YAML', () => {
-      const yamlContent = `
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          // Should update all dex to dex: 2
+          expect(output.character.combat.attack.ranged._[1].dex).toBe(2)
+          expect(output.character.combat.attack.ranged._[0]).toBe(3)
+          expect(output.character.combat.attack.ranged.shortbow[3]._).toBe(3)
+          expect(output.character.combat.attack.ranged.shortbow[0]).toBe(4)
+          expect(output.character.combat.attack.ranged.shortbow[1]).toBe(
+            '1d6 piercing',
+          )
+        })
+        it('should update skill bonuses that depend on dexterity', () => {
+          const yamlContent = `
 ---
-character: abilities: strength: [15, str: 2, { base: 11, orc: 2, hd: 2 }]
+character:
+  abilities:
+    dexterity: [15, dex: 0]
+  skills:
+    balance: [-7, {dex: -4, acp: -3}]
+    hide: [-7, {dex: -4, acp: -3, ranks: 2}]
+    ride: [-4, dex: -4]
 `
-      expect(() => updateCalculatedFields(yamlContent)).toThrowError()
-    })
-    describe('DnD 3.5e specific tests', () => {
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          // Should update all dex to dex: 2 in skills
+          expect(output.character.skills.balance[0]).toBe(-1)
+          expect(output.character.skills.balance[1].dex).toBe(2)
+          expect(output.character.skills.hide[0]).toBe(1)
+          expect(output.character.skills.hide[1].dex).toBe(2)
+          expect(output.character.skills.ride[0]).toBe(2)
+          expect(output.character.skills.ride[1].dex).toBe(2)
+        })
+        it('should update initiative based on dexterity', () => {
+          const yamlContent = `
+---
+character:
+  abilities:
+    dexterity: [15, dex: 0]
+  combat:
+    initiative: [-4, dex: -4]
+    saves:
+      fortitude: [1, {rogue: 0, con: 1}]
+      reflex: [-2, {rogue: 2, dex: -4}]
+      will: [-1, {rogue: 0, wis: -1}]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          // Should update initiative dex to dex: 2
+          expect(output.character.combat.initiative[0]).toBe(2)
+          expect(output.character.combat.initiative[1].dex).toBe(2)
+        })
+        it('should reflex save based on dexterity', () => {
+          const yamlContent = `
+---
+character:
+  abilities:
+    dexterity: [15, dex: 0]
+  combat:
+    initiative: [-4, dex: -4]
+    saves:
+      fortitude: [1, {rogue: 0, con: 1}]
+      reflex: [-2, {rogue: 2, dex: -4}]
+      will: [-1, {rogue: 0, wis: -1}]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          // Should update reflex save dex to dex: 2
+          expect(output.character.combat.saves.reflex[0]).toBe(4)
+          expect(output.character.combat.saves.reflex[1].dex).toBe(2)
+        })
+      })
       it('should calculate the correct strength without modifiers', () => {
         const yamlContent = `
 ---
