@@ -454,7 +454,7 @@ export function updateCalculatedFields(yamlContent: string): string {
 
     // Strip curly braces from single-key maps in flow-style arrays
     // e.g. [14, {str: 2}] => [14, str: 2], but leave multi-key maps untouched
-    result = result.replace(/\{\s*([a-zA-Z0-9_-]+):\s*([^},]+)\s*\}/g, '$1: $2')
+    result = result.replace(/\{([^:}]+):\s([^},]+)\}/g, '$1: $2')
 
     return result
   }
