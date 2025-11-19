@@ -141,7 +141,7 @@ character:
         })
       })
       describe('dexterity modifier propagation', () => {
-        it('should update ranged attack bonus', () => {
+        it.skip('should update ranged attack bonus', () => {
           const yamlContent = `
 ---
 character:

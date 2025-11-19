@@ -1,4 +1,5 @@
 import { parse as parseYAML, Document, YAMLSeq, YAMLMap } from 'yaml'
+import { validateBeefBrainData } from './validateBeefBrainData'
 
 /**
  * Beef Brain Core Library
@@ -35,28 +36,6 @@ type BeefBrainData = {
   character?: Character
 }
 
-/**
- * Validates that a YAML file is a valid Beef Brain data file.
- * @param yamlContent - The YAML content to validate
- * @returns True if valid, false otherwise
- * @public
- */
-export function validateBeefBrainData(yamlContent: string): boolean {
-  try {
-    // Check if content is empty (valid case)
-    if (!yamlContent.trim()) {
-      return true
-    }
-
-    // Use the yaml library to parse and validate the content
-    parseYAML(yamlContent)
-    return true
-  } catch {
-    // If parsing fails, the YAML is invalid
-    return false
-  }
-}
-
 // Paths to apply flow style (wildcards supported for arrays)
 const flowStylePaths = [
   'character.abilities.*',
@@ -75,6 +54,8 @@ const flowStylePaths = [
   'character.inventory._on',
   'character.inventory.*.*',
 ]
+
+export { validateBeefBrainData }
 
 function setSelectiveFlowStyle(node: unknown, path: string[] = []) {
   const pathStr = path.join('.')
