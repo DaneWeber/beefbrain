@@ -460,18 +460,5 @@ export function updateCalculatedFields(yamlContent: string): string {
   return yamlContent
 }
 
-/**
- * Applies a modifier to a Beef Brain data file.
- * @param yamlContent - The YAML content to modify
- * @param modifier - The modifier to apply
- * @returns Modified YAML content
- * @public
- */
-export function applyModifier(yamlContent: string, modifier: unknown): string {
-  // TODO: Implement modifier application
-  // Note: modifier applied to content of length: yamlContent.length
-  return yamlContent
-}
-
 // Export all functions
 export * from './types'
