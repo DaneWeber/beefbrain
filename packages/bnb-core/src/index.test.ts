@@ -5,8 +5,7 @@ import { validateBeefBrainData, updateCalculatedFields } from './index'
 describe('Beef Brain Core', () => {
   describe('validateBeefBrainData', () => {
     it('should validate a basic YAML structure', () => {
-      const yamlContent = `
----
+      const yamlContent = `---
 character:
   abilities:
     strength: [15, str: 2, { base: 11, orc: 2, hd: 2 }]
@@ -20,15 +19,13 @@ character:
 
     describe('invalid YAML cases', () => {
       it('should invalidate all keys on one line', () => {
-        const yamlContent = `
----
+        const yamlContent = `---
 character: abilities: strength: [15, str: 2, { base: 11, orc: 2, hd: 2 }]
 `
         expect(validateBeefBrainData(yamlContent)).toBe(false)
       })
       it('should invalidate bad indentation', () => {
-        const yamlContent = `
----
+        const yamlContent = `---
 character:
 abilities:
   strength: [15, 
@@ -45,8 +42,7 @@ abilities:
 
   describe('updateCalculatedFields', () => {
     it('should return the same content for now', () => {
-      const yamlContent = `
----
+      const yamlContent = `---
 character:
   abilities:
     strength: [15, str: 2, { base: 11, orc: 2, hd: 2 }]
@@ -54,8 +50,7 @@ character:
       expect(updateCalculatedFields(yamlContent)).toBe(yamlContent)
     })
     it('should fail on invalid YAML', () => {
-      const yamlContent = `
----
+      const yamlContent = `---
 character: abilities: strength: [15, str: 2, { base: 11, orc: 2, hd: 2 }]
 `
       expect(() => updateCalculatedFields(yamlContent)).toThrowError()
@@ -63,8 +58,7 @@ character: abilities: strength: [15, str: 2, { base: 11, orc: 2, hd: 2 }]
     describe('DnD 3.5e specific tests', () => {
       describe('strength modifier propagation', () => {
         it('should update melee attack bonus and weapon damage in combat', () => {
-          const yamlContent = `
----
+          const yamlContent = `---
 character:
   abilities:
     strength: [18, str: 4]
@@ -98,8 +92,7 @@ character:
           )
         })
         it('should update carrying capacity in movement', () => {
-          const yamlContent = `
----
+          const yamlContent = `---
 character:
   abilities:
     strength: [18, str: 4]
@@ -120,8 +113,7 @@ character:
           expect(output.character.movement.capacity.drag).toBe('1500 lbs')
         })
         it('should update skill bonuses that depend on strength', () => {
-          const yamlContent = `
----
+          const yamlContent = `---
 character:
   abilities:
     strength: [18, str: 4]
@@ -142,8 +134,7 @@ character:
       })
       describe('dexterity modifier propagation', () => {
         it.skip('should update ranged attack bonus', () => {
-          const yamlContent = `
----
+          const yamlContent = `---
 character:
   abilities:
     dexterity: [15, dex: -4]
@@ -176,8 +167,7 @@ character:
           )
         })
         it('should update skill bonuses that depend on dexterity', () => {
-          const yamlContent = `
----
+          const yamlContent = `---
 character:
   abilities:
     dexterity: [15, dex: 0]
@@ -196,8 +186,7 @@ character:
           expect(output.character.skills.ride[1].dex).toBe(2)
         })
         it('should update initiative based on dexterity', () => {
-          const yamlContent = `
----
+          const yamlContent = `---
 character:
   abilities:
     dexterity: [15, dex: 0]
@@ -214,8 +203,7 @@ character:
           expect(output.character.combat.initiative[1].dex).toBe(2)
         })
         it('should reflex save based on dexterity', () => {
-          const yamlContent = `
----
+          const yamlContent = `---
 character:
   abilities:
     dexterity: [15, dex: 0]
@@ -233,14 +221,12 @@ character:
         })
       })
       it('should calculate the correct strength without modifiers', () => {
-        const yamlContent = `
----
+        const yamlContent = `---
 character:
   abilities:
     strength: [99, str: 99, { base: 10 }]
 `
-        const expected = parseYAML(`
----
+        const expected = parseYAML(`---
 character:
   abilities:
     strength: [10, str: 0, { base: 10 }]
@@ -248,14 +234,12 @@ character:
         expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(expected)
       })
       it('should calculate the lowest strength without modifiers', () => {
-        const yamlContent = `
----
+        const yamlContent = `---
 character:
   abilities:
     strength: [10, str: 0, { base: 1 }]
 `
-        const expected = parseYAML(`
----
+        const expected = parseYAML(`---
 character:
   abilities:
     strength: [1, str: -5, { base: 1 }]
@@ -263,14 +247,12 @@ character:
         expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(expected)
       })
       it('should calculate the first negative modifier', () => {
-        const yamlContent = `
----
+        const yamlContent = `---
 character:
   abilities:
     strength: [0, str: 0, { base: 9 }]
 `
-        const expected = parseYAML(`
----
+        const expected = parseYAML(`---
 character:
   abilities:
     strength: [9, str: -1, { base: 9 }]
@@ -278,14 +260,12 @@ character:
         expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(expected)
       })
       it('should calculate add multiple score components', () => {
-        const yamlContent = `
----
+        const yamlContent = `---
 character:
   abilities:
     strength: [0, str: 0, { base: 7, orc: 2, hd: 2, gloves: 1 }]
 `
-        const expected = parseYAML(`
----
+        const expected = parseYAML(`---
 character:
   abilities:
     strength: [12, str: 1, { base: 7, orc: 2, hd: 2, gloves: 1 }]
@@ -293,8 +273,7 @@ character:
         expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(expected)
       })
       it('should calculate all six abilities with only base values', () => {
-        const yamlContent = `
----
+        const yamlContent = `---
 character:
   abilities:
     strength: [0, str: 0, { base: 1 }]
@@ -304,8 +283,7 @@ character:
     wisdom: [0, wis: 0, { base: 11 }]
     charisma: [0, cha: 0, { base: 18 }]
 `
-        const expected = parseYAML(`
----
+        const expected = parseYAML(`---
 character:
   abilities:
     strength: [1, str: -5, { base: 1 }]
@@ -318,8 +296,7 @@ character:
         expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(expected)
       })
       it('should calculate modifiers with assumed base values', () => {
-        const yamlContent = `
----
+        const yamlContent = `---
 character:
   abilities:
     strength: [1, str: 0]
@@ -329,8 +306,7 @@ character:
     wisdom: [11, wis: 0]
     charisma: [18, cha: 0]
 `
-        const expected = parseYAML(`
----
+        const expected = parseYAML(`---
 character:
   abilities:
     strength: [1, str: -5]
@@ -343,8 +319,7 @@ character:
         expect(parseYAML(updateCalculatedFields(yamlContent))).toEqual(expected)
       })
       describe('all six abilities with multiple components', () => {
-        const yamlContent = `
----
+        const yamlContent = `---
 character:
   abilities:
     strength: [0, str: 0, {base: 1, orc: 4, hd: 2, belt: 4}]
@@ -354,8 +329,7 @@ character:
     wisdom: [0, wis: 0, {base: 11, orc: -2}]
     charisma: [0, cha: 0, {base: 18, orc: -2, cloak: 4}]
 `
-        const expectedYaml = `
----
+        const expectedYaml = `---
 character:
   abilities:
     strength: [11, str: 0, {base: 1, orc: 4, hd: 2, belt: 4}]

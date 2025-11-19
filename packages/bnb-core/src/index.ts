@@ -446,14 +446,15 @@ export function updateCalculatedFields(yamlContent: string): string {
     setSelectiveFlowStyle(doc.contents)
 
     // Convert to string with no line length restriction and no flow collection padding
-    let result = doc.toString({ lineWidth: 0, flowCollectionPadding: false })
+    let result = doc.toString({
+      lineWidth: 0,
+      flowCollectionPadding: false,
+      directives: true,
+    })
 
     // Strip curly braces from single-key maps in flow-style arrays
     // e.g. [14, {str: 2}] => [14, str: 2], but leave multi-key maps untouched
     result = result.replace(/\{\s*([a-zA-Z0-9_-]+):\s*([^},]+)\s*\}/g, '$1: $2')
-
-    // Add YAML document markers to match expected format
-    result = '\n---\n' + result
 
     return result
   }
