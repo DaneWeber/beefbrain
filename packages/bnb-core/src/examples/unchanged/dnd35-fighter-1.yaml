@@ -1,0 +1,108 @@
+---
+character:
+  description:
+    name: Landorf the Human Fighter
+    race: Human
+    alignment: LN
+    size: M
+    sex: M
+    age: 25 years
+    height: 6' 0"
+    weight: 200 lbs
+    eyes: Jade
+    hair: Dark
+    complexion: Fair
+    build: Ripped
+  abilities:
+    strength: [14, str: 2]
+    dexterity: [13, dex: 1]
+    constitution: [12, con: 1]
+    intelligence: [10, int: 0]
+    wisdom: [9, wis: -1]
+    charisma: [7, cha: -2]
+  levels:
+    xp: 0
+    hd: [1, 10]
+    hp: [10, {max-hp: 10, damage: 0}]
+    max-hp: [11, {con: 1, rolls: 10}]
+    fighter: [1, {hd: 10, hp: [10]}]
+  combat:
+    initiative: [5, {dex: 1, feats: 4}]
+    saves:
+      fortitude: [3, {fighter: 2, con: 1}]
+      reflex: [1, {fighter: 0, dex: 1}]
+      will: [-1, {fighter: 0, wis: -1}]
+    attack:
+      bab: [1, fighter: 1]
+      melee:
+        _: [3, {bab: 1, str: 2}, [blind-fight]]
+        longsword: [4, 1d8+2 slashing, 19-20/x2, {_: 3, special: 1}, str: 2, {}, [longsword, weapon-focus-longsword]]
+      ranged:
+        _: [1, {bab: 1, dex: 1}]
+      grapple: [3, {bab: 1, str: 2}]
+    defense:
+      ac: [11, {base: 10, dex: 1}]
+      touch-ac: [11, {base: 10, dex: 1}]
+      flat-footed-ac: [10, base: 10]
+      acp: [-3, medium-load: -3]
+      max-dex: [3, medium-load: 3]
+      special: [blind-fight]
+  movement:
+    speed: [20, {base: 30, medium-load: -10}]
+    run: [80, base: x4]
+    load: [75.5 lbs, {equipped: 49 lbs, pack: 26.5 lbs}]
+    capacity: {light: 58 lbs, medium: 116 lbs, heavy: 175 lbs, lift: 350 lbs, drag: 875 lbs}
+  skills:
+    _ranks: [12, {fighter: 8, int: 0, human: 4, cc: -2}]
+    appraise: [2, {int: 0, ranks: 2}]
+    balance: [-2, {dex: 1, acp: -3}]
+    bluff: [-2, cha: -2]
+    climb: [3, {str: 2, acp: -3, ranks: 4}]
+    concentration: [1, con: 1]
+    diplomacy: [-2, cha: -2]
+    disguise: [-2, cha: -2]
+    escape-artist: [-2, {dex: 1, acp: -3}]
+    forgery: [0, int: 0]
+    gather-information: [-2, cha: -2]
+    heal: [-1, wis: -1]
+    hide: [-2, {dex: 1, acp: -3}]
+    intimidate: [2, {cha: -2, ranks: 4}]
+    jump: [-1, {str: 2, acp: -3}]
+    listen: [-1, wis: -1]
+    move-silently: [-2, {dex: 1, acp: -3}]
+    perform-x: [-2, cha: -2]
+    ride: [1, dex: 1]
+    search: [0, int: 0]
+    sense-motive: [-1, wis: -1]
+    spot: [-1, wis: -1]
+    survival: [-1, wis: -1]
+    swim: [-4, {str: 2, acp: -6}]
+    use-rope: [1, dex: 1]
+  special:
+    feats:
+      - [Weapon Focus (Longsword), fighter: 1, ["combat.attack.melee[longsword]", {atk: 1, note: weapon-focus-longsword}]]
+      - [Blind-Fight, level: 1, [combat.defense, blind-fight, combat.attack.melee, blind-fight]]
+      - [Improved Initiative, human: 1, [combat.initiative, 4]]
+  inventory:
+    _on: [equipped, pack]
+    money:
+      _total: 20.5 gp
+      coins: [20.5 gp, 0.5 lbs, pack, {pp: 0, gp: 20, sp: 5, cp: 0}, 0.02 lbs]
+    equipped:
+      - [longsword, 1, weapon, 4 lbs, 15 gp, {damage: 1d8 slashing, crit: 19-20/x2}, [m, martial, melee]]
+      - [chain shirt, 1, armor, 25 lbs, 100 gp, {ac: 5, max-dex: 4, acp: -2, asfc: 20%}, [m, light-armor]]
+      - [heavy steel shield, 1, shield, 15 lbs, 30 gp, {ac: 2, acp: -2, asfc: 15%}, [m]]
+      - [travelers outfit, 1, gear, 5 lbs, 1 gp, [m]]
+    pack:
+      - [backpack, 1, container, 2 lbs, 2 gp, [m]]
+      - [bedroll, 1, gear, 5 lbs, 0.1 gp, [m]]
+      - [trail rations (per day), 5, supplies, 1 lbs, 0.1 gp, [m]]
+      - [waterskin, 1, gear, 4 lbs, 1 gp, [m]]
+      - [50 ft. Hemp Rope, 1, gear, 10 lbs, 1 gp]
+    saddle-bags:
+      - [trail rations (per day), 20, supplies, 1 lbs, 0.1 gp, [m]]
+    cart:
+      - [53 gallon barrel, 1, container, 30 lbs, 2 gp]
+      - [gallon of water, 42.5, supplies, 8 lbs, 0 gp]
+    tavern-safe:
+      - [golden lyre, 1, gear, 3 lbs, 100 gp, [m, mw, musical instrument]]
