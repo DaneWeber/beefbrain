@@ -41,11 +41,11 @@ abilities:
   })
 
   describe('updateCalculatedFields', () => {
-    it('should return the same content for now', () => {
+    it('should return the same content when no change is necessary', () => {
       const yamlContent = `---
 character:
   abilities:
-    strength: [15, str: 2, { base: 11, orc: 2, hd: 2 }]
+    strength: [15, str: 2, {base: 11, orc: 2, hd: 2}]
 `
       expect(updateCalculatedFields(yamlContent)).toBe(yamlContent)
     })
