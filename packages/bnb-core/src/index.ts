@@ -1,5 +1,6 @@
-import { parse as parseYAML, Document, YAMLSeq, YAMLMap } from 'yaml'
+import { parse as parseYAML, Document } from 'yaml'
 import { validateBeefBrainData } from './validateBeefBrainData'
+import { setSelectiveFlowStyle } from './setSelectiveFlowStyle'
 
 /**
  * Beef Brain Core Library
@@ -38,53 +39,7 @@ type BeefBrainData = {
   character?: Character
 }
 
-// Paths to apply flow style (wildcards supported for arrays)
-const flowStylePaths = [
-  'character.abilities.*',
-  'character.levels.*',
-  'character.combat.initiative',
-  'character.combat.saves.*',
-  'character.combat.attack.bab',
-  'character.combat.attack.grapple',
-  'character.combat.attack.melee.*',
-  'character.combat.attack.ranged.*',
-  'character.combat.defense.*',
-  'character.movement.*',
-  'character.movement.capacity',
-  'character.skills.*',
-  'character.special.feats.*',
-  'character.inventory._on',
-  'character.inventory.*.*',
-]
-
 export { validateBeefBrainData }
-
-function setSelectiveFlowStyle(node: unknown, path: string[] = []) {
-  for (const pattern of flowStylePaths) {
-    const patternParts = pattern.split('.')
-    const pathParts = path
-    if (
-      patternParts.length === pathParts.length &&
-      patternParts.every((part, i) => part === '*' || part === pathParts[i])
-    ) {
-      if (node instanceof YAMLSeq || node instanceof YAMLMap) {
-        node.flow = true
-      }
-      break
-    }
-  }
-  if (node instanceof YAMLSeq) {
-    node.items.forEach((item, idx) =>
-      setSelectiveFlowStyle(item, [...path, idx.toString()]),
-    )
-  } else if (node instanceof YAMLMap) {
-    node.items.forEach((item) => {
-      if (item && item.key && item.value) {
-        setSelectiveFlowStyle(item.value, [...path, String(item.key)])
-      }
-    })
-  }
-}
 
 /**
  * Updates the calculated fields in a Beef Brain data file.
