@@ -242,54 +242,38 @@ export function updateCalculatedFields(yamlContent: string): string {
 function calculateAbilityScores(character: Character, hasChanges: boolean) {
   for (const [abilityName, abilityArr] of Object.entries(character.abilities)) {
     if (Array.isArray(abilityArr)) {
-      // If calculation details are present, use them
-      if (abilityArr.length === 3) {
-        const [currentScore, modifierData, calculationDetails] = abilityArr
-        if (
-          calculationDetails &&
-          typeof calculationDetails === 'object' &&
-          typeof calculationDetails.base === 'number'
-        ) {
-          let totalScore = calculationDetails.base
-          for (const [key, value] of Object.entries(calculationDetails)) {
-            if (key !== 'base' && typeof value === 'number') {
-              totalScore += value
-            }
-          }
-          const modifier = Math.floor((totalScore - 10) / 2)
-          let needsUpdate = false
-          if (currentScore !== totalScore) {
-            abilityArr[0] = totalScore
-            needsUpdate = true
-          }
-          if (typeof modifierData === 'object' && modifierData !== null) {
-            const firstKey = Object.keys(modifierData)[0]
-            if (firstKey && modifierData[firstKey] !== modifier) {
-              abilityArr[1] = { [firstKey]: modifier }
-              needsUpdate = true
-            }
-          }
-          if (needsUpdate) {
-            hasChanges = true
-          }
-        }
-      } else if (abilityArr.length === 2) {
-        // If only [score, {mod}] is present, recalculate modifier from score
-        const [score, modifierData] = abilityArr
-        if (
-          typeof score === 'number' &&
-          typeof modifierData === 'object' &&
-          modifierData !== null
-        ) {
-          const modifier = Math.floor((score - 10) / 2)
-          const firstKey = Object.keys(modifierData)[0]
-          if (firstKey && modifierData[firstKey] !== modifier) {
-            abilityArr[1] = { [firstKey]: modifier }
-            hasChanges = true
-          }
+      const [currentScore, modifierData, calculationDetails] = abilityArr
+      let totalScore = currentScore || 0
+
+      // If calculation details are present, use them to recalculate score
+      // If only [score, {mod}] is present, recalculate modifier from score
+      if (
+        calculationDetails &&
+        typeof calculationDetails === 'object' &&
+        typeof calculationDetails.base === 'number'
+      ) {
+        totalScore = sumOfValues(calculationDetails)
+      }
+
+      if (currentScore !== totalScore) {
+        abilityArr[0] = totalScore
+        hasChanges = true
+      }
+
+      const modifier = Math.floor((totalScore - 10) / 2)
+
+      if (typeof modifierData === 'object' && modifierData !== null) {
+        const firstKey = Object.keys(modifierData)[0]
+        if (firstKey && modifierData[firstKey] !== modifier) {
+          abilityArr[1] = { [firstKey]: modifier }
+          hasChanges = true
         }
       }
     }
   }
   return hasChanges
+}
+
+function sumOfValues(obj: Record<string, number>): number {
+  return Object.values(obj).reduce((sum, val) => sum + val, 0)
 }
