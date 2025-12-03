@@ -60,7 +60,6 @@ const flowStylePaths = [
 export { validateBeefBrainData }
 
 function setSelectiveFlowStyle(node: unknown, path: string[] = []) {
-  const pathStr = path.join('.')
   for (const pattern of flowStylePaths) {
     const patternParts = pattern.split('.')
     const pathParts = path
