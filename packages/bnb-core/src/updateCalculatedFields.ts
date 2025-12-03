@@ -9,74 +9,74 @@ import { dataToCompactYAML } from './dataToCompactYAML'
  */
 export function updateCalculatedFields(yamlContent: string): string {
   const data = parseYAML(yamlContent)
-  let hasChanges = true
-  const abilities = data.character?.abilities || {}
-  // Dexterity modifier propagation logic (always recalculate and propagate)
-  let dexMod: number | undefined
-  if (abilities.dexterity && Array.isArray(abilities.dexterity)) {
-    const score = abilities.dexterity[0]
-    if (typeof score === 'number') {
-      dexMod = Math.floor((score - 10) / 2)
-    }
-  }
-  if (typeof dexMod === 'number') {
-    // Propagate dex modifier to all combat fields with a 'dex' key
-    const propagateDex = (arr: any) => {
-      if (arr && Array.isArray(arr) && arr.length >= 2) {
-        const [currentValue, modifiers] = arr as [
-          number,
-          Record<string, number>,
-        ]
-        if (modifiers && typeof modifiers === 'object' && 'dex' in modifiers) {
-          // Always overwrite dex with recalculated value
-          modifiers.dex = dexMod
-          hasChanges = true
-          let newValue = 0
-          for (const value of Object.values(modifiers)) {
-            newValue += typeof value === 'number' ? value : 0
+  let hasChanges = false
+  const abilities = data.character?.abilities || undefined
+
+  // Ability score calculation logic (focus on strength)
+  if (data.character?.abilities) {
+    for (const [abilityName, abilityArr] of Object.entries(
+      data.character.abilities,
+    )) {
+      if (Array.isArray(abilityArr)) {
+        // If calculation details are present, use them
+        if (abilityArr.length >= 3) {
+          const [currentScore, modifierData, calculationDetails] =
+            abilityArr as [
+              number,
+              Record<string, number>,
+              Record<string, number>,
+            ]
+          if (
+            calculationDetails &&
+            typeof calculationDetails === 'object' &&
+            typeof calculationDetails.base === 'number'
+          ) {
+            let totalScore = calculationDetails.base
+            for (const [key, value] of Object.entries(calculationDetails)) {
+              if (key !== 'base' && typeof value === 'number') {
+                totalScore += value
+              }
+            }
+            const modifier = Math.floor((totalScore - 10) / 2)
+            let needsUpdate = false
+            if (currentScore !== totalScore) {
+              abilityArr[0] = totalScore
+              needsUpdate = true
+            }
+            if (typeof modifierData === 'object' && modifierData !== null) {
+              const firstKey = Object.keys(modifierData)[0]
+              if (firstKey && modifierData[firstKey] !== modifier) {
+                abilityArr[1] = { [firstKey]: modifier }
+                needsUpdate = true
+              }
+            }
+            if (needsUpdate) {
+              hasChanges = true
+            }
           }
-          if (currentValue !== newValue) {
-            arr[0] = newValue
-            hasChanges = true
+        } else if (abilityArr.length === 2) {
+          // If only [score, {mod}] is present, recalculate modifier from score
+          const [score, modifierData] = abilityArr as [
+            number,
+            Record<string, number>,
+          ]
+          if (
+            typeof score === 'number' &&
+            typeof modifierData === 'object' &&
+            modifierData !== null
+          ) {
+            const modifier = Math.floor((score - 10) / 2)
+            const firstKey = Object.keys(modifierData)[0]
+            if (firstKey && modifierData[firstKey] !== modifier) {
+              abilityArr[1] = { [firstKey]: modifier }
+              hasChanges = true
+            }
           }
         }
       }
     }
-    if (data.character?.combat) {
-      // Saves
-      Object.values(data.character.combat.saves || {}).forEach(propagateDex)
-      // Initiative
-      propagateDex(data.character.combat.initiative)
-      // Defense
-      Object.values(data.character.combat.defense || {}).forEach(propagateDex)
-    }
-    // Propagate dex modifier to all skills with a 'dex' key
-    if (data.character?.skills) {
-      Object.values(data.character.skills).forEach((skillArr: any) => {
-        if (Array.isArray(skillArr) && skillArr.length >= 2) {
-          const modifiers = skillArr[1]
-          if (
-            modifiers &&
-            typeof modifiers === 'object' &&
-            'dex' in modifiers
-          ) {
-            if (modifiers.dex !== dexMod) {
-              modifiers.dex = dexMod
-              hasChanges = true
-            }
-            let newValue = 0
-            for (const value of Object.values(modifiers)) {
-              newValue += typeof value === 'number' ? value : 0
-            }
-            if (skillArr[0] !== newValue) {
-              skillArr[0] = newValue
-              hasChanges = true
-            }
-          }
-        }
-      })
-    }
   }
+
   // Movement carrying capacity update logic
   if (data.character?.movement?.capacity && abilities.strength) {
     let strengthScore: number | undefined
@@ -279,71 +279,6 @@ export function updateCalculatedFields(yamlContent: string): string {
             }
             if (currentValue !== newValue) {
               skillArr[0] = newValue
-              hasChanges = true
-            }
-          }
-        }
-      }
-    }
-  }
-  // ...existing code...
-  // Ability score calculation logic (focus on strength)
-  if (data.character?.abilities) {
-    for (const [abilityName, abilityArr] of Object.entries(
-      data.character.abilities,
-    )) {
-      if (Array.isArray(abilityArr)) {
-        // If calculation details are present, use them
-        if (abilityArr.length >= 3) {
-          const [currentScore, modifierData, calculationDetails] =
-            abilityArr as [
-              number,
-              Record<string, number>,
-              Record<string, number>,
-            ]
-          if (
-            calculationDetails &&
-            typeof calculationDetails === 'object' &&
-            typeof calculationDetails.base === 'number'
-          ) {
-            let totalScore = calculationDetails.base
-            for (const [key, value] of Object.entries(calculationDetails)) {
-              if (key !== 'base' && typeof value === 'number') {
-                totalScore += value
-              }
-            }
-            const modifier = Math.floor((totalScore - 10) / 2)
-            let needsUpdate = false
-            if (currentScore !== totalScore) {
-              abilityArr[0] = totalScore
-              needsUpdate = true
-            }
-            if (typeof modifierData === 'object' && modifierData !== null) {
-              const firstKey = Object.keys(modifierData)[0]
-              if (firstKey && modifierData[firstKey] !== modifier) {
-                abilityArr[1] = { [firstKey]: modifier }
-                needsUpdate = true
-              }
-            }
-            if (needsUpdate) {
-              hasChanges = true
-            }
-          }
-        } else if (abilityArr.length === 2) {
-          // If only [score, {mod}] is present, recalculate modifier from score
-          const [score, modifierData] = abilityArr as [
-            number,
-            Record<string, number>,
-          ]
-          if (
-            typeof score === 'number' &&
-            typeof modifierData === 'object' &&
-            modifierData !== null
-          ) {
-            const modifier = Math.floor((score - 10) / 2)
-            const firstKey = Object.keys(modifierData)[0]
-            if (firstKey && modifierData[firstKey] !== modifier) {
-              abilityArr[1] = { [firstKey]: modifier }
               hasChanges = true
             }
           }
