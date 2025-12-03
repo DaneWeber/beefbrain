@@ -1,6 +1,6 @@
-import { parse as parseYAML, Document } from 'yaml'
+import { parse as parseYAML } from 'yaml'
 import { validateBeefBrainData } from './validateBeefBrainData'
-import { setSelectiveFlowStyle } from './setSelectiveFlowStyle'
+import { dataToCompactYAML } from './dataToCompactYAML'
 
 /**
  * Beef Brain Core Library
@@ -12,7 +12,7 @@ import { setSelectiveFlowStyle } from './setSelectiveFlowStyle'
 
 // Type definitions
 
-type YAMLdoc = `---\n${string}`
+export type YAMLdoc = `---\n${string}`
 
 type CalculationDetails = {
   base: number
@@ -35,7 +35,7 @@ type Character = {
   combat?: any
 }
 
-type BeefBrainData = {
+export type BeefBrainData = {
   character?: Character
 }
 
@@ -404,22 +404,3 @@ export function updateCalculatedFields(yamlContent: string): string {
 
 // Export all functions
 export * from './types'
-
-function dataToCompactYAML(data: BeefBrainData): YAMLdoc {
-  const doc = new Document(data)
-  // Recursively set flow style only for schema-defined paths
-  setSelectiveFlowStyle(doc.contents)
-
-  // Convert to string with no line length restriction and no flow collection padding
-  let result = doc.toString({
-    lineWidth: 0,
-    flowCollectionPadding: false,
-    directives: true,
-  }) as YAMLdoc
-
-  // Strip curly braces from single-key maps in flow-style arrays
-  // e.g. [14, {str: 2}] => [14, str: 2], but leave multi-key maps untouched
-  result = result.replace(/\{([^:}]+):\s([^},]+)\}/g, '$1: $2') as YAMLdoc
-
-  return result
-}
