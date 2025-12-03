@@ -13,22 +13,22 @@ import { updateCalculatedFields } from './updateCalculatedFields'
 
 export type YAMLdoc = `---\n${string}`
 
-type CalculationDetails = {
+export type CalculationDetails = {
   base: number
   [key: string]: number
 }
 
-type ModifierData = {
+export type ModifierData = {
   [key: string]: number
 }
 
-type AbilityData = [number, ModifierData, CalculationDetails]
+export type AbilityData = [number, ModifierData, CalculationDetails?]
 
-type Abilities = {
+export type Abilities = {
   [abilityName: string]: AbilityData
 }
 
-type Character = {
+export type Character = {
   abilities: Abilities
   skills?: Record<string, [number, Record<string, number>]>
   combat?: any
