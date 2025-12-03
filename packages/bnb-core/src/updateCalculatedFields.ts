@@ -275,10 +275,7 @@ function calculateAbilityScores(character: Character, hasChanges: boolean) {
         }
       } else if (abilityArr.length === 2) {
         // If only [score, {mod}] is present, recalculate modifier from score
-        const [score, modifierData] = abilityArr as [
-          number,
-          Record<string, number>,
-        ]
+        const [score, modifierData] = abilityArr
         if (
           typeof score === 'number' &&
           typeof modifierData === 'object' &&
