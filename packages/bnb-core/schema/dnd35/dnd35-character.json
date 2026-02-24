@@ -1,0 +1,209 @@
+{
+  "root": {
+    "children": [
+      {
+        "name": "character",
+        "type": "Character"
+      }
+    ]
+  },
+  "Character": {
+    "children": [
+      {
+        "name": "abilities",
+        "type": "Abilities"
+      },
+      {
+        "name": "combat",
+        "type": "Combat"
+      },
+      {
+        "name": "description",
+        "type": "Description",
+        "optional": true
+      },
+      {
+        "name": "inventory",
+        "type": "Inventory",
+        "optional": true
+      },
+      {
+        "name": "levels",
+        "type": "Levels"
+      },
+      {
+        "name": "movement",
+        "type": "Movement"
+      },
+      {
+        "name": "skills",
+        "type": "Skills",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "name": "special",
+        "type": "Special",
+        "optional": true
+      }
+    ]
+  },
+  "Abilities": {
+    "children": [
+      {
+        "name": "strength",
+        "type": "StrengthScore"
+      },
+      {
+        "name": "dexterity",
+        "type": "DexterityScore"
+      },
+      {
+        "name": "constitution",
+        "type": "ConstitutionScore"
+      },
+      {
+        "name": "intelligence",
+        "type": "IntelligenceScore"
+      },
+      {
+        "name": "wisdom",
+        "type": "WisdomScore"
+      },
+      {
+        "name": "charisma",
+        "type": "CharismaScore"
+      }
+    ]
+  },
+  "StrengthScore": {
+    "array": {
+      "0": {
+        "type": "AbilityScore"
+      },
+      "1": {
+        "name": "str",
+        "type": "AbilityModifier"
+      },
+      "2": {
+        "type": "AbilityScoreComponents",
+        "optional": true
+      }
+    }
+  },
+  "DexterityScore": {
+    "array": {
+      "0": {
+        "type": "AbilityScore"
+      },
+      "1": {
+        "name": "dex",
+        "type": "AbilityModifier"
+      },
+      "2": {
+        "type": "AbilityScoreComponents",
+        "optional": true
+      }
+    }
+  },
+  "ConstitutionScore": {
+    "array": {
+      "0": {
+        "type": "AbilityScore"
+      },
+      "1": {
+        "name": "con",
+        "type": "AbilityModifier"
+      },
+      "2": {
+        "type": "AbilityScoreComponents",
+        "optional": true
+      }
+    }
+  },
+  "IntelligenceScore": {
+    "array": {
+      "0": {
+        "type": "AbilityScore"
+      },
+      "1": {
+        "name": "int",
+        "type": "AbilityModifier"
+      },
+      "2": {
+        "type": "AbilityScoreComponents",
+        "optional": true
+      }
+    }
+  },
+  "WisdomScore": {
+    "array": {
+      "0": {
+        "type": "AbilityScore"
+      },
+      "1": {
+        "name": "wis",
+        "type": "AbilityModifier"
+      },
+      "2": {
+        "type": "AbilityScoreComponents",
+        "optional": true
+      }
+    }
+  },
+  "CharismaScore": {
+    "array": {
+      "0": {
+        "type": "AbilityScore"
+      },
+      "1": {
+        "name": "cha",
+        "type": "AbilityModifier"
+      },
+      "2": {
+        "type": "AbilityScoreComponents",
+        "optional": true
+      }
+    }
+  },
+  "AbilityScore": {
+    "type": "number",
+    "validValues": [
+      "_",
+      {
+        "integers": {
+          "min": 1
+        }
+      }
+    ],
+    "calculation": {
+      "formula": "sum(components)",
+      "variables": {
+        "components": "parent[2][]"
+      }
+    }
+  },
+  "AbilityModifier": {
+    "type": "number",
+    "validValues": [
+      {
+        "integers": {
+          "min": -5
+        }
+      }
+    ],
+    "calculation": {
+      "formula": "score == '_' ? 0 : floor((score - 10) / 2)",
+      "variables": {
+        "score": "parent[0]"
+      }
+    }
+  },
+  "Combat": {},
+  "Description": {},
+  "Inventory": {},
+  "Levels": {},
+  "Movement": {},
+  "Skills": {},
+  "Special": {}
+}
