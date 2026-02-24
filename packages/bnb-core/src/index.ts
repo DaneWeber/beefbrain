@@ -31,7 +31,7 @@ export type Abilities = {
 export type Character = {
   abilities: Abilities
   skills?: Record<string, [number, Record<string, number>]>
-  combat?: any
+  combat?: Record<string, unknown>
 }
 
 export type BeefBrainData = {

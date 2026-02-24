@@ -1,6 +1,8 @@
 import { parse as parseYAML } from 'yaml'
 import { dataToCompactYAML } from './dataToCompactYAML'
 import type { Character, Abilities } from '.'
+import { loadSchema } from './schemaLoader'
+import { calculateFieldValue, getAbilityArrayType } from './calculationEngine'
 
 /**
  * Updates the calculated fields in a Beef Brain data file.
@@ -240,33 +242,68 @@ export function updateCalculatedFields(yamlContent: string): string {
 }
 
 function calculateAbilityScores(character: Character, hasChanges: boolean) {
+  // Load schema for schema-driven calculations
+  const schema = loadSchema('dnd35-character')
+
   for (const [abilityName, abilityArr] of Object.entries(character.abilities)) {
     if (Array.isArray(abilityArr)) {
       const [currentScore, modifierData, calculationDetails] = abilityArr
+
+      // Calculate ability score using schema (position 0 in array)
+      // Only recalculate if calculationDetails (components) are present
       let totalScore = currentScore || 0
 
-      // If calculation details are present, use them to recalculate score
-      // If only [score, {mod}] is present, recalculate modifier from score
-      if (
-        calculationDetails &&
-        typeof calculationDetails === 'object' &&
-        typeof calculationDetails.base === 'number'
-      ) {
-        totalScore = sumOfValues(calculationDetails)
+      if (calculationDetails && typeof calculationDetails === 'object') {
+        const scoreType = getAbilityArrayType(schema, abilityName, 0)
+
+        if (scoreType) {
+          const calculatedScore = calculateFieldValue(
+            schema,
+            scoreType,
+            abilityArr,
+            0,
+          )
+          if (
+            calculatedScore !== undefined &&
+            calculatedScore !== currentScore
+          ) {
+            totalScore = calculatedScore
+            abilityArr[0] = totalScore
+            hasChanges = true
+          }
+        } else {
+          // Fallback to legacy calculation if schema doesn't define it
+          if (typeof calculationDetails.base === 'number') {
+            totalScore = sumOfValues(calculationDetails)
+            if (currentScore !== totalScore) {
+              abilityArr[0] = totalScore
+              hasChanges = true
+            }
+          }
+        }
       }
 
-      if (currentScore !== totalScore) {
-        abilityArr[0] = totalScore
-        hasChanges = true
-      }
+      // Calculate modifier using schema (position 1 in array)
+      // Always recalculate modifier from the score (even if no components)
+      const modifierType = getAbilityArrayType(schema, abilityName, 1)
+      if (modifierType) {
+        const calculatedModifier = calculateFieldValue(
+          schema,
+          modifierType,
+          abilityArr,
+          1,
+        )
 
-      const modifier = Math.floor((totalScore - 10) / 2)
-
-      if (typeof modifierData === 'object' && modifierData !== null) {
-        const firstKey = Object.keys(modifierData)[0]
-        if (firstKey && modifierData[firstKey] !== modifier) {
-          abilityArr[1] = { [firstKey]: modifier }
-          hasChanges = true
+        if (
+          calculatedModifier !== undefined &&
+          typeof modifierData === 'object' &&
+          modifierData !== null
+        ) {
+          const firstKey = Object.keys(modifierData)[0]
+          if (firstKey && modifierData[firstKey] !== calculatedModifier) {
+            abilityArr[1] = { [firstKey]: calculatedModifier }
+            hasChanges = true
+          }
         }
       }
     }
