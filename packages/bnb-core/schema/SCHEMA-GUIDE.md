@@ -127,7 +127,7 @@ Calculations automatically compute derived values based on formulas.
 
 ### Formula Syntax
 
-Formulas use a [Math.js](https://mathjs.org/index.html) for mathematical operations. See [Math.js Syntax](https://mathjs.org/docs/expressions/syntax.html) for details on the syntax.
+Calculations use a [Math.js](https://mathjs.org/index.html) for mathematical operations. See [Math.js Syntax](https://mathjs.org/docs/expressions/syntax.html) for details on the syntax.
 
 #### Common Functions
 
