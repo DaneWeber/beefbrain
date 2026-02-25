@@ -41,6 +41,33 @@ function resolveJqPath(data: unknown, path: string): unknown {
   for (const segment of segments) {
     if (!segment) continue
 
+    // Handle array index with collection [n][]
+    const arrayIndexWithCollectionMatch = segment.match(
+      /^([^\[]+)\[(\d+)\]\[\]$/,
+    )
+    if (arrayIndexWithCollectionMatch && arrayIndexWithCollectionMatch[2]) {
+      const propName = arrayIndexWithCollectionMatch[1]
+      const index = parseInt(arrayIndexWithCollectionMatch[2], 10)
+
+      if (propName && current && typeof current === 'object') {
+        current = (current as Record<string, unknown>)[propName]
+      }
+
+      if (Array.isArray(current)) {
+        current = current[index]
+      } else {
+        return undefined
+      }
+
+      // Now collect numeric values from this element
+      if (Array.isArray(current)) {
+        return current.filter((v) => typeof v === 'number')
+      } else if (current && typeof current === 'object') {
+        return Object.values(current).filter((v) => typeof v === 'number')
+      }
+      return []
+    }
+
     // Handle array collection []
     if (segment.endsWith('[]')) {
       const propName = segment.slice(0, -2)
@@ -167,13 +194,11 @@ function resolveVariablePath(
       } else {
         // Handle parent[index] or parent.property
         const match = path.match(/^parent(\[.+\]|\..*)?$/)
-        if (match && context.currentPath && context.currentPath.length >= 1) {
-          const parentPath = context.currentPath.slice(0, -1)
+        if (match) {
           const suffix = match[1] || ''
-          expandedPath = '.' + parentPath.join('.') + suffix
-        } else if (match) {
-          // Fallback to direct parent access
-          const suffix = match[1] || ''
+
+          // If we have array indexing like parent[n] or parent[n][], use direct parent access
+          // because these are inherently relative to the immediate parent array
           if (suffix.startsWith('[') && context.parent) {
             const indexMatch = suffix.match(/\[(\d+)\](\[\])?/)
             if (indexMatch && indexMatch[1]) {
@@ -191,6 +216,15 @@ function resolveVariablePath(
               return value
             }
           }
+
+          // For property access like parent.foo, try path expansion if available
+          if (context.currentPath && context.currentPath.length >= 1) {
+            const parentPath = context.currentPath.slice(0, -1)
+            expandedPath = '.' + parentPath.join('.') + suffix
+          } else {
+            return context.parent
+          }
+        } else {
           return context.parent
         }
       }
