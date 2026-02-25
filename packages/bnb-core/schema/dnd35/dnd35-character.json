@@ -193,7 +193,7 @@
       }
     ],
     "calculation": {
-      "formula": "score == '_' ? 0 : floor((score - 10) / 2)",
+      "formula": "isNum(score) ? floor((score - 10) / 2) : 0",
       "variables": {
         "score": "parent[0]"
       }

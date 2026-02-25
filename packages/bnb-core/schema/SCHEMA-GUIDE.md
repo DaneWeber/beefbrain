@@ -127,29 +127,61 @@ Calculations automatically compute derived values based on formulas.
 
 ### Formula Syntax
 
-Calculations use a [Math.js](https://mathjs.org/index.html) for mathematical operations. See [Math.js Syntax](https://mathjs.org/docs/expressions/syntax.html) for details on the syntax.
+Formulas use [Math.js](https://mathjs.org/) for mathematical operations. See [Math.js documentation](https://mathjs.org/docs/expressions/syntax.html) for complete syntax details.
 
-#### Common Functions
+#### Supported Operations
 
-- `sum(array)` - Sum of all elements in an array
-- `floor(value)` - Round down to nearest integer
+- **Arithmetic**: `+`, `-`, `*`, `/`, `^` (power), `%` (modulo)
+- **Comparison**: `==`, `!=`, `<`, `>`, `<=`, `>=`
+- **Logical**: `and`, `or`, `not`
+- **Ternary**: `condition ? trueValue : falseValue`
+
+#### Common Math Functions
+
+- `sum(array)` - Sum all elements in an array
+- `floor(value)` - Round down to nearest integer  
 - `ceil(value)` - Round up to nearest integer
-- `max(a, b)` - Maximum of two values
-- `min(a, b)` - Minimum of two values
-- `(condition) ? (trueValue) : (falseValue)` - Conditional expression
-- `["high", "medium", "low"][index]` - Array indexing for categorical outputs
-- `z = (a == b) ? 1 : 2; ["equal", "different"][z]` - Statement separator `;` for multiple operations
+- `round(value)` - Round to nearest integer
+- `abs(value)` - Absolute value
+- `max(a, b, ...)` - Maximum of values
+- `min(a, b, ...)` - Minimum of values
+- `sqrt(value)` - Square root
+- `pow(base, exponent)` - Raise to power
+
+#### String Operations
+
+Because this is evaluated in a math context, strings must be compared using functions that do not conflict with Math.js operations.
+
+- `concat(str1, str2, ...)` - Concatenate strings
+- `equalText(str1, str2)` - Compare strings for equality
+- `class.includes("War")` - Check if class string includes "War"
+
+#### Type Checking
+
+- `isNum(value)` - Check if value is a number
+- `isStr(value)` - Check if value is a string
+- `isArray(value)` - Check if value is an array
+- `isObject(value)` - Check if value is an object
+
+These custom functions have been added to make type-checking easier in formulas. The following are the equivalent checks:
+
+- `isNum(value)` → `typeof value === 'number'`
+- `isStr(value)` → `typeof value === 'string'`
+- `isArray(value)` → `Array.isArray(value)`
+- `isObject(value)` → `typeof value === 'object' && !Array.isArray(value)`
+
 
 ### Variables and Paths
 
-Variables reference data from the same YAML file using paths as understood by [jqjs](https://github.com/mwh/jqjs).
+Variables reference data from the YAML file using **jq-style path syntax**. BeefBrain implements a custom path resolver supporting common jq patterns.
 
 #### Absolute Paths
 
 Reference data from anywhere in the character sheet using dot notation starting with `.`:
 
-- `".character.abilities[]"` - All numeric values from abilities object
-- `".character.abilities.strength[0]"` - First element of strength array
+- `".character.abilities[]"` - All numeric values from the abilities object
+- `".character.abilities.strength[0]"` - First element of the strength array
+- `".character.level.power-level"` - A specific property value
 
 Example (Mutants & Masterminds):
 ```json
@@ -166,11 +198,20 @@ Example (Mutants & Masterminds):
 
 #### Relative Paths
 
-Reference data relative to the current field:
+Reference data relative to the current field's location in the data structure:
 
+**Basic parent access:**
 - `"parent[0]"` - First element in parent array
-- `"parent(2)"` - Reference the parent of the parent
-- `"parent[2][]"` - All numeric values from third element (object or array)
+- `"parent[1]"` - Second element in parent array  
+- `"parent[2][]"` - All numeric values from third element (if it's an object or array)
+
+**Parent function (for navigating up multiple levels):**
+- `"parent(1)"` or `"parent"` - One level up (same as accessing parent directly)
+- `"parent(2)"` - Two levels up (grandparent)
+- `"parent(3)"` - Three levels up (great-grandparent)
+- `"parent(2)[0]"` - First element of grandparent array
+
+The `parent(n)` function navigates `n` levels up in the data hierarchy from the current field's path.
 
 Example:
 ```json
@@ -182,20 +223,33 @@ Example:
 }
 ```
 
-For YAML like `strength: [15, str: 2, {base: 11, racial: 2, level: 2}]`, `parent[2][]` extracts `[11, 2, 2]`.
-
-##### Parent Function
-
-Because accessing the parent is common in BeefBrain, `parent(n)` is defined as `getpath(path(x) | .[0:(-n)])` in jqjs, where `x` is the current path of the field to be calculated and `n` is the depth of parent. `parent` is a shorthand for `parent(1)`.
+For YAML like `strength: [15, str: 2, {base: 11, racial: 2, level: 2}]`, when calculating the score (position 0), `parent[2][]` extracts `[11, 2, 2]` from the components object.
 
 #### Path Syntax Rules
 
-1. **Absolute paths**: Start with `.` and use dot notation
-2. **Relative paths**: Use `parent()` to access parents and siblings.
-3. **Property access**: Use dots like `.character.abilities`
-4. **Array index**: Use brackets like `[0]` for specific index
-5. **Array collection**: Use `[]` to collect all numeric values
-6. **Nested access**: Combine as needed like `.character.level.stats[1]`
+1. **Absolute paths**: Start with `.` and use dot notation (`.character.abilities`)
+2. **Relative paths**: Use `parent` or `parent(n)` to navigate up the hierarchy
+3. **Property access**: Use dots to access nested properties (`.character.abilities.strength`)
+4. **Array index**: Use brackets with a number for specific index (`strength[0]`)
+5. **Array collection**: Use empty brackets `[]` to collect all numeric values from an object or array
+6. **Nested access**: Combine syntax as needed (`.character.weapons[0].damage[1]`)
+
+#### Supported Path Patterns
+
+✅ **Implemented:**
+- `.character.abilities[]` - Collect all numeric values
+- `.character.abilities.strength[0]` - Access specific array index
+- `parent[0]` - Access parent array element
+- `parent(2)` - Navigate up multiple levels
+- `parent[2][]` - Collect from parent's element
+
+❌ **Not Yet Implemented:**
+- Complex jq filters (`select`, `map`, etc.)
+- Recursive descent (`..`)
+- Pipe operations (`|`)
+- Advanced jq functions
+
+For most character sheet calculations, the supported patterns are sufficient.
 
 ### Complete Calculation Examples
 
@@ -415,8 +469,24 @@ Then add integration tests to verify calculations update correctly.
 
 ### 4. Formula Safety
 
-❌ **Wrong**: `"formula": "deleteAllData()"`
-✅ **Right**: Only use mathematical and logical operations
+BeefBrain uses [Math.js](https://mathjs.org/) for formula evaluation, which provides:
+- ✅ **Sandboxed evaluation** - No access to file system, network, or process
+- ✅ **No arbitrary code execution** - Only mathematical and logical operations
+- ✅ **Type safety** - Automatic type checking and conversion
+- ✅ **Deterministic** - Same input always produces same output
+
+**Safe operations:**
+- Mathematical expressions: `(score - 10) / 2`
+- Comparisons and logic: `score > 10 and dex <= 20`
+- Built-in functions: `floor()`, `sum()`, `max()`, etc.
+- Ternary operators: `condition ? value1 : value2`
+
+**Not available (and that's good):**
+- File/network access
+- System calls  
+- Variable mutation
+- Arbitrary function execution
+- Access to JavaScript globals
 
 ## Advanced Topics
 

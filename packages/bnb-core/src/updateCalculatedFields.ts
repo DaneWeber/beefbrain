@@ -267,6 +267,7 @@ function calculateAbilityScores(
             abilityArr,
             0,
             rootData,
+            ['character', 'abilities', abilityName],
           )
           if (
             calculatedScore !== undefined &&
@@ -298,6 +299,7 @@ function calculateAbilityScores(
           abilityArr,
           1,
           rootData,
+          ['character', 'abilities', abilityName],
         )
 
         if (
