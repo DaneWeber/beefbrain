@@ -350,4 +350,42 @@ character:
       })
     })
   })
+
+  describe('Mutants & Masterminds 3e specific tests', () => {
+    it('should calculate power points assigned from abilities', () => {
+      const { evaluateFormula } = require('./calculationEngine')
+
+      const rootData = {
+        character: {
+          abilities: {
+            strength: 4,
+            stamina: 5,
+            agility: 3,
+            dexterity: 2,
+            fighting: 5,
+            intellect: 2,
+            awareness: 3,
+            presence: 4,
+          },
+          level: {
+            'power-level': 10,
+            'power-points-assigned': 0,
+            'power-points-available': 118,
+          },
+        },
+      }
+
+      // Test the formula evaluation directly
+      const formula = '2 * sum(abilityScores)'
+      const variables = { abilityScores: '.character.abilities[]' }
+      const context = {
+        root: rootData,
+      }
+
+      const calculated = evaluateFormula(formula, variables, context)
+
+      // Sum of abilities: 4+5+3+2+5+2+3+4 = 28, times 2 = 56
+      expect(calculated).toBe(56)
+    })
+  })
 })

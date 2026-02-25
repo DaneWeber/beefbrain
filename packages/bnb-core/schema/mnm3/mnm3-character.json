@@ -1,0 +1,102 @@
+{
+  "root": {
+    "children": [
+      {
+        "name": "character",
+        "type": "Character"
+      }
+    ]
+  },
+  "Character": {
+    "children": [
+      {
+        "name": "abilities",
+        "type": "Abilities"
+      },
+      {
+        "name": "level",
+        "type": "Level"
+      }
+    ]
+  },
+  "Abilities": {
+    "children": [
+      {
+        "name": "strength",
+        "type": "AbilityScore"
+      },
+      {
+        "name": "stamina",
+        "type": "AbilityScore"
+      },
+      {
+        "name": "agility",
+        "type": "AbilityScore"
+      },
+      {
+        "name": "dexterity",
+        "type": "AbilityScore"
+      },
+      {
+        "name": "fighting",
+        "type": "AbilityScore"
+      },
+      {
+        "name": "intellect",
+        "type": "AbilityScore"
+      },
+      {
+        "name": "awareness",
+        "type": "AbilityScore"
+      },
+      {
+        "name": "presence",
+        "type": "AbilityScore"
+      }
+    ]
+  },
+  "Level": {
+    "children": [
+      {
+        "name": "power-level",
+        "type": "number",
+        "validValues": [{ "integers": { "min": 1, "max": 30 } }]
+      },
+      {
+        "name": "power-points-assigned",
+        "type": "PowerPointsAssigned"
+      },
+      {
+        "name": "power-points-available",
+        "type": "number",
+        "validValues": [{ "integers": { "min": 0 } }]
+      }
+    ]
+  },
+  "AbilityScore": {
+    "type": "number",
+    "validValues": [
+      {
+        "integers": {
+          "min": -5
+        }
+      }
+    ]
+  },
+  "PowerPointsAssigned": {
+    "type": "number",
+    "validValues": [
+      {
+        "integers": {
+          "min": 0
+        }
+      }
+    ],
+    "calculation": {
+      "formula": "2 * sum(abilityScores)",
+      "variables": {
+        "abilityScores": ".character.abilities[]"
+      }
+    }
+  }
+}

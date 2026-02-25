@@ -29,7 +29,7 @@ export function evaluateFormula(
 }
 
 /**
- * Resolve a variable path like "parent[0]" or "parent[2][]"
+ * Resolve a variable path like "parent[0]", "parent[2][]", or ".character.abilities[]"
  * @param path - The path expression
  * @param context - The data context
  * @returns The resolved value
@@ -38,6 +38,11 @@ function resolveVariablePath(
   path: string,
   context: { current?: unknown; parent?: unknown[]; root?: unknown },
 ): unknown {
+  // Handle absolute paths starting with "."
+  if (path.startsWith('.')) {
+    return resolveAbsolutePath(path.substring(1), context.root)
+  }
+
   // Handle parent[index] references
   const parentMatch = path.match(/^parent\[(\d+)\](\[\])?$/)
   if (parentMatch && parentMatch[1]) {
@@ -63,6 +68,75 @@ function resolveVariablePath(
 
   // Handle direct references like "score"
   return context.current
+}
+
+/**
+ * Resolve an absolute path like "character.abilities[]" or "character.abilities.strength[0]"
+ * @param path - The path expression (without leading ".")
+ * @param root - The root data object
+ * @returns The resolved value
+ */
+function resolveAbsolutePath(path: string, root: unknown): unknown {
+  if (!root || typeof root !== 'object') {
+    return undefined
+  }
+
+  const segments = path.split('.')
+  let current: unknown = root
+
+  for (let i = 0; i < segments.length; i++) {
+    const segment = segments[i]
+
+    if (!segment) continue
+
+    // Check if this segment has an array accessor
+    const arrayMatch = segment.match(/^([^\[]+)(\[\]|\[(\d+)\])?$/)
+
+    if (!arrayMatch) {
+      // Simple property access
+      if (current && typeof current === 'object' && segment in current) {
+        current = (current as Record<string, unknown>)[segment]
+      } else {
+        return undefined
+      }
+    } else {
+      const propName = arrayMatch[1]
+      const arrayAccessor = arrayMatch[2]
+
+      // Access the property first
+      if (
+        current &&
+        typeof current === 'object' &&
+        propName &&
+        propName in current
+      ) {
+        current = (current as Record<string, unknown>)[propName]
+      } else if (propName) {
+        return undefined
+      }
+
+      // Handle array accessor
+      if (arrayAccessor === '[]') {
+        // Collect all numeric values from object or array
+        if (Array.isArray(current)) {
+          return current.filter((v) => typeof v === 'number')
+        } else if (current && typeof current === 'object') {
+          return Object.values(current).filter((v) => typeof v === 'number')
+        }
+        return []
+      } else if (arrayAccessor && arrayAccessor.startsWith('[')) {
+        // Specific index access
+        const index = parseInt(arrayMatch[3] || '0', 10)
+        if (Array.isArray(current)) {
+          current = current[index]
+        } else {
+          return undefined
+        }
+      }
+    }
+  }
+
+  return current
 }
 
 /**
@@ -135,6 +209,7 @@ function evaluateExpression(
  * @param typeName - Name of the type
  * @param data - The actual data array
  * @param arrayIndex - Index within the array to calculate
+ * @param root - The root data object (optional)
  * @returns The calculated value
  */
 export function calculateFieldValue(
@@ -142,6 +217,7 @@ export function calculateFieldValue(
   typeName: string,
   data: unknown[],
   arrayIndex: number,
+  root?: unknown,
 ): number | undefined {
   const typeDef = getTypeDefinition(schema, typeName)
 
@@ -152,7 +228,7 @@ export function calculateFieldValue(
   const context = {
     current: data[arrayIndex],
     parent: data,
-    root: null, // Could be extended to pass root data
+    root: root || null,
   }
 
   return evaluateFormula(

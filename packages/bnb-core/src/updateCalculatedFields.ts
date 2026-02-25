@@ -21,7 +21,7 @@ export function updateCalculatedFields(yamlContent: string): string {
   // Ability score calculation logic (focus on strength)
   if (data.character?.abilities) {
     const abilities = data.character.abilities as Abilities
-    hasChanges = calculateAbilityScores(character, hasChanges)
+    hasChanges = calculateAbilityScores(character, hasChanges, data)
 
     // Movement carrying capacity update logic
     if (data.character?.movement?.capacity && abilities.strength) {
@@ -241,7 +241,11 @@ export function updateCalculatedFields(yamlContent: string): string {
   return yamlContent
 }
 
-function calculateAbilityScores(character: Character, hasChanges: boolean) {
+function calculateAbilityScores(
+  character: Character,
+  hasChanges: boolean,
+  rootData: unknown,
+) {
   // Load schema for schema-driven calculations
   const schema = loadSchema('dnd35-character')
 
@@ -262,6 +266,7 @@ function calculateAbilityScores(character: Character, hasChanges: boolean) {
             scoreType,
             abilityArr,
             0,
+            rootData,
           )
           if (
             calculatedScore !== undefined &&
@@ -292,6 +297,7 @@ function calculateAbilityScores(character: Character, hasChanges: boolean) {
           modifierType,
           abilityArr,
           1,
+          rootData,
         )
 
         if (
