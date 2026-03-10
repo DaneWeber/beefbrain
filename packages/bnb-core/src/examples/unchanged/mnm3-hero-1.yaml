@@ -1,0 +1,15 @@
+---
+character:
+  abilities:
+    strength: 2
+    stamina: 3
+    agility: 1
+    dexterity: 0
+    fighting: 4
+    intellect: 1
+    awareness: 2
+    presence: 3
+  level:
+    power-level: 10
+    power-points-assigned: 32
+    power-points-available: 118
