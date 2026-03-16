@@ -133,7 +133,7 @@ character:
         })
       })
       describe('dexterity modifier propagation', () => {
-        it.skip('should update ranged attack bonus', () => {
+        it('should update ranged attack bonus', () => {
           const yamlContent = `---
 character:
   abilities:
@@ -166,7 +166,7 @@ character:
             '1d6 piercing',
           )
         })
-        it.skip('should update skill bonuses that depend on dexterity', () => {
+        it('should update skill bonuses that depend on dexterity', () => {
           const yamlContent = `---
 character:
   abilities:
@@ -185,7 +185,7 @@ character:
           expect(output.character.skills.ride[0]).toBe(2)
           expect(output.character.skills.ride[1].dex).toBe(2)
         })
-        it.skip('should update initiative based on dexterity', () => {
+        it('should update initiative based on dexterity', () => {
           const yamlContent = `---
 character:
   abilities:
@@ -202,7 +202,7 @@ character:
           expect(output.character.combat.initiative[0]).toBe(2)
           expect(output.character.combat.initiative[1].dex).toBe(2)
         })
-        it.skip('should reflex save based on dexterity', () => {
+        it('should reflex save based on dexterity', () => {
           const yamlContent = `---
 character:
   abilities:
@@ -218,6 +218,155 @@ character:
           // Should update reflex save dex to dex: 2
           expect(output.character.combat.saves.reflex[0]).toBe(4)
           expect(output.character.combat.saves.reflex[1].dex).toBe(2)
+        })
+      })
+      describe('constitution modifier propagation', () => {
+        it('should update fortitude save based on constitution', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    constitution: [16, con: 0]
+  combat:
+    saves:
+      fortitude: [2, {fighter: 2, con: 0}]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.combat.saves.fortitude[1].con).toBe(3)
+          expect(output.character.combat.saves.fortitude[0]).toBe(5)
+        })
+        it('should update max-hp based on constitution', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    constitution: [16, con: 0]
+  levels:
+    max-hp: [10, {con: 0, rolls: 10}]
+    hp: [10, {max-hp: 10, damage: 0}]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.levels['max-hp'][1].con).toBe(3)
+          expect(output.character.levels['max-hp'][0]).toBe(13)
+          expect(output.character.levels.hp[1]['max-hp']).toBe(13)
+          expect(output.character.levels.hp[0]).toBe(13)
+        })
+        it('should update concentration skill based on constitution', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    constitution: [16, con: 0]
+  skills:
+    concentration: [0, con: 0]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.skills.concentration[1].con).toBe(3)
+          expect(output.character.skills.concentration[0]).toBe(3)
+        })
+      })
+      describe('wisdom modifier propagation', () => {
+        it('should update will save based on wisdom', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    wisdom: [16, wis: 0]
+  combat:
+    saves:
+      will: [0, {cleric: 2, wis: 0}]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.combat.saves.will[1].wis).toBe(3)
+          expect(output.character.combat.saves.will[0]).toBe(5)
+        })
+        it('should update wisdom-based skills', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    wisdom: [16, wis: 0]
+  skills:
+    heal: [0, wis: 0]
+    listen: [0, wis: 0]
+    spot: [2, {wis: 0, ranks: 2}]
+    sense-motive: [0, wis: 0]
+    survival: [0, wis: 0]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.skills.heal[1].wis).toBe(3)
+          expect(output.character.skills.heal[0]).toBe(3)
+          expect(output.character.skills.spot[1].wis).toBe(3)
+          expect(output.character.skills.spot[0]).toBe(5)
+        })
+      })
+      describe('intelligence modifier propagation', () => {
+        it('should update intelligence-based skills', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    intelligence: [16, int: 0]
+  skills:
+    appraise: [2, {int: 0, ranks: 2}]
+    search: [0, int: 0]
+    forgery: [0, int: 0]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.skills.appraise[1].int).toBe(3)
+          expect(output.character.skills.appraise[0]).toBe(5)
+          expect(output.character.skills.search[1].int).toBe(3)
+          expect(output.character.skills.search[0]).toBe(3)
+        })
+      })
+      describe('charisma modifier propagation', () => {
+        it('should update charisma-based skills', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    charisma: [16, cha: 0]
+  skills:
+    bluff: [0, cha: 0]
+    diplomacy: [0, cha: 0]
+    intimidate: [4, {cha: 0, ranks: 4}]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.skills.bluff[1].cha).toBe(3)
+          expect(output.character.skills.bluff[0]).toBe(3)
+          expect(output.character.skills.intimidate[1].cha).toBe(3)
+          expect(output.character.skills.intimidate[0]).toBe(7)
+        })
+      })
+      describe('defense propagation', () => {
+        it('should update AC, touch AC, and flat-footed AC from dex', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    dexterity: [16, dex: 0]
+  combat:
+    defense:
+      ac: [10, {base: 10, dex: 0}]
+      touch-ac: [10, {base: 10, dex: 0}]
+      flat-footed-ac: [10, base: 10]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.combat.defense.ac[1].dex).toBe(3)
+          expect(output.character.combat.defense.ac[0]).toBe(13)
+          expect(output.character.combat.defense['touch-ac'][1].dex).toBe(3)
+          expect(output.character.combat.defense['touch-ac'][0]).toBe(13)
+          // Flat-footed should not include positive dex
+          expect(output.character.combat.defense['flat-footed-ac'][0]).toBe(10)
+        })
+        it('should include negative dex in flat-footed AC', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    dexterity: [5, dex: 0]
+  combat:
+    defense:
+      ac: [10, {base: 10, dex: 0}]
+      touch-ac: [10, {base: 10, dex: 0}]
+      flat-footed-ac: [10, base: 10]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.combat.defense.ac[1].dex).toBe(-3)
+          expect(output.character.combat.defense.ac[0]).toBe(7)
+          expect(output.character.combat.defense['flat-footed-ac'][1].dex).toBe(-3)
+          expect(output.character.combat.defense['flat-footed-ac'][0]).toBe(7)
         })
       })
       it('should calculate the correct strength without modifiers', () => {

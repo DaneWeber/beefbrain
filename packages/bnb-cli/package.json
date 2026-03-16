@@ -1,0 +1,37 @@
+{
+  "name": "bnb-cli",
+  "version": "1.0.0",
+  "description": "Command-line interface for Beef Brain TTRPG character calculator.",
+  "main": "./dist/index.js",
+  "bin": {
+    "bnb": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup-node",
+    "clean": "rimraf dist",
+    "test": "jest"
+  },
+  "keywords": [
+    "ttrpg",
+    "dnd",
+    "character-sheet",
+    "cli"
+  ],
+  "author": "DaneWeber",
+  "license": "MIT",
+  "dependencies": {
+    "bnb-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@types/node": "^20.12.12",
+    "jest": "^29.7.0",
+    "rimraf": "^5.0.7",
+    "ts-jest": "^29.1.4",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5"
+  }
+}

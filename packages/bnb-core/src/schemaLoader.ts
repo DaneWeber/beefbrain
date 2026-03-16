@@ -20,6 +20,8 @@ export interface SchemaArrayElement {
   name?: string
   type: string
   optional?: boolean
+  description?: string
+  calculation?: SchemaCalculation
 }
 
 export interface SchemaTypeDefinition {
@@ -33,7 +35,14 @@ export interface SchemaTypeDefinition {
     optional?: boolean
     min?: number
     max?: number
+    description?: string
   }>
+  additionalChildren?: {
+    type: string
+    description?: string
+  }
+  items?: { type: string }
+  description?: string
 }
 
 export interface Schema {
@@ -41,7 +50,13 @@ export interface Schema {
   [typeName: string]: SchemaTypeDefinition
 }
 
-let cachedSchema: Schema | null = null
+const schemaCache: Record<string, Schema> = {}
+
+// Map schema names to their directory paths
+const SCHEMA_DIRS: Record<string, string> = {
+  'dnd35-character': 'dnd35',
+  'mnm3-character': 'mnm3',
+}
 
 /**
  * Load the schema from the JSON file
@@ -49,20 +64,22 @@ let cachedSchema: Schema | null = null
  * @returns The parsed schema
  */
 export function loadSchema(schemaName: string): Schema {
-  if (cachedSchema) {
-    return cachedSchema
+  if (schemaCache[schemaName]) {
+    return schemaCache[schemaName]
   }
 
+  const dir = SCHEMA_DIRS[schemaName] || schemaName.split('-')[0] || schemaName
   const schemaPath = join(
     __dirname,
     '..',
     'schema',
-    'dnd35',
+    dir,
     `${schemaName}.json`,
   )
   const schemaContent = readFileSync(schemaPath, 'utf-8')
-  cachedSchema = JSON.parse(schemaContent) as Schema
-  return cachedSchema
+  const schema = JSON.parse(schemaContent) as Schema
+  schemaCache[schemaName] = schema
+  return schema
 }
 
 /**
@@ -82,5 +99,7 @@ export function getTypeDefinition(
  * Reset the cached schema (useful for testing)
  */
 export function resetSchemaCache(): void {
-  cachedSchema = null
+  for (const key of Object.keys(schemaCache)) {
+    delete schemaCache[key]
+  }
 }
