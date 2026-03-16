@@ -365,8 +365,96 @@ character:
           const output = parseYAML(updateCalculatedFields(yamlContent))
           expect(output.character.combat.defense.ac[1].dex).toBe(-3)
           expect(output.character.combat.defense.ac[0]).toBe(7)
-          expect(output.character.combat.defense['flat-footed-ac'][1].dex).toBe(-3)
+          // Flat-footed uses spread format: [total, {base: 10}, {dex: -3}]
           expect(output.character.combat.defense['flat-footed-ac'][0]).toBe(7)
+          expect(output.character.combat.defense['flat-footed-ac'][2].dex).toBe(-3)
+        })
+      })
+      describe('equipment-derived defense stats', () => {
+        it('should derive AC from equipped armor and shield', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    dexterity: [14, dex: 2]
+  combat:
+    defense:
+      ac: [10, {base: 10, dex: 0}]
+      touch-ac: [10, {base: 10, dex: 0}]
+      flat-footed-ac: [10, base: 10]
+      acp: [0, none: 0]
+      max-dex: [99, none: 99]
+  movement:
+    load: [30 lbs, {equipped: 30 lbs}]
+    capacity: {light: 58 lbs, medium: 116 lbs, heavy: 175 lbs, lift: 350 lbs, drag: 875 lbs}
+  inventory:
+    _on: [equipped]
+    equipped:
+      - [chain shirt, 1, armor, 25 lbs, 100 gp, {ac: 5, max-dex: 4, acp: -2, asfc: 20%}]
+      - [heavy steel shield, 1, shield, 15 lbs, 30 gp, {ac: 2, acp: -2, asfc: 15%}]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.combat.defense.ac[0]).toBe(19)
+          expect(output.character.combat.defense.ac[1].armor).toBe(5)
+          expect(output.character.combat.defense.ac[1].shield).toBe(2)
+          expect(output.character.combat.defense.ac[1].dex).toBe(2)
+          expect(output.character.combat.defense['touch-ac'][0]).toBe(12)
+          expect(output.character.combat.defense['flat-footed-ac'][0]).toBe(17)
+        })
+        it('should cap dex in AC at max-dex from armor', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    dexterity: [20, dex: 5]
+  combat:
+    defense:
+      ac: [10, {base: 10, dex: 0}]
+      touch-ac: [10, {base: 10, dex: 0}]
+      flat-footed-ac: [10, base: 10]
+      acp: [0, none: 0]
+      max-dex: [99, none: 99]
+  movement:
+    load: [20 lbs, {equipped: 20 lbs}]
+    capacity: {light: 100 lbs, medium: 200 lbs, heavy: 300 lbs, lift: 600 lbs, drag: 1500 lbs}
+  inventory:
+    _on: [equipped]
+    equipped:
+      - [full plate, 1, armor, 50 lbs, 1500 gp, {ac: 8, max-dex: 1, acp: -6, asfc: 35%}]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          // Dex mod is +5 but max-dex from armor is 1
+          expect(output.character.combat.defense.ac[1].dex).toBe(1)
+          expect(output.character.combat.defense.ac[0]).toBe(19) // 10 + 8 + 1
+          // Touch AC still uses capped dex
+          expect(output.character.combat.defense['touch-ac'][0]).toBe(11) // 10 + 1
+        })
+        it('should derive ACP from equipment when worse than load', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [14, str: 2]
+  combat:
+    defense:
+      ac: [10, {base: 10, dex: 0}]
+      acp: [0, none: 0]
+      max-dex: [99, none: 99]
+  movement:
+    load: [75.5 lbs, {equipped: 49 lbs, pack: 26.5 lbs}]
+    capacity: {light: 58 lbs, medium: 116 lbs, heavy: 175 lbs, lift: 350 lbs, drag: 875 lbs}
+  inventory:
+    _on: [equipped]
+    equipped:
+      - [chain shirt, 1, armor, 25 lbs, 100 gp, {ac: 5, max-dex: 4, acp: -2, asfc: 20%}]
+      - [heavy steel shield, 1, shield, 15 lbs, 30 gp, {ac: 2, acp: -2, asfc: 15%}]
+  skills:
+    climb: [3, {str: 2, acp: -3, ranks: 4}]
+    swim: [-4, {str: 2, acp: -6}]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          // Equipment ACP: -2 + -2 = -4, load ACP: -3 (medium). Equipment worse.
+          expect(output.character.combat.defense.acp[0]).toBe(-4)
+          // Skills should use equipment ACP (-4), swim double (-8)
+          expect(output.character.skills.climb[1].acp).toBe(-4)
+          expect(output.character.skills.swim[1].acp).toBe(-8)
         })
       })
       it('should calculate the correct strength without modifiers', () => {

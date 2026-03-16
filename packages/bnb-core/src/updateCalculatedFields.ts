@@ -58,6 +58,28 @@ const SAVE_ABILITIES: Record<string, string> = {
 }
 
 /**
+ * Equipment stats derived from inventory
+ */
+interface EquipmentStats {
+  armorAc: number
+  shieldAc: number
+  armorAcp: number
+  shieldAcp: number
+  armorMaxDex: number | null // null means no limit
+}
+
+/**
+ * Load category effects
+ */
+interface LoadEffects {
+  category: 'light' | 'medium' | 'heavy' | 'unknown'
+  maxDex: number | null // null means no limit
+  acp: number
+  speedReduction30: number // reduction for 30ft base speed
+  speedReduction20: number // reduction for 20ft base speed
+}
+
+/**
  * Updates the calculated fields in a Beef Brain data file.
  * @param yamlContent - The YAML content to update
  * @returns Updated YAML content with calculated fields
@@ -84,21 +106,162 @@ export function updateCalculatedFields(yamlContent: string): string {
   // Step 2: Build ability modifier map
   const abilityMods = getAbilityModifiers(abilities)
 
-  // Step 3: Propagate ability modifiers to all dependent fields
-  hasChanges = propagateToSkills(data, abilityMods, hasChanges)
+  // Step 3: Read equipment and load stats
+  const equipStats = readEquipmentStats(data)
+  const loadEffects = determineLoadCategory(data)
+
+  // Step 4: Propagate carrying capacity (needed before load effects)
+  hasChanges = propagateToCarryingCapacity(data, abilities, hasChanges)
+
+  // Recalculate load effects after capacity update
+  const updatedLoadEffects = determineLoadCategory(data)
+
+  // Step 5: Calculate effective ACP and max-dex
+  const effectiveAcp = calculateEffectiveAcp(equipStats, updatedLoadEffects)
+  const effectiveMaxDex = calculateEffectiveMaxDex(equipStats, updatedLoadEffects)
+
+  // Step 6: Propagate ability modifiers to all dependent fields
+  hasChanges = propagateToSkills(data, abilityMods, effectiveAcp, hasChanges)
   hasChanges = propagateToSaves(data, abilityMods, hasChanges)
   hasChanges = propagateToInitiative(data, abilityMods, hasChanges)
   hasChanges = propagateToMeleeAttacks(data, abilityMods, hasChanges)
   hasChanges = propagateToRangedAttacks(data, abilityMods, hasChanges)
   hasChanges = propagateToGrapple(data, abilityMods, hasChanges)
-  hasChanges = propagateToDefense(data, abilityMods, hasChanges)
-  hasChanges = propagateToCarryingCapacity(data, abilities, hasChanges)
+  hasChanges = propagateToDefense(data, abilityMods, equipStats, effectiveMaxDex, effectiveAcp, hasChanges)
   hasChanges = propagateToMaxHp(data, abilityMods, hasChanges)
 
   if (hasChanges) {
     return dataToCompactYAML(data)
   }
   return yamlContent
+}
+
+/**
+ * Read equipment stats from equipped inventory items
+ */
+function readEquipmentStats(data: { character?: Record<string, unknown> }): EquipmentStats {
+  const result: EquipmentStats = {
+    armorAc: 0,
+    shieldAc: 0,
+    armorAcp: 0,
+    shieldAcp: 0,
+    armorMaxDex: null,
+  }
+
+  const inventory = data.character?.inventory as Record<string, unknown> | undefined
+  if (!inventory) return result
+
+  // Find equipped items — look at _on list or default to "equipped"
+  const onList = inventory._on as string[] | undefined
+  const equippedContainers = onList || ['equipped']
+
+  for (const containerName of equippedContainers) {
+    const items = inventory[containerName] as unknown[][] | undefined
+    if (!Array.isArray(items)) continue
+
+    for (const item of items) {
+      if (!Array.isArray(item) || item.length < 3) continue
+      const category = item[2] as string
+      const props = item[5] as Record<string, unknown> | undefined
+
+      if (!props || typeof props !== 'object') continue
+
+      if (category === 'armor') {
+        if (typeof props.ac === 'number') result.armorAc = props.ac
+        if (typeof props.acp === 'number') result.armorAcp = props.acp
+        if (typeof props['max-dex'] === 'number') result.armorMaxDex = props['max-dex']
+      } else if (category === 'shield') {
+        if (typeof props.ac === 'number') result.shieldAc = props.ac
+        if (typeof props.acp === 'number') result.shieldAcp = props.acp
+      }
+    }
+  }
+
+  return result
+}
+
+/**
+ * Determine load category from current load weight vs carrying capacity
+ */
+function determineLoadCategory(data: { character?: Record<string, unknown> }): LoadEffects {
+  const defaultEffects: LoadEffects = {
+    category: 'unknown',
+    maxDex: null,
+    acp: 0,
+    speedReduction30: 0,
+    speedReduction20: 0,
+  }
+
+  const movement = data.character?.movement as Record<string, unknown> | undefined
+  if (!movement?.load || !movement?.capacity) return defaultEffects
+
+  const loadArr = movement.load as unknown[]
+  if (!Array.isArray(loadArr) || loadArr.length < 1) return defaultEffects
+
+  // Parse weight from string like "75.5 lbs"
+  const loadStr = String(loadArr[0])
+  const weightMatch = loadStr.match(/^([0-9.]+)/)
+  if (!weightMatch) return defaultEffects
+  const currentWeight = parseFloat(weightMatch[1]!)
+
+  const cap = movement.capacity as Record<string, string>
+  const parseWeight = (s: string): number => {
+    const m = String(s).match(/^([0-9.]+)/)
+    return m ? parseFloat(m[1]!) : 0
+  }
+
+  const lightMax = parseWeight(cap.light || '0')
+  const mediumMax = parseWeight(cap.medium || '0')
+
+  if (currentWeight <= lightMax) {
+    return { category: 'light', maxDex: null, acp: 0, speedReduction30: 0, speedReduction20: 0 }
+  } else if (currentWeight <= mediumMax) {
+    return { category: 'medium', maxDex: 3, acp: -3, speedReduction30: -10, speedReduction20: -5 }
+  } else {
+    return { category: 'heavy', maxDex: 1, acp: -6, speedReduction30: -10, speedReduction20: -5 }
+  }
+}
+
+function calculateEffectiveAcp(equip: EquipmentStats, load: LoadEffects): { value: number, sources: Record<string, number> } {
+  const equipAcp = equip.armorAcp + equip.shieldAcp
+  const loadAcp = load.acp
+
+  // Use the worse (more negative) of equipment or load
+  if (equipAcp !== 0 && equipAcp <= loadAcp) {
+    // Equipment is worse or equal
+    const sources: Record<string, number> = {}
+    if (equip.armorAcp !== 0) sources['armor'] = equip.armorAcp
+    if (equip.shieldAcp !== 0) sources['shield'] = equip.shieldAcp
+    return { value: equipAcp, sources }
+  } else if (loadAcp < 0) {
+    // Load is worse
+    const categoryKey = `${load.category}-load`
+    return { value: loadAcp, sources: { [categoryKey]: loadAcp } }
+  }
+
+  return { value: 0, sources: {} }
+}
+
+function calculateEffectiveMaxDex(equip: EquipmentStats, load: LoadEffects): { value: number | null, sources: Record<string, number> } {
+  const armorMax = equip.armorMaxDex
+  const loadMax = load.maxDex
+
+  if (armorMax !== null && loadMax !== null) {
+    // Both apply — use the worse (lower)
+    if (armorMax <= loadMax) {
+      return { value: armorMax, sources: { 'armor': armorMax } }
+    } else {
+      const categoryKey = `${load.category}-load`
+      return { value: loadMax, sources: { [categoryKey]: loadMax } }
+    }
+  } else if (armorMax !== null) {
+    return { value: armorMax, sources: { 'armor': armorMax } }
+  } else if (loadMax !== null) {
+    const categoryKey = `${load.category}-load`
+    return { value: loadMax, sources: { [categoryKey]: loadMax } }
+  }
+
+  return { value: null, sources: {} }
 }
 
 /**
@@ -161,9 +324,18 @@ function sumValues(obj: Record<string, unknown>): number {
 
 // --- Propagation functions ---
 
+// Skills that take ACP
+const ACP_SKILLS = new Set([
+  'balance', 'climb', 'escape-artist', 'hide', 'jump',
+  'move-silently', 'sleight-of-hand', 'tumble',
+])
+// Swim takes double ACP
+const DOUBLE_ACP_SKILLS = new Set(['swim'])
+
 function propagateToSkills(
   data: { character?: Record<string, unknown> },
   abilityMods: Record<string, number>,
+  effectiveAcp: { value: number, sources: Record<string, number> },
   hasChanges: boolean,
 ): boolean {
   const skills = data.character?.skills as
@@ -176,9 +348,10 @@ function propagateToSkills(
     const mods = skillArr[1]
     if (!mods || typeof mods !== 'object' || Array.isArray(mods)) continue
 
+    const modsObj = mods as Record<string, number>
+
     // Determine which ability this skill uses
     const knownAbility = SKILL_ABILITIES[skillName]
-    // Also check for perform-* and craft-* and knowledge-* patterns
     const baseSkill = skillName.split('-')[0]
     let abbrKey: string | undefined
 
@@ -193,9 +366,8 @@ function propagateToSkills(
     } else if (baseSkill === 'profession') {
       abbrKey = 'wis'
     } else {
-      // Check if the modifier object has any ability key
       for (const abbr of Object.values(ABILITY_ABBR)) {
-        if (abbr in (mods as Record<string, unknown>)) {
+        if (abbr in modsObj) {
           abbrKey = abbr
           break
         }
@@ -204,6 +376,21 @@ function propagateToSkills(
 
     if (abbrKey && abbrKey in abilityMods) {
       if (updateModifierArray(skillArr, abbrKey, abilityMods[abbrKey]!)) {
+        hasChanges = true
+      }
+    }
+
+    // Update ACP in skills that have it
+    if ('acp' in modsObj && effectiveAcp.value !== 0) {
+      const acpForSkill = DOUBLE_ACP_SKILLS.has(skillName)
+        ? effectiveAcp.value * 2
+        : effectiveAcp.value
+      if (modsObj.acp !== acpForSkill) {
+        modsObj.acp = acpForSkill
+        const newTotal = sumValues(modsObj)
+        if (skillArr[0] !== newTotal) {
+          skillArr[0] = newTotal
+        }
         hasChanges = true
       }
     }
@@ -384,71 +571,147 @@ function propagateToGrapple(
 function propagateToDefense(
   data: { character?: Record<string, unknown> },
   abilityMods: Record<string, number>,
+  equipStats: EquipmentStats,
+  effectiveMaxDex: { value: number | null, sources: Record<string, number> },
+  effectiveAcp: { value: number, sources: Record<string, number> },
   hasChanges: boolean,
 ): boolean {
   const defense = (data.character?.combat as Record<string, unknown>)
     ?.defense as Record<string, unknown> | undefined
   if (!defense) return hasChanges
 
-  const dexMod = abilityMods['dex']
-  if (dexMod === undefined) return hasChanges
+  const dexMod = abilityMods['dex'] ?? 0
 
-  // AC: [total, {base: 10, dex: n, ...}]
+  // Cap dex mod by effective max-dex for AC purposes
+  const dexForAc = effectiveMaxDex.value !== null
+    ? Math.min(dexMod, effectiveMaxDex.value)
+    : dexMod
+
+  // AC: [total, {base: 10, armor: N, shield: N, dex: n, ...}]
   if (defense.ac && Array.isArray(defense.ac)) {
-    if (updateModifierArray(defense.ac as unknown[], 'dex', dexMod)) {
-      hasChanges = true
+    const acArr = defense.ac as unknown[]
+    if (acArr.length >= 2 && typeof acArr[1] === 'object' && !Array.isArray(acArr[1])) {
+      const mods = acArr[1] as Record<string, number>
+      let changed = false
+
+      // Update dex (capped)
+      if (mods.dex !== dexForAc) { mods.dex = dexForAc; changed = true }
+
+      // Update armor bonus from equipment
+      if (equipStats.armorAc > 0) {
+        if (mods.armor !== equipStats.armorAc) { mods.armor = equipStats.armorAc; changed = true }
+      }
+      if (equipStats.shieldAc > 0) {
+        if (mods.shield !== equipStats.shieldAc) { mods.shield = equipStats.shieldAc; changed = true }
+      }
+
+      if (changed) {
+        acArr[0] = sumValues(mods)
+        hasChanges = true
+      }
     }
   }
 
-  // Touch AC: [total, {base: 10, dex: n, ...}]
+  // Touch AC: [total, {base: 10, dex: n, ...}] — no armor, shield, or natural armor
   if (defense['touch-ac'] && Array.isArray(defense['touch-ac'])) {
-    if (
-      updateModifierArray(
-        defense['touch-ac'] as unknown[],
-        'dex',
-        dexMod,
-      )
-    ) {
+    if (updateModifierArray(defense['touch-ac'] as unknown[], 'dex', dexForAc)) {
       hasChanges = true
     }
   }
 
-  // Flat-footed AC: include dex only if negative, omit if positive
-  // Note: YAML may parse [6, base: 10, dex: -4] as [6, {base: 10}, {dex: -4}]
-  // so we need to handle both merged and spread modifier objects
+  // Flat-footed AC: spread format, include armor+shield but dex only if negative
   if (defense['flat-footed-ac'] && Array.isArray(defense['flat-footed-ac'])) {
     const ffArr = defense['flat-footed-ac'] as unknown[]
     if (ffArr.length >= 2) {
-      // Merge all modifier objects from positions 1+ into a single map
-      const merged: Record<string, number> = {}
+      // Collect all modifier key-value pairs from positions 1+
+      const mods: Array<[string, number]> = []
       for (let i = 1; i < ffArr.length; i++) {
         const el = ffArr[i]
         if (el && typeof el === 'object' && !Array.isArray(el)) {
           for (const [k, v] of Object.entries(el as Record<string, unknown>)) {
-            if (typeof v === 'number') merged[k] = v
+            if (typeof v === 'number') mods.push([k, v])
           }
         }
       }
 
-      if (dexMod < 0) {
-        if (merged['dex'] !== dexMod) {
-          merged['dex'] = dexMod
-          hasChanges = true
+      let ffChanged = false
+
+      // Update armor/shield in flat-footed
+      if (equipStats.armorAc > 0) {
+        const armorEntry = mods.find(([k]) => k === 'armor')
+        if (armorEntry) {
+          if (armorEntry[1] !== equipStats.armorAc) { armorEntry[1] = equipStats.armorAc; ffChanged = true }
+        } else {
+          mods.push(['armor', equipStats.armorAc])
+          ffChanged = true
         }
-      } else {
-        if ('dex' in merged) {
-          delete merged['dex']
-          hasChanges = true
+      }
+      if (equipStats.shieldAc > 0) {
+        const shieldEntry = mods.find(([k]) => k === 'shield')
+        if (shieldEntry) {
+          if (shieldEntry[1] !== equipStats.shieldAc) { shieldEntry[1] = equipStats.shieldAc; ffChanged = true }
+        } else {
+          mods.push(['shield', equipStats.shieldAc])
+          ffChanged = true
         }
       }
 
-      // Recalculate total and rebuild array as [total, {merged}]
-      const newTotal = sumValues(merged)
-      if (ffArr[0] !== newTotal || ffArr.length > 2 || hasChanges) {
-        ffArr[0] = newTotal
-        ffArr[1] = { ...merged }
-        // Remove extra elements (from spread format)
-        ffArr.length = 2
+      // Apply dex rule: include only if negative
+      const dexIdx = mods.findIndex(([k]) => k === 'dex')
+      if (dexMod < 0) {
+        if (dexIdx >= 0) {
+          if (mods[dexIdx]![1] !== dexMod) { mods[dexIdx]![1] = dexMod; ffChanged = true }
+        } else {
+          mods.push(['dex', dexMod])
+          ffChanged = true
+        }
+      } else if (dexIdx >= 0) {
+        mods.splice(dexIdx, 1)
+        ffChanged = true
+      }
+
+      const newTotal = mods.reduce((sum, [, v]) => sum + v, 0)
+      if (ffArr[0] !== newTotal) ffChanged = true
+
+      if (ffChanged) {
+        ffArr.length = 0
+        ffArr.push(newTotal)
+        for (const [k, v] of mods) {
+          ffArr.push({ [k]: v })
+        }
+        hasChanges = true
+      }
+    }
+  }
+
+  // ACP: update from effective ACP
+  if (defense.acp && Array.isArray(defense.acp) && effectiveAcp.value !== 0) {
+    const acpArr = defense.acp as unknown[]
+    if (acpArr.length >= 2) {
+      const currentTotal = acpArr[0]
+      if (currentTotal !== effectiveAcp.value) {
+        // Rebuild in spread format with the dominating sources
+        acpArr.length = 0
+        acpArr.push(effectiveAcp.value)
+        for (const [k, v] of Object.entries(effectiveAcp.sources)) {
+          acpArr.push({ [k]: v })
+        }
+        hasChanges = true
+      }
+    }
+  }
+
+  // Max-dex: update from effective max-dex
+  if (defense['max-dex'] && Array.isArray(defense['max-dex']) && effectiveMaxDex.value !== null) {
+    const mdArr = defense['max-dex'] as unknown[]
+    if (mdArr.length >= 2) {
+      const currentTotal = mdArr[0]
+      if (currentTotal !== effectiveMaxDex.value) {
+        mdArr.length = 0
+        mdArr.push(effectiveMaxDex.value)
+        for (const [k, v] of Object.entries(effectiveMaxDex.sources)) {
+          mdArr.push({ [k]: v })
+        }
         hasChanges = true
       }
     }
