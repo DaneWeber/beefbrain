@@ -17,6 +17,11 @@ const flowStylePaths = [
   'character.special.feats.*',
   'character.inventory._on',
   'character.inventory.*.*',
+  'character.spells.*.casting',
+  'character.spells.*.domains',
+  'character.spells.*.slots.*',
+  'character.spells.*.prepared.*',
+  'character.spells.*.known.*',
 ]
 export function setSelectiveFlowStyle(node: unknown, path: string[] = []) {
   for (const pattern of flowStylePaths) {

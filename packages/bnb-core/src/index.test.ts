@@ -273,7 +273,7 @@ character:
     hd: [1, 10]
     max-hp: [10, {con: 0, rolls: 10}]
     hp: [10, {max-hp: 10, damage: 0}]
-    fighter: [1, {hd: 10, hp: [10]}]
+    fighter: [1, hp: [10], {hd: 10, bab: good, fort: good, ref: poor, will: poor}]
 `
           const output = parseYAML(updateCalculatedFields(yamlContent))
           expect(output.character.levels['max-hp'][1].con).toBe(3)
@@ -532,7 +532,7 @@ character:
   abilities:
     strength: [10, str: 0]
   levels:
-    fighter: [5, {hd: 10, hp: [10, 8, 7, 6, 9]}]
+    fighter: [5, hp: [10, 8, 7, 6, 9], {hd: 10, bab: good, fort: good, ref: poor, will: poor}]
   combat:
     attack:
       bab: [0, fighter: 0]
@@ -548,8 +548,8 @@ character:
   abilities:
     strength: [10, str: 0]
   levels:
-    fighter: [3, {hd: 10, hp: [10, 8, 6]}]
-    wizard: [2, {hd: 4, hp: [4, 3]}]
+    fighter: [3, hp: [10, 8, 6], {hd: 10, bab: good, fort: good, ref: poor, will: poor}]
+    wizard: [2, hp: [4, 3], {hd: 4, bab: poor, fort: poor, ref: poor, will: good}]
   combat:
     attack:
       bab: [0, {fighter: 0, wizard: 0}]
@@ -568,7 +568,7 @@ character:
     dexterity: [10, dex: 0]
     wisdom: [10, wis: 0]
   levels:
-    fighter: [5, {hd: 10, hp: [10, 8, 7, 6, 9]}]
+    fighter: [5, hp: [10, 8, 7, 6, 9], {hd: 10, bab: good, fort: good, ref: poor, will: poor}]
   combat:
     saves:
       fortitude: [0, {fighter: 0, con: 0}]
@@ -592,8 +592,8 @@ character:
     dexterity: [10, dex: 0]
     wisdom: [12, wis: 1]
   levels:
-    fighter: [3, {hd: 10, hp: [10, 8, 6]}]
-    wizard: [2, {hd: 4, hp: [4, 3]}]
+    fighter: [3, hp: [10, 8, 6], {hd: 10, bab: good, fort: good, ref: poor, will: poor}]
+    wizard: [2, hp: [4, 3], {hd: 4, bab: poor, fort: poor, ref: poor, will: good}]
   combat:
     saves:
       fortitude: [0, {fighter: 0, wizard: 0, con: 0}]
@@ -621,8 +621,8 @@ character:
     hd: [5, 10]
     max-hp: [0, {con: 0, rolls: 0}]
     hp: [0, {max-hp: 0, damage: 0}]
-    fighter: [3, {hd: 10, hp: [10, 8, 6]}]
-    wizard: [2, {hd: 4, hp: [4, 3]}]
+    fighter: [3, hp: [10, 8, 6], {hd: 10, bab: good, fort: good, ref: poor, will: poor}]
+    wizard: [2, hp: [4, 3], {hd: 4, bab: poor, fort: poor, ref: poor, will: good}]
 `
           const output = parseYAML(updateCalculatedFields(yamlContent))
           // con = 2 * 5 HD = 10, rolls = 10+8+6+4+3 = 31
@@ -673,8 +673,8 @@ character:
     strength: [10, str: 0]
   levels:
     hd: [0, 0]
-    fighter: [3, {hd: 10, hp: [10, 8, 6]}]
-    wizard: [2, {hd: 4, hp: [4, 3]}]
+    fighter: [3, hp: [10, 8, 6], {hd: 10, bab: good, fort: good, ref: poor, will: poor}]
+    wizard: [2, hp: [4, 3], {hd: 4, bab: poor, fort: poor, ref: poor, will: good}]
 `
           const output = parseYAML(updateCalculatedFields(yamlContent))
           expect(output.character.levels.hd[0]).toBe(5)
@@ -737,6 +737,107 @@ character:
           const output = parseYAML(updateCalculatedFields(yamlContent))
           expect(output.character.movement.speed[1]['heavy-armor']).toBe(-10)
           expect(output.character.movement.speed[0]).toBe(20)
+        })
+      })
+      describe('spell slot derivation', () => {
+        it('should derive bonus wizard spell slots from intelligence', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    intelligence: [16, int: 3]
+  spells:
+    wizard:
+      casting: [prepared, int]
+      slots:
+        0: [4, wizard: 4]
+        1: [4, {wizard: 3, int: 0}]
+        2: [3, {wizard: 2, int: 0}]
+        3: [2, {wizard: 1, int: 0}]
+      prepared:
+        0: [detect magic, read magic, light, mage hand]
+        1: [magic missile, shield, mage armor, sleep]
+        2: [scorching ray, mirror image, web]
+        3: [fireball, haste]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          // Int mod 3: +1 bonus at levels 1, 2, 3
+          expect(output.character.spells.wizard.slots[1][1].int).toBe(1)
+          expect(output.character.spells.wizard.slots[1][0]).toBe(4) // 3+1
+          expect(output.character.spells.wizard.slots[2][1].int).toBe(1)
+          expect(output.character.spells.wizard.slots[2][0]).toBe(3) // 2+1
+          expect(output.character.spells.wizard.slots[3][1].int).toBe(1)
+          expect(output.character.spells.wizard.slots[3][0]).toBe(2) // 1+1
+          // Level 0 never gets bonus
+          expect(output.character.spells.wizard.slots[0][0]).toBe(4)
+        })
+        it('should derive bonus cleric spell slots with domain slots', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    wisdom: [18, wis: 4]
+  spells:
+    cleric:
+      casting: [prepared, wis]
+      domains: [sun, war]
+      slots:
+        0: [5, cleric: 5]
+        1: [5, {cleric: 2, wis: 0, domain: 1}]
+        2: [4, {cleric: 2, wis: 0, domain: 1}]
+      prepared:
+        0: [detect magic, read magic, guidance, light, mending]
+        1: [bless, protection from evil, doom, cure light wounds, sun-domain: endure elements]
+        2: [bulls strength, bears endurance, hold person, war-domain: spiritual weapon]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          // Wis mod 4: +1 bonus at levels 1, 2, 3, 4
+          expect(output.character.spells.cleric.slots[1][1].wis).toBe(1)
+          expect(output.character.spells.cleric.slots[1][1].domain).toBe(1)
+          expect(output.character.spells.cleric.slots[1][0]).toBe(4) // 2+1+1
+          expect(output.character.spells.cleric.slots[2][1].wis).toBe(1)
+          expect(output.character.spells.cleric.slots[2][0]).toBe(4) // 2+1+1
+          // Domains preserved
+          expect(output.character.spells.cleric.domains).toEqual(['sun', 'war'])
+        })
+        it('should handle high casting stat with extra bonus slots', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    intelligence: [26, int: 8]
+  spells:
+    wizard:
+      casting: [prepared, int]
+      slots:
+        1: [3, {wizard: 3, int: 0}]
+        5: [2, {wizard: 1, int: 0}]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          // Int mod 8: level 1 bonus = floor((8-1)/4)+1 = floor(7/4)+1 = 1+1 = 2
+          expect(output.character.spells.wizard.slots[1][1].int).toBe(2)
+          expect(output.character.spells.wizard.slots[1][0]).toBe(5) // 3+2
+          // level 5 bonus = floor((8-5)/4)+1 = floor(3/4)+1 = 0+1 = 1
+          expect(output.character.spells.wizard.slots[5][1].int).toBe(1)
+          expect(output.character.spells.wizard.slots[5][0]).toBe(2) // 1+1
+        })
+        it('should handle sorcerer with known spells', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    charisma: [16, cha: 3]
+  spells:
+    sorcerer:
+      casting: [spontaneous, cha]
+      slots:
+        0: [6, sorcerer: 6]
+        1: [7, {sorcerer: 6, cha: 0}]
+      known:
+        0: [detect magic, read magic, light, mage hand]
+        1: [magic missile, shield, grease]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.spells.sorcerer.slots[1][1].cha).toBe(1)
+          expect(output.character.spells.sorcerer.slots[1][0]).toBe(7) // 6+1
+          // Known list preserved
+          expect(output.character.spells.sorcerer.known[1]).toEqual(['magic missile', 'shield', 'grease'])
         })
       })
       it('should calculate the correct strength without modifiers', () => {

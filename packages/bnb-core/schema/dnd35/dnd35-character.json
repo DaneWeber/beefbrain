@@ -1,4 +1,27 @@
 {
+  "componentBindings": {
+    "str": ".character.abilities.strength[1].str",
+    "dex": ".character.abilities.dexterity[1].dex",
+    "con": ".character.abilities.constitution[1].con",
+    "int": ".character.abilities.intelligence[1].int",
+    "wis": ".character.abilities.wisdom[1].wis",
+    "cha": ".character.abilities.charisma[1].cha",
+    "bab": ".character.combat.attack.bab[0]"
+  },
+  "functions": {
+    "babForProgression": {
+      "params": ["progression", "level"],
+      "formula": "equalText(progression, 'good') ? level : (equalText(progression, 'average') ? floor(level * 3 / 4) : floor(level / 2))"
+    },
+    "saveForProgression": {
+      "params": ["progression", "level"],
+      "formula": "equalText(progression, 'good') ? 2 + floor(level / 2) : floor(level / 3)"
+    },
+    "bonusSpellSlots": {
+      "params": ["abilityMod", "spellLevel"],
+      "formula": "spellLevel <= 0 or abilityMod < spellLevel ? 0 : floor((abilityMod - spellLevel) / 4) + 1"
+    }
+  },
   "root": {
     "children": [
       {

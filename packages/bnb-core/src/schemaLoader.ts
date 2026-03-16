@@ -45,9 +45,56 @@ export interface SchemaTypeDefinition {
   description?: string
 }
 
+/**
+ * Component bindings: when a modifier object has a key matching one of these,
+ * its value should be set to the resolved source path.
+ * e.g., "str": ".character.abilities.strength[1].str" means
+ * anywhere a [total, {str: N, ...}] pattern appears, str should equal the strength modifier.
+ */
+export interface SchemaComponentBindings {
+  [componentKey: string]: string | {
+    formula: string
+    variables: Record<string, string>
+  }
+}
+
+/**
+ * Schema-defined function that gets registered into the math evaluator.
+ */
+export interface SchemaFunction {
+  params: string[]
+  formula: string
+}
+
+/**
+ * Lookup table for formulas to reference.
+ */
+export interface SchemaLookupTable {
+  values: number[]
+  description?: string
+}
+
+/**
+ * Conditional component: inject/remove a component in a modifier object based on a condition.
+ */
+export interface SchemaConditionalComponent {
+  id: string
+  condition: string
+  conditionVariables?: Record<string, string>
+  target: string
+  key: string
+  value: number | { formula: string, variables: Record<string, string> }
+  removeIfFalse: boolean
+  description?: string
+}
+
 export interface Schema {
   root: SchemaTypeDefinition
-  [typeName: string]: SchemaTypeDefinition
+  componentBindings?: SchemaComponentBindings
+  functions?: Record<string, SchemaFunction>
+  lookupTables?: Record<string, SchemaLookupTable>
+  conditionalComponents?: SchemaConditionalComponent[]
+  [typeName: string]: SchemaTypeDefinition | SchemaComponentBindings | Record<string, SchemaFunction> | Record<string, SchemaLookupTable> | SchemaConditionalComponent[] | undefined
 }
 
 const schemaCache: Record<string, Schema> = {}
@@ -92,7 +139,7 @@ export function getTypeDefinition(
   schema: Schema,
   typeName: string,
 ): SchemaTypeDefinition | undefined {
-  return schema[typeName]
+  return schema[typeName] as SchemaTypeDefinition | undefined
 }
 
 /**

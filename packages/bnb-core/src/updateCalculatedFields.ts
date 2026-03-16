@@ -3,7 +3,24 @@ import { dataToCompactYAML } from './dataToCompactYAML'
 import type { Character, Abilities } from '.'
 import { loadSchema } from './schemaLoader'
 import { calculateFieldValue, getAbilityArrayType } from './calculationEngine'
-import { CLASS_DATA, calculateBab, calculateBaseSave } from './dnd35ClassData'
+import { applyComponentBindings } from './genericEngine'
+// BAB and save progression formulas (used by class entries in character YAML)
+function calculateBab(progression: string, level: number): number {
+  switch (progression) {
+    case 'good': return level
+    case 'average': return Math.floor(level * 3 / 4)
+    case 'poor': return Math.floor(level / 2)
+    default: return 0
+  }
+}
+
+function calculateBaseSave(progression: string, level: number): number {
+  switch (progression) {
+    case 'good': return 2 + Math.floor(level / 2)
+    case 'poor': return Math.floor(level / 3)
+    default: return 0
+  }
+}
 
 // Maps ability name to its abbreviation used in modifier objects
 const ABILITY_ABBR: Record<string, string> = {
@@ -13,49 +30,6 @@ const ABILITY_ABBR: Record<string, string> = {
   intelligence: 'int',
   wisdom: 'wis',
   charisma: 'cha',
-}
-
-// Skills keyed by their primary ability abbreviation
-const SKILL_ABILITIES: Record<string, string> = {
-  appraise: 'int',
-  balance: 'dex',
-  bluff: 'cha',
-  climb: 'str',
-  concentration: 'con',
-  craft: 'int',
-  'decipher-script': 'int',
-  diplomacy: 'cha',
-  'disable-device': 'int',
-  disguise: 'cha',
-  'escape-artist': 'dex',
-  forgery: 'int',
-  'gather-information': 'cha',
-  'handle-animal': 'cha',
-  heal: 'wis',
-  hide: 'dex',
-  intimidate: 'cha',
-  jump: 'str',
-  listen: 'wis',
-  'move-silently': 'dex',
-  'open-lock': 'dex',
-  ride: 'dex',
-  search: 'int',
-  'sense-motive': 'wis',
-  'sleight-of-hand': 'dex',
-  spellcraft: 'int',
-  spot: 'wis',
-  survival: 'wis',
-  swim: 'str',
-  tumble: 'dex',
-  'use-magic-device': 'cha',
-  'use-rope': 'dex',
-}
-
-// Save mapping keyed by ability abbreviation
-const SAVE_ABILITIES: Record<string, string> = {
-  fortitude: 'con',
-  reflex: 'dex',
-  will: 'wis',
 }
 
 /**
@@ -102,11 +76,14 @@ export function updateCalculatedFields(yamlContent: string): string {
 
   const abilities = data.character.abilities as Abilities
 
+  // Load schema once for the entire calculation
+  const schema = loadSchema('dnd35-character')
+
   // Step 0: Read magic item bonuses from equipment and apply to ability components
   hasChanges = propagateEquipmentToAbilities(data, hasChanges)
 
   // Step 1: Calculate ability scores and modifiers
-  hasChanges = calculateAbilityScores(character, hasChanges, data)
+  hasChanges = calculateAbilityScores(character, hasChanges, data, schema)
 
   // Step 2: Build ability modifier map
   const abilityMods = getAbilityModifiers(abilities)
@@ -125,23 +102,31 @@ export function updateCalculatedFields(yamlContent: string): string {
   const effectiveAcp = calculateEffectiveAcp(equipStats, updatedLoadEffects)
   const effectiveMaxDex = calculateEffectiveMaxDex(equipStats, updatedLoadEffects)
 
-  // Step 6: Propagate ability modifiers to all dependent fields
-  hasChanges = propagateToSkills(data, abilityMods, effectiveAcp, hasChanges)
-  hasChanges = propagateToInitiative(data, abilityMods, hasChanges)
-  hasChanges = propagateToDefense(data, abilityMods, equipStats, effectiveMaxDex, effectiveAcp, hasChanges)
+  // Step 6: Derive class-based values (must run before bindings so BAB is available)
   hasChanges = propagateToHitDice(data, hasChanges)
-  hasChanges = propagateToMaxHp(data, abilityMods, hasChanges)
   hasChanges = propagateToBab(data, hasChanges)
   hasChanges = propagateToBaseSaves(data, abilityMods, hasChanges)
-  hasChanges = propagateBabToAttacks(data, hasChanges)
-  hasChanges = propagateToSaves(data, abilityMods, hasChanges)
-  // Melee/ranged/grapple run after BAB so they pick up derived BAB values
-  hasChanges = propagateToMeleeAttacks(data, abilityMods, hasChanges)
-  hasChanges = propagateToRangedAttacks(data, abilityMods, hasChanges)
-  hasChanges = propagateToGrapple(data, abilityMods, hasChanges)
+
+  // Step 7: Apply schema-driven component bindings
+  // This handles ability mod propagation to skills, saves, initiative,
+  // melee/ranged/grapple, and BAB within attacks.
+  if (schema.componentBindings) {
+    if (applyComponentBindings(data, schema.componentBindings)) {
+      hasChanges = true
+    }
+  }
+
+  // Step 8: Specialized propagation that overrides bindings where needed
+  // (e.g., dex capped by max-dex in AC, con*HD in max-hp, bonus spell slots)
+  hasChanges = propagateToSkillAcp(data, effectiveAcp, hasChanges)
+  hasChanges = propagateToDefense(data, abilityMods, equipStats, effectiveMaxDex, effectiveAcp, hasChanges)
+  hasChanges = propagateToMaxHp(data, abilityMods, hasChanges)
+  hasChanges = propagateToMeleeWeaponDetails(data, abilityMods, hasChanges)
+  hasChanges = propagateToRangedWeaponDetails(data, hasChanges)
   hasChanges = propagateToInventoryWeight(data, hasChanges)
   hasChanges = propagateToSynergy(data, hasChanges)
   hasChanges = propagateToSpeed(data, equipStats, updatedLoadEffects, hasChanges)
+  hasChanges = propagateToSpellSlots(data, abilityMods, hasChanges)
 
   if (hasChanges) {
     return dataToCompactYAML(data)
@@ -411,6 +396,37 @@ function updateModifierArray(
   return changed
 }
 
+/**
+ * Like updateModifierArray but also verifies the total even when no modifier changed.
+ * Use this for fields where we know the total should always equal the sum.
+ */
+function updateAndVerifyModifierArray(
+  arr: unknown[],
+  abbrKey: string,
+  newMod: number,
+): boolean {
+  if (!Array.isArray(arr) || arr.length < 2) return false
+  const modifiers = arr[1]
+  if (!modifiers || typeof modifiers !== 'object' || Array.isArray(modifiers))
+    return false
+
+  const mods = modifiers as Record<string, number>
+  let changed = false
+
+  if (abbrKey in mods && mods[abbrKey] !== newMod) {
+    mods[abbrKey] = newMod
+    changed = true
+  }
+
+  const newTotal = sumValues(mods)
+  if (arr[0] !== newTotal) {
+    arr[0] = newTotal
+    changed = true
+  }
+
+  return changed
+}
+
 function sumValues(obj: Record<string, unknown>): number {
   let sum = 0
   for (const v of Object.values(obj)) {
@@ -421,17 +437,16 @@ function sumValues(obj: Record<string, unknown>): number {
 
 // --- Propagation functions ---
 
-// Skills that take ACP
-const ACP_SKILLS = new Set([
-  'balance', 'climb', 'escape-artist', 'hide', 'jump',
-  'move-silently', 'sleight-of-hand', 'tumble',
-])
-// Swim takes double ACP
+// Skills that take double ACP (swim in D&D 3.5e)
+// TODO: move to schema as a conditional component or skill property
 const DOUBLE_ACP_SKILLS = new Set(['swim'])
 
-function propagateToSkills(
+/**
+ * Propagate ACP to skills that have an 'acp' component.
+ * Ability mod propagation is now handled by componentBindings.
+ */
+function propagateToSkillAcp(
   data: { character?: Record<string, unknown> },
-  abilityMods: Record<string, number>,
   effectiveAcp: { value: number, sources: Record<string, number> },
   hasChanges: boolean,
 ): boolean {
@@ -446,36 +461,6 @@ function propagateToSkills(
     if (!mods || typeof mods !== 'object' || Array.isArray(mods)) continue
 
     const modsObj = mods as Record<string, number>
-
-    // Determine which ability this skill uses
-    const knownAbility = SKILL_ABILITIES[skillName]
-    const baseSkill = skillName.split('-')[0]
-    let abbrKey: string | undefined
-
-    if (knownAbility) {
-      abbrKey = knownAbility
-    } else if (baseSkill === 'perform') {
-      abbrKey = 'cha'
-    } else if (baseSkill === 'craft') {
-      abbrKey = 'int'
-    } else if (baseSkill === 'knowledge') {
-      abbrKey = 'int'
-    } else if (baseSkill === 'profession') {
-      abbrKey = 'wis'
-    } else {
-      for (const abbr of Object.values(ABILITY_ABBR)) {
-        if (abbr in modsObj) {
-          abbrKey = abbr
-          break
-        }
-      }
-    }
-
-    if (abbrKey && abbrKey in abilityMods) {
-      if (updateModifierArray(skillArr, abbrKey, abilityMods[abbrKey]!)) {
-        hasChanges = true
-      }
-    }
 
     // Update ACP in skills that have it
     if ('acp' in modsObj && effectiveAcp.value !== 0) {
@@ -495,42 +480,11 @@ function propagateToSkills(
   return hasChanges
 }
 
-function propagateToSaves(
-  data: { character?: Record<string, unknown> },
-  abilityMods: Record<string, number>,
-  hasChanges: boolean,
-): boolean {
-  const saves = (data.character?.combat as Record<string, unknown>)
-    ?.saves as Record<string, unknown> | undefined
-  if (!saves) return hasChanges
-
-  for (const [saveName, saveArr] of Object.entries(saves)) {
-    if (!Array.isArray(saveArr) || saveArr.length < 2) continue
-    const abbrKey = SAVE_ABILITIES[saveName]
-    if (abbrKey && abbrKey in abilityMods) {
-      if (updateModifierArray(saveArr, abbrKey, abilityMods[abbrKey]!)) {
-        hasChanges = true
-      }
-    }
-  }
-  return hasChanges
-}
-
-function propagateToInitiative(
-  data: { character?: Record<string, unknown> },
-  abilityMods: Record<string, number>,
-  hasChanges: boolean,
-): boolean {
-  const combat = data.character?.combat as Record<string, unknown> | undefined
-  if (!combat?.initiative) return hasChanges
-  const initArr = combat.initiative as unknown[]
-  if (updateModifierArray(initArr, 'dex', abilityMods['dex'] ?? 0)) {
-    hasChanges = true
-  }
-  return hasChanges
-}
-
-function propagateToMeleeAttacks(
+/**
+ * Handle named melee weapon details: generic attack propagation, damage strings.
+ * Ability mod and BAB binding to generic attacks is handled by componentBindings.
+ */
+function propagateToMeleeWeaponDetails(
   data: { character?: Record<string, unknown> },
   abilityMods: Record<string, number>,
   hasChanges: boolean,
@@ -540,31 +494,23 @@ function propagateToMeleeAttacks(
   if (!attack?.melee) return hasChanges
 
   const melee = attack.melee as Record<string, unknown>
-  const strMod = abilityMods['str']
-  if (strMod === undefined) return hasChanges
+  const strMod = abilityMods['str'] ?? 0
 
-  // Update generic melee attack: _: [total, {bab: n, str: n}, [...]]
-  if (melee._ && Array.isArray(melee._)) {
-    if (updateModifierArray(melee._ as unknown[], 'str', strMod)) {
-      hasChanges = true
-    }
-  }
-
-  // Update named melee weapons
   for (const [weaponName, weaponArr] of Object.entries(melee)) {
     if (weaponName === '_') continue
     if (!Array.isArray(weaponArr) || weaponArr.length < 5) continue
 
-    // weaponArr[4] is the str modifier object: {str: n}
+    // Update str modifier in named weapon (position 4: {str: N})
+    // This is a single-key object not caught by componentBindings
     const strObj = weaponArr[4]
-    if (strObj && typeof strObj === 'object' && 'str' in strObj) {
+    if (strObj && typeof strObj === 'object' && !Array.isArray(strObj) && 'str' in strObj) {
       if ((strObj as Record<string, number>).str !== strMod) {
         ;(strObj as Record<string, number>).str = strMod
         hasChanges = true
       }
     }
 
-    // Propagate generic melee bonus to weaponArr[3]._
+    // Propagate generic melee total to weaponArr[3]._
     if (melee._ && Array.isArray(melee._) && typeof (melee._ as unknown[])[0] === 'number') {
       if (weaponArr[3] && typeof weaponArr[3] === 'object') {
         const atkMods = weaponArr[3] as Record<string, number>
@@ -585,7 +531,6 @@ function propagateToMeleeAttacks(
     }
 
     // Update weapon damage string
-    // Check tags (last array element) for weapon handling type
     if (typeof weaponArr[1] === 'string') {
       const tags = Array.isArray(weaponArr[weaponArr.length - 1])
         ? (weaponArr[weaponArr.length - 1] as string[])
@@ -600,7 +545,6 @@ function propagateToMeleeAttacks(
         damageMod = Math.floor(strMod * 0.5)
       }
 
-      // Match XdY+N or XdY-N patterns
       const newDamage = weaponArr[1].replace(
         /(\d+d\d+)[+-]\d+/,
         `$1+${damageMod}`,
@@ -614,9 +558,12 @@ function propagateToMeleeAttacks(
   return hasChanges
 }
 
-function propagateToRangedAttacks(
+/**
+ * Handle named ranged weapon details: generic attack propagation.
+ * Ability mod and BAB binding to generic attacks is handled by componentBindings.
+ */
+function propagateToRangedWeaponDetails(
   data: { character?: Record<string, unknown> },
-  abilityMods: Record<string, number>,
   hasChanges: boolean,
 ): boolean {
   const attack = (data.character?.combat as Record<string, unknown>)
@@ -624,22 +571,12 @@ function propagateToRangedAttacks(
   if (!attack?.ranged) return hasChanges
 
   const ranged = attack.ranged as Record<string, unknown>
-  const dexMod = abilityMods['dex']
-  if (dexMod === undefined) return hasChanges
 
-  // Update generic ranged attack
-  if (ranged._ && Array.isArray(ranged._)) {
-    if (updateModifierArray(ranged._ as unknown[], 'dex', dexMod)) {
-      hasChanges = true
-    }
-  }
-
-  // Update named ranged weapons
   for (const [weaponName, weaponArr] of Object.entries(ranged)) {
     if (weaponName === '_') continue
     if (!Array.isArray(weaponArr) || weaponArr.length < 4) continue
 
-    // Propagate generic ranged bonus to weaponArr[3]._
+    // Propagate generic ranged total to weaponArr[3]._
     if (ranged._ && Array.isArray(ranged._) && typeof (ranged._ as unknown[])[0] === 'number') {
       if (weaponArr[3] && typeof weaponArr[3] === 'object') {
         const atkMods = weaponArr[3] as Record<string, number>
@@ -658,24 +595,6 @@ function propagateToRangedAttacks(
         hasChanges = true
       }
     }
-  }
-  return hasChanges
-}
-
-function propagateToGrapple(
-  data: { character?: Record<string, unknown> },
-  abilityMods: Record<string, number>,
-  hasChanges: boolean,
-): boolean {
-  const attack = (data.character?.combat as Record<string, unknown>)
-    ?.attack as Record<string, unknown> | undefined
-  if (!attack?.grapple || !Array.isArray(attack.grapple)) return hasChanges
-
-  const strMod = abilityMods['str']
-  if (strMod === undefined) return hasChanges
-
-  if (updateModifierArray(attack.grapple as unknown[], 'str', strMod)) {
-    hasChanges = true
   }
   return hasChanges
 }
@@ -726,7 +645,7 @@ function propagateToDefense(
 
   // Touch AC: [total, {base: 10, dex: n, ...}] — no armor, shield, or natural armor
   if (defense['touch-ac'] && Array.isArray(defense['touch-ac'])) {
-    if (updateModifierArray(defense['touch-ac'] as unknown[], 'dex', dexForAc)) {
+    if (updateAndVerifyModifierArray(defense['touch-ac'] as unknown[], 'dex', dexForAc)) {
       hasChanges = true
     }
   }
@@ -942,21 +861,54 @@ function propagateToMaxHp(
 }
 
 /**
- * Count total hit dice from class entries in levels
- * Class entries look like: fighter: [3, {hd: 10, hp: [10, 8, 6]}]
+ * Parse a class entry from the levels section.
+ * New format: fighter: [3, hp: [10, 8, 7], {hd: 10, bab: good, fort: good, ref: poor, will: poor}]
+ * Parses as: [3, {hp: [10, 8, 7]}, {hd: 10, bab: 'good', ...}]
+ * Also supports old format: fighter: [3, {hd: 10, hp: [10, 8, 7]}]
+ */
+interface ClassEntry {
+  level: number
+  hpRolls: number[]
+  classDef: Record<string, unknown> | null
+}
+
+function parseClassEntry(entry: unknown[]): ClassEntry | null {
+  if (entry.length < 1 || typeof entry[0] !== 'number') return null
+  const level = entry[0]
+  let hpRolls: number[] = []
+  let classDef: Record<string, unknown> | null = null
+
+  for (let i = 1; i < entry.length; i++) {
+    const el = entry[i]
+    if (!el || typeof el !== 'object' || Array.isArray(el)) continue
+    const obj = el as Record<string, unknown>
+
+    // Check if this is an hp rolls entry: {hp: [rolls]}
+    if ('hp' in obj && Array.isArray(obj.hp)) {
+      hpRolls = (obj.hp as unknown[]).filter((v): v is number => typeof v === 'number')
+    }
+    // Check if this is a class definition: has hd, bab, etc.
+    if ('hd' in obj || 'bab' in obj) {
+      classDef = obj
+    }
+  }
+
+  return { level, hpRolls, classDef }
+}
+
+const LEVELS_RESERVED_KEYS = ['xp', 'hd', 'hp', 'max-hp']
+
+/**
+ * Count total hit dice from class entries
  */
 function countTotalHitDice(levels: Record<string, unknown>): number {
   let total = 0
-  // Always count from class entries (authoritative source)
   for (const [key, value] of Object.entries(levels)) {
-    if (['xp', 'hd', 'hp', 'max-hp'].includes(key)) continue
-    if (!Array.isArray(value) || value.length < 1) continue
-    const classLevel = value[0]
-    if (typeof classLevel === 'number') {
-      total += classLevel
-    }
+    if (LEVELS_RESERVED_KEYS.includes(key)) continue
+    if (!Array.isArray(value)) continue
+    const entry = parseClassEntry(value)
+    if (entry) total += entry.level
   }
-  // Fall back to hd entry if no class entries found
   if (total === 0 && levels.hd && Array.isArray(levels.hd) && typeof (levels.hd as unknown[])[0] === 'number') {
     return (levels.hd as number[])[0] ?? 0
   }
@@ -965,27 +917,22 @@ function countTotalHitDice(levels: Record<string, unknown>): number {
 
 /**
  * Sum all HP rolls from class entries
- * Class entries: fighter: [3, {hd: 10, hp: [10, 8, 6]}]
  */
 function sumClassHpRolls(levels: Record<string, unknown>): number {
   let total = 0
   for (const [key, value] of Object.entries(levels)) {
-    if (['xp', 'hd', 'hp', 'max-hp'].includes(key)) continue
-    if (!Array.isArray(value) || value.length < 2) continue
-    const details = value[1]
-    if (!details || typeof details !== 'object' || Array.isArray(details)) continue
-    const hp = (details as Record<string, unknown>).hp
-    if (Array.isArray(hp)) {
-      for (const roll of hp) {
-        if (typeof roll === 'number') total += roll
-      }
+    if (LEVELS_RESERVED_KEYS.includes(key)) continue
+    if (!Array.isArray(value)) continue
+    const entry = parseClassEntry(value)
+    if (entry) {
+      for (const roll of entry.hpRolls) total += roll
     }
   }
   return total
 }
 
 /**
- * Derive BAB from class levels using progression rates
+ * Derive BAB from class levels using progression rates defined in class entries
  */
 function propagateToBab(
   data: { character?: Record<string, unknown> },
@@ -1005,17 +952,16 @@ function propagateToBab(
   let changed = false
   let totalBab = 0
 
-  // Calculate BAB for each class
-  for (const [className, classEntry] of Object.entries(levels)) {
-    if (['xp', 'hd', 'hp', 'max-hp'].includes(className)) continue
-    if (!Array.isArray(classEntry) || classEntry.length < 1) continue
-    const classLevel = classEntry[0]
-    if (typeof classLevel !== 'number') continue
+  for (const [className, classValue] of Object.entries(levels)) {
+    if (LEVELS_RESERVED_KEYS.includes(className)) continue
+    if (!Array.isArray(classValue)) continue
+    const entry = parseClassEntry(classValue)
+    if (!entry || !entry.classDef) continue
 
-    const classData = CLASS_DATA[className]
-    if (!classData) continue
+    const babProgression = entry.classDef.bab
+    if (typeof babProgression !== 'string') continue
 
-    const classBab = calculateBab(classData.bab, classLevel)
+    const classBab = calculateBab(babProgression, entry.level)
     totalBab += classBab
 
     if (mods[className] !== classBab) {
@@ -1032,66 +978,10 @@ function propagateToBab(
   return hasChanges
 }
 
-/**
- * Propagate derived BAB total into melee._, ranged._, and grapple modifier objects
- */
-function propagateBabToAttacks(
-  data: { character?: Record<string, unknown> },
-  hasChanges: boolean,
-): boolean {
-  const attack = (data.character?.combat as Record<string, unknown>)
-    ?.attack as Record<string, unknown> | undefined
-  if (!attack?.bab || !Array.isArray(attack.bab)) return hasChanges
-
-  const babTotal = (attack.bab as unknown[])[0]
-  if (typeof babTotal !== 'number') return hasChanges
-
-  // Update bab in melee._
-  const melee = attack.melee as Record<string, unknown> | undefined
-  if (melee?._ && Array.isArray(melee._)) {
-    const meleeArr = melee._ as unknown[]
-    if (meleeArr.length >= 2 && typeof meleeArr[1] === 'object' && !Array.isArray(meleeArr[1])) {
-      const mods = meleeArr[1] as Record<string, number>
-      if ('bab' in mods && mods.bab !== babTotal) {
-        mods.bab = babTotal
-        meleeArr[0] = sumValues(mods)
-        hasChanges = true
-      }
-    }
-  }
-
-  // Update bab in ranged._
-  const ranged = attack.ranged as Record<string, unknown> | undefined
-  if (ranged?._ && Array.isArray(ranged._)) {
-    const rangedArr = ranged._ as unknown[]
-    if (rangedArr.length >= 2 && typeof rangedArr[1] === 'object' && !Array.isArray(rangedArr[1])) {
-      const mods = rangedArr[1] as Record<string, number>
-      if ('bab' in mods && mods.bab !== babTotal) {
-        mods.bab = babTotal
-        rangedArr[0] = sumValues(mods)
-        hasChanges = true
-      }
-    }
-  }
-
-  // Update bab in grapple
-  if (attack.grapple && Array.isArray(attack.grapple)) {
-    const grappleArr = attack.grapple as unknown[]
-    if (grappleArr.length >= 2 && typeof grappleArr[1] === 'object' && !Array.isArray(grappleArr[1])) {
-      const mods = grappleArr[1] as Record<string, number>
-      if ('bab' in mods && mods.bab !== babTotal) {
-        mods.bab = babTotal
-        grappleArr[0] = sumValues(mods)
-        hasChanges = true
-      }
-    }
-  }
-
-  return hasChanges
-}
+// propagateBabToAttacks removed — componentBindings handle "bab" key propagation
 
 /**
- * Derive base saves from class levels using progression rates
+ * Derive base saves from class levels using progression rates defined in class entries
  */
 function propagateToBaseSaves(
   data: { character?: Record<string, unknown> },
@@ -1103,10 +993,10 @@ function propagateToBaseSaves(
     ?.saves as Record<string, unknown> | undefined
   if (!levels || !saves) return hasChanges
 
-  const saveTypes: Array<{ name: string, saveKey: 'fort' | 'ref' | 'will', abilityKey: string }> = [
-    { name: 'fortitude', saveKey: 'fort', abilityKey: 'con' },
-    { name: 'reflex', saveKey: 'ref', abilityKey: 'dex' },
-    { name: 'will', saveKey: 'will', abilityKey: 'wis' },
+  const saveTypes: Array<{ name: string, saveKey: string }> = [
+    { name: 'fortitude', saveKey: 'fort' },
+    { name: 'reflex', saveKey: 'ref' },
+    { name: 'will', saveKey: 'will' },
   ]
 
   for (const { name, saveKey } of saveTypes) {
@@ -1118,16 +1008,16 @@ function propagateToBaseSaves(
 
     let changed = false
 
-    for (const [className, classEntry] of Object.entries(levels)) {
-      if (['xp', 'hd', 'hp', 'max-hp'].includes(className)) continue
-      if (!Array.isArray(classEntry) || classEntry.length < 1) continue
-      const classLevel = classEntry[0]
-      if (typeof classLevel !== 'number') continue
+    for (const [className, classValue] of Object.entries(levels)) {
+      if (LEVELS_RESERVED_KEYS.includes(className)) continue
+      if (!Array.isArray(classValue)) continue
+      const entry = parseClassEntry(classValue)
+      if (!entry || !entry.classDef) continue
 
-      const classData = CLASS_DATA[className]
-      if (!classData) continue
+      const saveProgression = entry.classDef[saveKey]
+      if (typeof saveProgression !== 'string') continue
 
-      const baseSave = calculateBaseSave(classData[saveKey], classLevel)
+      const baseSave = calculateBaseSave(saveProgression, entry.level)
 
       if (className in mods && mods[className] !== baseSave) {
         mods[className] = baseSave
@@ -1162,17 +1052,15 @@ function propagateToHitDice(
   let largestDie = 0
 
   for (const [key, value] of Object.entries(levels)) {
-    if (['xp', 'hd', 'hp', 'max-hp'].includes(key)) continue
-    if (!Array.isArray(value) || value.length < 2) continue
-    const classLevel = value[0]
-    const details = value[1]
-    if (typeof classLevel !== 'number') continue
-    totalHd += classLevel
+    if (LEVELS_RESERVED_KEYS.includes(key)) continue
+    if (!Array.isArray(value)) continue
+    const entry = parseClassEntry(value)
+    if (!entry) continue
+    totalHd += entry.level
 
-    if (details && typeof details === 'object' && !Array.isArray(details)) {
-      const hd = (details as Record<string, unknown>).hd
-      if (typeof hd === 'number' && hd > largestDie) {
-        largestDie = hd
+    if (entry.classDef && typeof entry.classDef.hd === 'number') {
+      if (entry.classDef.hd > largestDie) {
+        largestDie = entry.classDef.hd
       }
     }
   }
@@ -1423,12 +1311,90 @@ function propagateToSpeed(
   return hasChanges
 }
 
+/**
+ * D&D 3.5e bonus spell slots formula:
+ * For spell level N (1+), bonus = floor((mod - N) / 4) + 1 if mod >= N, else 0.
+ * Level 0 spells never get bonus slots.
+ */
+function bonusSpellSlots(abilityMod: number, spellLevel: number): number {
+  if (spellLevel <= 0 || abilityMod < spellLevel) return 0
+  return Math.floor((abilityMod - spellLevel) / 4) + 1
+}
+
+/**
+ * Propagate casting stat modifier to spell slot calculations.
+ * Each class under spells has: casting: [type, stat], slots: {level: [total, {class: N, stat: N, ...}]}
+ */
+function propagateToSpellSlots(
+  data: { character?: Record<string, unknown> },
+  abilityMods: Record<string, number>,
+  hasChanges: boolean,
+): boolean {
+  const spells = data.character?.spells as Record<string, unknown> | undefined
+  if (!spells) return hasChanges
+
+  for (const [className, classSpells] of Object.entries(spells)) {
+    if (!classSpells || typeof classSpells !== 'object' || Array.isArray(classSpells)) continue
+    const spellBlock = classSpells as Record<string, unknown>
+
+    // Read casting info: [type, stat] e.g. [prepared, int]
+    const casting = spellBlock.casting as unknown[]
+    if (!Array.isArray(casting) || casting.length < 2) continue
+    const castingStat = casting[1] as string
+    const statMod = abilityMods[castingStat]
+    if (statMod === undefined) continue
+
+    // Update slots
+    const slots = spellBlock.slots as Record<string, unknown> | undefined
+    if (!slots || typeof slots !== 'object') continue
+
+    for (const [levelStr, slotArr] of Object.entries(slots)) {
+      if (!Array.isArray(slotArr) || slotArr.length < 2) continue
+      const spellLevel = parseInt(levelStr, 10)
+      if (isNaN(spellLevel)) continue
+
+      // Get the modifiers object (position 1)
+      const mods = slotArr[1]
+      if (!mods || typeof mods !== 'object' || Array.isArray(mods)) continue
+      const modsObj = mods as Record<string, number>
+
+      // Calculate bonus slots for this spell level
+      const bonus = bonusSpellSlots(statMod, spellLevel)
+
+      // Update the casting stat key in the modifiers
+      if (castingStat in modsObj && modsObj[castingStat] !== bonus) {
+        modsObj[castingStat] = bonus
+        slotArr[0] = sumValues(modsObj)
+        hasChanges = true
+      }
+    }
+
+    // Validate prepared count against slot count
+    const prepared = spellBlock.prepared as Record<string, unknown> | undefined
+    if (prepared && slots) {
+      for (const [levelStr, prepList] of Object.entries(prepared)) {
+        if (!Array.isArray(prepList)) continue
+        const slotArr = (slots as Record<string, unknown>)[levelStr]
+        if (!Array.isArray(slotArr)) continue
+        const totalSlots = slotArr[0]
+        if (typeof totalSlots === 'number' && prepList.length > totalSlots) {
+          // Over-prepared: we could warn, but for now just note it
+          // Future: add warnings/errors to output
+        }
+      }
+    }
+  }
+
+  return hasChanges
+}
+
 function calculateAbilityScores(
   character: Character,
   hasChanges: boolean,
   rootData: unknown,
+  schema?: import('./schemaLoader').Schema,
 ) {
-  const schema = loadSchema('dnd35-character')
+  if (!schema) schema = loadSchema('dnd35-character')
 
   for (const [abilityName, abilityArr] of Object.entries(character.abilities)) {
     if (Array.isArray(abilityArr)) {

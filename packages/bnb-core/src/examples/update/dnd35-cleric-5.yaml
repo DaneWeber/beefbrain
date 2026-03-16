@@ -1,0 +1,73 @@
+---
+character:
+  description:
+    name: Sister Mara
+    race: Human
+    alignment: NG
+    size: M
+  abilities:
+    strength: [0, str: 0, {base: 12}]
+    dexterity: [0, dex: 0, {base: 10}]
+    constitution: [0, con: 0, {base: 14}]
+    intelligence: [0, int: 0, {base: 10}]
+    wisdom: [0, wis: 0, {base: 18}]
+    charisma: [0, cha: 0, {base: 13}]
+  levels:
+    xp: 10000
+    hd: [0, 0]
+    hp: [0, {max-hp: 0, damage: 0}]
+    max-hp: [0, {con: 0, rolls: 0}]
+    cleric: [5, hp: [8, 6, 5, 7, 4], {hd: 8, bab: average, fort: good, ref: poor, will: good}]
+  combat:
+    initiative: [0, dex: 0]
+    saves:
+      fortitude: [0, {cleric: 0, con: 0}]
+      reflex: [0, {cleric: 0, dex: 0}]
+      will: [0, {cleric: 0, wis: 0}]
+    attack:
+      bab: [0, cleric: 0]
+      melee:
+        _: [0, {bab: 0, str: 0}]
+        heavy-mace: [0, 1d8+0, x2, {_: 0}, str: 0, {}, [heavy-mace]]
+      ranged:
+        _: [0, {bab: 0, dex: 0}]
+      grapple: [0, {bab: 0, str: 0}]
+    defense:
+      ac: [0, {base: 10, dex: 0}]
+      touch-ac: [0, {base: 10, dex: 0}]
+      flat-footed-ac: [0, base: 10]
+      acp: [0, none: 0]
+      max-dex: [99, none: 99]
+  movement:
+    speed: [30, {base: 30}]
+    load: [0 lbs, {equipped: 0 lbs}]
+    capacity: {light: 0 lbs, medium: 0 lbs, heavy: 0 lbs, lift: 0 lbs, drag: 0 lbs}
+  skills:
+    concentration: [0, {con: 0, ranks: 5}]
+    diplomacy: [0, {cha: 0, ranks: 4}]
+    heal: [0, {wis: 0, ranks: 5}]
+    knowledge-religion: [0, {int: 0, ranks: 3}]
+    spellcraft: [0, {int: 0, ranks: 3}]
+    listen: [0, wis: 0]
+    spot: [0, wis: 0]
+  spells:
+    cleric:
+      casting: [prepared, wis]
+      domains: [sun, healing]
+      slots:
+        0: [5, cleric: 5]
+        1: [5, {cleric: 2, wis: 0, domain: 1}]
+        2: [4, {cleric: 2, wis: 0, domain: 1}]
+        3: [3, {cleric: 1, wis: 0, domain: 1}]
+      prepared:
+        0: [detect magic, guidance, light, mending, resistance]
+        1: [bless, cure light wounds, protection from evil, shield of faith, sun-domain: endure elements]
+        2: [bulls strength, hold person, spiritual weapon, healing-domain: cure moderate wounds]
+        3: [dispel magic, prayer, sun-domain: searing light]
+  inventory:
+    _on: [equipped]
+    equipped:
+      - [heavy mace, 1, weapon, 8 lbs, 12 gp, {damage: 1d8, crit: x2}, [m, simple, melee]]
+      - [half plate, 1, armor, 50 lbs, 600 gp, {ac: 7, max-dex: 0, acp: -7, asfc: 40%}, [m, heavy-armor]]
+      - [heavy steel shield, 1, shield, 15 lbs, 20 gp, {ac: 2, acp: -2, asfc: 15%}, [m]]
+      - [silver holy symbol, 1, gear, 1 lbs, 25 gp]
