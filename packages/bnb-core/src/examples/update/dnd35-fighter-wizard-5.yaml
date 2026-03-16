@@ -1,0 +1,65 @@
+---
+character:
+  description:
+    name: Aldric the Battlemage
+    race: Human
+    alignment: NG
+    size: M
+  abilities:
+    strength: [0, str: 0, {base: 14, belt-of-giant-strength: 4}]
+    dexterity: [0, dex: 0, {base: 12}]
+    constitution: [0, con: 0, {base: 13}]
+    intelligence: [0, int: 0, {base: 16}]
+    wisdom: [0, wis: 0, {base: 10}]
+    charisma: [0, cha: 0, {base: 8}]
+  levels:
+    xp: 10000
+    hd: [0, 0]
+    hp: [0, {max-hp: 0, damage: 0}]
+    max-hp: [0, {con: 0, rolls: 0}]
+    fighter: [3, {hd: 10, hp: [10, 8, 7]}]
+    wizard: [2, {hd: 4, hp: [4, 3]}]
+  combat:
+    initiative: [0, {dex: 0}]
+    saves:
+      fortitude: [0, {fighter: 0, wizard: 0, con: 0}]
+      reflex: [0, {fighter: 0, wizard: 0, dex: 0}]
+      will: [0, {fighter: 0, wizard: 0, wis: 0}]
+    attack:
+      bab: [0, {fighter: 0, wizard: 0}]
+      melee:
+        _: [0, {bab: 0, str: 0}]
+        greatsword: [0, 2d6+0 slashing, 19-20/x2, {_: 0, special: 0}, str: 0, {}, [greatsword, weapon-focus-greatsword, two-handed]]
+      ranged:
+        _: [0, {bab: 0, dex: 0}]
+      grapple: [0, {bab: 0, str: 0}]
+    defense:
+      ac: [0, {base: 10, dex: 0}]
+      touch-ac: [0, {base: 10, dex: 0}]
+      flat-footed-ac: [0, base: 10]
+      acp: [0, none: 0]
+      max-dex: [99, none: 99]
+  movement:
+    speed: [30, {base: 30}]
+    load: [0 lbs, {equipped: 0 lbs, pack: 0 lbs}]
+    capacity: {light: 0 lbs, medium: 0 lbs, heavy: 0 lbs, lift: 0 lbs, drag: 0 lbs}
+  skills:
+    _ranks: [0, {fighter: 0, wizard: 0, int: 0, human: 0}]
+    climb: [0, {str: 0, acp: 0, ranks: 4}]
+    jump: [0, {str: 0, acp: 0, ranks: 4}]
+    spellcraft: [0, {int: 0, ranks: 5}]
+    knowledge-arcana: [0, {int: 0, ranks: 5}]
+    concentration: [0, {con: 0, ranks: 5}]
+    intimidate: [0, {cha: 0, ranks: 4}]
+    listen: [0, wis: 0]
+    spot: [0, wis: 0]
+  inventory:
+    _on: [equipped, pack]
+    equipped:
+      - [greatsword, 1, weapon, 8 lbs, 50 gp, {damage: 2d6 slashing, crit: 19-20/x2}, [m, martial, melee, two-handed]]
+      - [chain shirt, 1, armor, 25 lbs, 100 gp, {ac: 5, max-dex: 4, acp: -2, asfc: 20%}, [m, light-armor]]
+      - [belt of giant strength, 1, wondrous, 1 lbs, 16000 gp, {str: 4}]
+    pack:
+      - [backpack, 1, container, 2 lbs, 2 gp]
+      - [spellbook, 1, gear, 3 lbs, 15 gp]
+      - [spell component pouch, 1, gear, 2 lbs, 5 gp]

@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsup-node",
     "clean": "rimraf dist",
-    "test": "jest"
+    "test": "jest --passWithNoTests"
   },
   "keywords": [
     "ttrpg",
