@@ -22,8 +22,8 @@ character:
     hd: [11, {rogue: 6, were-rat: 8}]
     hp: [45, {max-hp: 67, damage: -22}]
     max-hp: [67, {con: 22, rolls: 45}]
-    rogue: [10, hp: [45], {hd: 6, bab: medium, fort: poor, ref: good, will: poor}]
-    were-rat: [1, {hd: 8, bab: medium, fort: good, ref: good, will: poor, la: 2}]
+    rogue: [10, hp: [45], {hd: 6, bab: average, fort: poor, ref: good, will: poor}]
+    were-rat: [1, {hd: 8, bab: average, fort: good, ref: good, will: poor, la: 2}]
   combat:
     initiative: [6, dex: 6]
     saves:

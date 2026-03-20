@@ -500,16 +500,6 @@ function propagateToMeleeWeaponDetails(
     if (weaponName === '_') continue
     if (!Array.isArray(weaponArr) || weaponArr.length < 5) continue
 
-    // Update str modifier in named weapon (position 4: {str: N})
-    // This is a single-key object not caught by componentBindings
-    const strObj = weaponArr[4]
-    if (strObj && typeof strObj === 'object' && !Array.isArray(strObj) && 'str' in strObj) {
-      if ((strObj as Record<string, number>).str !== strMod) {
-        ;(strObj as Record<string, number>).str = strMod
-        hasChanges = true
-      }
-    }
-
     // Propagate generic melee total to weaponArr[3]._
     if (melee._ && Array.isArray(melee._) && typeof (melee._ as unknown[])[0] === 'number') {
       if (weaponArr[3] && typeof weaponArr[3] === 'object') {
@@ -535,23 +525,47 @@ function propagateToMeleeWeaponDetails(
       const tags = Array.isArray(weaponArr[weaponArr.length - 1])
         ? (weaponArr[weaponArr.length - 1] as string[])
         : []
-      const isTwoHanded = tags.includes('two-handed') || tags.includes('2h')
+      const isTwoHanded = tags.includes('two-handed') || tags.includes('2h') || tags.includes('2-hand')
       const isOffHand = tags.includes('off-hand') || tags.includes('oh')
+      const isSecondary = tags.includes('secondary')
 
-      let damageMod = strMod
+      // Calculate str component for damage based on wielding mode
+      let strDamageMod = strMod
       if (isTwoHanded) {
-        damageMod = Math.floor(strMod * 1.5)
+        strDamageMod = Math.floor(strMod * 1.5)
       } else if (isOffHand) {
-        damageMod = Math.floor(strMod * 0.5)
+        strDamageMod = Math.floor(strMod * 0.5)
+      } else if (isSecondary) {
+        strDamageMod = Math.floor(strMod * 0.5)
       }
 
-      const newDamage = weaponArr[1].replace(
-        /(\d+d\d+)[+-]\d+/,
-        `$1+${damageMod}`,
-      )
-      if (newDamage !== weaponArr[1]) {
-        weaponArr[1] = newDamage
-        hasChanges = true
+      // Update str in the damage breakdown (position 4)
+      if (weaponArr[4] && typeof weaponArr[4] === 'object' && !Array.isArray(weaponArr[4]) && 'str' in weaponArr[4]) {
+        if ((weaponArr[4] as Record<string, number>).str !== strDamageMod) {
+          ;(weaponArr[4] as Record<string, number>).str = strDamageMod
+          hasChanges = true
+        }
+      }
+
+      // Sum the damage breakdown to get total damage bonus
+      const damageObj = weaponArr[4]
+      let totalDamageMod: number | null = null
+      if (damageObj && typeof damageObj === 'object' && !Array.isArray(damageObj)) {
+        totalDamageMod = sumValues(damageObj as Record<string, unknown>)
+      }
+
+      // Update damage string with the total damage modifier
+      if (totalDamageMod !== null) {
+        const sign = totalDamageMod >= 0 ? '+' : '-'
+        const absVal = Math.abs(totalDamageMod)
+        const newDamage = weaponArr[1].replace(
+          /(\d+d\d+(?:\+\d+d\d+[^+-]*)?)[+-]\d+/,
+          `$1${sign}${absVal}`,
+        )
+        if (newDamage !== weaponArr[1]) {
+          weaponArr[1] = newDamage
+          hasChanges = true
+        }
       }
     }
   }
@@ -1069,7 +1083,10 @@ function propagateToHitDice(
     hdArr[0] = totalHd
     hasChanges = true
   }
-  if (largestDie > 0 && hdArr[1] !== largestDie) {
+  // Only update hdArr[1] if it's a number (single-class simple format).
+  // If it's a string (e.g., "6d8 + 3d10 + 4d6") or object (e.g., {cleric: 8, mystic-theurge: 4}),
+  // preserve the user's format since we can't improve on it.
+  if (largestDie > 0 && typeof hdArr[1] === 'number' && hdArr[1] !== largestDie) {
     hdArr[1] = largestDie
     hasChanges = true
   }
@@ -1230,11 +1247,18 @@ function propagateToSynergy(
     const modsObj = targetMods as Record<string, number>
 
     const synergyKey = `synergy-${source}`
+    // Check if user already has this synergy under a different naming convention
+    // e.g., "tumble-synergy" instead of "synergy-tumble", or "knowledge-arcana-synergy"
+    const altKey = `${source}-synergy`
+    const hasExistingSynergy = altKey in modsObj
     if (sourceRanks >= minRanks) {
-      if (modsObj[synergyKey] !== bonus) {
-        modsObj[synergyKey] = bonus
-        targetArr[0] = sumValues(modsObj)
-        hasChanges = true
+      // Only add our synergy key if user hasn't already provided one
+      if (!hasExistingSynergy) {
+        if (modsObj[synergyKey] !== bonus) {
+          modsObj[synergyKey] = bonus
+          targetArr[0] = sumValues(modsObj)
+          hasChanges = true
+        }
       }
     } else if (synergyKey in modsObj) {
       delete modsObj[synergyKey]
@@ -1287,10 +1311,23 @@ function propagateToSpeed(
     reduction = speedRed30
   }
 
+  // Check for user-specified speed reduction keys (e.g., "heavy-armor: -10")
+  // These may not match our computed key format exactly, so detect them
+  const existingReductionKeys = Object.keys(modsObj).filter(
+    k => k.endsWith('-load') || k.endsWith('-armor')
+  )
+
+  // If user already has a speed reduction key, don't override it unless
+  // we have computed a different reduction source
+  if (existingReductionKeys.length > 0 && !reductionKey) {
+    // User has a reduction but we computed none — trust the user
+    return hasChanges
+  }
+
   // Remove old speed reduction keys and apply new one
   let changed = false
-  for (const k of Object.keys(modsObj)) {
-    if ((k.endsWith('-load') || k.endsWith('-armor')) && k !== reductionKey) {
+  for (const k of existingReductionKeys) {
+    if (k !== reductionKey) {
       delete modsObj[k]
       changed = true
     }

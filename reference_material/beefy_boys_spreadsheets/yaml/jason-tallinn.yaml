@@ -26,7 +26,7 @@ character:
     hd: [12, 8]
     hp: [65, {max-hp: 65, damage: 0}]
     max-hp: [65, {con: 0, rolls: 65}]
-    druid: [12, hp: [65], {hd: 8, bab: medium, fort: good, ref: poor, will: good}]
+    druid: [12, hp: [65], {hd: 8, bab: average, fort: good, ref: poor, will: good}]
   combat:
     initiative: [0, {dex: 0}]
     saves:

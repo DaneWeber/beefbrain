@@ -19,7 +19,7 @@ character:
     hd: [12, {cleric: 8, mystic-theurge: 4}]
     hp: [66, {max-hp: 90, damage: -24}]
     max-hp: [90, {con: 24, rolls: 66}]
-    cleric: [9, hp: [66], {hd: 8, bab: medium, fort: good, ref: poor, will: good}]
+    cleric: [9, hp: [66], {hd: 8, bab: average, fort: good, ref: poor, will: good}]
     mystic-theurge: [3, hp: [0], {hd: 4, bab: poor, fort: poor, ref: poor, will: good}]
   combat:
     initiative: [-1, dex: -1]

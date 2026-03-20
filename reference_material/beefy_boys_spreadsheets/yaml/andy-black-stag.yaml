@@ -24,7 +24,7 @@ character:
     max-hp: [89, {con: 26, rolls: 63}]
     ranger: [6, hp: [null], {hd: 8, bab: good, fort: good, ref: good, will: poor}]
     fighter: [3, hp: [null], {hd: 10, bab: good, fort: good, ref: poor, will: poor}]
-    rogue: [4, hp: [null], {hd: 6, bab: medium, fort: poor, ref: good, will: poor}]
+    rogue: [4, hp: [null], {hd: 6, bab: average, fort: poor, ref: good, will: poor}]
   combat:
     initiative: [6, dex: 6]
     saves:
