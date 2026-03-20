@@ -1,0 +1,79 @@
+,[ANDY] – Black Stag,,,,,,,,,,,,,"2026-01-26
+Stag was definitely not cheating",,,,,,,
+Name,Black Stag,,,,,,Skills,,,,,,,,,,,,,,
+Race,Orc,,,,,,,Total,ACP,Skill,Bonus,Abil,,,Ra,F,Ro,Ra,F,Ro,
+Alignment,CG,,89 maximum HP,,,,Appraise,1,,0,,1,U,Int,1,1,2,0,,,
+Size,M,,<special damage: 3,,>,,Balance,10,10,2,2,6,U,Dex,1,1,2,0,,2,==
+Sex,M,,<Damage:,27,>,,Bluff (+4),2,,2,,0,U,Cha,1,1,2,0,,2,==
+Age,23 years,,,59,hp,,Climb,13,13,8,,5,U,Str,2,2,2,7,1,,========
+Height,5'7”,,,,,,Concentration,7,,5,,2,U,Con,2,1,1,5,,,=====
+Weight,155,,,,,,Craft (Traps),2,,1,,1,U,Int,2,2,2,0,,1,=
+Eyes,,,,,,,Decipher Script,1,,0,,1,T,Int,1,1,2,0,,,
+Hair,,,,,,,Diplomacy,2,,2,0,0,U,Cha,1,1,2,0,,2,==
+Complexion,,,,,,,Disable Device,3,,2,,1,T,Int,1,1,2,0,,2,==
+Build,,,,,,,Disguise,0,,0,,0,U,Cha,1,1,2,0,,,
+,,,Nonlethal:,,,,Escape Artist,6,6,0,,6,U,Dex,1,1,2,0,,,
+HD,6d8 + 3d10 + 4d6 + 26,,,,/42,,Forgery,1,,0,,1,U,Int,1,1,2,0,,,
+HP,89,63,Mods,52,pb,mod,Gather Information,0,,0,0,0,U,Cha,1,1,2,0,,,
+Str,20,4,5,,16,,Handle Animal,7,,7,,0,T,Cha,2,2,1,6,1,,=======
+Dex,22,2,6,2,18,6,Heal,6,,0,2,4,U,Wis,2,1,1,0,,,
+Con,15,0,2,,15,1,Hide,9,9,3,,6,U,Dex,2,1,2,2,,1,===
+Int,12,,1,,12,,Intimidate,6,,6,0,0,U,Cha,1,2,2,0,6,,======
+Wis,18,,4,1,17,4,Jump,12,12,5,2,5,U,Str,2,2,2,3,,2,=====
+Cha,11,,0,,11,,Knowledge (arcana),1,,0,,1,T,Int,1,1,1,0,,,
+Saves,,,Pack,199.1,,,Knowledge (arch & eng),1,,0,,1,T,Int,1,1,1,0,,,
+,,,Equipped,46.35,,,Knowledge (dungeon),1,,0,,1,T,Int,2,1,1,0,,,
+Fort,14,3,Total,245.45,,,Knowledge (geography),1,,0,,1,T,Int,2,1,1,0,,,
+Ref,21,5,Drag,2000,,,Knowledge (history),1,,0,,1,T,Int,1,1,1,0,,,
+Will15vs MA 3/day,10,2,Lift,800,,,Knowledge (local),2,,1,,1,T,Int,1,1,2,0,,1,=
+Speed,30,,Max Load,400,,,Knowledge (nature),11,,8,2,1,T,Int,2,1,1,8,,,========
+Melee,17,,Medium,266,,,Knowledge (nob & roy),1,,0,,1,T,Int,1,1,1,0,,,
+Ranged,18,,Light,133,,,Knowledge (religion: Pelor),2,,1,,1,T,Int,1,1,1,0,,2,=
+Grapple,21,4,Value,125103.77,,,Knowledge (planes),1,,0,,1,T,Int,1,1,1,0,,,
+Initiative,6,0,Money,230,Gp,,Listen (+4),12,,8,,4,U,Wis,2,1,2,7,,1,========
+BAB +12/+7/+2,12,,,81284,XP,,Move Silently,12,12,6,,6,U,Dex,2,1,2,4,,2,======
+HD,13,Att,skill,plus,121,HD,Open Lock,7,,1,,6,T,Dex,1,1,2,0,,1,=
+Ranger,6,1,7,3,63,8,Perform (Reed Flute),3,,3,,0,U,Cha,1,1,2,0,,3,===
+Fighter,3,1,3,0,9,10,Profession,4,,0,,4,T,Wis,2,1,2,0,,,
+Rogue,4,0.75,9,0,36,6,Ride,11,,5,,6,U,Dex,2,2,1,4,1,,=====
+,,,,Human until level 10,13,,Search,1,,0,,1,U,Int,2,1,2,0,,,
+10+9(armor)+1(shield)+1(deflection)+2(natural)+6(DEX),,,,,,,Sense Motive (+4),4,,0,,4,U,Wis,1,1,2,0,,,
+ACP,0,29,Max,AC,,,Sleight of Hand(+5 metal),9,9,3,0,6,T,Dex,1,1,2,0,,3,===
+Chain Shirt & H,9,17,Touch,,,,Speak Language,1,,1,,,T,None,1,1,1,2,,,=
+Deflection Ring,1,23,Unaware,,,,Spellcraft,3,,2,0,1,T,Int,1,1,1,4,,,==
+Natural Amulet,2,,,,,,Spot (+4),15,,11,,4,U,Wis,2,1,2,10,,1,===========
+Dex,6,,,,,,Survival (+4) (+2 in Nature),13,,9,,4,U,Wis,2,1,1,9,,,=========
+Two Weap. D.,1,,,,,,Swim,5,5,0,,5,U,Str,2,2,2,0,,,
+,,,,,,,Tumble,18,18,10,2,6,T,Dex,1,1,2,0,2,9,==========
+Languages,Common,,,,,,Use M D,2,,2,,0,T,Cha,1,1,2,0,,2,==
+,"Undercommon, Orc, Abyssal, Celestial, Giant",,,,,,Use Rope,6,,0,,6,U,Dex,2,1,2,0,,,
+Racial,Darkvision 60',,,,,,Trick: Collector of Stories,,,,,,,119,/119,,,71,11,37,
+,"Dazzled in Sunlight -1 att, spot, search",,,,,,Attacks,,,,,,,Trix,1,,,,,,
+Proficient,Simple Weapons,,,,,,,D.B.,A.B.,Attk,Die,Dam,,Crit,,Range,,,,,
+,Martial Weapons,,,,,,Sickle +1  solo,6,2,20,1d6,1d6+6,,x2,,,,,,,
+,All Armor,,,,,,"Sickle +1 Only, 2-Weapon",6,0,18,1d6,1d6+6 or 3,,x2,,,,,,,
+,All Shield (including tower),,,,,,Horned Helm +1,2,1,14,1d8,1d8+2,,x2,,,,,,,
+,Hand Crossbow,,,,,,,,,,,,,,,,,,,,
+Feats,Lightning Reflexes (+2 Reflex),,,,,,Bow of the Wintermoon,6,1,19,1d8,1d8+6,,x3,,110ft/1100ft,,,,,
+human,Weapon Finesse,,,,,,"Dagger, stab",5,0,18,1d4,1d4+5,,19-20 x2,,,,,,,
+3,Point Blank Shot (+1 w/i 30ft.),,,,,,"Dagger, throw",5,0,18,1d4,1d4+5,,19-20 x2,,(10ft/50ft),,,,,
+F1,Improved Unarmed Strike (no AoO),,,,,,,,,,,,,,,,,,,,
+F2,Weapon Focus (sickle),,,,,,-2 to attack roll for every range increment the target is away.,,,,,,,,,,,,,,
+6,Improved Grapple,,,,,,,,,,,,,,,,,,,,
+9,Two-Weapon Defense,,,,,,TW Full Attack,+10/+10o/+5/+5o/+0/+0o,,,,,,,,,,,,,
+12,Greater Two-Weapon Fighting,,,,,,"Full Attack w. E Crystals(#1Sickle +18/+13/+8, 2d6+4, #2Sickle +18/+13/+8, 2d6+2, HH +14, 1d8+1)",,,,,,,,,,,,,,
+Class Abil,Track (p. 101),,,,,,+ Concealment 5' 7/da,,,,,,,,,,,,,,
+Ranger,Spiritual Connection 3/day (Speak w/ Animals/Plants),,,,,,"- Ignore Death/Negative levels, 1/day",,,,,,,,,,,,,,
+Ranger,"Favored Enemy: Humans, Giants",,,,,,"+ Teleport 20/40/60' for 1/3/5 charges, 5 charges/day",,,,,,,,,,,,,,
+Ranger,+4 bonus,,,,,,"- Invisibility 4 rnds (or less with more people), 3 charges/day",,,,,,,,,,,,,,
+Ranger,"- Bluff, Listen, Sense Motive, Spot, Survival",,,,,,-+5 to any untrained skill 1/day,,,,,,,,,,,,,,
+Ranger,- Weapon Damage,,,,,,"- Negate stun, confuse, dazed, etc., 1/day",,,,,,,,,,,,,,
+Ranger,Two-Weapon Fighting,,,,,,-Awaken from sleep 1/day,,,,,,,,,,,,,,
+Ranger,Endurance,,,,,,-Healing Belt,,,,,,,,,,,,,,
+Ranger,Distracting Attack,,,,,,"-Bag of Tricks, tan",,,,,,,,,,,,,,
+Rogue,Trap-finding (p. 49),,,,,,,,,,,,,,,,,,,,
+Rogue,Sneak Attack +2d6,,,,,,,,,,,,,,,,,,,,
+Rogue,Evasion,,,,,,,Spells,Jump (p. 246),,,,,,,,,,,,
+Ranger,Improved Two Weapon Fighting,,,,,,,Notes,,,,,,,,,,,,,
+Rogue,Trap Sense +1,,,,,,,Devotee,"Obad-Hai, Pelor",,,,,,,,,,,,
+Rogue,Disruptive Attack,,,,,,,,,,,,,,,,,,,,

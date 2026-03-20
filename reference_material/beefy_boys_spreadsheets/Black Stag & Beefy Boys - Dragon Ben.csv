@@ -1,0 +1,73 @@
+,[BEN] – Surfeit,,,,,,,,,,,,,"2026-01-26
+Stag was definitely not cheating",,,,,,
+Name,Surfeit,,,,,,Skills,,,,,,,,,,,,,
+Race,Human,,,,,,,Total,ACP,Skill,Bonus,Abil,,,M,Pf,D,M,Pf,D
+Alignment,LN,,120 HP,,,,Appraise,2,,0,,2,U,Int,1,1,1,0,0,
+Size,M,,,,,,Balance,15,15,8,2,5,U,Dex,2,1,1,8,0,
+Sex,M,,,,,,Bluff,3,,2,,1,U,Cha,1,1,2,0,4,0
+Age,50 years,,,,,,Climb,14,14,8,,6,U,Str,2,1,1,8,0,
+Height,5’7’’,,,,,,Concentration,15,,11,,4,U,Con,2,2,2,9,2,0
+Weight,220 lbs.,,,,,,Craft (),2,,0,,2,U,Int,2,2,1,0,0,
+Eyes,Black,,,,,,Decipher Script,2,,0,,2,T,Int,1,1,1,0,0,
+Hair,Graying,,,,,,Diplomacy,4,,3,0,1,U,Cha,2,1,2,3,0,0
+Complexion,Weathered,,,,,,Disable Device,2,,0,,2,T,Int,1,1,1,0,0,
+Build,Medium,,,,,,Disguise,1,,0,,1,U,Cha,1,1,1,0,0,
+,,,Nonlethal:,,,,Escape Artist,11,11,6,,5,U,Dex,2,2,2,6,0,0
+HD,10d12 + 40,,,,/42,,Forgery,2,,0,,2,U,Int,1,1,1,0,0,
+HP,120,64,Mods,47,pb,mod,Gather Information,2,,1,0,1,U,Cha,1,1,1,0,2,
+Str,22,4,6,4,14,,Handle Animal,1,,0,,1,T,Cha,1,1,1,0,0,
+Dex,20,,5,2,18,6,Heal,4,,1,,3,U,Wis,1,1,1,0,2,
+Con,18,-1,4,4,15,1,Hide,12,12,7,,5,U,Dex,2,2,2,7,0,0
+Int,15,,2,,15,1,Intimidate,1,,0,0,1,U,Cha,1,1,2,0,0,0
+Wis,16,,3,1,15,,Jump,19,19,5,8,6,U,Str,2,2,1,5,0,
+Cha,12,2,1,,10,,Knowledge (arcana),2,,0,,2,T,Int,2,1,2,0,0,0
+Saves,,,Pack,2.08,,,Knowledge (arch & eng),2,,0,,2,T,Int,1,1,2,0,0,0
+,,,Equipped,11.21,,,Knowledge (dungeon),2,,0,,2,T,Int,1,1,2,0,0,0
+Fort,11,,Total,13.29,,,Knowledge (geography),2,,0,,2,T,Int,1,1,2,0,0,0
+Ref,12,,Drag,1750,,,Knowledge (history),2,,0,,2,T,Int,1,1,2,0,0,0
+Will,10,,Lift,700,,,Knowledge (local),2,,0,,2,T,Int,1,1,2,0,0,0
+Speed,40,,Max Load,350,,,Knowledge (nature),2,,0,,2,T,Int,1,1,2,0,0,0
+Melee,16,,Medium,232,,,Knowledge (nob & roy),2,,0,,2,T,Int,1,1,2,0,0,0
+Ranged,15,,Light,116,,,Knowledge (religion),2,,0,,2,T,Int,2,2,2,0,0,0
+Grapple,16,,Value,23169.05,,,Knowledge (planes),2,,0,,2,T,Int,1,1,2,0,0,0
+Initiative,5,0,Money,734,Gp,,Listen,7,,2,2,3,U,Wis,2,2,2,0,2,0
+BAB +10/+5,10,1,,93830,XP,,Move Silently,8,8,3,,5,U,Dex,2,2,2,3,0,0
+ECL,14,Att,skill,plus,104,HD,Open Lock,5,,0,,5,T,Dex,1,1,1,0,0,
+Amethyst Dr.,10,1,8,3,104,12,Perform (),1,,0,,1,U,Cha,2,1,1,0,0,
+Psionic Fist,0,0.75,7,0,0,6,Profession,3,,0,,3,T,Wis,2,1,1,0,0,
+LA very young,4,,,,,,Ride,5,,0,,5,U,Dex,1,1,1,0,0,
+,,,,,,,Search,2,,0,,2,U,Int,1,1,2,0,0,0
+10+1(armor)+0(shield)+0(deflection)+10(natural)+5(DEX),,,,,,,Sense Motive,3,,0,,3,U,Wis,2,2,2,0,0,0
+ACP,0,,,,,,Sleight of Hand,5,5,0,0,5,T,Dex,1,1,1,0,0,
+Bracers,1,26,Max,AC,,,Speak Language,0,,0,,,T,None,1,1,1,0,0,
+Deflection Ring,0,15,Touch,,,,Spellcraft,2,,0,0,2,T,Int,1,1,1,0,0,
+Natural Armor,10,21,Unaware,,,,Spot,15,,10,2,3,U,Wis,2,2,2,8,2,0
+Dex,5,,,,,,Survival,3,,0,,3,U,Wis,1,1,1,0,0,
+Shield,0,,,,,,Swim,11,11,5,,6,U,Str,2,1,1,5,0,
+,,,,,,,Tumble,17,17,8,4,5,T,Dex,2,2,1,8,0,
+Languages,Common,,,,,,Use M D,1,,0,,1,T,Cha,1,1,2,0,0,0
+,Goblin,,,,,,Use Rope (+2 binding),5,,0,,5,U,Dex,1,1,1,0,0,
+,Sylvan,,,,,,,,,,,,,84,/104,,,70,,
+,Draconic,,,,,,Attacks,,,,,,,,,,,,,
+,,,,,,,,D.B.,A.B.,Attk,Die,Dam,,Crit,,Range,,,,
+Proficient,"club, crossbow (light or heavy), dagger, handaxe, javelin, kama, nunchaku, quarterstaff, sai, shuriken, siangham, and sling",,,,,,Primary (bite),6,0,16,1d8,1d8+6,,x2,,,,,,
+,,,,,,,Secondary (claws),3,-2,14/14,1d6,1d6+3,,x2,,,,,,
+,,,,,,,Tertiary (wings),3,-2,14/14,1d4,1d4+3,,x2,,,,,,
+Feats,Improved Disarm,,,,,,,6,0,,,+6/+6,,x2,,,,,,
+1,"Hover (move action to hover, then 1/2 speed or FA)",,,,,,+1 Holy Sling (Good +2d6 v evil,7,2,17,1d4,1d4+7,,x2,,50ft/500ft,,,,
+3,Flyby Attack (move before and after),,,,,,-2 to attack roll for every range increment the target is away.,,,,,,,,,,,,,
+6,Adroit Flyby Attack (target has no attack of opp),,,,,,,,,,,,,,,,,,,
+9,Multiattack (only -2 for secondary attacks),,,,,,Line of Force 4d8; 60' line; 1d4 rd recharge; DC 19 Reflex,,,,,,,,,,,,,
+Racial,Immune to Sleep and Paralysis,,,,,,"Full Attack (Bite 13, Claw 8, Claw 8, Wing 8, Wing 8)",,,,,,,,,,,,,
+,Immune to Poison,,,,,,,,,,,,,,,,,,,
+,Blindsense 60 ft,,,,,,"Dragon, Amethyst: Dragon; Young adult 5/magic; Mature adult 10/magic;",,,,,,,,,,,,,
+,Keen Senses 2x normal illumination 4x shadowy,,,,,,"Very old 15/magic; Wyrm 20/magic; LA Wyrmling: +4, very young: +4, young: +5;",,,,,,,,,,,,,
+,Darkvision 120ft,,,,,,Refer to Monster Manual entry on true dragons for introductory material. Gem,,,,,,,,,,,,,
+,Planar Travel,,,,,,"dragons have psionics, planar travel, and fire resistance 15, and otherwise conform",,,,,,,,,,,,,
+,Fire Resistance 15,,,,,,to the Monster Manual. Increase Challenge Rating at each age category by,,,,,,,,,,,,,
+,Force Resistant +4 saves vs force effects,,,,,,"+1. Amethyst Telekinesis (Sp): In addition to the effects described, an amethyst",,,,,,,,,,,,,
+,Line of Force(can be subdual),,,,,,"great wyrm can use the combat maneuver application of telekinesis, using its Hit",,,,,,,,,,,,,
+,"Fly 150' (poor), Burrow 20', Swim 10'",,,,,,Dice as its caster level. Skills: These skills are available to amethyst dragons at 1,,,,,,,,,,,,,
+,,,,,,,"skill point per rank: Bluff, Hide, and Move Silently. These are in addition to the",,,,,,,,,,,,,
+Notes,,,,,,,skills noted in the Monster Manual as class skills for all dragons.,,,,,,,,,,,,,
+Devotee,Obad-Hai,,,,,,,,,,,,,,,,,,,

@@ -1,0 +1,101 @@
+Caster Level,12,Mod,5,,,,Spellbooks:,A,74,"2026-01-26
+Stag was definitely not cheating",
+Close,55ft,Medium,220ft,Long,880ft,,,B,77,,
+Level,0,1,2,3,4,5,6,C,72,,
+Per Day,4,6,5,5,4,4,2,,,,
+Save DC,15,16,17,18,19,20,21,223,,,19050
+,,,,,,,,,,,
+,,,,,,,,,,,
+Spell Name,Level,Duration,School,Save,DC,Description,,Pages,Book,Source,Copy
+Detect Magic,0,Conc->1min/lvl,Div,,,"V, S (60ft cone) Detect magical auras 1st rnd presence or absence 2nd rnd number and power of most powerful ",,1,A,lvl-1,0
+Light,0,10 min/lvl,Evoc,None,,"V, M (Touch) This spell causes an object to glow like a torch. 20Ft Bright + 20 ft Dim Light",,1,B,lvl-1,0
+Prestidigitation,0,1 hour,Univ,None,,"V, S (10ft) Slowly lift 1lb, create small crude fragile object, chill, warm or flavor 1 lb non living material, color, clean, soil 1ft cube, only cleaning/soiling persist.",,1,C,lvl-1,0
+Read Magic,0,10 min/lvl,Div,,,"V, S, F Read magical writing automatically. Identify glyph of warding DC 13 Spellcraft, Greater glyph of warding dc 16, symbol spell dc10+SL",,1,A,lvl-1,0
+Resistance,0,,Abjur,,,,,1,B,lvl-1,0
+Acid Splash,0,,Conj,,,,,1,C,lvl-1,0
+Detect Poison,0,,Div,,,,,1,A,lvl-1,0
+Daze,0,,Ench,,,,,1,B,lvl-1,0
+Dancing Lights,0,,Evoc,,,,,1,C,lvl-1,0
+Flare,0,,Evoc,,,,,1,A,lvl-1,0
+Ray of Frost,0,,Evoc,,,,,1,B,lvl-1,0
+Ghost Sound,0,,Illus,,,,,1,C,lvl-1,0
+Disrupt Undead,0,,Necro,,,,,1,A,lvl-1,0
+Touch of Fatigue,0,,Necro,,,,,1,B,lvl-1,0
+Mage Hand,0,,Trans,,,,,1,C,lvl-1,0
+Mending,0,,Trans,,,,,1,A,lvl-1,0
+Message,0,,Trans,,,,,1,B,lvl-1,0
+Open/Close,0,,Trans,,,,,1,C,lvl-1,0
+Arcane Mark,0,,Univ,,,,,1,A,lvl-1,0
+Animate Rope,1,,,,,,,1,B,lvl-1,0
+Charm Person,1,,,,,,,1,C,lvl-1,0
+Comprehend Languages,1,,,,,,,1,A,lvl-1,0
+Detect Secret Doors,1,,,,,,,1,B,lvl-1,0
+Endure Elements,1,,,,,,,1,C,lvl-1,0
+Enlarge Person,1,1 min/lvl,Trans,Fort,16,"V, S, M (25ft +5ft/2lvls) Humanoid gains one size category, +2 str, -2 dex, -1 attk, -1AC 10ft reach Weapon Dam +1 size Cat.",,1,A,lvl-1,0
+Erase,1,,,,,,,1,B,lvl-1,0
+Expeditious Retreat,1,1 min/lvl,Trans,None,,"V, S (Personal) +30 movement",,1,C,lvl-2,0
+Feather Fall,1,,,,,,,1,A,lvl-2,0
+Identify,1,,,,,,,1,B,copy,150
+Mage Armor,1,,,,,,,1,C,copy,150
+Magic Missile,1,Inst,Evoc,None,,"V, S (100 + 10ft/lvl) 5 missiles of force deals 1d4+1 damage. Missiles can target different creatures. 5d4+5 total damage.",,1,A,copy,150
+Mount,1,,,,,,,1,B,copy,150
+Obscuring Mist,1,,,,,,,1,C,copy,150
+Protection vs. Evil,1,,,,,,,1,A,copy,150
+Ray of Enfeeblement,1,,,,,,,1,B,copy,150
+Shield,1,,,,,,,1,C,copy,150
+Sleep,1,,,,,,,1,A,copy,150
+Bear's Endurance,2,,,,,,,2,B,lvl-3,0
+Blindness,2,,,,,,,2,C,lvl-3,0
+Blur,2,,,,,,,2,A,lvl-4,0
+Bull's Strength,2,,,,,,,2,B,lvl-4,0
+Cat's Grace,2,,,,,,,2,C,copy,300
+Daze Monster,2,,,,,,,2,A,copy,300
+Deafness,2,,,,,,,2,B,copy,300
+Eagle's Splendor,2,,,,,,,2,C,copy,300
+Fox's Cunning,2,,,,,,,2,A,copy,300
+Glitterdust,2,1 rd/lvl,Conj,Will,,"V, S, M (100ft + 10ft/lvl) 10ft Radius spread. Blinded on Failed will save. Cannot become invisible, -40 on hide checks",,2,B,copy,300
+Invisibility,2,,,,,,,2,C,copy,300
+Mirror Image,2,1 min/lvl,Illu,None,,"V, S (Personal) 1d4+4 illusory copies. Image's AC is 10+SIZE+DEX and dissipates when struck. Each image must be within 5 feet of another or caster.",,2,A,copy,300
+Misdirection,2,,,,,,,2,B,copy,300
+Protection from Arrows,2,,,,,,,2,C,copy,300
+Rope Trick,2,,,,,,,2,A,copy,300
+See Invisible,2,,,,,,,2,B,copy,300
+Spider Climb,2,,,,,,,2,C,copy,300
+Web,2,,,,,,,2,A,copy,300
+Whispering Wind,2,,,,,,,2,B,copy,300
+Blink,3,,,,,,,3,C,lvl-5,0
+Daylight,3,,,,,,,3,A,lvl-5,0
+Dispel Magic,3,,,,,,,3,B,lvl-6,0
+Fireball,3,,,,,,,3,C,lvl-6,0
+Fly,3,,,,,,,3,A,copy,450
+Haste,3,,,,,,,3,B,copy,450
+Heroism,3,,,,,,,3,C,copy,450
+Hold Person,3,,,,,,,3,A,copy,450
+Light,3,,,,,,,3,B,copy,450
+Lightning Bolt,3,Inst,Evoc,Reflex,18,"V, S (120ft line) deals lvl/d6 damage save for half. Can break objects, set fires and melt metals w. low melting point.",,3,C,copy,450
+Magic Circle vs. Evil,3,,,,,,,3,A,copy,450
+Non-detection,3,,,,,,,3,B,copy,450
+Protection vs. Energy,3,,,,,,,3,C,copy,450
+Rage,3,,,,,,,3,A,copy,450
+Black Tentacles,4,1 rd/lvl,Conj,None,,"V, S, M (100ft + 10ft/lvl) 20-ft.-radius spread of tentacles grapples every creature. Grapple check caster level +8. The tentacles are immune to damage. Grapple when entered or on caster's turn 1d6+4 bludgeoning. Half speed in area",,4,B,lvl-7,0
+Dimension Door,4,,,,,,,4,C,lvl-7,0
+Enervation,4,,,,,,,4,A,lvl-8,0
+Ice Storm,4,,,,,,,4,B,lvl-8,0
+"Invisibility, Greater",4,1 rd/lvl,Illu,Will,,"V, S (Touch) This spell functions like invisibility, except that it doesn’t end if the subject attacks.",,4,C,copy,600
+Shout,4,,,,,,,4,A,copy,600
+Solid Fog,4,,,,,,,4,B,copy,600
+Stoneskin,4,,,,,,,4,C,copy,600
+Wall of Ice,4,,,,,,,4,A,copy,600
+Bigby's Interposing Hand,5,,,,,,,5,B,lvl-9,0
+Cone of Cold,5,,,,,,,5,C,lvl-9,0
+Feeble Mind,5,,,,,,,5,A,lvl-10,0
+Hold Monster,5,,,,,,,5,B,lvl-10,0
+Sending,5,,,,,,,5,C,copy,750
+Summon Monster V,5,,,,,,,5,A,copy,750
+Teleport,5,,,,,,,5,B,copy,750
+Transmute Rock to Mud,5,,,,,,,5,C,copy,750
+Disintegrate,6,,,,,,,6,A,lvl-11,0
+Greater Dispel,6,,,,,,,6,B,lvl-11,0
+Legend Lore,6,,,,,,,6,C,copy,900
+Mass Suggestion,6,,,,,,,6,A,copy,900
+Shadow Walk,6,,,,,,,6,B,copy,900
