@@ -1,0 +1,86 @@
+---
+character:
+  description:
+    name: '"Burley" Darkburle Blue'
+    player: Hibl
+    race: Elf
+    alignment: CN
+    size: M
+    sex: M
+    age: 127 years
+  abilities:
+    strength: [7, str: -2]
+    dexterity: [18, dex: 4, {base: 14, gloves-item: 2, racial: 2}]
+    constitution: [10, con: 0, {base: 11, racial: -1}]
+    intelligence: [10, int: 0]
+    wisdom: [8, wis: -1]
+    charisma: [22, cha: 6, {base: 19, item-enhancement: 1, racial: 2}]
+  levels:
+    xp: 79305
+    hd: [13, 4]
+    hp: [38, {max-hp: 51, damage: -13}]
+    max-hp: [51, {con: 0, rolls: 38, improved-toughness: 13}]
+    sorcerer: [13, hp: [38], {hd: 4, bab: poor, fort: poor, ref: poor, will: good}]
+  combat:
+    initiative: [8, {dex: 4, improved-initiative: 4}]
+    saves:
+      fortitude: [8, {sorcerer: 4, con: 0, cloak-resistance: 4}]
+      reflex: [12, {sorcerer: 4, dex: 4, cloak-resistance: 4}]
+      will: [11, {sorcerer: 8, wis: -1, cloak-resistance: 4}]
+    attack:
+      bab: [6, sorcerer: 6]
+      melee:
+        _: [4, {bab: 6, str: -2}]
+        dagger:
+          [4, 1d4-2, 19-20/x2, {_: 4}, str: -2, [dagger]]
+      ranged:
+        _: [10, {bab: 6, dex: 4}]
+        light-crossbow:
+          [10, 1d8, 19-20/x2, {_: 10}, {}, [crossbow, light, 80ft]]
+        dagger:
+          [10, 1d4-2, 19-20/x2, {_: 10}, str: -2, [dagger, 10ft]]
+      grapple: [4, {bab: 6, str: -2}]
+    defense:
+      ac: [24, {base: 10, armor: 5, deflection: 2, natural: 3, dex: 4}]
+      touch-ac: [16, {base: 10, deflection: 2, dex: 4}]
+      flat-footed-ac: [20, {base: 10, armor: 5, deflection: 2, natural: 3}]
+      acp: [0]
+      spell-resistance: 18
+  movement:
+    speed: [30, base: 30]
+    load: [52.9 lbs, {equipped: 13.6 lbs, pack: 39.3 lbs}]
+    capacity: {light: 23 lbs, medium: 46 lbs, heavy: 70 lbs, lift: 140 lbs, drag: 350 lbs}
+  skills:
+    _points: [32, {sorcerer: 26, first-level: 6}]
+    bluff: [8, {cha: 6, ranks: 2}, {points: {sorcerer: 2}}]
+    concentration: [11, {con: 0, ranks: 11}, {points: {sorcerer: 11}}]
+    spellcraft: [11, {int: 0, ranks: 11}, {points: {sorcerer: 11}}]
+    tumble: [5, {dex: 4, ranks: 1}, {points: {sorcerer: 2}}]
+    use-magic-device: [7, {cha: 6, ranks: 1}, {points: {sorcerer: 2}}]
+  special:
+    feats:
+      - [Improved Initiative, level: 1, [combat.initiative, 4]]
+      - [Improved Toughness, level: 3, [hp-per-hd: 1]]
+      - [Still Spell, level: 6, [metamagic, +1 spell level]]
+    racial:
+      - +2 Dexterity, -2 Constitution
+      - +2 racial bonus on saves vs. Enchantment
+      - Immune to Sleep effects
+      - Low-light Vision
+      - Automatic search check within 5 feet of secret/concealed door
+      - +2 racial bonus to Search, Spot, Listen
+    proficiencies:
+      - Simple Weapons
+    class-abilities:
+      - Summon Familiar
+      - Eschew Materials (bonus feat)
+    languages:
+      - Common
+      - Elven
+  companions:
+    horse:
+      hp: 22
+  notes:
+    money: 1005 gp
+    value: 112239.72 gp
+    feats-9-and-12: "Blank in spreadsheet — needs player input"

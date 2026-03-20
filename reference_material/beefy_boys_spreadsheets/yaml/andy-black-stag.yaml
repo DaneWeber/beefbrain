@@ -1,0 +1,159 @@
+---
+character:
+  description:
+    name: Black Stag
+    player: Andy
+    race: Orc
+    alignment: CG
+    size: M
+    sex: M
+    age: 23 years
+    height: 5' 7"
+    weight: 155 lbs
+  abilities:
+    strength: [20, str: 5, {base: 16, gloves-enhancement: 4}]
+    dexterity: [22, dex: 6, {base: 18, gloves-enhancement: 2, racial: 2}]
+    constitution: [15, con: 2]
+    intelligence: [12, int: 1]
+    wisdom: [18, wis: 4, {base: 17, enhancement: 1}]
+    charisma: [11, cha: 0]
+  levels:
+    xp: 81284
+    hd: [13, "6d8 + 3d10 + 4d6"]
+    hp: [63, {max-hp: 89, damage: -26}]
+    max-hp: [89, {con: 26, rolls: 63}]
+    ranger: [6, hp: [null], {hd: 8, bab: good, fort: good, ref: good, will: poor}]
+    fighter: [3, hp: [null], {hd: 10, bab: good, fort: good, ref: poor, will: poor}]
+    rogue: [4, hp: [null], {hd: 6, bab: medium, fort: poor, ref: good, will: poor}]
+  combat:
+    initiative: [6, dex: 6]
+    saves:
+      fortitude: [14, {ranger: 5, fighter: 3, rogue: 1, con: 2, cloak-resistance: 3}]
+      reflex: [21, {ranger: 5, fighter: 1, rogue: 4, dex: 6, lightning-reflexes: 2, cloak-resistance: 3}]
+      will: [10, {ranger: 2, fighter: 1, rogue: 1, wis: 4, cloak-resistance: 2}]
+      will-vs-mental-acuity: [15, {will: 10, mental-acuity: 5}, "3/day"]
+    attack:
+      bab: [12, {ranger: 6, fighter: 3, rogue: 3}]
+      full-bab: "+12/+7/+2"
+      melee:
+        _: [17, {bab: 12, str: 5}]
+        sickle-1-solo:
+          [20, 1d6+6, x2, {_: 17, enhancement: 1, weapon-focus: 1, favored-enemy: 1}, {str: 5, enhancement: 1}, [sickle]]
+        sickle-1-two-weapon:
+          [18, 1d6+6, x2, {_: 17, enhancement: 1, weapon-focus: 1, two-weapon: -2}, {str: 5, enhancement: 1}, [sickle, two-weapon]]
+        horned-helm-1:
+          [14, 1d8+2, x2, {_: 17, enhancement: 1, secondary: -4}, {str: 2}, [helm, natural]]
+        dagger-stab:
+          [18, 1d4+5, 19-20/x2, {_: 17, weapon-finesse: 1}, str: 5, [dagger]]
+      ranged:
+        _: [18, {bab: 12, dex: 6}]
+        bow-of-the-wintermoon:
+          [19, 1d8+6, x3, {_: 18, enhancement: 1}, {str: 5, enhancement: 1}, [longbow, composite, 110ft]]
+        dagger-throw:
+          [18, 1d4+5, 19-20/x2, {_: 18}, str: 5, [dagger, 10ft/50ft]]
+      grapple: [21, {bab: 12, str: 5, improved-grapple: 4}]
+      full-two-weapon-attack: "+10/+10o/+5/+5o/+0/+0o"
+      sneak-attack: +2d6
+    defense:
+      ac: [29, {base: 10, armor: 9, shield: 1, deflection: 1, natural: 2, dex: 6}]
+      touch-ac: [17, {base: 10, deflection: 1, dex: 6}]
+      flat-footed-ac: [23, {base: 10, armor: 9, shield: 1, deflection: 1, natural: 2}]
+      acp: [0]
+      armor: "Chain Shirt (mithral, +9)"
+      shield: "Two-Weapon Defense (+1)"
+      deflection-ring: "+1 deflection"
+      natural-amulet: "+2 natural"
+  movement:
+    speed: [30, base: 30]
+    load: [245.45 lbs, {equipped: 46.35 lbs, pack: 199.1 lbs}]
+    capacity: {light: 133 lbs, medium: 266 lbs, heavy: 400 lbs, lift: 800 lbs, drag: 2000 lbs}
+  skills:
+    _points: [119, {ranger: 71, fighter: 11, rogue: 37}]
+    balance: [10, {dex: 6, ranks: 2, tumble-synergy: 2}, {points: {rogue: 2}}]
+    bluff: [2, {cha: 0, ranks: 2}, {points: {rogue: 2}}, "favored-enemy: +4"]
+    climb: [13, {str: 5, ranks: 8}, {points: {ranger: 7, fighter: 1}}]
+    concentration: [7, {con: 2, ranks: 5}, {points: {ranger: 5}}]
+    craft-traps: [2, {int: 1, ranks: 1}, {points: {rogue: 1}}]
+    diplomacy: [2, {cha: 0, ranks: 2}, {points: {rogue: 2}}]
+    disable-device: [3, {int: 1, ranks: 2}, {points: {rogue: 2}}]
+    handle-animal: [7, {cha: 0, ranks: 7}, {points: {ranger: 6, fighter: 1}}]
+    heal: [6, {wis: 4, healers-kit: 2}]
+    hide: [9, {dex: 6, ranks: 3}, {points: {ranger: 2, rogue: 1}}]
+    intimidate: [6, {cha: 0, ranks: 6}, {points: {fighter: 6}}]
+    jump: [12, {str: 5, ranks: 5, tumble-synergy: 2}, {points: {ranger: 3, rogue: 2}}]
+    knowledge-local: [2, {int: 1, ranks: 1}, {points: {rogue: 1}}]
+    knowledge-nature: [11, {int: 1, ranks: 8, survival-synergy: 2}, {points: {ranger: 8}}]
+    knowledge-religion-pelor: [2, {int: 1, ranks: 1}, {points: {rogue: 1}}]
+    listen: [12, {wis: 4, ranks: 8}, {points: {ranger: 7, rogue: 1}}, "favored-enemy: +4"]
+    move-silently: [12, {dex: 6, ranks: 6}, {points: {ranger: 4, rogue: 2}}]
+    open-lock: [7, {dex: 6, ranks: 1}, {points: {rogue: 1}}]
+    perform-reed-flute: [3, {cha: 0, ranks: 3}, {points: {rogue: 3}}]
+    ride: [11, {dex: 6, ranks: 5}, {points: {ranger: 4, fighter: 1}}]
+    sleight-of-hand: [9, {dex: 6, ranks: 3}, {points: {rogue: 3}}, "+5 with metal objects"]
+    speak-language: [1, ranks: 1, {points: {rogue: 1}}]
+    spellcraft: [3, {int: 1, ranks: 2}, {points: {ranger: 4}}]
+    spot: [15, {wis: 4, ranks: 11}, {points: {ranger: 10, rogue: 1}}, "favored-enemy: +4"]
+    survival: [13, {wis: 4, ranks: 9}, {points: {ranger: 9}}, "favored-enemy: +4, +2 in natural environments"]
+    tumble: [18, {dex: 6, ranks: 10, jump-synergy: 2}, {points: {fighter: 2, rogue: 9}}]
+    use-magic-device: [2, {cha: 0, ranks: 2}, {points: {rogue: 2}}]
+  special:
+    feats:
+      - [Lightning Reflexes, level: 1, [combat.saves.reflex, 2]]
+      - [Weapon Finesse, human: 1]
+      - [Point Blank Shot, level: 3, "+1 attack and damage within 30ft"]
+      - [Improved Unarmed Strike, fighter: 1, "no AoO on unarmed attacks"]
+      - [Weapon Focus (Sickle), fighter: 2, [combat.attack.melee.sickle, {atk: 1}]]
+      - [Improved Grapple, level: 6, [combat.attack.grapple, 4]]
+      - [Two-Weapon Defense, level: 9, [combat.defense.ac, {shield: 1}]]
+      - [Greater Two-Weapon Fighting, level: 12]
+    class-abilities:
+      ranger:
+        - Track
+        - "Spiritual Connection 3/day (Speak with Animals/Plants)"
+        - "Favored Enemy: Humans, Giants (+4 bonus to Bluff, Listen, Sense Motive, Spot, Survival, and weapon damage)"
+        - Two-Weapon Fighting (combat style)
+        - Endurance
+        - Distracting Attack
+        - Improved Two-Weapon Fighting (combat style)
+      rogue:
+        - Trap-finding
+        - Sneak Attack +2d6
+        - Evasion
+        - Trap Sense +1
+        - Disruptive Attack
+    racial:
+      - Darkvision 60'
+      - "Dazzled in Sunlight: -1 attack, Spot, Search"
+    proficiencies:
+      - Simple Weapons
+      - Martial Weapons
+      - All Armor
+      - All Shields (including tower)
+      - Hand Crossbow
+    languages:
+      - Common
+      - Undercommon
+      - Orc
+      - Abyssal
+      - Celestial
+      - Giant
+  spells:
+    ranger:
+      - "Jump (p. 246)"
+  equipment:
+    special-items:
+      - "Concealment 5' radius, 7/day"
+      - "Ignore Death/Negative levels, 1/day"
+      - "Teleport 20/40/60' for 1/3/5 charges, 5 charges/day"
+      - "Invisibility 4 rounds (or less with more people), 3 charges/day"
+      - "+5 to any untrained skill, 1/day"
+      - "Negate stun, confuse, dazed, etc., 1/day"
+      - "Awaken from sleep, 1/day"
+      - Healing Belt
+      - "Bag of Tricks, tan"
+    value: 125103.77 gp
+    money: 230 gp
+  notes:
+    devotee: "Obad-Hai, Pelor"
+    special-damage: 3
+    human-until-level-10: "Was Human until level 10, then became Orc"

@@ -1,0 +1,112 @@
+---
+character:
+  description:
+    name: Cade
+    player: Don
+    race: Gnome
+    alignment: CE
+    size: S
+    sex: M
+  abilities:
+    strength: [10, str: 0, {base: 12, racial: -2}]
+    dexterity: [15, dex: 2]
+    constitution: [12, con: 1, {base: 10, racial: 2}]
+    intelligence: [20, int: 5]
+    wisdom: [13, wis: 1]
+    charisma: [6, cha: -2]
+  levels:
+    xp: 68992
+    hd: [12, 4]
+    hp: [31, {max-hp: 43, damage: -12}]
+    max-hp: [43, {con: 12, rolls: 31}]
+    wizard: [12, hp: [31], {hd: 4, bab: poor, fort: poor, ref: poor, will: good}]
+  combat:
+    initiative: [6, {dex: 2, improved-initiative: 4}]
+    saves:
+      fortitude: [7, {wizard: 4, con: 1, cloak-resistance: 2}]
+      reflex: [8, {wizard: 4, dex: 2, cloak-resistance: 2}]
+      will: [11, {wizard: 8, wis: 1, cloak-resistance: 2}]
+    attack:
+      bab: [6, wizard: 6]
+      melee:
+        _: [7, {bab: 6, str: 0, size: 1}]
+        dagger:
+          [7, 1d3, 19-20/x2, {_: 7}, str: 0, [dagger]]
+        spear:
+          [7, 1d6, 19-20/x2, {_: 7}, str: 0, [spear]]
+      ranged:
+        _: [9, {bab: 6, dex: 2, size: 1}]
+        light-crossbow:
+          [9, 1d6, 19-20/x2, {_: 9}, {}, [crossbow, light, 80ft]]
+        dagger:
+          [9, 1d3, 19-20/x2, {_: 9}, str: 0, [dagger, 10ft]]
+      grapple: [2, {bab: 6, str: 0, size: -4}]
+    defense:
+      ac: [14, {base: 10, deflection: 2, dex: 2}]
+      touch-ac: [14, {base: 10, deflection: 2, dex: 2}]
+      flat-footed-ac: [12, {base: 10, deflection: 2}]
+      acp: [0]
+  movement:
+    speed: [20, base: 20]
+    run: [80, base: x4]
+    load: [26.42 lbs, {equipped: 9.42 lbs, pack: 17 lbs}]
+    capacity: {light: 25 lbs, medium: 50 lbs, heavy: 75 lbs, lift: 150 lbs, drag: 375 lbs}
+  skills:
+    _points: [87, {wizard: 75, first-level: 12}]
+    concentration: [16, {con: 1, ranks: 15}, {points: {class: 15}}]
+    decipher-script: [15, {int: 5, ranks: 10}, {points: {class: 10}}]
+    heal: [3, {wis: 1, healer-kit: 2}]
+    knowledge-arcana: [13, {int: 5, ranks: 8}, {points: {class: 8}}]
+    knowledge-arch-eng: [6, {int: 5, ranks: 1}, {points: {class: 1}}]
+    knowledge-dungeoneering: [15, {int: 5, ranks: 10}, {points: {class: 10}}]
+    knowledge-geography: [6, {int: 5, ranks: 1}, {points: {class: 1}}]
+    knowledge-history: [13, {int: 5, ranks: 8}, {points: {class: 8}}]
+    knowledge-local: [6, {int: 5, ranks: 1}, {points: {class: 1}}]
+    knowledge-nature: [6, {int: 5, ranks: 1}, {points: {class: 1}}]
+    knowledge-nobility: [6, {int: 5, ranks: 1}, {points: {class: 1}}]
+    knowledge-religion: [6, {int: 5, ranks: 1}, {points: {class: 1}}]
+    knowledge-planes: [20, {int: 5, ranks: 15}, {points: {class: 15}}]
+    search: [7, {int: 5, racial: 2}]
+    spellcraft: [22, {int: 5, ranks: 15, knowledge-arcana-synergy: 2}, {points: {class: 15}}]
+  special:
+    feats:
+      - [Empower Spell, level: 1]
+      - [Spell Focus (Enchantment), level: 3]
+      - [Improved Initiative, wizard: 5, [combat.initiative, 4]]
+      - [Silent Spell, level: 6]
+      - [Spell Penetration, level: 9, [caster-level-sr-check, 2]]
+      - [Greater Spell Penetration, wizard: 10, [caster-level-sr-check, 4]]
+      - [Sudden Maximize, level: 12]
+      - [Scribe Scroll, wizard: 1]
+      - [Summon Familiar, wizard: 1]
+    racial:
+      - +2 racial bonus vs Illusion spells and effects
+      - +1 DC on Illusion spells cast by Cade
+      - +1 attack vs kobolds and goblinoids
+      - +4 dodge bonus to AC vs giants
+      - +2 racial bonus to Listen and Craft (alchemy)
+      - +2 racial bonus to Search (keen senses, included in skills)
+      - +4 racial bonus to Hide (size, not included in skill total above)
+      - Speak with burrowing mammals 1/day (1 minute)
+      - "Spell-Like Abilities (Cha 10+ required): 1/day dancing lights, ghost sound, prestidigitation. CL 1st, DC 10 + Cha mod + spell level."
+      - Low-light vision
+      - Weapon Familiarity: gnome hooked hammer
+    proficiencies:
+      - club
+      - dagger
+      - heavy crossbow
+      - light crossbow
+      - quarterstaff
+    languages:
+      - Common
+      - Gnome
+      - Giant
+      - Draconic
+      - Elven
+      - 4 additional languages
+  notes:
+    spell-resistance-check: "+16 total vs SR (BAB 6 + Spell Penetration 2 + Greater Spell Penetration 4 + caster level adjustments)"
+    ring-of-protection: "+2 deflection bonus to AC"
+    cloak-of-resistance: "+2 resistance bonus to all saves"
+    value: 91500 gp
+    money: 3471.8 gp

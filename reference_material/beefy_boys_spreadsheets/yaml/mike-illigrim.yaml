@@ -1,0 +1,215 @@
+---
+character:
+  description:
+    name: Illigrim
+    player: Mike
+    race: Elven
+    template: Were-Rat
+    alignment: CG
+    size: M
+    sex: M
+    age: 127 years
+  abilities:
+    strength: [18, str: 4]
+    dexterity: [23, dex: 6]
+    constitution: [14, con: 2]
+    intelligence: [16, int: 3]
+    wisdom: [14, wis: 2]
+    charisma: [12, cha: 1]
+  levels:
+    xp: 83067
+    ecl: 13
+    hd: [11, {rogue: 6, were-rat: 8}]
+    hp: [45, {max-hp: 67, damage: -22}]
+    max-hp: [67, {con: 22, rolls: 45}]
+    rogue: [10, hp: [45], {hd: 6, bab: medium, fort: poor, ref: good, will: poor}]
+    were-rat: [1, {hd: 8, bab: medium, fort: good, ref: good, will: poor, la: 2}]
+  combat:
+    initiative: [6, dex: 6]
+    saves:
+      fortitude: [10, {rogue: 3, were-rat: 2, con: 2, cloak-resistance: 3}]
+      reflex: [18, {rogue: 7, were-rat: 2, dex: 6, cloak-resistance: 3}]
+      will: [12, {rogue: 3, wis: 2, iron-will: 2, cloak-resistance: 3, alertness: 2}]
+    attack:
+      bab: [7, rogue: 7]
+      melee:
+        _: [11, {bab: 7, str: 4}]
+        rapier-1-ghost-touch:
+          [14, 1d6+5, 18-20/x2, {_: 11, enhancement: 1, weapon-finesse: 2}, {str: 4, enhancement: 1}, [rapier, ghost-touch, finesse]]
+        sap:
+          [13, 1d6+4 NL, x2, {_: 11, weapon-finesse: 2}, str: 4, [sap, nonlethal, finesse]]
+        punching-dagger:
+          [13, 1d4+4, x3, {_: 11, weapon-finesse: 2}, str: 4, [dagger, punching, finesse]]
+      ranged:
+        _: [13, {bab: 7, dex: 6}]
+        crossbow-light:
+          [13, 1d8, 19-20/x2, {_: 13}, {}, [crossbow, light, 80ft]]
+        javelins:
+          [13, 1d6+4, x2, {_: 13}, str: 4, [javelin, 30ft]]
+        composite-longbow-mw-4-mighty:
+          [14, 1d8+4, x3, {_: 13, masterwork: 1}, str: 4, [longbow, composite, mighty-4, 110ft]]
+      grapple: [11, {bab: 7, str: 4}]
+    defense:
+      ac: [27, {base: 10, armor: 8, deflection: 1, natural: 2, dex: 6}]
+      touch-ac: [17, {base: 10, deflection: 1, dex: 6}]
+      flat-footed-ac: [21, {base: 10, armor: 8, deflection: 1, natural: 2}]
+      acp: [-2, armor: -2]
+      dr: 10/silver
+  movement:
+    speed: [30, base: 30]
+    load: [80.86 lbs, {equipped: 35.1 lbs, pack: 45.76 lbs}]
+    capacity: {light: 100 lbs, medium: 200 lbs, heavy: 300 lbs, lift: 600 lbs, drag: 1500 lbs}
+  skills:
+    _points: [148, {rogue: 143, first-level: 5}]
+    appraise: [4, {int: 3, ranks: 1}, {points: {rogue: 1}}]
+    balance: [11, {dex: 6, ranks: 3, tumble-synergy: 2}, {points: {rogue: 3}}]
+    bluff: [13, {cha: 1, ranks: 12}, {points: {rogue: 12}}]
+    climb: [8, {str: 4, ranks: 4}, {points: {rogue: 4}}]
+    diplomacy: [3, {cha: 1, bluff-synergy: 2}]
+    disable-device: [16, {int: 3, ranks: 13}, {points: {rogue: 13}}]
+    disguise: [3, {cha: 1, ranks: 2}, {points: {rogue: 2}}]
+    escape-artist: [18, {dex: 6, ranks: 12}, {points: {rogue: 12}}]
+    gather-information: [3, {cha: 1, ranks: 2}, {points: {rogue: 2}}]
+    heal: [4, {wis: 2, healer-kit: 2}]
+    hide: [19, {dex: 6, ranks: 11, armor-bonus: 2}, {points: {rogue: 11}}]
+    intimidate: [3, {cha: 1, bluff-synergy: 2}]
+    jump: [9, {str: 4, ranks: 3, tumble-synergy: 2}, {points: {rogue: 3}}]
+    listen: [15, {wis: 2, ranks: 9, racial: 2, alertness: 2}, {points: {rogue: 9}}]
+    move-silently: [18, {dex: 6, ranks: 10, armor-bonus: 2}, {points: {rogue: 10}}]
+    open-lock: [18, {dex: 6, ranks: 12}, {points: {rogue: 12}}]
+    search: [15, {int: 3, ranks: 10, racial: 2}, {points: {rogue: 10}}]
+    sleight-of-hand: [16, {dex: 6, ranks: 8, bluff-synergy: 2}, {points: {rogue: 8}}]
+    spot: [17, {wis: 2, ranks: 11, racial: 2, alertness: 2}, {points: {rogue: 11}}]
+    swim: [4, str: 4]
+    tumble: [18, {dex: 6, ranks: 12}, {points: {rogue: 12}}]
+    use-magic-device: [19, {cha: 1, ranks: 13, skill-focus: 5}, {points: {rogue: 13}}]
+  special:
+    feats:
+      - [Dodge, level: 1]
+      - [Mobility, level: 3, ["+4 AC on AoOs"]]
+      - [Combat Expertise, level: 6]
+      - [Multiattack, level: 9, ["secondary attacks at -2 instead of -5"]]
+      - [Iron Will, were-rat: bonus, [combat.saves.will, 2]]
+      - [Alertness, were-rat: bonus, [{listen: 2, spot: 2}]]
+      - [Weapon Finesse, were-rat: bonus, [use-dex-for-melee]]
+    racial:
+      - +2 vs Enchantment
+      - Immune to Sleep
+      - Low-light Vision
+      - Auto-search within 5'
+      - "+2 Search, Spot, Listen"
+    class-abilities:
+      rogue:
+        - Sneak Attack +5d6
+        - Trap-finding
+        - Trap-sense +3
+        - Evasion
+        - Uncanny Dodge
+        - Improved Uncanny Dodge
+        - Improved Evasion
+    were-rat-abilities:
+      - Alternate Form (Su)
+      - Damage Reduction 10/Silver
+      - Lycanthropic Empathy (+4 vs rats)
+      - Low-light Vision
+      - "Disease: Filth Fever"
+      - Scent (detect presence 30' or 60' downwind, pinpoint 5')
+    proficiencies:
+      - Simple Weapons
+      - "Bows, hand crossbow"
+      - "Short sword, long sword, rapier, sap"
+      - Light Armor
+    languages:
+      - Common
+      - Elven
+      - Draconic
+      - Goblin
+      - Orc
+  companions:
+    grimshank-the-mule:
+      hp: 23
+      ac: 13
+      touch-ac: 10
+      capacity: {light: 228 lbs, medium: 459 lbs, heavy: 690 lbs, drag: 3450 lbs}
+      scent: "Detect presence 30' or 60' downwind, pinpoint 5'"
+  templates:
+    hybrid-form:
+      active: false
+      effects:
+        abilities:
+          dexterity: [+6, were-rat: 6]
+          constitution: [+2, were-rat: 2]
+        levels:
+          hp: [+11, con-increase: 11]
+          max-hp: [+11, con-increase: 11]
+        combat:
+          initiative: [+3, dex: 3]
+          saves:
+            fortitude: [+1, con: 1]
+            reflex: [+3, dex: 3]
+          attack:
+            melee:
+              _: [+3, dex: 3]
+              rapier-1-ghost-touch: [+3, dex: 3]
+              sap: [+3, dex: 3]
+              punching-dagger: [+3, dex: 3]
+              claw: [16, 1d4+2, x2, {bab: 7, dex: 9}, str: 2, [natural, secondary]]
+              bite: [16, 1d6+2, x2, {bab: 7, dex: 9}, str: 2, [natural, secondary]]
+            ranged:
+              _: [+3, dex: 3]
+            full-attack: "Rapier+16/+11, Bite+13, Claw+13"
+          defense:
+            ac: [+4, {were-rat-natural: 3, dex: 1}]
+            touch-ac: [+3, dex: 3]
+            flat-footed-ac: [+1, were-rat-natural: 3]
+        movement:
+          speed: [0]
+        skills:
+          balance: [+3, dex: 3]
+          climb: [+13, {dex-over-str: 5, were-rat-racial: 8}]
+          escape-artist: [+3, dex: 3]
+          hide: [+3, dex: 3]
+          move-silently: [+3, dex: 3]
+          open-lock: [+3, dex: 3]
+          sleight-of-hand: [+3, dex: 3]
+          swim: [+5, dex-over-str: 5]
+          tumble: [+3, dex: 3]
+    dire-rat-form:
+      active: false
+      effects:
+        abilities:
+          dexterity: [+6, were-rat: 6]
+          constitution: [+2, were-rat: 2]
+        levels:
+          hp: [+11, con-increase: 11]
+          max-hp: [+11, con-increase: 11]
+        combat:
+          initiative: [+3, dex: 3]
+          saves:
+            fortitude: [+1, con: 1]
+            reflex: [+3, dex: 3]
+          attack:
+            melee:
+              bite: [17, 1d4+6, x2, {bab: 7, dex: 9, size: 1}, str: 6, [natural, primary]]
+              removes: [rapier-1-ghost-touch, sap, punching-dagger]
+            ranged:
+              removes: [crossbow-light, javelins, composite-longbow-mw-4-mighty]
+          defense:
+            ac: [-3, {armor: -8, were-rat-natural: 3, dex: 2}]
+            touch-ac: [+4, dex: 4]
+            flat-footed-ac: [-6, {armor: -8, were-rat-natural: 3}]
+        movement:
+          speed: [+10, dire-rat: 10]
+        skills:
+          balance: [+3, dex: 3]
+          climb: [+13, {dex-over-str: 5, were-rat-racial: 8}]
+          escape-artist: [+3, dex: 3]
+          hide: [+7, {dex: 3, size: 4}]
+          move-silently: [+3, dex: 3]
+          open-lock: [+3, dex: 3]
+          sleight-of-hand: [+3, dex: 3]
+          swim: [+13, {dex-over-str: 5, were-rat-racial: 8}]
+          tumble: [+3, dex: 3]
+  notes:
+    special-damage: 8
+    nonlethal: 0/42
