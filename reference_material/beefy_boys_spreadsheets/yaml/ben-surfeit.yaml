@@ -112,6 +112,34 @@ character:
       - Goblin
       - Sylvan
       - Draconic
+  inventory:
+    _on: [equipped, pack]
+    money:
+      _total: 734 gp
+      coins: [734 gp, 2.08 lbs, pack, {pp: 73, gp: 2, sp: 19, cp: 10}, 0.02 lbs]
+    equipped:
+      - [Wooden Bowl, 1, gear, 1 lb, 0.02 gp]
+      - [Smokestick, 1, supplies, 0.5 lbs, 20 gp]
+      - [Flask, 1, container, 1.5 lbs, 0.03 gp]
+      - [Quarterstaff, 1, weapon, 4 lbs, 0 gp, {damage: 1d6, crit: x2}]
+      - [Monk's Robes, 1, clothing, 2 lbs, 5 gp]
+      - [Sling +1 Holy, 1, weapon, 0.01 lbs, 18300 gp, {damage: 1d4, crit: x2, range: 50ft, enhancement: 1, holy: "+2d6 vs evil"}, [magic]]
+      - [Bracers of Armor +1, 1, gear, 1 lb, 2000 gp, {ac: 1}, [magic]]
+      - [Amulet of Natural Armor +1, 1, gear, 0.1 lbs, 2000 gp, {natural: 1}, [magic]]
+      - [Everburning Candle, 1, gear, 1 lb, 110 gp, [magic]]
+      - [Turkey bone, 1, gear, 0.1 lbs, 0 gp]
+      - [Cloak of Charisma +2, 1, gear, 0 lbs, 2000 gp, {cha-enhancement: 2}, [magic]]
+      - [Sling Ammo Adamantine, 5, supplies, 0.5 lbs, 60.01 gp, [adamantine]]
+      - [Sling Ammo Silvered, 18, supplies, 0.5 lbs, 2.01 gp, [silver]]
+      - [Sling Ammo Cold Iron, 58, supplies, 0.5 lbs, 0.02 gp, [cold-iron]]
+      - [Potion Barkskin, 1, potion, 0.1 lbs, 600 gp]
+      - [Potion Fly, 5, potion, 0.1 lbs, 750 gp]
+      - [Potion Blur, 3, potion, 0.1 lbs, 300 gp]
+      - [Potion Cure Light Wounds 1d8+1, 2, potion, 0.1 lbs, 50 gp]
+      - [Potion Reduce Person, 1, potion, 0.1 lbs, 250 gp]
+      - [Resurrection Gem, 1, gear, 0.1 lbs, 5000 gp, [magic]]
+      - [Belt of Giant's Strength +4, 1, gear, 1 lb, 16000 gp, {str-enhancement: 4}, [magic]]
+    pack: []
   notes:
     devotee: Obad-Hai
     money: 734 Gp

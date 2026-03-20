@@ -94,7 +94,48 @@ character:
         - Immune to death spells and magical death effects
     languages:
       - Common
+  inventory:
+    _on: [equipped, pack]
+    money:
+      _total: 5475 gp
+      coins: [5475 gp, 19.5 lbs, pack, {pp: 500, gp: 475, sp: 0, cp: 0}, 0.02 lbs]
+    equipped:
+      - [Armband of Maximized Healing, 1, gear, 1 lb, 7200 gp, {}, [magic]]
+      - [Mirror of time-hop (2/day gaze 30ft push creature 5 rounds forward; DC 14 Will), 1, gear, 0.5 lbs, 9000 gp, {}, [magic]]
+      - [Orb of environmental adaptation within 30 feet, 1, gear, 0.1 lbs, 2000 gp, {}, [magic]]
+      - [Diamond dust for Glyph of Warding (200gp/casting), 8, supplies, 0.1 lbs, 200 gp]
+      - [Powdered silver for Wall of Good (25gp/casting), 39, supplies, 0.1 lbs, 25 gp]
+      - [Spell Components, 1, supplies, 1 lb, 100 gp]
+      - [Other expensive material spell components, 200, supplies, 0.1 lbs, 100 gp]
+      - [Clothes, 1, clothing, 1 lb, 10 gp]
+      - [Holy Symbol, 1, gear, 1 lb, 0 gp]
+      - [Book of Sermons, 1, gear, 1 lb, 0 gp]
+      - [USED: Diamond dust (200gp/casting), 2, supplies, 0.1 lbs, 200 gp, {}, [used]]
+      - [USED: Powdered silver (25gp/casting), 1, supplies, 0.1 lbs, 25 gp, {}, [used]]
+      - [Walking cane (light mace), 1, weapon, 0.1 lbs, 5 gp]
+      - [+1 Blurring Full Plate (+9 AC; -5 ACP; 5 rounds 3/day), 1, armor, 0.1 lbs, 5650 gp, {ac: 9, acp: -5, blurring: "5 rounds 3/day"}, [magic]]
+      - [+2 Ring of Protection, 1, gear, 0 lbs, 8000 gp, {deflection: 2}, [magic]]
+    pack:
+      - []
+    horse:
+      - [Half-Celestial Bison war-trained (Sacred Cow), 1, mount, 0 lbs, 8500 gp]
+      - [Saddle exotic military (+2 ride), 1, gear, 20 lbs, 60 gp]
+      - [Battle Bridle (+5 ride; mounted combat feat), 1, gear, 1 lb, 9000 gp, {}, [magic]]
   spells:
+    cleric:
+      caster-level: 12
+      key-ability: wisdom
+      domains: [Good, Trickery]
+      spells-per-day: {0: 6, 1: 7+1D, 2: 6+1D, 3: 6+1D, 4: 5+1D, 5: 4+1D, 6: 3+1D}
+      save-dc: {0: 14, 1: 15, 2: 16, 3: 17, 4: 18, 5: 19, 6: 20}
+      spells-prepared:
+        0: [Detect Magic, Detect Magic, Guidance, Guidance, Read Magic, Read Magic]
+        1: [Vision of Heaven, Vision of Heaven, Entropic Shield, Bless, Command, "Blessed Aim [used]", "Blessed Aim [domain]"]
+        2: [Aid, Avoid Planar Effects, "Lastai's Caress", "Lastai's Caress", Elation, "Owl's Wisdom", "Elation [domain]"]
+        3: ["Prayer [used]", Mass Resist Energy, Dispel Magic, "Dispel Magic [used]", Inspired Aim, Inspired Aim, "Inspired Aim [domain]"]
+        4: [Wall of Good, Wall of Good, Wall of Good, "Wall of Good [used]", Dismissal, "Divination [domain]"]
+        5: [Warding Gems, Plane Shift, Righteous Wrath, "Command Greater", "Warding Gems [domain]"]
+        6: [Blade Barrier, "Find the Path [used]", "Call Faithful Servants [domain]"]
     special-spells:
       - spell: Vision of Heaven
         level: 1

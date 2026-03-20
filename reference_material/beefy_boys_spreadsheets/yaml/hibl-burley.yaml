@@ -80,6 +80,91 @@ character:
   companions:
     horse:
       hp: 22
+  inventory:
+    _on: [equipped, pack, horse]
+    money:
+      _total: 1005 gp
+      coins: [1005 gp, 2.1 lbs, pack, {pp: 100, gp: 5, sp: 0, cp: 0}, 0.02 lbs]
+    equipped:
+      - [Dagger, 1, weapon, 1 lb, 2 gp, {damage: 1d4, crit: 19-20/x2}]
+      - [Heward's Handy Haversack, 1, container, 5 lbs, 2000 gp, [magic]]
+      - [Robe of the Archmagi, 1, armor, 0 lbs, 75000 gp, {ac: 5, sr: 18, saves-resistance: 4, spell-resistance: 2}, [magic]]
+      - [+2 Gloves of Dexterity, 1, gear, 0 lbs, 4000 gp, {dex-enhancement: 2}, [magic]]
+      - [+3 Amulet of Natural Armor, 1, gear, 0 lbs, 18000 gp, {natural: 3}, [magic]]
+      - [+2 Ring of Protection, 1, gear, 0 lbs, 8000 gp, {deflection: 2}, [magic]]
+      - [+2 Charisma Cloak, 1, gear, 0 lbs, 4000 gp, {cha-enhancement: 2}, [magic]]
+      - [Light Crossbow, 1, weapon, 4 lbs, 35 gp, {damage: 1d8, crit: 19-20/x2, range: 80ft}]
+      - [Bolts, 20, supplies, 0.1 lbs, 0.1 gp]
+      - [Dimension Stride Boots, 1, gear, 0 lbs, 2000 gp, {charges: "1/20ft, 3/40ft, 5/60ft"}, [magic]]
+      - [Healing Belt, 1, gear, 0.1 lbs, 750 gp, {charges: "1: 2d8, 2: 3d8, 3: 4d8", heal-bonus: 2}, [magic]]
+      - [Wand of Floating Disk, 1, wand, 0.1 lbs, 52.5 gp, {charges: 7}, [magic]]
+      - [Wand of Non Detection, 1, wand, 0.1 lbs, 4125 gp, {charges: 30}, [magic]]
+      - [Potion Cure Light Wounds, 1, potion, 0.1 lbs, 50 gp]
+      - [Scroll See Invisible, 1, scroll, 0.1 lbs, 75 gp, [magic]]
+      - [Spiked Gauntlet, 1, weapon, 1 lb, 5 gp, {damage: 1d4, crit: x2}]
+      - [Healing Belt, 1, gear, 0.1 lbs, 750 gp, [magic]]
+    pack:
+      - [Bedroll, 1, gear, 5 lbs, 0.1 gp]
+      - [Clothes Explorers, 1, clothing, 8 lbs, 10 gp]
+      - [Towel, 1, gear, 2 lbs, 0.4 gp]
+      - [Soap Bar, 1, gear, 1 lb, 0.5 gp]
+      - [Candles, 4, supplies, 0.25 lbs, 0.01 gp]
+      - [Flint and Steel, 1, gear, 0 lbs, 1 gp]
+      - [Rations Trail 5 days, 5, supplies, 1 lb, 0.5 gp]
+      - [Waterskin 1 day, 1, gear, 4 lbs, 1 gp]
+      - [Rope Silk 50 ft, 1, gear, 5 lbs, 10 gp]
+      - [Sack (empty), 1, container, 0.5 lbs, 0.1 gp]
+      - [Flask Pint (empty), 1, container, 1.5 lbs, 0.03 gp]
+      - [Torch, 4, supplies, 1 lb, 0.01 gp]
+      - [Chalk Piece, 1, supplies, 0 lbs, 0.01 gp]
+      - [Scroll Lesser Planar Binding, 2, scroll, 0.1 lbs, 1125 gp, [magic]]
+    horse:
+      - [Light Warhorse, 1, mount, 0 lbs, 150 gp]
+      - [Military Saddle, 1, gear, 4 lbs, 20 gp]
+  spells:
+    caster-class: sorcerer
+    caster-level: 13
+    key-ability: charisma
+    ranges: {close: 55ft, medium: 230ft, long: 920ft}
+    spells-per-day: {0: 6, 1: 8, 2: 8, 3: 7, 4: 7, 5: 7, 6: 5}
+    save-dc: {0: 16, 1: 17, 2: 18, 3: 19, 4: 20, 5: 21, 6: 22}
+    spells-known:
+      0:
+        - Arcane Mark
+        - Detect Magic
+        - Light
+        - Mage Hand
+        - Message
+        - Open/Close
+        - Prestidigitation
+        - Read Magic
+        - Resistance
+      1:
+        - Color Spray
+        - Enlarge Person
+        - Expeditious Retreat
+        - Magic Missile
+        - Unseen Servant
+      2:
+        - Glitterdust
+        - Mirror Image
+        - Pyrotechnics
+        - Scorching Ray
+        - See Invisible
+      3:
+        - Haste
+        - Invisibility Sphere
+        - Lightning Bolt
+        - Phantom Steed
+      4:
+        - Black Tentacles
+        - "Greater Invisibility"
+        - Rainbow Pattern
+      5:
+        - Prying Eyes
+        - Teleport
+      6:
+        - Disintegrate
   notes:
     money: 1005 gp
     value: 112239.72 gp

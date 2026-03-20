@@ -97,6 +97,52 @@ character:
       - All Shields (including tower)
     languages:
       - Common
+  inventory:
+    _on: [equipped, pack, horse]
+    money:
+      _total: 3838.2 gp
+      coins: [3838.2 gp, 7.86 lbs, pack, {pp: 383, gp: 8, sp: 2, cp: 0}, 0.02 lbs]
+    equipped:
+      - [Dagger, 1, weapon, 1 lb, 2 gp, {damage: 1d4, crit: 19-20/x2}]
+      - [Bastard Sword +1 Keen Prismatic Burst, 1, weapon, 6 lbs, 8335 gp, {damage: 1d10, crit: 15-20/x2, enhancement: 1, keen: true, prismatic-burst: true}]
+      - [Bastard Sword +1 Giant Slaying, 1, weapon, 6 lbs, 0 gp, [party-loot]]
+      - [+3 Frost Brand Greatsword, 1, weapon, 6 lbs, 0 gp, {damage: 2d6+1d6 cold, crit: 19-20/x2, enhancement: 3, frost: true}, [party-loot]]
+      - [Mithril Plate of Speed +1, 1, armor, 20 lbs, 26500 gp, {ac: 9, acp: -2, asfc: "15%", haste: "10 rounds/day"}]
+      - [+2 Lion Shield, 1, shield, 15 lbs, 9170 gp, {ac: 4, acp: -2, attack: "3/day, 2d6"}]
+      - [MW Mighty +4 Composite Long Bow, 1, weapon, 3 lbs, 775 gp, {damage: 1d8, crit: x3, mighty: 4}, [mw]]
+      - [Winged Boots, 1, gear, 0 lbs, 16000 gp, {fly: "3/day 5 mins"}, [magic]]
+      - [Gauntlets of Ogre Power, 1, gear, 0 lbs, 4000 gp, {str-enhancement: 4}, [magic]]
+      - [Cloak of Resistance +1, 1, gear, 0 lbs, 1000 gp, {saves-resistance: 1}, [magic]]
+      - [Arrows, 30, supplies, 0.15 lbs, 0.05 gp]
+      - [+1 Arrow, 1, supplies, 0.15 lbs, 46.05 gp, [magic]]
+      - [Climbing Kit, 1, tool, 5 lbs, 80 gp]
+      - [Potion Shield of Faith, 35, potion, 0.1 lbs, 50 gp]
+      - [Potion Cure Light Wounds, 1, potion, 0.1 lbs, 50 gp]
+      - [Silver Sheen, 1, supplies, 0.1 lbs, 250 gp]
+      - [Life Saver, 1, supplies, 0.1 lbs, 10 gp]
+      - [Vigor, 5, potion, 0.1 lbs, 10 gp]
+      - [Ornate Iron Key, 1, gear, 0.25 lbs, 0 gp]
+      - [Belt of Giant's Strength +4, 1, gear, 1 lb, 16000 gp, {str-enhancement: 4}, [magic]]
+    pack:
+      - [Backpack, 1, container, 2 lbs, 2 gp]
+      - [Bedroll, 1, gear, 5 lbs, 0.1 gp]
+      - [Clothes Spare Set Thainman, 1, clothing, 8 lbs, 10 gp]
+      - [Towel, 1, gear, 2 lbs, 0.4 gp]
+      - [Soap Bar, 1, supplies, 1 lb, 0.5 gp]
+      - [Candles, 4, supplies, 0.25 lbs, 0.01 gp]
+      - [Flint and Steel, 1, gear, 0 lbs, 1 gp]
+      - [Rations Trail 5 days, 5, supplies, 1 lb, 0.5 gp]
+      - [Waterskin 1 day, 1, gear, 4 lbs, 1 gp]
+      - [Rope Hempen 50 ft, 1, gear, 10 lbs, 1 gp]
+      - [Sack (empty), 1, container, 0.5 lbs, 0.1 gp]
+      - [Flask Pint (empty), 1, container, 1.5 lbs, 0.03 gp]
+      - [Torch, 4, supplies, 1 lb, 0.01 gp]
+      - [Chalk Piece, 1, supplies, 0 lbs, 0.01 gp]
+      - [Crowbar, 1, tool, 5 lbs, 2 gp]
+      - [Healing Belt, 1, gear, 0.1 lbs, 750 gp, {charges: "1: 2d8, 2: 3d8, 3: 4d8", heal-bonus: 2}, [magic]]
+    horse:
+      - [Heavy Warhorse, 1, mount, 0 lbs, 400 gp]
+      - [Military Saddle, 1, gear, 4 lbs, 20 gp]
   notes:
     prismatic-burst: "On critical hit with bastard sword, roll 1d8 for prismatic effect"
     devotee: Obad-Hai

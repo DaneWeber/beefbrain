@@ -140,19 +140,74 @@ character:
   spells:
     ranger:
       - "Jump (p. 246)"
-  equipment:
-    special-items:
-      - "Concealment 5' radius, 7/day"
-      - "Ignore Death/Negative levels, 1/day"
-      - "Teleport 20/40/60' for 1/3/5 charges, 5 charges/day"
-      - "Invisibility 4 rounds (or less with more people), 3 charges/day"
-      - "+5 to any untrained skill, 1/day"
-      - "Negate stun, confuse, dazed, etc., 1/day"
-      - "Awaken from sleep, 1/day"
-      - Healing Belt
-      - "Bag of Tricks, tan"
-    value: 125103.77 gp
-    money: 230 gp
+  inventory:
+    _on: [equipped, pack]
+    money:
+      _total: 230 gp
+      coins: [230 gp, 4.6 lbs, pack, {pp: 0, gp: 230, sp: 0, cp: 0}, 0.02 lbs]
+    equipped:
+      - [Heward's Handy Haversack, 1, container, 5 lbs, 2000 gp, [magic]]
+      - [Everfull Mug, 1, gear, 5 lbs, 200 gp, [magic]]
+      - [Everlasting Rations, 1, supplies, 5 lbs, 350 gp, [magic]]
+      - [Sickle +1, 2, weapon, 1 lb, 2306 gp, {damage: 1d6, crit: x2, enhancement: 1}, [magic]]
+      - [Weapon Crystal Energy Assault Greater (Acid), 1, gear, 0.1 lbs, 3000 gp, [magic]]
+      - [Weapon Crystal Energy Assault Greater (Shocking), 1, gear, 0.1 lbs, 3000 gp, [magic]]
+      - [Weapon Crystal Energy Assault Greater (Fire), 1, gear, 0.1 lbs, 3000 gp, [magic]]
+      - [Dagger, 1, weapon, 1 lb, 2 gp, {damage: 1d4, crit: 19-20/x2}]
+      - [Leather Mask, 1, gear, 1 lb, 5 gp]
+      - [Dagger Silver MW, 1, weapon, 2 lbs, 322 gp, {damage: 1d4, crit: 19-20/x2}, [mw, silver]]
+      - [Bow of the Wintermoon +1 Full Str Bonus, 1, weapon, 2 lbs, 3400 gp, {damage: 1d8, crit: x3, range: 110ft, enhancement: 1}, [magic]]
+      - [Arrows, 31, supplies, 0.15 lbs, 0.05 gp]
+      - ["Horned Helm +1 (1d8 natural attack 1/2 str; +1 AC)", 1, gear, 0 lbs, 10000 gp, {ac: 1, damage: 1d8, crit: x2}, [magic]]
+      - ["+4 Deathward Improved Stamina/Agility Mindarmor Mithralmist Chain Shirt (+8 AC)", 1, armor, 12.5 lbs, 38400 gp, {ac: 9, acp: 0, mist: "7/day 5ft 1min", fort-resistance: 3, ref-resistance: 3, will-mental-acuity: "3/day +5 vs mind-affecting", deathward: "1/day ignore death/neg energy"}, [magic, mithral]]
+      - [Ring of Protection +1, 1, gear, 0 lbs, 2000 gp, {deflection: 1}, [magic]]
+      - [Gloves of Dexterity +2, 1, gear, 0 lbs, 4000 gp, {dex-enhancement: 2}, [magic]]
+      - ["Dimension Stride Boots (5 charges: 1/20ft, 3/40ft, 5/60ft)", 1, gear, 0 lbs, 2000 gp, [magic]]
+      - ["Pearl of Speech (Giant, Abyssal, Celestial)", 3, gear, 0 lbs, 600 gp, [magic]]
+      - ["Vanisher Cloak (3 charges/day: 1=4rds, 2=3rds, 3=2rds invisibility)", 1, gear, 0 lbs, 2500 gp, [magic]]
+      - [Vest of Resistance +2 Saves, 1, gear, 0 lbs, 4000 gp, {saves-resistance: 2}, [magic]]
+      - [Filcher's Friend (+5 Sleight of Hand/metal), 1, gear, 0 lbs, 2500 gp, [magic]]
+      - [Flask Holy Water, 1, supplies, 1 lb, 25 gp]
+      - [Flask Acid, 1, supplies, 1 lb, 10 gp]
+      - [Everburning Torch (Candle/Skull), 1, gear, 1 lb, 110 gp, [magic]]
+      - [Holy Symbol wooden (Obad-Hai), 1, gear, 0 lbs, 1 gp]
+      - [Alchemist Arrow (+1d4 next rnd), 6, supplies, 0.15 lbs, 0 gp]
+      - [Blessed Bandages, 3, supplies, 0 lbs, 10 gp]
+      - [Ghost Oil (2 rds Ghost Touch), 1, supplies, 0 lbs, 50 gp]
+      - [Wand Cure Light (45 charges), 1, wand, 0 lbs, 750 gp, [magic]]
+      - [Third Eye Improvisation (1/day +5 and trained in any skill), 1, gear, 0 lbs, 1000 gp, [magic]]
+      - [Third Eye Clarity (negate stunned/confused/dazed/fascinated), 1, gear, 0 lbs, 3000 gp, [magic]]
+      - [Amulet of Natural Armor +2, 1, gear, 0 lbs, 8000 gp, {natural: 2}, [magic]]
+      - [Sphere of Awakening (60ft burst), 1, gear, 0 lbs, 1800 gp, [magic]]
+      - [Belt of Giant's Strength +4, 1, gear, 1 lb, 16000 gp, {str-enhancement: 4}, [magic]]
+      - [Tan Bag of Tricks, 1, gear, 0 lbs, 6300 gp, [magic]]
+      - [Holy Symbol golden (Pelor), 1, gear, 1 lb, 100 gp]
+      - ["Healing Belt (1: 2d8, 2: 3d8, 3: 4d8, +2 heal)", 1, gear, 0 lbs, 750 gp, [magic]]
+    pack:
+      - [Backpack, 1, container, 2 lbs, 2 gp]
+      - [Bedroll, 1, gear, 5 lbs, 0.1 gp]
+      - [Clothes Spare Explorers, 1, clothing, 8 lbs, 10 gp]
+      - [Towel, 1, gear, 2 lbs, 0.4 gp]
+      - [Soap Bar, 1, gear, 1 lb, 0.5 gp]
+      - [Candles, 4, supplies, 0.25 lbs, 0.01 gp]
+      - [Flint and Steel, 1, gear, 0 lbs, 1 gp]
+      - [Silk Rope 50 ft, 1, gear, 5 lbs, 10 gp]
+      - [Sack (empty), 1, container, 0.5 lbs, 0.1 gp]
+      - [Flask Pint (empty), 1, container, 1.5 lbs, 0.03 gp]
+      - [Torch, 4, supplies, 1 lb, 0.01 gp]
+      - [Chalk Piece, 1, supplies, 0 lbs, 0.01 gp]
+      - [Books in Undercommon, 3, gear, 1 lb, 0 gp]
+      - [Flute reed MW, 1, gear, 1 lb, 100 gp, [mw]]
+      - [Mirror small steel, 1, gear, 0.5 lbs, 10 gp]
+      - [Bell small, 1, gear, 0 lbs, 1 gp]
+      - [Vial Anti-toxin, 1, supplies, 0 lbs, 50 gp]
+      - [Giant's sack, 1, container, 0 lbs, 0 gp]
+      - [Giant's head, 1, gear, 80 lbs, 0 gp, [trophy]]
+      - [Giant's heart, 1, gear, 80 lbs, 0 gp, [trophy]]
+      - [Map of path through Underdark, 1, gear, 0 lbs, 0 gp]
+    horse:
+      - [Heavy Warhorse named Obad-Hai, 1, mount, 0 lbs, 400 gp]
+      - [Military Saddle plus bit/bridle/saddlebags, 1, gear, 4 lbs, 20 gp]
   notes:
     devotee: "Obad-Hai, Pelor"
     special-damage: 3
