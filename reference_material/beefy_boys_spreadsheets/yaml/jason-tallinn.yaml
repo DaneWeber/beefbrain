@@ -50,7 +50,7 @@ character:
   movement:
     speed: [30, {base: 30}]
     load: [42.5 lbs, {equipped: 17 lbs, pack: 25.5 lbs}]
-    capacity: {light: 100 lbs, medium: 200 lbs, heavy: 300 lbs, lift: 600 lbs, drag: 1500 lbs}
+    capacity: {light: 26 lbs, medium: 53 lbs, heavy: 80 lbs, lift: 160 lbs, drag: 400 lbs}
   skills:
     _points: [105, {druid: 48, int: 24, human: 12, first-level: 21}]
     diplomacy: [15, {cha: 1, ranks: 14}, {points: {druid: 14}}]
@@ -113,3 +113,5 @@ character:
     quarterstaff-2: "Contains mass Bull's Strength"
     natural-bond: "No effect currently, should be replaced"
     spell-focus: "School not specified"
+    load-note: "Str 8 light capacity is 26 lbs but total load is 42.5 lbs (medium). CSV shows speed 30 — animal companion likely carries the pack."
+    capacity-fix: "CSV had 100/200/300 (Str 18 values). Fixed to Str 8: 26/53/80."

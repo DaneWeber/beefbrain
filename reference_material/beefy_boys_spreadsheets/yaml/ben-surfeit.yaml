@@ -87,7 +87,7 @@ character:
     move-silently: [8, {dex: 5, ranks: 3}, {points: {dragon: 3}}]
     spot: [15, {wis: 3, ranks: 10, racial: 2}, {points: {dragon: 8, psionic-fist: 2}}]
     swim: [11, {str: 6, ranks: 5}, {points: {dragon: 5}}]
-    tumble: [17, {dex: 5, ranks: 8, jump-synergy: 4}, {points: {dragon: 8}}]
+    tumble: [17, {dex: 5, ranks: 8, jump-synergy: 2, misc: 2}, {points: {dragon: 8}}]
   special:
     feats:
       - [Hover, hd: 1, [move action to hover then half speed or full attack]]

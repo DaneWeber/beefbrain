@@ -48,7 +48,7 @@ character:
       spell-resistance: 18
   movement:
     speed: [30, base: 30]
-    load: [52.9 lbs, {equipped: 13.6 lbs, pack: 39.3 lbs}]
+    load: [13.6 lbs, equipped: 13.6 lbs]
     capacity: {light: 23 lbs, medium: 46 lbs, heavy: 70 lbs, lift: 140 lbs, drag: 350 lbs}
   skills:
     _points: [32, {sorcerer: 26, first-level: 6}]
@@ -81,7 +81,7 @@ character:
     horse:
       hp: 22
   inventory:
-    _on: [equipped, pack, horse]
+    _on: [equipped]
     money:
       _total: 1005 gp
       coins: [1005 gp, 2.1 lbs, pack, {pp: 100, gp: 5, sp: 0, cp: 0}, 0.02 lbs]
