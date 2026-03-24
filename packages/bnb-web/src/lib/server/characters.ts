@@ -55,6 +55,21 @@ export async function listCharacters(): Promise<CharacterSummary[]> {
 	return summaries;
 }
 
+export async function loadAllCharacters(): Promise<{ slug: string; character: CharacterData }[]> {
+	const files = await readdir(YAML_DIR);
+	const yamlFiles = files.filter((f) => f.endsWith('.yaml') || f.endsWith('.yml')).sort();
+
+	const results: { slug: string; character: CharacterData }[] = [];
+	for (const file of yamlFiles) {
+		const raw = await readFile(join(YAML_DIR, file), 'utf-8');
+		const data = yaml.load(raw) as CharacterData;
+		if (data?.character) {
+			results.push({ slug: basename(file, '.yaml'), character: data.character });
+		}
+	}
+	return results;
+}
+
 export async function loadCharacter(slug: string): Promise<CharacterData | null> {
 	const filePath = join(YAML_DIR, `${slug}.yaml`);
 	try {

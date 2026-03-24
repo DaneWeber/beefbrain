@@ -10,6 +10,7 @@
 
 <nav class="no-print">
 	<a href="/" class="nav-brand">Beefbrain</a>
+	<a href="/dm" class="nav-link">DM View</a>
 </nav>
 
 <main>
@@ -41,6 +42,15 @@
 	}
 	.nav-brand:hover {
 		color: #ccc;
+	}
+	.nav-link {
+		color: #aaa;
+		text-decoration: none;
+		font-size: 0.9rem;
+		margin-left: 1.5rem;
+	}
+	.nav-link:hover {
+		color: #fff;
 	}
 	main {
 		padding: 0 1.5rem 2rem;
