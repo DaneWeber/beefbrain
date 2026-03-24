@@ -15,6 +15,7 @@
 	const inventory = $derived(character.inventory ?? {});
 	const spells = $derived(character.spells ?? {});
 	const notes = $derived(character.notes ?? {});
+	const viewNotes = $derived(character['view-notes'] ?? {});
 
 	const levelSkipKeys = new Set(['xp', 'hd', 'hp', 'max-hp', 'ecl', 'level-adjustment']);
 
@@ -214,6 +215,9 @@
 				<!-- Offense -->
 				<div class="subsection">
 					<h3>Offense</h3>
+					{#if viewNotes['combat-offense']}
+						<div class="view-note">{viewNotes['combat-offense']}</div>
+					{/if}
 					{#if combat.attack?.bab}
 						<div class="inline-stat">
 							<span class="label">BAB</span> {mod(combat.attack.bab)}
@@ -292,6 +296,9 @@
 				<!-- Defense -->
 				<div class="subsection">
 					<h3>Defense</h3>
+					{#if viewNotes['combat-defense']}
+						<div class="view-note">{viewNotes['combat-defense']}</div>
+					{/if}
 					<div class="inline-stat">
 						<span class="label">Fort</span> {mod(combat.saves?.fortitude)}
 						<span class="sep">|</span>
@@ -330,6 +337,9 @@
 			<!-- Senses & Awareness -->
 			<section>
 				<h2>Senses & Awareness</h2>
+				{#if viewNotes.senses}
+					<div class="view-note">{viewNotes.senses}</div>
+				{/if}
 				{#if senses.length > 0}
 					<div class="trait-line">{senses.join(' / ')}</div>
 				{/if}
@@ -343,6 +353,9 @@
 			<!-- Movement & Exploration -->
 			<section>
 				<h2>Movement & Exploration</h2>
+				{#if viewNotes.movement}
+					<div class="view-note">{viewNotes.movement}</div>
+				{/if}
 				<div class="inline-stat">
 					{#each Object.entries(movement).filter(([k]) => k !== 'capacity' && k !== 'load') as [key, v]}
 						{@const p = parseSumValue(v)}
@@ -371,6 +384,9 @@
 			<!-- Social -->
 			<section>
 				<h2>Social</h2>
+				{#if viewNotes.social}
+					<div class="view-note">{viewNotes.social}</div>
+				{/if}
 				{#if special.languages}
 					<div class="inline-stat">
 						<span class="label">Languages</span> {special.languages.join(', ')}
@@ -386,6 +402,9 @@
 			<!-- Practical Skills -->
 			<section>
 				<h2>Practical</h2>
+				{#if viewNotes.practical}
+					<div class="view-note">{viewNotes.practical}</div>
+				{/if}
 				<div class="skill-group">
 					{#each skillRows([...categorized.practical, ...categorized.magic, ...categorized.other]) as s}
 						<span class="skill-chip" class:boosted={s.boosted}><span class="skill-name">{s.name}</span> {s.total}</span>
@@ -399,6 +418,9 @@
 	{#if hasSpells(spells)}
 		<section class="full-width">
 			<h2>Magic</h2>
+			{#if viewNotes.magic}
+				<div class="view-note">{viewNotes.magic}</div>
+			{/if}
 			{#each spellSections(spells) as { key, section }}
 				{#if spellSections(spells).length > 1}
 					<h3>{formatKey(key)}</h3>
@@ -533,6 +555,9 @@
 	<!-- === EQUIPMENT === -->
 	<section class="full-width">
 		<h2>Equipment</h2>
+		{#if viewNotes.equipment}
+			<div class="view-note">{viewNotes.equipment}</div>
+		{/if}
 		{#if inventory.money}
 			<div class="inline-stat">
 				<span class="label">Money</span> {inventory.money._total}
@@ -755,6 +780,15 @@
 		font-size: 0.75rem;
 		color: #999;
 		font-style: italic;
+	}
+	.view-note {
+		font-size: 0.8rem;
+		color: #6a4c00;
+		background: #fef9e7;
+		border-left: 3px solid #d4a017;
+		padding: 0.2rem 0.5rem;
+		margin: 0.2rem 0 0.35rem;
+		line-height: 1.3;
 	}
 	.trait-line {
 		font-size: 0.82rem;

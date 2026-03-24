@@ -297,6 +297,12 @@ character:
           sleight-of-hand: [+3, dex: 3]
           swim: [+13, {dex-over-str: 5, were-rat-racial: 8}]
           tumble: [+3, dex: 3]
+  view-notes:
+    senses: "Scent (30ft, 60ft downwind); Low-light Vision; Auto-search within 5ft"
+    combat-defense: "DR 10/silver; Evasion; Improved Evasion; Improved Uncanny Dodge"
+    combat-offense: "Sneak Attack +5d6; Deathstrike Bracers (swift: sneak vs targets immune to crits)"
+    social: "Lycanthropic Empathy (+4 vs rats)"
+    movement: "Celestial Armor fly 1/day; Chrono Charm (1/day swift 15ft)"
   notes:
     special-damage: 8
     nonlethal: 0/42
