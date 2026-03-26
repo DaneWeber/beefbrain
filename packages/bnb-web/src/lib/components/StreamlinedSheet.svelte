@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { formatKey, parseSumValue, formatMod } from '$lib/format';
 	import { categorizeAllSkills, getSkillAbility } from '$lib/skillCategories';
+	import InventorySection from './InventorySection.svelte';
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let { character }: { character: Record<string, any> } = $props();
@@ -46,6 +47,15 @@
 
 	function val(v: unknown): string {
 		return parseSumValue(v).total;
+	}
+
+	/** Compute iterative attack string from BAB, e.g. 13 → "+13/+8/+3" */
+	function iterativeAttacks(bab: number): string {
+		const attacks: string[] = [];
+		for (let b = bab; b > 0; b -= 5) {
+			attacks.push(formatMod(b));
+		}
+		return attacks.join('/');
 	}
 
 	function mod(v: unknown): string {
@@ -109,9 +119,9 @@
 	);
 
 	const otherRacial = $derived(
-		nonSenseRacial.filter(
-			(t: string) => !/immun|resist|DR |damage reduction|spell resistance/i.test(t)
-		)
+		nonSenseRacial
+			.filter((t: string) => !/immun|resist|DR |damage reduction|spell resistance/i.test(t))
+			.filter((t: string) => !/^\+\d+ (skill point|feat)/i.test(t))
 	);
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -159,6 +169,33 @@
 	function skillRows(entries: [string, unknown][]): { name: string; total: string; boosted: boolean }[] {
 		return entries.map(([k, v]) => ({ name: formatKey(k), total: mod(v), boosted: isBoosted(k, v) }));
 	}
+
+	/** Collect inventory items tagged for a specific display section */
+	interface TaggedItem {
+		name: string;
+		qty: number;
+		props: Record<string, unknown>;
+	}
+
+	function itemsForSection(section: string): TaggedItem[] {
+		const results: TaggedItem[] = [];
+		for (const location of inventoryLocations(inventory)) {
+			for (const item of inventoryItems(inventory, location)) {
+				const tags = Array.isArray(item[6]) ? item[6].map(String) : [];
+				if (tags.includes(section)) {
+					const props = (item[5] && typeof item[5] === 'object' && !Array.isArray(item[5]))
+						? item[5] as Record<string, unknown>
+						: {};
+					results.push({
+						name: String(item[0] ?? ''),
+						qty: Number(item[1] ?? 1),
+						props
+					});
+				}
+			}
+		}
+		return results;
+	}
 </script>
 
 <div class="sheet">
@@ -173,16 +210,13 @@
 			</div>
 		</div>
 		<div class="vital-stats">
-			<div class="vital">
-				<span class="vital-label">HP</span>
-				<span class="vital-value" class:damaged={damage > 0}>
-					{hp.total}<span class="vital-max">/{maxHp}</span>
-				</span>
-			</div>
-			<div class="vital">
-				<span class="vital-label">AC</span>
-				<span class="vital-value">{val(combat.defense?.ac)}</span>
-				<span class="vital-sub">T{val(combat.defense?.['touch-ac'])} FF{val(combat.defense?.['flat-footed-ac'])}</span>
+			<div class="hp-tracker">
+				<span class="vital-label">Max HP</span>
+				<span class="vital-value">{maxHp}</span>
+				<div class="hp-write-area">
+					<span class="hp-write-label">Current</span>
+					<span class="hp-write-box"></span>
+				</div>
 			</div>
 			<div class="vital">
 				<span class="vital-label">Init</span>
@@ -194,6 +228,70 @@
 			</div>
 		</div>
 	</header>
+
+	<!-- === DEFENSE BLOCK === -->
+	{#if combat.defense}
+		{@const ac = parseSumValue(combat.defense.ac)}
+		{@const touch = parseSumValue(combat.defense['touch-ac'])}
+		{@const ff = parseSumValue(combat.defense['flat-footed-ac'])}
+		<div class="defense-block">
+			<div class="ac-bar">
+				<div class="ac-block">
+					<span class="ac-label">AC</span>
+					<span class="ac-value">{ac.total}</span>
+					<span class="ac-sources">{Object.entries(ac.breakdown).filter(([k]) => k !== 'base').map(([k, v]) => `${formatKey(k)} ${formatMod(Number(v))}`).join(', ')}</span>
+				</div>
+				<div class="ac-block">
+					<span class="ac-label">Touch</span>
+					<span class="ac-value">{touch.total}</span>
+					<span class="ac-sources">{Object.entries(touch.breakdown).filter(([k]) => k !== 'base').map(([k, v]) => `${formatKey(k)} ${formatMod(Number(v))}`).join(', ')}</span>
+				</div>
+				<div class="ac-block">
+					<span class="ac-label">Flat-Footed</span>
+					<span class="ac-value">{ff.total}</span>
+					<span class="ac-sources">{Object.entries(ff.breakdown).filter(([k]) => k !== 'base').map(([k, v]) => `${formatKey(k)} ${formatMod(Number(v))}`).join(', ')}</span>
+				</div>
+			</div>
+			<div class="saves-and-extras">
+				<div class="saves-bar">
+					{#each [['Fort', combat.saves?.fortitude], ['Ref', combat.saves?.reflex], ['Will', combat.saves?.will]] as [label, save]}
+						{@const p = parseSumValue(save)}
+						<div class="save-block">
+							<span class="save-label">{label}</span>
+							<span class="save-value">{formatMod(Number(p.total))}</span>
+							<span class="save-sources">{Object.entries(p.breakdown).map(([k, v]) => `${formatKey(k)} ${formatMod(Number(v))}`).join(', ')}</span>
+						</div>
+					{/each}
+				</div>
+				{#if combat.saves?.['will-vs-mental-acuity']}
+					<div class="inline-stat">
+						<span class="label">Will (Mental Acuity)</span> {mod(combat.saves['will-vs-mental-acuity'])}
+						<span class="tags">{parseSumValue(combat.saves['will-vs-mental-acuity']).breakdown['3/day'] ?? '3/day'}</span>
+					</div>
+				{/if}
+				{#if combat.defense?.['spell-resistance']}
+					<div class="inline-stat"><span class="label">SR</span> {combat.defense['spell-resistance']}</div>
+				{/if}
+				{#if defenseTraits.length > 0}
+					<ul class="compact-list">
+						{#each defenseTraits as trait}
+							<li>{trait}</li>
+						{/each}
+					</ul>
+				{/if}
+				{#if viewNotes['combat-defense']}
+					<div class="view-note-chips">{#each viewNotes['combat-defense'].split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
+				{/if}
+				{#if itemsForSection('combat-defense').length > 0}
+					<div class="gear-chips">
+						{#each itemsForSection('combat-defense') as item}
+							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+						{/each}
+					</div>
+				{/if}
+			</div>
+		</div>
+	{/if}
 
 	<!-- === ABILITIES ROW === -->
 	<div class="ability-bar">
@@ -216,11 +314,11 @@
 				<div class="subsection">
 					<h3>Offense</h3>
 					{#if viewNotes['combat-offense']}
-						<div class="view-note">{viewNotes['combat-offense']}</div>
+						<div class="view-note-chips">{#each viewNotes['combat-offense'].split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
 					{/if}
 					{#if combat.attack?.bab}
 						<div class="inline-stat">
-							<span class="label">BAB</span> {mod(combat.attack.bab)}
+							<span class="label">BAB</span> {combat.attack['full-bab'] ?? iterativeAttacks(Number(val(combat.attack.bab)))}
 							{#if combat.attack.grapple}
 								<span class="sep">|</span>
 								<span class="label">Grapple</span> {mod(combat.attack.grapple)}
@@ -236,13 +334,15 @@
 						<h4>Melee</h4>
 						{#each attackEntries(combat.attack.melee) as [name, v]}
 							{@const w = parseWeapon(v)}
-							<div class="weapon-row">
-								<span class="weapon-name">{formatKey(name)}</span>
-								<span class="weapon-stat">{w.atk}</span>
-								<span class="weapon-dmg">{w.damage}</span>
-								<span class="weapon-crit">{w.crit}</span>
+							<div class="weapon-block">
+								<div class="weapon-name">{formatKey(name)}</div>
+								<div class="weapon-row">
+									<span class="weapon-stat">{w.atk}</span>
+									<span class="weapon-dmg">{w.damage}</span>
+									<span class="weapon-crit">{w.crit}</span>
+								</div>
 								{#if w.tags.length > 0}
-									<span class="tags">{w.tags.join(', ')}</span>
+									<div class="weapon-detail">{w.tags.join(', ')}</div>
 								{/if}
 							</div>
 						{/each}
@@ -270,13 +370,15 @@
 						<h4>Ranged</h4>
 						{#each attackEntries(combat.attack.ranged) as [name, v]}
 							{@const w = parseWeapon(v)}
-							<div class="weapon-row">
-								<span class="weapon-name">{formatKey(name)}</span>
-								<span class="weapon-stat">{w.atk}</span>
-								<span class="weapon-dmg">{w.damage}</span>
-								<span class="weapon-crit">{w.crit}</span>
+							<div class="weapon-block">
+								<div class="weapon-name">{formatKey(name)}</div>
+								<div class="weapon-row">
+									<span class="weapon-stat">{w.atk}</span>
+									<span class="weapon-dmg">{w.damage}</span>
+									<span class="weapon-crit">{w.crit}</span>
+								</div>
 								{#if w.tags.length > 0}
-									<span class="tags">{w.tags.join(', ')}</span>
+									<div class="weapon-detail">{w.tags.join(', ')}</div>
 								{/if}
 							</div>
 						{/each}
@@ -291,44 +393,15 @@
 							</div>
 						{/each}
 					{/if}
-				</div>
-
-				<!-- Defense -->
-				<div class="subsection">
-					<h3>Defense</h3>
-					{#if viewNotes['combat-defense']}
-						<div class="view-note">{viewNotes['combat-defense']}</div>
-					{/if}
-					<div class="inline-stat">
-						<span class="label">Fort</span> {mod(combat.saves?.fortitude)}
-						<span class="sep">|</span>
-						<span class="label">Ref</span> {mod(combat.saves?.reflex)}
-						<span class="sep">|</span>
-						<span class="label">Will</span> {mod(combat.saves?.will)}
-					</div>
-					{#if combat.saves?.['will-vs-mental-acuity']}
-						<div class="inline-stat">
-							<span class="label">Will (Mental Acuity)</span> {mod(combat.saves['will-vs-mental-acuity'])}
-							<span class="tags">{parseSumValue(combat.saves['will-vs-mental-acuity']).breakdown['3/day'] ?? '3/day'}</span>
+					{#if itemsForSection('combat-offense').length > 0}
+						<div class="gear-chips">
+							{#each itemsForSection('combat-offense') as item}
+								<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+							{/each}
 						</div>
 					{/if}
-					{#if combat.defense?.acp}
-						{@const acp = val(combat.defense.acp)}
-						{#if acp !== '0'}
-							<div class="inline-stat"><span class="label">ACP</span> {acp}</div>
-						{/if}
-					{/if}
-					{#if combat.defense?.['spell-resistance']}
-						<div class="inline-stat"><span class="label">SR</span> {combat.defense['spell-resistance']}</div>
-					{/if}
-					{#if defenseTraits.length > 0}
-						<ul class="compact-list">
-							{#each defenseTraits as trait}
-								<li>{trait}</li>
-							{/each}
-						</ul>
-					{/if}
 				</div>
+
 			</section>
 		</div>
 
@@ -338,7 +411,7 @@
 			<section>
 				<h2>Senses & Awareness</h2>
 				{#if viewNotes.senses}
-					<div class="view-note">{viewNotes.senses}</div>
+					<div class="view-note-chips">{#each viewNotes.senses.split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
 				{/if}
 				{#if senses.length > 0}
 					<div class="trait-line">{senses.join(' / ')}</div>
@@ -348,13 +421,20 @@
 						<span class="skill-chip" class:boosted={s.boosted}><span class="skill-name">{s.name}</span> {s.total}</span>
 					{/each}
 				</div>
+				{#if itemsForSection('senses').length > 0}
+					<div class="gear-chips">
+						{#each itemsForSection('senses') as item}
+							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+						{/each}
+					</div>
+				{/if}
 			</section>
 
 			<!-- Movement & Exploration -->
 			<section>
 				<h2>Movement & Exploration</h2>
 				{#if viewNotes.movement}
-					<div class="view-note">{viewNotes.movement}</div>
+					<div class="view-note-chips">{#each viewNotes.movement.split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
 				{/if}
 				<div class="inline-stat">
 					{#each Object.entries(movement).filter(([k]) => k !== 'capacity' && k !== 'load') as [key, v]}
@@ -374,18 +454,32 @@
 						{/if}
 					</div>
 				{/if}
+				{#if combat.defense?.acp}
+					{#if val(combat.defense.acp) !== '0'}
+						<div class="inline-stat">
+							<span class="label">ACP</span> {val(combat.defense.acp)}
+						</div>
+					{/if}
+				{/if}
 				<div class="skill-group">
 					{#each skillRows([...categorized.stealth, ...categorized.physical]) as s}
 						<span class="skill-chip" class:boosted={s.boosted}><span class="skill-name">{s.name}</span> {s.total}</span>
 					{/each}
 				</div>
+				{#if itemsForSection('movement').length > 0}
+					<div class="gear-chips">
+						{#each itemsForSection('movement') as item}
+							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+						{/each}
+					</div>
+				{/if}
 			</section>
 
 			<!-- Social -->
 			<section>
 				<h2>Social</h2>
 				{#if viewNotes.social}
-					<div class="view-note">{viewNotes.social}</div>
+					<div class="view-note-chips">{#each viewNotes.social.split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
 				{/if}
 				{#if special.languages}
 					<div class="inline-stat">
@@ -397,13 +491,20 @@
 						<span class="skill-chip" class:boosted={s.boosted}><span class="skill-name">{s.name}</span> {s.total}</span>
 					{/each}
 				</div>
+				{#if itemsForSection('social').length > 0}
+					<div class="gear-chips">
+						{#each itemsForSection('social') as item}
+							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+						{/each}
+					</div>
+				{/if}
 			</section>
 
 			<!-- Practical Skills -->
 			<section>
 				<h2>Practical</h2>
 				{#if viewNotes.practical}
-					<div class="view-note">{viewNotes.practical}</div>
+					<div class="view-note-chips">{#each viewNotes.practical.split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
 				{/if}
 				<div class="skill-group">
 					{#each skillRows([...categorized.practical, ...categorized.magic, ...categorized.other]) as s}
@@ -411,6 +512,18 @@
 					{/each}
 				</div>
 			</section>
+
+			<!-- Proficiencies -->
+			{#if special.proficiencies}
+				<section>
+					<h2>Proficiencies</h2>
+					<div class="skill-group">
+						{#each special.proficiencies as prof}
+							<span class="skill-chip">{prof}</span>
+						{/each}
+					</div>
+				</section>
+			{/if}
 		</div>
 	</div>
 
@@ -419,7 +532,7 @@
 		<section class="full-width">
 			<h2>Magic</h2>
 			{#if viewNotes.magic}
-				<div class="view-note">{viewNotes.magic}</div>
+				<div class="view-note-chips">{#each viewNotes.magic.split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
 			{/if}
 			{#each spellSections(spells) as { key, section }}
 				{#if spellSections(spells).length > 1}
@@ -507,100 +620,37 @@
 	<!-- === SPECIAL ABILITIES === -->
 	<section class="full-width">
 		<h2>Special Abilities</h2>
-		<div class="columns three-col">
-			{#if special.feats}
-				<div>
-					<h3>Feats</h3>
+		<div class="special-flow">
+			{#if otherRacial.length > 0}
+				<div class="special-group">
+					<h3>Racial</h3>
 					<ul class="compact-list">
-						{#each special.feats as feat}
-							<li>{feat[0]}</li>
+						{#each otherRacial as trait}
+							<li>{trait}</li>
 						{/each}
 					</ul>
 				</div>
 			{/if}
-			{#if special['class-abilities'] || otherRacial.length > 0}
-				<div>
-					{#if otherRacial.length > 0}
-						<h3>Racial</h3>
-						<ul class="compact-list">
-							{#each otherRacial as trait}
-								<li>{trait}</li>
-							{/each}
-						</ul>
-					{/if}
-					{#if special['class-abilities']}
-						<h3>Class Abilities</h3>
-						{#each Object.entries(special['class-abilities']) as [cls, abilities]}
-							<h4>{formatKey(cls)}</h4>
-							{#if Array.isArray(abilities)}
-								<ul class="compact-list">
-									{#each abilities as ab}
-										<li>{ab}</li>
-									{/each}
-								</ul>
-							{/if}
-						{/each}
-					{/if}
+			{#if special['class-abilities']}
+				<div class="special-group">
+					<h3>Class Abilities</h3>
+					{#each Object.entries(special['class-abilities']) as [cls, abilities]}
+						<h4>{formatKey(cls)}</h4>
+						{#if Array.isArray(abilities)}
+							<ul class="compact-list">
+								{#each abilities as ab}
+									<li>{ab}</li>
+								{/each}
+							</ul>
+						{/if}
+					{/each}
 				</div>
 			{/if}
-			<div>
-				{#if special.proficiencies}
-					<h3>Proficiencies</h3>
-					<p class="compact">{special.proficiencies.join(', ')}</p>
-				{/if}
-			</div>
 		</div>
 	</section>
 
-	<!-- === EQUIPMENT === -->
-	<section class="full-width">
-		<h2>Equipment</h2>
-		{#if viewNotes.equipment}
-			<div class="view-note">{viewNotes.equipment}</div>
-		{/if}
-		{#if inventory.money}
-			<div class="inline-stat">
-				<span class="label">Money</span> {inventory.money._total}
-			</div>
-		{/if}
-		{#each inventoryLocations(inventory) as location}
-			{@const items = inventoryItems(inventory, location)}
-			{#if items.length > 0}
-				<h3>{formatKey(location)}</h3>
-				<table class="inv-table">
-					<thead>
-						<tr>
-							<th>Item</th>
-							<th>Qty</th>
-							<th>Wt</th>
-							<th>Notes</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each items as item}
-							<tr>
-								<td class="item-name">{item[0] ?? ''}</td>
-								<td class="centered">{item[1] ?? ''}</td>
-								<td class="right">{item[3] ?? ''}</td>
-								<td class="notes-cell">
-									{#if item[5] && typeof item[5] === 'object' && !Array.isArray(item[5])}
-										{Object.entries(item[5])
-											.filter(([k]) => !['damage', 'crit'].includes(k))
-											.map(([k, v]) => `${k}: ${v}`)
-											.join(', ')}
-									{/if}
-									{#if Array.isArray(item[6])}
-										{#if item[5] && typeof item[5] === 'object'} | {/if}
-										{item[6].join(', ')}
-									{/if}
-								</td>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
-			{/if}
-		{/each}
-	</section>
+	<!-- === INVENTORY === -->
+	<InventorySection {inventory} compact />
 
 	<!-- === NOTES === -->
 	{#if Object.keys(notes).length > 0}
@@ -673,18 +723,111 @@
 		font-weight: 700;
 		line-height: 1.1;
 	}
-	.vital-value.damaged {
-		color: #c33;
+	/* HP tracker */
+	.hp-tracker {
+		display: flex;
+		align-items: baseline;
+		gap: 0.4rem;
+		min-width: 10rem;
 	}
-	.vital-max {
-		font-size: 0.8rem;
-		font-weight: 400;
+	.hp-write-area {
+		display: flex;
+		align-items: baseline;
+		gap: 0.25rem;
+		margin-left: 0.5rem;
+	}
+	.hp-write-label {
+		font-size: 0.65rem;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
 		color: #888;
+		font-weight: 600;
 	}
-	.vital-sub {
-		display: block;
+	.hp-write-box {
+		display: inline-block;
+		width: 3rem;
+		height: 1.4rem;
+		border-bottom: 2px solid #999;
+	}
+
+
+	/* === DEFENSE BLOCK === */
+	.defense-block {
+		border: 1px solid #ccc;
+		border-radius: 6px;
+		padding: 0.5rem 0.75rem;
+		margin-bottom: 0.75rem;
+		background: #fcfcfc;
+	}
+	.saves-and-extras {
+		margin-top: 0.35rem;
+	}
+	.ac-bar {
+		display: flex;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+	.ac-block {
+		display: flex;
+		align-items: baseline;
+		gap: 0.4rem;
+		padding: 0.25rem 0.6rem;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		flex: 1;
+		min-width: 10rem;
+	}
+	.ac-label {
 		font-size: 0.7rem;
-		color: #888;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: #666;
+		font-weight: 600;
+		min-width: 3.5rem;
+	}
+	.ac-value {
+		font-size: 1.3rem;
+		font-weight: 700;
+		min-width: 2rem;
+	}
+	.ac-sources {
+		font-size: 0.72rem;
+		color: #777;
+	}
+
+	/* === SAVES BAR === */
+	.saves-bar {
+		display: flex;
+		gap: 1rem;
+		flex-wrap: wrap;
+		margin-top: 0.35rem;
+	}
+	.save-block {
+		display: flex;
+		align-items: baseline;
+		gap: 0.4rem;
+		padding: 0.25rem 0.6rem;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		flex: 1;
+		min-width: 10rem;
+	}
+	.save-label {
+		font-size: 0.7rem;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: #666;
+		font-weight: 600;
+		min-width: 2.5rem;
+	}
+	.save-value {
+		font-size: 1.3rem;
+		font-weight: 700;
+		min-width: 2.5rem;
+	}
+	.save-sources {
+		font-size: 0.72rem;
+		color: #777;
 	}
 
 	/* === ABILITY BAR === */
@@ -723,9 +866,7 @@
 		grid-template-columns: 1fr 1fr;
 		gap: 1rem;
 	}
-	.three-col {
-		grid-template-columns: 1fr 1fr 1fr;
-	}
+
 
 	/* === SECTIONS === */
 	section {
@@ -781,13 +922,43 @@
 		color: #999;
 		font-style: italic;
 	}
-	.view-note {
-		font-size: 0.8rem;
-		color: #6a4c00;
-		background: #fef9e7;
-		border-left: 3px solid #d4a017;
-		padding: 0.2rem 0.5rem;
+	/* Gear chips */
+	.gear-chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem;
+		margin: 0.3rem 0;
+	}
+	.gear-chip {
+		display: inline-flex;
+		gap: 0.2rem;
+		align-items: baseline;
+		padding: 0.15rem 0.4rem;
+		background: #eef2f7;
+		border: 1px solid #c5d3e0;
+		border-radius: 3px;
+		font-size: 0.78rem;
+		color: #345;
+	}
+	.gear-detail {
+		color: #678;
+		font-size: 0.72rem;
+	}
+	/* View-note chips */
+	.view-note-chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem;
 		margin: 0.2rem 0 0.35rem;
+	}
+	.view-note-chip {
+		display: inline-block;
+		padding: 0.15rem 0.45rem;
+		background: #fef9e7;
+		border: 1px solid #d4a017;
+		border-radius: 3px;
+		font-size: 0.78rem;
+		color: #6a4c00;
 		line-height: 1.3;
 	}
 	.trait-line {
@@ -797,29 +968,41 @@
 	}
 
 	/* === WEAPON ROWS === */
+	.weapon-block {
+		margin: 0.3rem 0;
+		padding: 0.3rem 0.5rem;
+		border: 1px solid #d0d0d0;
+		border-radius: 4px;
+		background: #fafafa;
+	}
+	.weapon-name {
+		font-weight: 600;
+		font-size: 0.85rem;
+	}
 	.weapon-row {
 		display: flex;
 		gap: 0.5rem;
 		align-items: baseline;
-		margin: 0.1rem 0;
 		font-size: 0.84rem;
-	}
-	.weapon-name {
-		font-weight: 600;
-		min-width: 10rem;
-		flex-shrink: 0;
+		margin-left: 1rem;
 	}
 	.weapon-stat,
 	.weapon-dmg,
 	.weapon-crit {
 		font-family: monospace;
-		font-size: 0.82rem;
+		font-size: 0.85rem;
 	}
 	.weapon-stat::after,
 	.weapon-dmg::after {
 		content: '|';
 		margin-left: 0.5rem;
 		color: #ddd;
+	}
+	.weapon-detail {
+		margin-left: 1rem;
+		font-size: 0.75rem;
+		color: #777;
+		font-style: italic;
 	}
 
 	/* === SKILL CHIPS === */
@@ -885,6 +1068,15 @@
 	}
 
 	/* === LISTS === */
+	/* Special abilities flow */
+	.special-flow {
+		column-count: 3;
+		column-gap: 1rem;
+	}
+	.special-group {
+		break-inside: avoid;
+		margin-bottom: 0.35rem;
+	}
 	.compact-list {
 		margin: 0.15rem 0;
 		padding-left: 1.1rem;
@@ -893,50 +1085,9 @@
 	.compact-list li {
 		margin: 0.05rem 0;
 	}
-	.compact {
-		margin: 0.15rem 0;
-		font-size: 0.82rem;
-	}
 	ul {
 		margin: 0.15rem 0;
 		padding-left: 1.1rem;
-	}
-	p {
-		margin: 0.15rem 0;
-	}
-
-	/* === INVENTORY TABLE === */
-	.inv-table {
-		width: 100%;
-		border-collapse: collapse;
-		font-size: 0.78rem;
-		margin: 0.15rem 0;
-	}
-	.inv-table th,
-	.inv-table td {
-		padding: 0.12rem 0.3rem;
-		text-align: left;
-		border-bottom: 1px solid #eee;
-	}
-	.inv-table th {
-		font-weight: 600;
-		font-size: 0.7rem;
-		text-transform: uppercase;
-		color: #888;
-		border-bottom: 1px solid #ccc;
-	}
-	.item-name {
-		font-weight: 500;
-	}
-	.centered {
-		text-align: center;
-	}
-	.right {
-		text-align: right;
-	}
-	.notes-cell {
-		color: #888;
-		font-size: 0.75rem;
 	}
 
 	/* === PRINT === */
@@ -961,9 +1112,6 @@
 		h2 {
 			font-size: 9pt;
 		}
-		table {
-			font-size: 7pt;
-		}
 		.columns {
 			gap: 0.75rem;
 		}
@@ -972,7 +1120,6 @@
 		}
 		@page {
 			margin: 0.4in;
-			size: letter;
 		}
 	}
 </style>

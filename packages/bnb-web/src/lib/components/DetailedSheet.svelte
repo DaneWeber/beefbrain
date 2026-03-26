@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { formatKey, parseSumValue, formatBreakdown, formatMod } from '$lib/format';
+	import InventorySection from './InventorySection.svelte';
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let { character }: { character: Record<string, any> } = $props();
@@ -562,63 +563,7 @@
 	</div>
 
 	<!-- INVENTORY (full width) -->
-	<section class="page-break-before">
-		<h2>Inventory</h2>
-		{#if inventory.money}
-			<div class="stat-row">
-				<span class="label">Money</span>
-				<span>
-					{inventory.money._total}
-					{#if inventory.money.coins}
-						{@const coins = inventory.money.coins}
-						{#if Array.isArray(coins) && coins[3]}
-							<span class="detail">
-								({#each Object.entries(coins[3]) as [denom, amt], i}{#if i > 0}, {/if}{denom}: {amt}{/each})
-							</span>
-						{/if}
-					{/if}
-				</span>
-			</div>
-		{/if}
-
-		{#each inventoryLocations(inventory) as location}
-			{@const items = inventoryItems(inventory, location)}
-			{#if items.length > 0}
-				<h3>{formatKey(location)}</h3>
-				<table class="inventory-table">
-					<thead>
-						<tr>
-							<th>Item</th>
-							<th>Qty</th>
-							<th>Type</th>
-							<th>Weight</th>
-							<th>Cost</th>
-							<th>Notes</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each items as item}
-							<tr>
-								<td>{item[0] ?? ''}</td>
-								<td class="centered">{item[1] ?? ''}</td>
-								<td>{item[2] ?? ''}</td>
-								<td class="right">{item[3] ?? ''}</td>
-								<td class="right">{item[4] ?? ''}</td>
-								<td class="detail">
-									{#if item[5] && typeof item[5] === 'object' && !Array.isArray(item[5])}
-										{Object.entries(item[5]).map(([k, v]) => `${k}: ${v}`).join(', ')}
-									{/if}
-									{#if Array.isArray(item[6])}
-										<span class="weapon-tags">{item[6].join(', ')}</span>
-									{/if}
-								</td>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
-			{/if}
-		{/each}
-	</section>
+	<InventorySection {inventory} />
 
 	<!-- NOTES -->
 	{#if Object.keys(notes).length > 0}
@@ -712,9 +657,6 @@
 	.centered {
 		text-align: center;
 	}
-	.right {
-		text-align: right;
-	}
 
 	/* Tables */
 	table {
@@ -800,10 +742,6 @@
 		color: #555;
 	}
 
-	/* Inventory */
-	.inventory-table td:first-child {
-		font-weight: 500;
-	}
 
 	/* Print */
 	@media print {
@@ -834,8 +772,7 @@
 			break-before: auto;
 		}
 		@page {
-			margin: 0.5in;
-			size: letter;
+			margin: 0.4in;
 		}
 	}
 </style>

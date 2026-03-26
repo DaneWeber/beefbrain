@@ -1,9 +1,13 @@
-/** Format a hyphenated key to Title Case */
+/** Format a hyphenated key to Title Case, preserving +N modifiers */
 export function formatKey(key: string): string {
 	return key
 		.split('-')
-		.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-		.join(' ');
+		.map((w) => {
+			if (w.startsWith('+') || w.startsWith('−')) return w;
+			return w.charAt(0).toUpperCase() + w.slice(1);
+		})
+		.join(' ')
+		.replace(/(\w)(\+)/g, '$1 $2');
 }
 
 /**

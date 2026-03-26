@@ -37,10 +37,10 @@ character:
       bab: [13, fighter: 13]
       melee:
         _: [19, {bab: 13, str: 6}]
-        frost-brand-greatsword-3:
+        frost-brand-greatsword+3:
           [22, 2d6+12+1d6 cold, 19-20/x2, {_: 19, enhancement: 3}, {str: 9, enhancement: 3}, [greatsword, 2-hand, frost]]
-        bastard-sword-1-keen-pb:
-          [21, 1d10+9, 15-20/x2, {_: 19, enhancement: 1, weapon-focus: 1}, {str: 6, enhancement: 1, weapon-spec: 2}, [bastard-sword, exotic, keen, prismatic-burst]]
+        bastard-sword+2-giant-bane:
+          [22, 1d10+10, 17-20/x2, {_: 19, enhancement: 2, weapon-focus: 1}, {str: 6, enhancement: 2, weapon-spec: 2}, [bastard-sword, exotic, improved-critical, "bane-giant: +2d6+2 vs giants"]]
         dagger:
           [19, 1d4+6, 19-20/x2, {_: 19}, str: 6, [dagger]]
         lion-shield:
@@ -51,10 +51,10 @@ character:
           [15, 1d8+4, x3, {_: 14, masterwork: 1}, str: 4, [longbow, composite, mighty-4, 110ft]]
         dagger:
           [14, 1d4+6, 19-20/x2, {_: 14}, str: 6, [dagger, 10ft]]
-      grapple: [19, {bab: 13, str: 6}]
+      grapple: [23, {bab: 13, str: 6, improved-grapple: 4}]
     defense:
       ac: [24, {base: 10, armor: 9, shield: 4, dex: 1}]
-      touch-ac: [15, {base: 10, shield-parry: 4, dex: 1}]
+      touch-ac: [15, {base: 10, shield-ward: 4, dex: 1}]
       flat-footed-ac: [23, {base: 10, armor: 9, shield: 4}]
       acp: [-4, {armor: -2, shield: -2}]
   movement:
@@ -83,7 +83,7 @@ character:
       - [Weapon Focus (Bastard Sword), fighter: 6, [combat.attack.melee.bastard-sword, {atk: 1}]]
       - [Weapon Specialization (Bastard Sword), level: 6, [combat.attack.melee.bastard-sword, {dmg: 2}]]
       - [Leap Attack, fighter: 8]
-      - [Shield Parry, level: 9, [combat.defense.touch-ac, {shield-parry: shield}]]
+      - [Shield Ward, level: 9, [combat.defense.touch-ac, {shield-ward: shield}]]
       - [Power Critical, fighter: 10, [confirm-crit: 4]]
       - [Improved Grapple, level: 12]
       - [Improved Critical (Bastard Sword), fighter: 12, [combat.attack.melee.bastard-sword, {crit-range: x2}]]
@@ -104,21 +104,19 @@ character:
       coins: [3838.2 gp, 7.86 lbs, pack, {pp: 383, gp: 8, sp: 2, cp: 0}, 0.02 lbs]
     equipped:
       - [Dagger, 1, weapon, 1 lb, 2 gp, {damage: 1d4, crit: 19-20/x2}]
-      - [Bastard Sword +1 Keen Prismatic Burst, 1, weapon, 6 lbs, 8335 gp, {damage: 1d10, crit: 15-20/x2, enhancement: 1, keen: true, prismatic-burst: true}]
-      - [Bastard Sword +1 Giant Slaying, 1, weapon, 6 lbs, 0 gp, [party-loot]]
-      - [+3 Frost Brand Greatsword, 1, weapon, 6 lbs, 0 gp, {damage: 2d6+1d6 cold, crit: 19-20/x2, enhancement: 3, frost: true}, [party-loot]]
-      - [Mithril Plate of Speed +1, 1, armor, 20 lbs, 26500 gp, {ac: 9, acp: -2, asfc: "15%", haste: "10 rounds/day"}]
-      - [+2 Lion Shield, 1, shield, 15 lbs, 9170 gp, {ac: 4, acp: -2, attack: "3/day, 2d6"}]
+      - [Bastard Sword +2 Giant-Bane, 1, weapon, 6 lbs, 18335 gp, {damage: 1d10, crit: 19-20/x2, enhancement: 2, bane: giant}]
+      - [Frost Brand Greatsword +3, 1, weapon, 6 lbs, 0 gp, {damage: 2d6+1d6 cold, crit: 19-20/x2, enhancement: 3, frost: true}, [party-loot]]
+      - [Mithril Plate of Speed +1, 1, armor, 20 lbs, 26500 gp, {ac: 9, acp: -2, asfc: "15%", haste: "10 rounds/day"}, [combat-defense]]
+      - [Lion Shield +2, 1, shield, 15 lbs, 9170 gp, {ac: 4, acp: -2, attack: "3/day, 2d6"}, [combat-defense]]
       - [MW Mighty +4 Composite Long Bow, 1, weapon, 3 lbs, 775 gp, {damage: 1d8, crit: x3, mighty: 4}, [mw]]
-      - [Winged Boots, 1, gear, 0 lbs, 16000 gp, {fly: "3/day 5 mins"}, [magic]]
-      - [Gauntlets of Ogre Power, 1, gear, 0 lbs, 4000 gp, {str-enhancement: 4}, [magic]]
+      - [Winged Boots, 1, gear, 0 lbs, 16000 gp, {fly: "3/day 5 mins"}, [movement]]
       - [Cloak of Resistance +1, 1, gear, 0 lbs, 1000 gp, {saves-resistance: 1}, [magic]]
       - [Arrows, 30, supplies, 0.15 lbs, 0.05 gp]
       - [+1 Arrow, 1, supplies, 0.15 lbs, 46.05 gp, [magic]]
-      - [Climbing Kit, 1, tool, 5 lbs, 80 gp]
-      - [Potion Shield of Faith, 35, potion, 0.1 lbs, 50 gp]
+      - [Climbing Kit, 1, tool, 5 lbs, 80 gp, {climb: +2}, [movement]]
+      - [Potion Shield of Faith, 35, potion, 0.1 lbs, 50 gp, {ac-deflection: "+2 to +5"}, [combat-defense]]
       - [Potion Cure Light Wounds, 1, potion, 0.1 lbs, 50 gp]
-      - [Silver Sheen, 1, supplies, 0.1 lbs, 250 gp]
+      - [Silver Sheen, 1, supplies, 0.1 lbs, 250 gp, {}, [combat-offense]]
       - [Life Saver, 1, supplies, 0.1 lbs, 10 gp]
       - [Vigor, 5, potion, 0.1 lbs, 10 gp]
       - [Ornate Iron Key, 1, gear, 0.25 lbs, 0 gp]
@@ -133,16 +131,19 @@ character:
       - [Flint and Steel, 1, gear, 0 lbs, 1 gp]
       - [Rations Trail 5 days, 5, supplies, 1 lb, 0.5 gp]
       - [Waterskin 1 day, 1, gear, 4 lbs, 1 gp]
-      - [Rope Hempen 50 ft, 1, gear, 10 lbs, 1 gp]
+      - [Rope Hempen 50 ft, 1, gear, 10 lbs, 1 gp, {}, [movement]]
       - [Sack (empty), 1, container, 0.5 lbs, 0.1 gp]
       - [Flask Pint (empty), 1, container, 1.5 lbs, 0.03 gp]
       - [Torch, 4, supplies, 1 lb, 0.01 gp]
       - [Chalk Piece, 1, supplies, 0 lbs, 0.01 gp]
       - [Crowbar, 1, tool, 5 lbs, 2 gp]
-      - [Healing Belt, 1, gear, 0.1 lbs, 750 gp, {charges: "1: 2d8, 2: 3d8, 3: 4d8", heal-bonus: 2}, [magic]]
+      - [Healing Belt, 1, gear, 0.1 lbs, 750 gp, {charges: "1: 2d8, 2: 3d8, 3: 4d8", heal-bonus: 2}, [combat-defense]]
     horse:
       - [Heavy Warhorse, 1, mount, 0 lbs, 400 gp]
       - [Military Saddle, 1, gear, 4 lbs, 20 gp]
+  view-notes:
+    combat-offense: "Haste (armor, 10 rds/day): +1 atk, +1 AC, extra attack; Leap Attack: 2:1 Power Attack on charge w/ jump; Cleave: extra attack on drop, Great Cleave: unlimited; Power Critical: +4 to confirm crits; Improved Grapple: no AoO, +4 grapple"
+    combat-defense: "Shield Ward: add shield bonus to touch AC"
+    movement: "Haste (armor, 10 rds/day): +30ft speed"
   notes:
-    prismatic-burst: "On critical hit with bastard sword, roll 1d8 for prismatic effect"
     devotee: Obad-Hai
