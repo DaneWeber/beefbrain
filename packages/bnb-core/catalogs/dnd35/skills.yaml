@@ -1,0 +1,97 @@
+---
+# D&D 3.5e Skills Catalog
+# Key ability: str, dex, con, int, wis, cha
+# trained-only: true if the skill cannot be used untrained
+
+skills:
+  appraise:
+    ability: int
+  balance:
+    ability: dex
+    armor-penalty: true
+  bluff:
+    ability: cha
+  climb:
+    ability: str
+    armor-penalty: true
+  concentration:
+    ability: con
+  craft:
+    ability: int
+  decipher-script:
+    ability: int
+    trained-only: true
+  diplomacy:
+    ability: cha
+  disable-device:
+    ability: int
+    trained-only: true
+  disguise:
+    ability: cha
+  escape-artist:
+    ability: dex
+    armor-penalty: true
+  forgery:
+    ability: int
+  gather-information:
+    ability: cha
+  handle-animal:
+    ability: cha
+    trained-only: true
+  heal:
+    ability: wis
+  hide:
+    ability: dex
+    armor-penalty: true
+  intimidate:
+    ability: cha
+  jump:
+    ability: str
+    armor-penalty: true
+  knowledge:
+    ability: int
+    trained-only: true
+  listen:
+    ability: wis
+  move-silently:
+    ability: dex
+    armor-penalty: true
+  open-lock:
+    ability: dex
+    trained-only: true
+  perform:
+    ability: cha
+  profession:
+    ability: wis
+    trained-only: true
+  ride:
+    ability: dex
+  search:
+    ability: int
+  sense-motive:
+    ability: wis
+  sleight-of-hand:
+    ability: dex
+    trained-only: true
+    armor-penalty: true
+  speak-language:
+    trained-only: true
+  spellcraft:
+    ability: int
+    trained-only: true
+  spot:
+    ability: wis
+  survival:
+    ability: wis
+  swim:
+    ability: str
+    armor-penalty: double
+  tumble:
+    ability: dex
+    trained-only: true
+    armor-penalty: true
+  use-magic-device:
+    ability: cha
+    trained-only: true
+  use-rope:
+    ability: dex

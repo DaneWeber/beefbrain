@@ -37,6 +37,31 @@ export const skillAbility: Record<string, string> = {
 	'use-rope': 'dexterity'
 };
 
+/**
+ * Skills that require training (ranks) to use.
+ * Matches the D&D 3.5 catalog at bnb-core/catalogs/dnd35/skills.yaml
+ * Prefix-matched for knowledge-*, profession-*
+ */
+const trainedOnlySet = new Set([
+	'decipher-script',
+	'disable-device',
+	'handle-animal',
+	'open-lock',
+	'sleight-of-hand',
+	'speak-language',
+	'spellcraft',
+	'tumble',
+	'use-magic-device'
+]);
+
+/** Is this skill trained-only? */
+export function isTrainedOnly(key: string): boolean {
+	if (trainedOnlySet.has(key)) return true;
+	if (key.startsWith('knowledge')) return true;
+	if (key.startsWith('profession')) return true;
+	return false;
+}
+
 /** Guess ability for knowledge-* and perform-* skills */
 export function getSkillAbility(key: string): string {
 	if (skillAbility[key]) return skillAbility[key];
@@ -160,10 +185,10 @@ export function categorizeAllSkills(
 		placed.add(key);
 	}
 
-	// Then fill in defaults for skills not listed
+	// Then fill in defaults for skills not listed (skip trained-only)
 	for (const [cat, defaults] of Object.entries(defaultSkillsByCategory)) {
 		for (const skillKey of defaults) {
-			if (!placed.has(skillKey)) {
+			if (!placed.has(skillKey) && !isTrainedOnly(skillKey)) {
 				const ability = getSkillAbility(skillKey);
 				const abilMod = abilityMods[ability] ?? 0;
 				// Represent as a sum-pattern array: [total, {ability: mod}]
