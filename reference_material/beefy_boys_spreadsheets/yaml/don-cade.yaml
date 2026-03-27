@@ -148,13 +148,13 @@ character:
     spells-per-day: {0: 4, 1: 6, 2: 5, 3: 5, 4: 4, 5: 4, 6: 2}
     save-dc: {0: 15, 1: 16, 2: 17, 3: 18, 4: 19, 5: 20, 6: 21}
     spells-prepared:
-      0: [Detect Magic, Detect Magic, Detect Magic, Detect Magic]
-      1: [Summon Monster I, Summon Monster I, Summon Monster I, Summon Monster I, Summon Monster I, Summon Monster I]
-      2: [Summon Monster II, Summon Monster II, Summon Monster II, Summon Monster II, Summon Monster II]
-      3: [Summon Monster III, Summon Monster III, Summon Monster III, Summon Monster III, Summon Monster III]
-      4: [Summon Monster IV, Summon Monster IV, Summon Monster IV, Summon Monster IV]
-      5: [Summon Monster V, Summon Monster V, Summon Monster V, Summon Monster V]
-      6: [Summon Monster VI, Summon Monster VI]
+      0: [Daze, Detect Magic, Light, Mage Hand]
+      1: [Detect Secret Doors, Endure Elements, Mage Armor, Protection vs. Evil, Ray of Enfeeblement, Sheild]
+      2: [Blur, Invisibility, Invisibility, Fox's Cunning, See Invisibility]
+      3: [Sound Lance, Sound Lance, Fly, Lightning Bolt, Lightning Bolt]
+      4: [Dimension Door, Enervation, Greater Invisibility, Greater Invisibility]
+      5: [Feeblemind, Teleport, Transmute Rock to Mud, Lucent Lance]
+      6: [Disintegrate, Greater Dispel Magic]
     spellbook:
       0:
         - Acid Splash
