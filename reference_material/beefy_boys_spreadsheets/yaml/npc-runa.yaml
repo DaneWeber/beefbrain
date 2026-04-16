@@ -8,11 +8,11 @@ character:
     sex: F
     age: 29 years
     height: 5'5"
-    weight: 160 lbs
+    weight: 130 lbs
     eyes: Green
-    hair: Blonde
-    complexion: Fair
-    build: Athletic
+    hair: Red
+    complexion: Freckled
+    build: Solid
   abilities:
     strength: [13, str: 1]
     dexterity: [16, dex: 3, {base: 13, hd: 1}]
@@ -43,9 +43,9 @@ character:
       ranged:
         _: [10, {bab: 7, dex: 3}]
         composite-shortbow+1:
-          [12/+7, 1d6+1, x3, {bab: 7, dex: 3, enhancement: 1, weapon-focus: 1}, [shortbow, composite, 60ft]]
+          [12, 1d6+1, x3, {bab: 7, dex: 3, enhancement: 1, weapon-focus: 1}, [shortbow, composite, 60ft]]
         rapid-shot:
-          [10/+10/+5, 1d6+1, x3, {_: 12, rapid-shot: -2}, [shortbow, rapid-shot]]
+          [10, 1d6+1, x3, {_: 12, rapid-shot: -2}, [shortbow, rapid-shot]]
         manyshot:
           [8, "2x(1d6+1)", x3, {_: 12, manyshot: -4}, [shortbow, manyshot, "2 arrows at -4"]]
         dagger-thrown:
