@@ -16,10 +16,10 @@
 
 	let { items, summary }: Props = $props();
 
-	type SortField = 'id' | 'pcName' | 'location' | 'category' | 'description' | 'quantity' | 'weight' | 'marketValue';
+	type SortField = 'itemId' | 'pcName' | 'location' | 'category' | 'description' | 'quantity' | 'weight' | 'marketValue';
 	type SortOrder = 'asc' | 'desc';
 
-	let sortField: SortField = $state('pcName');
+	let sortField: SortField = $state('itemId');
 	let sortOrder: SortOrder = $state('asc');
 	let filterCategory = $state('');
 	let filterPC = $state('');
@@ -58,9 +58,9 @@
 			let bVal: string | number = '';
 
 			switch (sortField) {
-				case 'id':
-					aVal = a.id;
-					bVal = b.id;
+				case 'itemId':
+					aVal = a.itemId;
+					bVal = b.itemId;
 					break;
 				case 'pcName':
 					aVal = a.pcName;
@@ -220,7 +220,7 @@
 		<table class="inventory-table">
 			<thead>
 				<tr>
-					<th onclick={() => handleSort('id')}>ID {getSortIndicator('id')}</th>
+					<th onclick={() => handleSort('itemId')}>Item ID {getSortIndicator('itemId')}</th>
 					<th onclick={() => handleSort('pcName')}>PC {getSortIndicator('pcName')}</th>
 					<th onclick={() => handleSort('location')}>Location {getSortIndicator('location')}</th>
 					<th onclick={() => handleSort('category')}>Category {getSortIndicator('category')}</th>
@@ -239,9 +239,9 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each sortedItems as item (item.id)}
+				{#each sortedItems as item (item.itemId)}
 					<tr class:magic={item.tags.includes('magic')}>
-						<td class="id-cell">{item.id}</td>
+						<td class="id-cell">{item.itemId}</td>
 						<td class="pc-cell">{item.pcName}</td>
 						<td class="location-cell">{item.location}</td>
 						<td class="category-cell">{item.category}</td>

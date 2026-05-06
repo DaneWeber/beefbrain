@@ -6,6 +6,7 @@
 
 	let { data } = $props();
 	const chars = $derived(data.characters);
+	const dmMetadata = $derived(data.dmMetadata);
 
 	type Tab = 'overview' | 'skills' | 'combat' | 'social' | 'languages' | 'spells' | 'inventory';
 	let activeTab: Tab = $state('overview');
@@ -451,7 +452,7 @@
 
 	<!-- === INVENTORY TAB === -->
 	{#if activeTab === 'inventory'}
-		{@const allItems = extractAllInventoryItems(chars)}
+		{@const allItems = extractAllInventoryItems(chars, dmMetadata)}
 		{@const summary = getInventorySummary(allItems)}
 		<InventorySpreadsheet items={allItems} {summary} />
 	{/if}

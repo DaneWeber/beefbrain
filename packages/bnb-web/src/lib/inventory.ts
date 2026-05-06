@@ -10,18 +10,19 @@ export type CharacterData = Record<string, any>;
  * Represents an inventory item with all relevant fields
  */
 export interface InventoryItem {
-	id: string; // Unique identifier (e.g., "andy-equipped-001")
+	itemId: number; // Unique integer ID tracking the item across transfers
+	id: string; // Display identifier (e.g., "001" or "Illigrim/equipped/0")
 	pcName: string; // Character name
 	location: string; // equipped, pack, horse, etc.
 	category: string; // weapon, armor, gear, supplies, potion, scroll, wand, tool, container, magic, etc.
-	description: string; // The display name of the item
-	trueDescription: string; // Canonical name/true description (same as description for now, can be enriched)
+	description: string; // The display name of the item from YAML
+	trueDescription: string; // Canonical name/true description from DM metadata
 	auraStrength: string; // none, faint, moderate, strong, overwhelming
 	auraType: string; // abjuration, conjuration, divination, etc. - magic school
-	origin: string; // Where it came from or special notes
+	origin: string; // Where it came from (from DM metadata)
 	quantity: number;
 	weight: number; // in lbs
-	marketValue: number; // in gp
+	marketValue: number; // in gp (from DM metadata if set, otherwise parsed from YAML)
 	tags: string[]; // magic, mw, nonlethal, cold-iron, etc.
 	notes: string; // Additional metadata as JSON string
 }
@@ -34,7 +35,8 @@ function parseItem(
 	itemArray: unknown[],
 	characterName: string,
 	location: string,
-	itemIndex: number
+	itemIndex: number,
+	dmMetadata?: { items: Record<number, unknown>; itemMapping: Record<string, number> }
 ): InventoryItem | null {
 	if (!Array.isArray(itemArray) || itemArray.length < 5) return null;
 
@@ -43,30 +45,68 @@ function parseItem(
 	// Skip non-existent items
 	if (!description || !category) return null;
 
-	const id = `${characterName}-${location}-${String(itemIndex).padStart(3, '0')}`;
+	// Get or find item ID
+	const locationKey = `${characterName}/${location}/${itemIndex}`;
+	let itemId = -1;
+	if (dmMetadata?.itemMapping && locationKey in dmMetadata.itemMapping) {
+		itemId = dmMetadata.itemMapping[locationKey];
+	}
+
+	const id = `${String(itemId).padStart(3, '0')}`;
 	const qty = typeof quantity === 'number' ? quantity : 1;
 	const wt = parseWeight(weight);
-	const val = parsePrice(price);
+	const yamlValue = parsePrice(price);
 
-	// Determine aura info from tags
+	// Get metadata for this item
+	let enrichedMetadata = null;
+	if (dmMetadata && itemId >= 0 && dmMetadata.items && itemId in dmMetadata.items) {
+		enrichedMetadata = dmMetadata.items[itemId] as unknown;
+	}
+
+	// Extract metadata values with fallbacks to YAML/auto-detected values
+	const trueDescription =
+		enrichedMetadata && typeof enrichedMetadata === 'object' && 'description' in enrichedMetadata
+			? String((enrichedMetadata as Record<string, unknown>).description) || String(description)
+			: String(description);
+
+	const metadataValue =
+		enrichedMetadata && typeof enrichedMetadata === 'object' && 'marketValue' in enrichedMetadata
+			? Number((enrichedMetadata as Record<string, unknown>).marketValue)
+			: yamlValue;
+
+	const auraStrength =
+		enrichedMetadata && typeof enrichedMetadata === 'object' && 'auraStrength' in enrichedMetadata
+			? String((enrichedMetadata as Record<string, unknown>).auraStrength)
+			: tags && Array.isArray(tags) && tags.includes('magic')
+				? getAuraStrength(metadataValue)
+				: 'none';
+
+	const auraType =
+		enrichedMetadata && typeof enrichedMetadata === 'object' && 'auraType' in enrichedMetadata
+			? String((enrichedMetadata as Record<string, unknown>).auraType)
+			: extractAuraType(String(description), metadata);
+
+	const origin =
+		enrichedMetadata && typeof enrichedMetadata === 'object' && 'origin' in enrichedMetadata
+			? String((enrichedMetadata as Record<string, unknown>).origin)
+			: '';
+
 	const tagList = Array.isArray(tags) ? (tags as string[]) : [];
-	const isMagic = tagList.includes('magic');
-	const auraStrength = isMagic ? getAuraStrength(val) : 'none';
-	const auraType = extractAuraType(String(description), metadata);
 
 	return {
+		itemId,
 		id,
 		pcName: characterName,
 		location,
 		category: String(category),
 		description: String(description),
-		trueDescription: String(description), // Can be enriched later with canonical item database
+		trueDescription,
 		auraStrength,
 		auraType,
-		origin: '', // Can be filled in from metadata or external source
+		origin,
 		quantity: qty,
 		weight: wt,
-		marketValue: val,
+		marketValue: metadataValue,
 		tags: tagList,
 		notes: metadata && typeof metadata === 'object' ? JSON.stringify(metadata) : ''
 	};
@@ -143,7 +183,10 @@ function extractAuraType(description: string, metadata: unknown): string {
 /**
  * Extract all inventory items from all characters
  */
-export function extractAllInventoryItems(characters: { slug: string; character: CharacterData }[]): InventoryItem[] {
+export function extractAllInventoryItems(
+	characters: { slug: string; character: CharacterData }[],
+	dmMetadata?: { items: Record<number, unknown>; itemMapping: Record<string, number> }
+): InventoryItem[] {
 	const items: InventoryItem[] = [];
 
 	for (const { slug, character } of characters) {
@@ -164,7 +207,7 @@ export function extractAllInventoryItems(characters: { slug: string; character: 
 
 			// Parse each item at this location
 			for (let i = 0; i < locationItems.length; i++) {
-				const item = parseItem(locationItems[i] as unknown[], charName, location, i);
+				const item = parseItem(locationItems[i] as unknown[], charName, location, i, dmMetadata);
 				if (item) {
 					items.push(item);
 				}
@@ -174,7 +217,7 @@ export function extractAllInventoryItems(characters: { slug: string; character: 
 		// Also check for companion inventory
 		if (inventory.horse && Array.isArray(inventory.horse)) {
 			for (let i = 0; i < inventory.horse.length; i++) {
-				const item = parseItem(inventory.horse[i] as unknown[], charName, 'mount', i);
+				const item = parseItem(inventory.horse[i] as unknown[], charName, 'mount', i, dmMetadata);
 				if (item) {
 					items.push(item);
 				}
