@@ -3,90 +3,90 @@ items:
   '1':
     description: Heward's Handy Haversack
     marketValue: 2000
-    auraStrength: none
-    auraType: universal
+    auraStrength: moderate
+    auraType: conjuration
     origin: ''
     dmNotes: ''
   '2':
     description: Everfull Mug
     marketValue: 200
-    auraStrength: none
-    auraType: universal
+    auraStrength: faint
+    auraType: conjuration
     origin: ''
     dmNotes: ''
   '3':
     description: Everlasting Rations
     marketValue: 350
-    auraStrength: none
-    auraType: universal
+    auraStrength: faint
+    auraType: conjuration
     origin: ''
     dmNotes: ''
   '4':
     description: Sickle +1
     marketValue: 2306
-    auraStrength: none
-    auraType: universal
+    auraStrength: faint
+    auraType: evocation
     origin: ''
     dmNotes: ''
   '5':
     description: Weapon Crystal Energy Assault Greater (Acid)
-    marketValue: 0
-    auraStrength: none
-    auraType: universal
+    marketValue: 3000
+    auraStrength: moderate
+    auraType: conjuration
     origin: ''
     dmNotes: ''
   '6':
     description: Weapon Crystal Energy Assault Greater (Shocking)
-    marketValue: 0
-    auraStrength: none
-    auraType: universal
+    marketValue: 3000
+    auraStrength: moderate
+    auraType: evocation
     origin: ''
     dmNotes: ''
   '7':
     description: Weapon Crystal Energy Assault Greater (Fire)
-    marketValue: 0
-    auraStrength: none
-    auraType: universal
+    marketValue: 3000
+    auraStrength: moderate
+    auraType: evocation
     origin: ''
     dmNotes: ''
   '8':
     description: Dagger
-    marketValue: 0
+    marketValue: 2
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '9':
     description: Leather Mask
-    marketValue: 0
+    marketValue: 5
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '10':
     description: Dagger Silver MW
-    marketValue: 0
+    marketValue: 322
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '11':
     description: Bow of the Wintermoon +1 Full Str Bonus
-    marketValue: 0
+    marketValue: 3400
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '12':
     description: Arrows
-    marketValue: 0
+    marketValue: 0.05
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '13':
     description: Horned Helm +1 (1d8 natural attack 1/2 str; +1 AC)
-    marketValue: 0
+    marketValue: 10000
     auraStrength: none
     auraType: universal
     origin: ''
@@ -95,84 +95,84 @@ items:
     description: >-
       +4 Deathward Improved Stamina/Agility Mindarmor Mithralmist Chain Shirt
       (+8 AC)
-    marketValue: 0
+    marketValue: 38400
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '15':
     description: Ring of Protection +1
-    marketValue: 0
+    marketValue: 2000
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '16':
     description: Gloves of Dexterity +2
-    marketValue: 0
+    marketValue: 4000
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '17':
     description: 'Dimension Stride Boots (5 charges: 1/20ft, 3/40ft, 5/60ft)'
-    marketValue: 0
+    marketValue: 2000
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '18':
     description: Pearl of Speech (Giant, Abyssal, Celestial)
-    marketValue: 0
+    marketValue: 600
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '19':
     description: 'Vanisher Cloak (3 charges/day: 1=4rds, 2=3rds, 3=2rds invisibility)'
-    marketValue: 0
+    marketValue: 2500
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '20':
     description: Vest of Resistance +2 Saves
-    marketValue: 0
+    marketValue: 4000
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '21':
     description: Filcher's Friend (+5 Sleight of Hand/metal)
-    marketValue: 0
+    marketValue: 2500
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '22':
     description: Flask Holy Water
-    marketValue: 0
+    marketValue: 25
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '23':
     description: Flask Acid
-    marketValue: 0
+    marketValue: 10
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '24':
     description: Everburning Torch (Candle/Skull)
-    marketValue: 0
+    marketValue: 110
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '25':
     description: Holy Symbol wooden (Obad-Hai)
-    marketValue: 0
+    marketValue: 1
     auraStrength: none
     auraType: universal
     origin: ''
@@ -186,91 +186,91 @@ items:
     dmNotes: ''
   '27':
     description: Blessed Bandages
-    marketValue: 0
+    marketValue: 10
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '28':
     description: Ghost Oil (2 rds Ghost Touch)
-    marketValue: 0
+    marketValue: 50
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '29':
     description: Wand Cure Light (45 charges)
-    marketValue: 0
+    marketValue: 750
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '30':
     description: Third Eye Improvisation (1/day +5 and trained in any skill)
-    marketValue: 0
+    marketValue: 1000
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '31':
     description: Third Eye Clarity (negate stunned/confused/dazed/fascinated)
-    marketValue: 0
+    marketValue: 3000
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '32':
     description: Amulet of Natural Armor +2
-    marketValue: 0
+    marketValue: 8000
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '33':
     description: Sphere of Awakening (60ft burst)
-    marketValue: 0
+    marketValue: 1800
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '34':
     description: Belt of Giant's Strength +4
-    marketValue: 0
+    marketValue: 16000
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '35':
     description: Tan Bag of Tricks
-    marketValue: 0
+    marketValue: 6300
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '36':
     description: Holy Symbol golden (Pelor)
-    marketValue: 0
+    marketValue: 100
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '37':
     description: 'Healing Belt (1: 2d8, 2: 3d8, 3: 4d8, +2 heal)'
-    marketValue: 0
+    marketValue: 750
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '38':
     description: Heavy Warhorse named Obad-Hai
-    marketValue: 0
+    marketValue: 400
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '39':
     description: Military Saddle plus bit/bridle/saddlebags
-    marketValue: 0
+    marketValue: 20
     auraStrength: none
     auraType: universal
     origin: ''
