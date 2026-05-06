@@ -2,28 +2,28 @@ nextId: 246
 items:
   '1':
     description: Heward's Handy Haversack
-    marketValue: 0
+    marketValue: 2000
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '2':
     description: Everfull Mug
-    marketValue: 0
+    marketValue: 200
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '3':
     description: Everlasting Rations
-    marketValue: 0
+    marketValue: 350
     auraStrength: none
     auraType: universal
     origin: ''
     dmNotes: ''
   '4':
     description: Sickle +1
-    marketValue: 0
+    marketValue: 2306
     auraStrength: none
     auraType: universal
     origin: ''

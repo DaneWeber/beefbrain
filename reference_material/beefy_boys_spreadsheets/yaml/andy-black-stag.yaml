@@ -146,9 +146,9 @@ character:
       _total: 230 gp
       coins: [230 gp, 4.6 lbs, pack, {pp: 0, gp: 230, sp: 0, cp: 0}, 0.02 lbs]
     equipped:
-      - [Heward's Handy Haversack, 1, container, 5 lbs, 2000 gp, [magic]]
-      - [Everfull Mug, 1, gear, 5 lbs, 200 gp, [magic]]
-      - [Everlasting Rations, 1, supplies, 5 lbs, 350 gp, [magic]]
+      - [Heward's Handy Haversack, 1, container, 5 lbs, 1, [magic]]
+      - [Everfull Mug, 1, gear, 5 lbs, 2, [magic]]
+      - [Everlasting Rations, 1, supplies, 5 lbs, 3, [magic]]
       - [Sickle +1, 2, weapon, 1 lb, 2306 gp, {damage: 1d6, crit: x2, enhancement: 1}, [magic]]
       - [Weapon Crystal Energy Assault Greater (Acid), 1, gear, 0.1 lbs, 3000 gp, [magic]]
       - [Weapon Crystal Energy Assault Greater (Shocking), 1, gear, 0.1 lbs, 3000 gp, [magic]]
