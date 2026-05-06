@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { formatKey, parseSumValue, formatMod } from '$lib/format';
 	import { getSkillAbility } from '$lib/skillCategories';
+	import InventorySpreadsheet from '$lib/components/InventorySpreadsheet.svelte';
+	import { extractAllInventoryItems, getInventorySummary } from '$lib/inventory';
 
 	let { data } = $props();
 	const chars = $derived(data.characters);
 
-	type Tab = 'overview' | 'skills' | 'combat' | 'social' | 'languages' | 'spells';
+	type Tab = 'overview' | 'skills' | 'combat' | 'social' | 'languages' | 'spells' | 'inventory';
 	let activeTab: Tab = $state('overview');
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -132,7 +134,8 @@
 		{ id: 'combat', label: 'Combat' },
 		{ id: 'social', label: 'Social' },
 		{ id: 'languages', label: 'Languages' },
-		{ id: 'spells', label: 'Spells' }
+		{ id: 'spells', label: 'Spells' },
+		{ id: 'inventory', label: 'Inventory' }
 	];
 </script>
 
@@ -444,6 +447,13 @@
 				</section>
 			{/if}
 		{/each}
+	{/if}
+
+	<!-- === INVENTORY TAB === -->
+	{#if activeTab === 'inventory'}
+		{@const allItems = extractAllInventoryItems(chars)}
+		{@const summary = getInventorySummary(allItems)}
+		<InventorySpreadsheet items={allItems} {summary} />
 	{/if}
 </div>
 
