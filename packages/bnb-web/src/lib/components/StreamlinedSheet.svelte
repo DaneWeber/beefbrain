@@ -269,28 +269,22 @@
 						<span class="tags">{parseSumValue(combat.saves['will-vs-mental-acuity']).breakdown['3/day'] ?? '3/day'}</span>
 					</div>
 				{/if}
-				{#if combat.defense?.['spell-resistance'] || defenseTraits.length > 0}
-					<div class="defense-trait-chips">
+				{#if combat.defense?.['spell-resistance'] || defenseTraits.length > 0 || viewNotes['combat-defense'] || itemsForSection('combat-defense').length > 0}
+					<div class="chip-flow">
 						{#if combat.defense?.['spell-resistance']}
 							<span class="defense-trait-chip">Spell Resistance (SR) {combat.defense['spell-resistance']}</span>
 						{/if}
 						{#each defenseTraits as trait}
 							<span class="defense-trait-chip">{trait}</span>
 						{/each}
-					</div>
-				{/if}
-				{#if viewNotes['combat-defense'] || itemsForSection('combat-defense').length > 0}
-					<div class="notes-block">
 						{#if viewNotes['combat-defense']}
-							<div class="view-note-chips">{#each viewNotes['combat-defense'].split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
+							{#each viewNotes['combat-defense'].split(';').map((s: string) => s.trim()).filter(Boolean) as note}
+								<span class="view-note-chip">{note}</span>
+							{/each}
 						{/if}
-						{#if itemsForSection('combat-defense').length > 0}
-							<div class="gear-chips">
-								{#each itemsForSection('combat-defense') as item}
-									<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
-								{/each}
-							</div>
-						{/if}
+						{#each itemsForSection('combat-defense') as item}
+							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+						{/each}
 					</div>
 				{/if}
 			</div>
@@ -395,17 +389,15 @@
 						{/each}
 					{/if}
 					{#if viewNotes['combat-offense'] || itemsForSection('combat-offense').length > 0}
-						<div class="notes-block">
+						<div class="chip-flow">
 							{#if viewNotes['combat-offense']}
-								<div class="view-note-chips">{#each viewNotes['combat-offense'].split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
+								{#each viewNotes['combat-offense'].split(';').map((s: string) => s.trim()).filter(Boolean) as note}
+									<span class="view-note-chip">{note}</span>
+								{/each}
 							{/if}
-							{#if itemsForSection('combat-offense').length > 0}
-								<div class="gear-chips">
-									{#each itemsForSection('combat-offense') as item}
-										<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
-									{/each}
-								</div>
-							{/if}
+							{#each itemsForSection('combat-offense') as item}
+								<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+							{/each}
 						</div>
 					{/if}
 				</div>
@@ -427,17 +419,15 @@
 					{/each}
 				</div>
 				{#if viewNotes.senses || itemsForSection('senses').length > 0}
-					<div class="notes-block">
+					<div class="chip-flow">
 						{#if viewNotes.senses}
-							<div class="view-note-chips">{#each viewNotes.senses.split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
+							{#each viewNotes.senses.split(';').map((s: string) => s.trim()).filter(Boolean) as note}
+								<span class="view-note-chip">{note}</span>
+							{/each}
 						{/if}
-						{#if itemsForSection('senses').length > 0}
-							<div class="gear-chips">
-								{#each itemsForSection('senses') as item}
-									<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
-								{/each}
-							</div>
-						{/if}
+						{#each itemsForSection('senses') as item}
+							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+						{/each}
 					</div>
 				{/if}
 			</section>
@@ -476,17 +466,15 @@
 					{/each}
 				</div>
 				{#if viewNotes.movement || itemsForSection('movement').length > 0}
-					<div class="notes-block">
+					<div class="chip-flow">
 						{#if viewNotes.movement}
-							<div class="view-note-chips">{#each viewNotes.movement.split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
+							{#each viewNotes.movement.split(';').map((s: string) => s.trim()).filter(Boolean) as note}
+								<span class="view-note-chip">{note}</span>
+							{/each}
 						{/if}
-						{#if itemsForSection('movement').length > 0}
-							<div class="gear-chips">
-								{#each itemsForSection('movement') as item}
-									<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
-								{/each}
-							</div>
-						{/if}
+						{#each itemsForSection('movement') as item}
+							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+						{/each}
 					</div>
 				{/if}
 			</section>
@@ -505,17 +493,15 @@
 					{/each}
 				</div>
 				{#if viewNotes.social || itemsForSection('social').length > 0}
-					<div class="notes-block">
+					<div class="chip-flow">
 						{#if viewNotes.social}
-							<div class="view-note-chips">{#each viewNotes.social.split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
+							{#each viewNotes.social.split(';').map((s: string) => s.trim()).filter(Boolean) as note}
+								<span class="view-note-chip">{note}</span>
+							{/each}
 						{/if}
-						{#if itemsForSection('social').length > 0}
-							<div class="gear-chips">
-								{#each itemsForSection('social') as item}
-									<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
-								{/each}
-							</div>
-						{/if}
+						{#each itemsForSection('social') as item}
+							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+						{/each}
 					</div>
 				{/if}
 			</section>
@@ -529,17 +515,15 @@
 					{/each}
 				</div>
 				{#if viewNotes.knowledge || itemsForSection('knowledge').length > 0}
-					<div class="notes-block">
+					<div class="chip-flow">
 						{#if viewNotes.knowledge}
-							<div class="view-note-chips">{#each viewNotes.knowledge.split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
+							{#each viewNotes.knowledge.split(';').map((s: string) => s.trim()).filter(Boolean) as note}
+								<span class="view-note-chip">{note}</span>
+							{/each}
 						{/if}
-						{#if itemsForSection('knowledge').length > 0}
-							<div class="gear-chips">
-								{#each itemsForSection('knowledge') as item}
-									<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
-								{/each}
-							</div>
-						{/if}
+						{#each itemsForSection('knowledge') as item}
+							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+						{/each}
 					</div>
 				{/if}
 			</section>
@@ -553,17 +537,15 @@
 					{/each}
 				</div>
 				{#if viewNotes.magical || itemsForSection('magical').length > 0}
-					<div class="notes-block">
+					<div class="chip-flow">
 						{#if viewNotes.magical}
-							<div class="view-note-chips">{#each viewNotes.magical.split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
+							{#each viewNotes.magical.split(';').map((s: string) => s.trim()).filter(Boolean) as note}
+								<span class="view-note-chip">{note}</span>
+							{/each}
 						{/if}
-						{#if itemsForSection('magical').length > 0}
-							<div class="gear-chips">
-								{#each itemsForSection('magical') as item}
-									<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
-								{/each}
-							</div>
-						{/if}
+						{#each itemsForSection('magical') as item}
+							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+						{/each}
 					</div>
 				{/if}
 			</section>
@@ -577,17 +559,15 @@
 					{/each}
 				</div>
 				{#if viewNotes.practical || itemsForSection('practical').length > 0}
-					<div class="notes-block">
+					<div class="chip-flow">
 						{#if viewNotes.practical}
-							<div class="view-note-chips">{#each viewNotes.practical.split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
+							{#each viewNotes.practical.split(';').map((s: string) => s.trim()).filter(Boolean) as note}
+								<span class="view-note-chip">{note}</span>
+							{/each}
 						{/if}
-						{#if itemsForSection('practical').length > 0}
-							<div class="gear-chips">
-								{#each itemsForSection('practical') as item}
-									<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
-								{/each}
-							</div>
-						{/if}
+						{#each itemsForSection('practical') as item}
+							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+						{/each}
 					</div>
 				{/if}
 			</section>
@@ -611,7 +591,7 @@
 		<section class="full-width">
 			<h2>Magic</h2>
 			{#if viewNotes.magic}
-				<div class="view-note-chips">{#each viewNotes.magic.split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
+				<div class="chip-flow">{#each viewNotes.magic.split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
 			{/if}
 			{#each spellSections(spells) as { key, section }}
 				{#if spellSections(spells).length > 1}
@@ -1001,12 +981,12 @@
 		color: #999;
 		font-style: italic;
 	}
-	/* Gear chips */
-	.gear-chips {
+	/* Chip flow container - combines all chip types */
+	.chip-flow {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.25rem;
-		margin: 0.3rem 0;
+		margin: 0.4rem 0;
 	}
 	.gear-chip {
 		display: inline-flex;
@@ -1023,13 +1003,6 @@
 		color: #678;
 		font-size: 0.72rem;
 	}
-	/* View-note chips */
-	.view-note-chips {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.25rem;
-		margin: 0.2rem 0 0.35rem;
-	}
 	.view-note-chip {
 		display: inline-block;
 		padding: 0.15rem 0.45rem;
@@ -1039,13 +1012,6 @@
 		font-size: 0.78rem;
 		color: #6a4c00;
 		line-height: 1.3;
-	}
-	/* Defense trait chips */
-	.defense-trait-chips {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.25rem;
-		margin: 0.3rem 0;
 	}
 	.defense-trait-chip {
 		display: inline-block;
@@ -1061,9 +1027,6 @@
 		font-size: 0.82rem;
 		margin-bottom: 0.35rem;
 		color: #555;
-	}
-	.notes-block {
-		margin-top: 0.4rem;
 	}
 
 	/* === WEAPON ROWS === */
