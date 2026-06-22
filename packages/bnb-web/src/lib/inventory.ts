@@ -29,33 +29,30 @@ export interface InventoryItem {
 
 /**
  * Parse individual item from YAML array format
- * Format: [description, quantity, category, weight, price, metadata?, tags?]
+ * Format: [description, quantity, category, weight, itemId, properties?, tags?]
  */
 function parseItem(
 	itemArray: unknown[],
 	characterName: string,
 	location: string,
 	itemIndex: number,
-	dmMetadata?: { items: Record<number, unknown>; itemMapping: Record<string, number> }
+	dmMetadata?: { items: Record<number, unknown>; itemMapping: Record<string, number> },
+	unmappedIdCounter?: number
 ): InventoryItem | null {
 	if (!Array.isArray(itemArray) || itemArray.length < 5) return null;
 
-	const [description, quantity, category, weight, price, metadata, tags] = itemArray;
+	// Format: [description, quantity, category, weight, itemId, properties?, tags?]
+	const [description, quantity, category, weight, itemIdRaw, metadata, tags] = itemArray;
 
 	// Skip non-existent items
 	if (!description || !category) return null;
 
-	// Get or find item ID
-	const locationKey = `${characterName}/${location}/${itemIndex}`;
-	let itemId = -1;
-	if (dmMetadata?.itemMapping && locationKey in dmMetadata.itemMapping) {
-		itemId = dmMetadata.itemMapping[locationKey];
-	}
+	// Item ID is directly in position 4 of the array
+	const itemId = typeof itemIdRaw === 'number' ? itemIdRaw : (unmappedIdCounter ?? -1);
 
 	const id = `${String(itemId).padStart(3, '0')}`;
 	const qty = typeof quantity === 'number' ? quantity : 1;
 	const wt = parseWeight(weight);
-	const yamlValue = parsePrice(price);
 
 	// Get metadata for this item
 	let enrichedMetadata = null;
@@ -72,7 +69,7 @@ function parseItem(
 	const metadataValue =
 		enrichedMetadata && typeof enrichedMetadata === 'object' && 'marketValue' in enrichedMetadata
 			? Number((enrichedMetadata as Record<string, unknown>).marketValue)
-			: yamlValue;
+			: 0;
 
 	const auraStrength =
 		enrichedMetadata && typeof enrichedMetadata === 'object' && 'auraStrength' in enrichedMetadata
@@ -119,18 +116,6 @@ function parseWeight(weight: unknown): number {
 	if (typeof weight === 'number') return weight;
 	if (typeof weight === 'string') {
 		const num = parseFloat(weight);
-		return isNaN(num) ? 0 : num;
-	}
-	return 0;
-}
-
-/**
- * Parse price string to gold pieces (e.g., "100 gp" -> 100)
- */
-function parsePrice(price: unknown): number {
-	if (typeof price === 'number') return price;
-	if (typeof price === 'string') {
-		const num = parseFloat(price);
 		return isNaN(num) ? 0 : num;
 	}
 	return 0;
@@ -188,6 +173,7 @@ export function extractAllInventoryItems(
 	dmMetadata?: { items: Record<number, unknown>; itemMapping: Record<string, number> }
 ): InventoryItem[] {
 	const items: InventoryItem[] = [];
+	let unmappedIdCounter = -1; // Counter for items without mappings
 
 	for (const { slug, character } of characters) {
 		const charName = character.description?.name ?? slug;
@@ -207,18 +193,12 @@ export function extractAllInventoryItems(
 
 			// Parse each item at this location
 			for (let i = 0; i < locationItems.length; i++) {
-				const item = parseItem(locationItems[i] as unknown[], charName, location, i, dmMetadata);
+				const item = parseItem(locationItems[i] as unknown[], charName, location, i, dmMetadata, unmappedIdCounter);
 				if (item) {
-					items.push(item);
-				}
-			}
-		}
-
-		// Also check for companion inventory
-		if (inventory.horse && Array.isArray(inventory.horse)) {
-			for (let i = 0; i < inventory.horse.length; i++) {
-				const item = parseItem(inventory.horse[i] as unknown[], charName, 'mount', i, dmMetadata);
-				if (item) {
+					// If this was an unmapped item, decrement counter for next unmapped item
+					if (item.itemId < 0 && item.itemId === unmappedIdCounter) {
+						unmappedIdCounter--;
+					}
 					items.push(item);
 				}
 			}
