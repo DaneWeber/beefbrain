@@ -237,24 +237,24 @@
 		<div class="defense-block">
 			<div class="ac-bar">
 				<div class="ac-block">
-					<span class="ac-label">AC</span>
+					<span class="ac-label">Full AC</span>
 					<span class="ac-value">{ac.total}</span>
 					<span class="ac-sources">{Object.entries(ac.breakdown).filter(([k]) => k !== 'base').map(([k, v]) => `${formatKey(k)} ${formatMod(Number(v))}`).join(', ')}</span>
 				</div>
 				<div class="ac-block">
-					<span class="ac-label">Touch</span>
+					<span class="ac-label">Touch AC</span>
 					<span class="ac-value">{touch.total}</span>
 					<span class="ac-sources">{Object.entries(touch.breakdown).filter(([k]) => k !== 'base').map(([k, v]) => `${formatKey(k)} ${formatMod(Number(v))}`).join(', ')}</span>
 				</div>
 				<div class="ac-block">
-					<span class="ac-label">Flat-Footed</span>
+					<span class="ac-label">Flat-Footed AC</span>
 					<span class="ac-value">{ff.total}</span>
 					<span class="ac-sources">{Object.entries(ff.breakdown).filter(([k]) => k !== 'base').map(([k, v]) => `${formatKey(k)} ${formatMod(Number(v))}`).join(', ')}</span>
 				</div>
 			</div>
 			<div class="saves-and-extras">
 				<div class="saves-bar">
-					{#each [['Fort', combat.saves?.fortitude], ['Ref', combat.saves?.reflex], ['Will', combat.saves?.will]] as [label, save]}
+					{#each [['Fortitude Save', combat.saves?.fortitude], ['Reflex Save', combat.saves?.reflex], ['Will Save', combat.saves?.will]] as [label, save]}
 						{@const p = parseSumValue(save)}
 						<div class="save-block">
 							<span class="save-label">{label}</span>
@@ -269,15 +269,15 @@
 						<span class="tags">{parseSumValue(combat.saves['will-vs-mental-acuity']).breakdown['3/day'] ?? '3/day'}</span>
 					</div>
 				{/if}
-				{#if combat.defense?.['spell-resistance']}
-					<div class="inline-stat"><span class="label">SR</span> {combat.defense['spell-resistance']}</div>
-				{/if}
-				{#if defenseTraits.length > 0}
-					<ul class="compact-list">
+				{#if combat.defense?.['spell-resistance'] || defenseTraits.length > 0}
+					<div class="defense-trait-chips">
+						{#if combat.defense?.['spell-resistance']}
+							<span class="defense-trait-chip">Spell Resistance (SR) {combat.defense['spell-resistance']}</span>
+						{/if}
 						{#each defenseTraits as trait}
-							<li>{trait}</li>
+							<span class="defense-trait-chip">{trait}</span>
 						{/each}
-					</ul>
+					</div>
 				{/if}
 				{#if viewNotes['combat-defense'] || itemsForSection('combat-defense').length > 0}
 					<div class="notes-block">
@@ -1038,6 +1038,23 @@
 		border-radius: 3px;
 		font-size: 0.78rem;
 		color: #6a4c00;
+		line-height: 1.3;
+	}
+	/* Defense trait chips */
+	.defense-trait-chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem;
+		margin: 0.3rem 0;
+	}
+	.defense-trait-chip {
+		display: inline-block;
+		padding: 0.15rem 0.45rem;
+		background: #e8f4f8;
+		border: 1px solid #6b9ab8;
+		border-radius: 3px;
+		font-size: 0.78rem;
+		color: #1a4d6d;
 		line-height: 1.3;
 	}
 	.trait-line {
