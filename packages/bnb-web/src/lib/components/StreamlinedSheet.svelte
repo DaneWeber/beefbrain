@@ -417,7 +417,7 @@
 					<div class="trait-line">{senses.join(' / ')}</div>
 				{/if}
 				<div class="skill-group">
-					{#each skillRows([...categorized.detection, ...categorized.knowledge]) as s}
+					{#each skillRows(categorized.detection) as s}
 						<span class="skill-chip" class:boosted={s.boosted}><span class="skill-name">{s.name}</span> {s.total}</span>
 					{/each}
 				</div>
@@ -500,17 +500,64 @@
 				{/if}
 			</section>
 
-			<!-- Practical Skills -->
+			<!-- Knowledge -->
+			<section>
+				<h2>Knowledge</h2>
+				{#if viewNotes.knowledge}
+					<div class="view-note-chips">{#each viewNotes.knowledge.split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
+				{/if}
+				<div class="skill-group">
+					{#each skillRows(categorized.knowledge) as s}
+						<span class="skill-chip" class:boosted={s.boosted}><span class="skill-name">{s.name}</span> {s.total}</span>
+					{/each}
+				</div>
+				{#if itemsForSection('knowledge').length > 0}
+					<div class="gear-chips">
+						{#each itemsForSection('knowledge') as item}
+							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+						{/each}
+					</div>
+				{/if}
+			</section>
+
+			<!-- Magical -->
+			<section>
+				<h2>Magical</h2>
+				{#if viewNotes.magical}
+					<div class="view-note-chips">{#each viewNotes.magical.split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
+				{/if}
+				<div class="skill-group">
+					{#each skillRows(categorized.magic) as s}
+						<span class="skill-chip" class:boosted={s.boosted}><span class="skill-name">{s.name}</span> {s.total}</span>
+					{/each}
+				</div>
+				{#if itemsForSection('magical').length > 0}
+					<div class="gear-chips">
+						{#each itemsForSection('magical') as item}
+							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+						{/each}
+					</div>
+				{/if}
+			</section>
+
+			<!-- Practical -->
 			<section>
 				<h2>Practical</h2>
 				{#if viewNotes.practical}
 					<div class="view-note-chips">{#each viewNotes.practical.split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
 				{/if}
 				<div class="skill-group">
-					{#each skillRows([...categorized.practical, ...categorized.magic, ...categorized.other]) as s}
+					{#each skillRows(categorized.practical) as s}
 						<span class="skill-chip" class:boosted={s.boosted}><span class="skill-name">{s.name}</span> {s.total}</span>
 					{/each}
 				</div>
+				{#if itemsForSection('practical').length > 0}
+					<div class="gear-chips">
+						{#each itemsForSection('practical') as item}
+							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+						{/each}
+					</div>
+				{/if}
 			</section>
 
 			<!-- Proficiencies -->

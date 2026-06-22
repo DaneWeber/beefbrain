@@ -109,8 +109,7 @@ const physicalSet = new Set([
 const magicSet = new Set([
 	'concentration',
 	'spellcraft',
-	'use-magic-device',
-	'knowledge-arcana'
+	'use-magic-device'
 ]);
 
 const practicalSet = new Set([
