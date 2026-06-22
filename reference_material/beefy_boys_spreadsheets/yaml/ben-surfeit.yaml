@@ -124,11 +124,11 @@ character:
       - [Quarterstaff, 1, weapon, 4 lbs, 43, {damage: 1d6, crit: x2}]
       - [Monk's Robes, 1, clothing, 2 lbs, 44]
       - [Sling +1 Holy, 1, weapon, 0.01 lbs, 45, {damage: 1d4, crit: x2, range: 50ft, enhancement: 1, holy: "+2d6 vs evil"}, [magic]]
-      - [Bracers of Armor +1, 1, gear, 1 lb, 46, {ac: 1}, [magic]]
-      - [Amulet of Natural Armor +1, 1, gear, 0.1 lbs, 47, {natural: 1}, [magic]]
+      - [Bracers of Armor +1, 1, gear, 1 lb, 46, {ac: 1}, [magic, arms-slot]]
+      - [Amulet of Natural Armor +1, 1, gear, 0.1 lbs, 47, {natural: 1}, [magic, throat-slot]]
       - [Everburning Candle, 1, gear, 1 lb, 48, [magic]]
       - [Turkey bone, 1, gear, 0.1 lbs, 49]
-      - [Cloak of Charisma +2, 1, gear, 0 lbs, 50, {cha-enhancement: 2}, [magic]]
+      - [Cloak of Charisma +2, 1, gear, 0 lbs, 50, {cha-enhancement: 2}, [magic, shoulders-slot]]
       - [Sling Ammo Adamantine, 5, supplies, 0.5 lbs, 51, [adamantine]]
       - [Sling Ammo Silvered, 18, supplies, 0.5 lbs, 52, [silver]]
       - [Sling Ammo Cold Iron, 58, supplies, 0.5 lbs, 53, [cold-iron]]
@@ -138,7 +138,7 @@ character:
       - [Potion Cure Light Wounds 1d8+1, 2, potion, 0.1 lbs, 57]
       - [Potion Reduce Person, 1, potion, 0.1 lbs, 58]
       - [Resurrection Gem, 1, gear, 0.1 lbs, 59, [magic]]
-      - [Belt of Giant's Strength +4, 1, gear, 1 lb, 60, {str-enhancement: 4}, [magic]]
+      - [Belt of Giant's Strength +4, 1, gear, 1 lb, 60, {str-enhancement: 4}, [magic, waist-slot]]
     pack: []
   notes:
     devotee: Obad-Hai

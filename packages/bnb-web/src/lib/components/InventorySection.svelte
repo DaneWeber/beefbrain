@@ -15,6 +15,117 @@
 		if (!Array.isArray(items)) return [];
 		return items.filter((item: unknown) => Array.isArray(item) && (item as unknown[]).length > 0);
 	}
+
+	// Magic item body slots
+	const bodySlots = [
+		'arms',
+		'body',
+		'face',
+		'feet',
+		'hands',
+		'head',
+		'left-ring',
+		'right-ring',
+		'shoulders',
+		'throat',
+		'torso',
+		'waist'
+	];
+
+	// Map singular tag names to plural slot names
+	const slotNameMap: Record<string, string> = {
+		'arm': 'arms',
+		'arms': 'arms',
+		'body': 'body',
+		'face': 'face',
+		'feet': 'feet',
+		'foot': 'feet',
+		'hand': 'hands',
+		'hands': 'hands',
+		'head': 'head',
+		'left-ring': 'left-ring',
+		'right-ring': 'right-ring',
+		'shoulder': 'shoulders',
+		'shoulders': 'shoulders',
+		'throat': 'throat',
+		'torso': 'torso',
+		'waist': 'waist'
+	};
+
+	interface SlottedItem {
+		name: string;
+		notes: string;
+	}
+
+	interface SlotData {
+		items: SlottedItem[];
+		hasConflict: boolean;
+	}
+
+	// Extract items by body slot
+	const slottedItems = $derived(() => {
+		const slots: Record<string, SlotData> = {};
+		bodySlots.forEach(slot => slots[slot] = { items: [], hasConflict: false });
+
+		for (const location of inventoryLocations(inventory)) {
+			for (const item of inventoryItems(inventory, location)) {
+				// Tags are always the last item in the array
+				const tags = Array.isArray(item[item.length - 1]) ? (item[item.length - 1] as string[]).map(String) : [];
+				// Properties are at position [5] if they exist
+				const props = (item[5] && typeof item[5] === 'object' && !Array.isArray(item[5]))
+					? item[5] as Record<string, unknown>
+					: {};
+				
+				const notes = Object.entries(props).map(([k, v]) => `${k}: ${v}`).join(', ');
+				
+				// Check for slot tags
+				for (const tag of tags) {
+					if (tag.endsWith('-slot')) {
+						const tagBase = tag.replace('-slot', '');
+						const slotName = slotNameMap[tagBase];
+						
+						if (!slotName) continue;
+						
+						if (bodySlots.includes(slotName)) {
+							slots[slotName].items.push({ name: String(item[0] ?? ''), notes });
+						}
+					}
+				}
+			}
+		}
+
+		// Mark slots with conflicts (more than one item)
+		for (const slot of bodySlots) {
+			if (slots[slot].items.length > 1) {
+				slots[slot].hasConflict = true;
+			}
+		}
+
+		return slots;
+	});
+
+	// Extract "other" slotless items
+	const otherItems = $derived(() => {
+		const items: SlottedItem[] = [];
+
+		for (const location of inventoryLocations(inventory)) {
+			for (const item of inventoryItems(inventory, location)) {
+				// Tags are always the last item in the array
+				const tags = Array.isArray(item[item.length - 1]) ? (item[item.length - 1] as string[]).map(String) : [];
+				
+				if (tags.includes('other-slot')) {
+					// Properties are at position [5] if they exist
+					const props = (item[5] && typeof item[5] === 'object' && !Array.isArray(item[5]))
+						? item[5] as Record<string, unknown>
+						: {};
+					const notes = Object.entries(props).map(([k, v]) => `${k}: ${v}`).join(', ');
+					items.push({ name: String(item[0] ?? ''), notes });
+				}
+			}
+		}
+
+		return items;
+	});
 </script>
 
 <section class="inventory-section" class:compact>
@@ -35,6 +146,50 @@
 			</span>
 		</div>
 	{/if}
+
+	<!-- Magic Item Body Slots -->
+	<div class="body-slots">
+		<h3>Magic Item Slots</h3>
+		<div class="slot-grid">
+			{#each bodySlots as slot}
+				{@const slotData = slottedItems()[slot]}
+				<div class="slot-row">
+					<span class="slot-label">{formatKey(slot)}:</span>
+					<span class="slot-item" class:empty={slotData.items.length === 0} class:conflict={slotData.hasConflict}>
+						{#if slotData.items.length > 0}
+							{#each slotData.items as item, i}
+								{#if i > 0}<span class="item-separator"> + </span>{/if}
+								<span class="item-entry">
+									<span class="item-name">{item.name}</span>
+									{#if item.notes}
+										<span class="item-notes">({item.notes})</span>
+									{/if}
+								</span>
+							{/each}
+						{:else}
+							<span class="empty-slot">—</span>
+						{/if}
+					</span>
+				</div>
+			{/each}
+		</div>
+		
+		{#if otherItems().length > 0}
+			<div class="other-items">
+				<h4>Other (Slotless Items)</h4>
+				<div class="other-list">
+					{#each otherItems() as item}
+						<div class="other-item">
+							<span class="item-name">{item.name}</span>
+							{#if item.notes}
+								<span class="item-notes">({item.notes})</span>
+							{/if}
+						</div>
+					{/each}
+				</div>
+			</div>
+		{/if}
+	</div>
 
 	<div class="inv-flow">
 	{#each inventoryLocations(inventory) as location}
@@ -127,6 +282,105 @@
 		color: #777;
 		font-size: 0.8rem;
 	}
+	
+	/* Body Slots */
+	.body-slots {
+		margin: 0.75rem 0;
+		padding: 0.5rem;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		background: #fafafa;
+	}
+	.body-slots h3 {
+		font-size: 0.85rem;
+		margin: 0 0 0.4rem;
+		color: #555;
+		font-weight: 600;
+	}
+	.slot-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.15rem 1rem;
+		font-size: 0.8rem;
+	}
+	.slot-row {
+		display: flex;
+		gap: 0.35rem;
+		align-items: baseline;
+	}
+	.slot-label {
+		font-weight: 600;
+		color: #666;
+		min-width: 5rem;
+		text-transform: capitalize;
+	}
+	.slot-item {
+		flex: 1;
+	}
+	.slot-item.empty {
+		color: #bbb;
+	}
+	.slot-item.conflict {
+		color: #c00;
+		font-weight: 600;
+	}
+	.slot-item.conflict .item-name {
+		color: #c00;
+	}
+	.slot-item.conflict .item-notes {
+		color: #d55;
+	}
+	.item-separator {
+		color: #c00;
+		font-weight: 700;
+		margin: 0 0.2rem;
+	}
+	.item-entry {
+		display: inline;
+	}
+	.slot-item .item-name {
+		font-weight: 500;
+	}
+	.slot-item .item-notes {
+		color: #777;
+		font-size: 0.75rem;
+		margin-left: 0.25rem;
+	}
+	.empty-slot {
+		color: #ccc;
+	}
+	
+	/* Other (Slotless) Items */
+	.other-items {
+		margin-top: 0.75rem;
+		padding-top: 0.5rem;
+		border-top: 1px solid #ddd;
+	}
+	.other-items h4 {
+		font-size: 0.8rem;
+		margin: 0 0 0.35rem;
+		color: #666;
+		font-weight: 600;
+	}
+	.other-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+		font-size: 0.8rem;
+	}
+	.other-item {
+		display: flex;
+		gap: 0.35rem;
+		align-items: baseline;
+	}
+	.other-item .item-name {
+		font-weight: 500;
+	}
+	.other-item .item-notes {
+		color: #777;
+		font-size: 0.75rem;
+	}
+	
 	table {
 		width: 100%;
 		border-collapse: collapse;

@@ -100,9 +100,9 @@ character:
       _total: 5475 gp
       coins: [5475 gp, 19.5 lbs, pack, {pp: 500, gp: 475, sp: 0, cp: 0}, 0.02 lbs]
     equipped:
-      - [Armband of Maximized Healing, 1, gear, 1 lb, 61, {}, [magic]]
-      - [Mirror of time-hop (2/day gaze 30ft push creature 5 rounds forward; DC 14 Will), 1, gear, 0.5 lbs, 62, {}, [magic]]
-      - [Orb of environmental adaptation within 30 feet, 1, gear, 0.1 lbs, 63, {}, [magic]]
+      - [Armband of Maximized Healing, 1, gear, 1 lb, 61, {}, [magic, arms-slot]]
+      - [Mirror of time-hop (2/day gaze 30ft push creature 5 rounds forward; DC 14 Will), 1, gear, 0.5 lbs, 62, {}, [magic, other-slot]]
+      - [Orb of environmental adaptation within 30 feet, 1, gear, 0.1 lbs, 63, {}, [magic, other-slot]]
       - [Diamond dust for Glyph of Warding (200gp/casting), 8, supplies, 0.1 lbs, 64]
       - [Powdered silver for Wall of Good (25gp/casting), 39, supplies, 0.1 lbs, 65]
       - [Spell Components, 1, supplies, 1 lb, 66]
@@ -113,8 +113,8 @@ character:
       - [USED: Diamond dust (200gp/casting), 2, supplies, 0.1 lbs, 71, {}, [used]]
       - [USED: Powdered silver (25gp/casting), 1, supplies, 0.1 lbs, 72, {}, [used]]
       - [Walking cane (light mace), 1, weapon, 0.1 lbs, 73]
-      - [+1 Blurring Full Plate (+9 AC; -5 ACP; 5 rounds 3/day), 1, armor, 0.1 lbs, 74, {ac: 9, acp: -5, blurring: "5 rounds 3/day"}, [magic]]
-      - [+2 Ring of Protection, 1, gear, 0 lbs, 75, {deflection: 2}, [magic]]
+      - [+1 Blurring Full Plate (+9 AC; -5 ACP; 5 rounds 3/day), 1, armor, 0.1 lbs, 74, {ac: 9, acp: -5, blurring: "5 rounds 3/day"}, [magic, body-slot]]
+      - [+2 Ring of Protection, 1, gear, 0 lbs, 75, {deflection: 2}, [magic, left-ring-slot]]
     pack:
       - []
     horse:

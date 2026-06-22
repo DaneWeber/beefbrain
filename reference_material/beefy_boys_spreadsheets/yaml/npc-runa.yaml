@@ -117,7 +117,7 @@ character:
       _total: 0 gp
       coins: [0 gp, 0 lbs, pack, {pp: 0, gp: 0, sp: 0, cp: 0}, 0.02 lbs]
     equipped:
-      - [Mithril Breastplate MW, 1, armor, 15 lbs, 190, {ac: 5, max-dex: 5, acp: 0, asfc: "15%"}, [combat-defense, light-armor]]
+      - [Mithril Breastplate MW, 1, armor, 15 lbs, 190, {ac: 5, max-dex: 5, acp: 0, asfc: "15%"}, [combat-defense, light-armor, body-slot]]
       - ["+1 Composite Shortbow", 1, weapon, 3 lbs, 191, {damage: 1d6, crit: x3, enhancement: 1}, [ranged]]
       - [Dagger, 1, weapon, 1 lb, 192, {damage: 1d4, crit: 19-20/x2}]
       - [Throwing Axe, 1, weapon, 2 lbs, 193, {damage: 1d6, crit: x2, range: 10ft}]
