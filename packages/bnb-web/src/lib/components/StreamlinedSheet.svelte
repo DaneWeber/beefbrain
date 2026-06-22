@@ -207,6 +207,7 @@
 				{#if desc.race}<span>{desc.race}</span>{/if}
 				{#if classLine}<span>{classLine}</span>{/if}
 				{#if desc.alignment}<span class="align-badge">{desc.alignment}</span>{/if}
+				{#if levels.xp}<span>XP: {val(levels.xp)}</span>{/if}
 			</div>
 		</div>
 		<div class="vital-stats">
