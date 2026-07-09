@@ -8,6 +8,8 @@
     "dev": "pnpm --filter bnb-web dev"
   },
   "devDependencies": {
-    "js-yaml": "^4.1.1"
+    "glob": "^13.0.6",
+    "js-yaml": "^4.1.1",
+    "yaml": "^2.8.2"
   }
 }
