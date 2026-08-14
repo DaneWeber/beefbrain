@@ -37,20 +37,14 @@ character:
       bab: [13, fighter: 13]
       melee:
         _: [19, {bab: 13, str: 6}]
-        frost-brand-greatsword+3:
-          [22, 2d6+12+1d6 cold, 19-20/x2, {_: 19, enhancement: 3}, {str: 9, enhancement: 3}, [greatsword, 2-hand, frost]]
-        bastard-sword+2-giant-bane:
-          [22, 1d10+10, 17-20/x2, {_: 19, enhancement: 2, weapon-focus: 1}, {str: 6, enhancement: 2, weapon-spec: 2}, [bastard-sword, exotic, improved-critical, "bane-giant: +2d6+2 vs giants"]]
-        dagger:
-          [19, 1d4+6, 19-20/x2, {_: 19}, str: 6, [dagger]]
-        lion-shield:
-          [13, 2d6, x2, {bab: 13}, {}, [shield, 3/day]]
+        frost-brand-greatsword+3: [22, 2d6+12+1d6 cold, 19-20/x2, {_: 19, enhancement: 3}, {str: 9, enhancement: 3}, [greatsword, 2-hand, frost]]
+        bastard-sword+2-giant-bane: [22, 1d10+10, 17-20/x2, {_: 19, enhancement: 2, weapon-focus: 1}, {str: 6, enhancement: 2, weapon-spec: 2}, [bastard-sword, exotic, improved-critical, "bane-giant: +2d6+2 vs giants"]]
+        dagger: [19, 1d4+6, 19-20/x2, _: 19, str: 6, [dagger]]
+        lion-shield: [13, 2d6, x2, bab: 13, {}, [shield, 3/day]]
       ranged:
         _: [14, {bab: 13, dex: 1}]
-        composite-longbow-mw-4-mighty:
-          [15, 1d8+4, x3, {_: 14, masterwork: 1}, str: 4, [longbow, composite, mighty-4, 110ft]]
-        dagger:
-          [14, 1d4+6, 19-20/x2, {_: 14}, str: 6, [dagger, 10ft]]
+        composite-longbow-mw-4-mighty: [15, 1d8+4, x3, {_: 14, masterwork: 1}, str: 4, [longbow, composite, mighty-4, 110ft]]
+        dagger: [14, 1d4+6, 19-20/x2, _: 14, str: 6, [dagger, 10ft]]
       grapple: [23, {bab: 13, str: 6, improved-grapple: 4}]
     defense:
       ac: [24, {base: 10, armor: 9, shield: 4, dex: 1}]
@@ -64,14 +58,14 @@ character:
     capacity: {light: 173 lbs, medium: 346 lbs, heavy: 520 lbs, lift: 1040 lbs, drag: 2600 lbs}
   skills:
     _points: [48, {fighter: 26, human: 13, first-level: 9}]
-    climb: [15, {str: 6, ranks: 13, acp: -4}, {points: {fighter: 13}}]
+    climb: [15, {str: 6, ranks: [13, fighter: 13], acp: -4}]
     heal: [1, {wis: -1, healer-kit: 2}]
-    intimidate: [4, {cha: -1, ranks: 5}, {points: {fighter: 5}}]
-    jump: [12, {str: 6, ranks: 12, acrobatic: 2, tumble-synergy: 2, speed: -6, acp: -4}, {points: {fighter: 12}}]
-    listen: [0, {wis: -1, ranks: 1.5}, {points: {fighter: 3}}]
-    spot: [0, {wis: -1, ranks: 1.5}, {points: {fighter: 3}}]
+    intimidate: [4, {cha: -1, ranks: [5, fighter: 5]}]
+    jump: [12, {str: 6, ranks: [12, fighter: 12], acrobatic: 2, tumble-synergy: 2, speed: -6, acp: -4}]
+    listen: [0, {wis: -1, ranks: [1.5, fighter: 3]}]
+    spot: [0, {wis: -1, ranks: [1.5, fighter: 3]}]
     swim: [-2, {str: 6, acp: -8}]
-    tumble: [7, {dex: 1, ranks: 6, acrobatic: 2, jump-synergy: 2, acp: -4}, {points: {fighter: 12}}]
+    tumble: [7, {dex: 1, ranks: [6, fighter: 12], acrobatic: 2, jump-synergy: 2, acp: -4}]
   special:
     feats:
       - [Acrobatic, level: 1, [{jump: 2, tumble: 2}]]
@@ -80,13 +74,13 @@ character:
       - [Power Attack, fighter: 2]
       - [Cleave, level: 3]
       - [Great Cleave, fighter: 4]
-      - [Weapon Focus (Bastard Sword), fighter: 6, [combat.attack.melee.bastard-sword, {atk: 1}]]
-      - [Weapon Specialization (Bastard Sword), level: 6, [combat.attack.melee.bastard-sword, {dmg: 2}]]
+      - [Weapon Focus (Bastard Sword), fighter: 6, [combat.attack.melee.bastard-sword, atk: 1]]
+      - [Weapon Specialization (Bastard Sword), level: 6, [combat.attack.melee.bastard-sword, dmg: 2]]
       - [Leap Attack, fighter: 8]
-      - [Shield Ward, level: 9, [combat.defense.touch-ac, {shield-ward: shield}]]
+      - [Shield Ward, level: 9, [combat.defense.touch-ac, shield-ward: shield]]
       - [Power Critical, fighter: 10, [confirm-crit: 4]]
       - [Improved Grapple, level: 12]
-      - [Improved Critical (Bastard Sword), fighter: 12, [combat.attack.melee.bastard-sword, {crit-range: x2}]]
+      - [Improved Critical (Bastard Sword), fighter: 12, [combat.attack.melee.bastard-sword, crit-range: x2]]
     racial:
       - +1 skill point per level
       - +1 feat at 1st level
@@ -106,21 +100,21 @@ character:
       - [Dagger, 1, weapon, 1 lb, 208, {damage: 1d4, crit: 19-20/x2}]
       - [Bastard Sword +2 Giant-Bane, 1, weapon, 6 lbs, 209, {damage: 1d10, crit: 19-20/x2, enhancement: 2, bane: giant}]
       - [Frost Brand Greatsword +3, 1, weapon, 6 lbs, 210, {damage: 2d6+1d6 cold, crit: 19-20/x2, enhancement: 3, frost: true}, [party-loot]]
-      - [Mithril Plate of Speed +1, 1, armor, 20 lbs, 211, {ac: 9, acp: -2, asfc: "15%", haste: "10 rounds/day"}, [combat-defense, body-slot]]
+      - [Mithril Plate of Speed +1, 1, armor, 20 lbs, 211, {ac: 9, acp: -2, asfc: 15%, haste: 10 rounds/day}, [combat-defense, body-slot]]
       - [Lion Shield +2, 1, shield, 15 lbs, 212, {ac: 4, acp: -2, attack: "3/day, 2d6"}, [combat-defense, other-slot]]
       - [MW Mighty +4 Composite Long Bow, 1, weapon, 3 lbs, 213, {damage: 1d8, crit: x3, mighty: 4}, [mw]]
-      - [Winged Boots, 1, gear, 0 lbs, 214, {fly: "3/day 5 mins"}, [movement, feet-slot]]
-      - [Cloak of Resistance +1, 1, gear, 0 lbs, 215, {saves-resistance: 1}, [magic, shoulder-slot]]
+      - [Winged Boots, 1, gear, 0 lbs, 214, fly: 3/day 5 mins, [movement, feet-slot]]
+      - [Cloak of Resistance +1, 1, gear, 0 lbs, 215, saves-resistance: 1, [magic, shoulder-slot]]
       - [Arrows, 30, supplies, 0.15 lbs, 216]
       - [+1 Arrow, 1, supplies, 0.15 lbs, 217, [magic]]
-      - [Climbing Kit, 1, tool, 5 lbs, 218, {climb: +2}, [movement]]
-      - [Potion Shield of Faith, 35, potion, 0.1 lbs, 219, {ac-deflection: "+2 to +5"}, [combat-defense]]
+      - [Climbing Kit, 1, tool, 5 lbs, 218, climb: 2, [movement]]
+      - [Potion Shield of Faith, 35, potion, 0.1 lbs, 219, ac-deflection: +2 to +5, [combat-defense]]
       - [Potion Cure Light Wounds, 1, potion, 0.1 lbs, 220]
       - [Silver Sheen, 1, supplies, 0.1 lbs, 221, {}, [combat-offense]]
       - [Life Saver, 1, supplies, 0.1 lbs, 222]
       - [Vigor, 5, potion, 0.1 lbs, 223]
       - [Ornate Iron Key, 1, gear, 0.25 lbs, 224]
-      - [Belt of Giant's Strength +4, 1, gear, 1 lb, 225, {str-enhancement: 4}, [magic, waist-slot]]
+      - [Belt of Giant's Strength +4, 1, gear, 1 lb, 225, str-enhancement: 4, [magic, waist-slot]]
     pack:
       - [Backpack, 1, container, 2 lbs, 226]
       - [Bedroll, 1, gear, 5 lbs, 227]

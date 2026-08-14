@@ -40,6 +40,7 @@ export type BeefBrainData = {
 
 export { validateBeefBrainData }
 export { updateCalculatedFields }
+export { dataToCompactYAML } from './dataToCompactYAML'
 
 // Export all functions
 export * from './types'

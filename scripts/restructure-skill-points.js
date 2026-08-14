@@ -8,8 +8,11 @@
  */
 
 import { readFileSync, writeFileSync } from 'fs';
-import { parseDocument, YAMLSeq, YAMLMap } from 'yaml';
+import { parse as parseYAML } from 'yaml';
 import { glob } from 'glob';
+
+// Import bnb-core's formatter - need to use the built version
+import { dataToCompactYAML } from '../packages/bnb-core/dist/index.js';
 
 function restructureSkills(data) {
   if (!data?.character?.skills) {
@@ -106,20 +109,18 @@ async function main() {
     const content = readFileSync(filePath, 'utf8');
     
     try {
-      const doc = parseDocument(content);
-      const data = doc.toJSON();
+      // Parse the YAML
+      const data = parseYAML(content);
+      
+      // Restructure skills
       const hasChanges = restructureSkills(data);
 
       if (hasChanges) {
-        // Update the document with the modified data
-        doc.contents = doc.createNode(data);
-        
-        // Apply flow style to appropriate paths (including skills)
-        applyFlowStyle(doc.contents);
+        // Use bnb-core's formatter to output with proper formatting
+        const formatted = dataToCompactYAML(data);
         
         // Write back the updated data
-        const newContent = String(doc);
-        writeFileSync(filePath, newContent, 'utf8');
+        writeFileSync(filePath, formatted, 'utf8');
         
         console.log(`✓ Updated: ${filePath.split('/').pop()}`);
         updatedCount++;
@@ -132,57 +133,6 @@ async function main() {
   }
 
   console.log(`\nUpdated ${updatedCount} of ${yamlFiles.length} files`);
-}
-
-function applyFlowStyle(node, path = []) {
-  const flowStylePaths = [
-    'character.abilities.*',
-    'character.levels.*',
-    'character.combat.initiative',
-    'character.combat.saves.*',
-    'character.combat.attack.bab',
-    'character.combat.attack.grapple',
-    'character.combat.attack.melee.*',
-    'character.combat.attack.ranged.*',
-    'character.combat.defense.*',
-    'character.movement.*',
-    'character.movement.capacity',
-    'character.skills.*',
-    'character.special.feats.*',
-    'character.inventory._on',
-    'character.inventory.*.*',
-    'character.spells.*.casting',
-    'character.spells.*.domains',
-    'character.spells.*.slots.*',
-    'character.spells.*.prepared.*',
-    'character.spells.*.known.*',
-  ];
-
-  for (const pattern of flowStylePaths) {
-    const patternParts = pattern.split('.');
-    const pathParts = path;
-    if (
-      patternParts.length === pathParts.length &&
-      patternParts.every((part, i) => part === '*' || part === pathParts[i])
-    ) {
-      if (node instanceof YAMLSeq || node instanceof YAMLMap) {
-        node.flow = true;
-      }
-      break;
-    }
-  }
-
-  if (node instanceof YAMLSeq) {
-    node.items.forEach((item, idx) =>
-      applyFlowStyle(item, [...path, idx.toString()])
-    );
-  } else if (node instanceof YAMLMap) {
-    node.items.forEach((item) => {
-      if (item && item.key && item.value) {
-        applyFlowStyle(item.value, [...path, String(item.key)]);
-      }
-    });
-  }
 }
 
 main().catch(console.error);

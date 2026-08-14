@@ -28,7 +28,7 @@ character:
     max-hp: [65, {con: 0, rolls: 65}]
     druid: [12, hp: [65], {hd: 8, bab: average, fort: good, ref: poor, will: good}]
   combat:
-    initiative: [0, {dex: 0}]
+    initiative: [0, dex: 0]
     saves:
       fortitude: [8, {druid: 8, con: 0}]
       reflex: [4, {druid: 4, dex: 0}]
@@ -37,8 +37,7 @@ character:
       bab: [9, druid: 9]
       melee:
         _: [8, {bab: 9, str: -1}]
-        quarterstaff-2:
-          [10, 1d6+1, x2, {_: 8, enhancement: 2}, {str: -1, enhancement: 2}, [quarterstaff, 2-hand, contains-mass-bulls-strength]]
+        quarterstaff-2: [10, 1d6+1, x2, {_: 8, enhancement: 2}, {str: -1, enhancement: 2}, [quarterstaff, 2-hand, contains-mass-bulls-strength]]
       ranged:
         _: [9, {bab: 9, dex: 0}]
       grapple: [8, {bab: 9, str: -1}]
@@ -46,38 +45,85 @@ character:
       ac: [16, {base: 10, armor: 6, dex: 0}]
       touch-ac: [10, {base: 10, dex: 0}]
       flat-footed-ac: [16, {base: 10, armor: 6}]
-      acp: [-3, {armor: -3}]
+      acp: [-3, armor: -3]
   movement:
-    speed: [30, {base: 30}]
+    speed: [30, base: 30]
     load: [42.5 lbs, {equipped: 17 lbs, pack: 25.5 lbs}]
     capacity: {light: 26 lbs, medium: 53 lbs, heavy: 80 lbs, lift: 160 lbs, drag: 400 lbs}
   skills:
     _points: [105, {druid: 48, int: 24, human: 12, first-level: 21}]
-    diplomacy: [15, {cha: 1, ranks: 14}, {points: {druid: 14}}]
-    handle-animal: [15, {cha: 1, ranks: 14}, {points: {druid: 14}}]
-    heal: [10, {wis: 5, ranks: 5}, {points: {druid: 5}}]
-    knowledge-arcana: [5, {int: 2, ranks: 3}, {points: {cross-class: 6}}]
-    knowledge-nature: [20, {int: 2, ranks: 14, nature-sense: 2, survival-synergy: 2}, {points: {druid: 14}}]
-    listen: [10, {wis: 5, ranks: 5}, {points: {druid: 5}}]
-    ride: [12, {dex: 0, ranks: 10, handle-animal-synergy: 2}, {points: {druid: 10}}]
-    spellcraft: [13, {int: 2, ranks: 11}, {points: {druid: 11}}]
-    spot: [12, {wis: 5, ranks: 7}, {points: {druid: 7}}]
-    survival: [18, {wis: 5, ranks: 11, nature-sense: 2}, {points: {druid: 11}}]
-    swim: [7, {str: -1, ranks: 8}, {points: {druid: 8}}]
+    diplomacy: [15, {cha: 1, ranks: [14, druid: 14]}]
+    handle-animal: [15, {cha: 1, ranks: [14, druid: 14]}]
+    heal: [10, {wis: 5, ranks: [5, druid: 5]}]
+    knowledge-arcana: [5, {int: 2, ranks: [3, cross-class: 6]}]
+    knowledge-nature: [20, {int: 2, ranks: [14, druid: 14], nature-sense: 2, survival-synergy: 2}]
+    listen: [10, {wis: 5, ranks: [5, druid: 5]}]
+    ride: [12, {dex: 0, ranks: [10, druid: 10], handle-animal-synergy: 2}]
+    spellcraft: [13, {int: 2, ranks: [11, druid: 11]}]
+    spot: [12, {wis: 5, ranks: [7, druid: 7]}]
+    survival: [18, {wis: 5, ranks: [11, druid: 11], nature-sense: 2}]
+    swim: [7, {str: -1, ranks: [8, druid: 8]}]
   spells:
     caster-class: druid
     caster-level: 12
     key-ability: wisdom
-    spells-per-day: {0: 6, 1: 7, 2: 5, 3: 5, 4: 4, 5: 4, 6: 2}
-    save-dc: {0: 15, 1: 16, 2: 17, 3: 18, 4: 19, 5: 20, 6: 21}
+    spells-per-day:
+      "0": 6
+      "1": 7
+      "2": 5
+      "3": 5
+      "4": 4
+      "5": 4
+      "6": 2
+    save-dc:
+      "0": 15
+      "1": 16
+      "2": 17
+      "3": 18
+      "4": 19
+      "5": 20
+      "6": 21
     spells-prepared:
-      0: [Detect Magic, Detect Magic, Detect Magic, Detect Magic, Detect Magic, Detect Magic]
-      1: [Summon Nature's Ally I, Summon Nature's Ally I, Summon Nature's Ally I, Summon Nature's Ally I, Summon Nature's Ally I, Summon Nature's Ally I, Summon Nature's Ally I]
-      2: [Summon Nature's Ally II, Summon Nature's Ally II, Summon Nature's Ally II, Summon Nature's Ally II, Summon Nature's Ally II]
-      3: [Summon Nature's Ally III, Summon Nature's Ally III, Summon Nature's Ally III, Summon Nature's Ally III, Summon Nature's Ally III]
-      4: [Summon Nature's Ally IV, Summon Nature's Ally IV, Summon Nature's Ally IV, Summon Nature's Ally IV]
-      5: [Summon Nature's Ally V, Summon Nature's Ally V, Summon Nature's Ally V, Summon Nature's Ally V]
-      6: [Summon Nature's Ally VI, Summon Nature's Ally VI]
+      "0":
+        - Detect Magic
+        - Detect Magic
+        - Detect Magic
+        - Detect Magic
+        - Detect Magic
+        - Detect Magic
+      "1":
+        - Summon Nature's Ally I
+        - Summon Nature's Ally I
+        - Summon Nature's Ally I
+        - Summon Nature's Ally I
+        - Summon Nature's Ally I
+        - Summon Nature's Ally I
+        - Summon Nature's Ally I
+      "2":
+        - Summon Nature's Ally II
+        - Summon Nature's Ally II
+        - Summon Nature's Ally II
+        - Summon Nature's Ally II
+        - Summon Nature's Ally II
+      "3":
+        - Summon Nature's Ally III
+        - Summon Nature's Ally III
+        - Summon Nature's Ally III
+        - Summon Nature's Ally III
+        - Summon Nature's Ally III
+      "4":
+        - Summon Nature's Ally IV
+        - Summon Nature's Ally IV
+        - Summon Nature's Ally IV
+        - Summon Nature's Ally IV
+      "5":
+        - Summon Nature's Ally V
+        - Summon Nature's Ally V
+        - Summon Nature's Ally V
+        - Summon Nature's Ally V
+      "6":
+        - Summon Nature's Ally VI
+        - Summon Nature's Ally VI
   special:
     feats:
       - [Natural Spell, human: 1, [allows casting in wild shape]]
@@ -90,9 +136,9 @@ character:
       - +1 skill point per level
       - +1 feat at 1st level
     proficiencies:
-      - "Club, dagger, dart, quarterstaff, scimitar, sickle, shortspear, sling, spear, all natural attacks"
+      - Club, dagger, dart, quarterstaff, scimitar, sickle, shortspear, sling, spear, all natural attacks
       - Light and medium non-metal armor
-      - "Shields, non-metal"
+      - Shields, non-metal
     class-abilities:
       - Animal Companion
       - Nature Sense (+2 Knowledge nature, +2 Survival)
@@ -110,8 +156,8 @@ character:
       - Elvish
   notes:
     point-buy: 28
-    quarterstaff-2: "Contains mass Bull's Strength"
-    natural-bond: "No effect currently, should be replaced"
-    spell-focus: "School not specified"
-    load-note: "Str 8 light capacity is 26 lbs but total load is 42.5 lbs (medium). CSV shows speed 30 — animal companion likely carries the pack."
+    quarterstaff-2: Contains mass Bull's Strength
+    natural-bond: No effect currently, should be replaced
+    spell-focus: School not specified
+    load-note: Str 8 light capacity is 26 lbs but total load is 42.5 lbs (medium). CSV shows speed 30 — animal companion likely carries the pack.
     capacity-fix: "CSV had 100/200/300 (Str 18 values). Fixed to Str 8: 26/53/80."

@@ -40,22 +40,13 @@ character:
       bab: [10, amethyst-dragon: 10]
       melee:
         _: [16, {bab: 10, str: 6}]
-        bite:
-          [16, 1d8+6, x2, {_: 16}, str: 6, [natural, bite, primary]]
-        claws:
-          [14, 1d6+3, x2, {_: 16, secondary: -2}, str: 3, [natural, claw, secondary, 2-attacks]]
-        wings:
-          [14, 1d4+3, x2, {_: 16, secondary: -2}, str: 3, [natural, wing, secondary, 2-attacks]]
-        full-attack:
-          - [bite, 13, 1d8+6, x2]
-          - [claw, 8, 1d6+3, x2]
-          - [claw, 8, 1d6+3, x2]
-          - [wing, 8, 1d4+3, x2]
-          - [wing, 8, 1d4+3, x2]
+        bite: [16, 1d8+6, x2, _: 16, str: 6, [natural, bite, primary]]
+        claws: [14, 1d6+3, x2, {_: 16, secondary: -2}, str: 3, [natural, claw, secondary, 2-attacks]]
+        wings: [14, 1d4+3, x2, {_: 16, secondary: -2}, str: 3, [natural, wing, secondary, 2-attacks]]
+        full-attack: [[bite, 13, 1d8+6, x2], [claw, 8, 1d6+3, x2], [claw, 8, 1d6+3, x2], [wing, 8, 1d4+3, x2], [wing, 8, 1d4+3, x2]]
       ranged:
         _: [15, {bab: 10, dex: 5}]
-        holy-sling-1:
-          [17, 1d4+7, x2, {_: 15, enhancement: 2}, {str: 6, enhancement: 1}, [sling, holy, good-2d6-vs-evil, 50ft]]
+        holy-sling-1: [17, 1d4+7, x2, {_: 15, enhancement: 2}, {str: 6, enhancement: 1}, [sling, holy, good-2d6-vs-evil, 50ft]]
       grapple: [16, {bab: 10, str: 6}]
     defense:
       ac: [26, {base: 10, armor: 1, natural: 10, dex: 5}]
@@ -63,7 +54,12 @@ character:
       flat-footed-ac: [21, {base: 10, armor: 1, natural: 10}]
       acp: [0]
     special-attacks:
-      line-of-force: [4d8, 60ft line, DC 19 Reflex half, 1d4 rd recharge, can be subdual]
+      line-of-force:
+        - 4d8
+        - 60ft line
+        - DC 19 Reflex half
+        - 1d4 rd recharge
+        - can be subdual
   movement:
     speed: [40, base: 40]
     fly: [150, poor]
@@ -73,21 +69,21 @@ character:
     capacity: {light: 116 lbs, medium: 232 lbs, heavy: 350 lbs, lift: 700 lbs, drag: 1750 lbs}
   skills:
     _points: [84, {amethyst-dragon: 70, psionic-fist: 14}]
-    balance: [15, {dex: 5, ranks: 8, racial: 2}, {points: {dragon: 8}}]
-    bluff: [3, {cha: 1, ranks: 2}, {points: {dragon: 4}}]
-    climb: [14, {str: 6, ranks: 8}, {points: {dragon: 8}}]
-    concentration: [15, {con: 4, ranks: 11}, {points: {dragon: 9, psionic-fist: 2}}]
-    diplomacy: [4, {cha: 1, ranks: 3}, {points: {dragon: 3}}]
-    escape-artist: [11, {dex: 5, ranks: 6}, {points: {dragon: 6}}]
-    gather-information: [2, {cha: 1, ranks: 1}, {points: {psionic-fist: 2}}]
-    heal: [4, {wis: 3, ranks: 1}, {points: {psionic-fist: 2}}]
-    hide: [12, {dex: 5, ranks: 7}, {points: {dragon: 7}}]
-    jump: [19, {str: 6, ranks: 5, speed: 8}, {points: {dragon: 5}}]
-    listen: [7, {wis: 3, ranks: 2, racial: 2}, {points: {psionic-fist: 2}}]
-    move-silently: [8, {dex: 5, ranks: 3}, {points: {dragon: 3}}]
-    spot: [15, {wis: 3, ranks: 10, racial: 2}, {points: {dragon: 8, psionic-fist: 2}}]
-    swim: [11, {str: 6, ranks: 5}, {points: {dragon: 5}}]
-    tumble: [17, {dex: 5, ranks: 8, jump-synergy: 2, misc: 2}, {points: {dragon: 8}}]
+    balance: [15, {dex: 5, ranks: [8, dragon: 8], racial: 2}]
+    bluff: [3, {cha: 1, ranks: [2, dragon: 4]}]
+    climb: [14, {str: 6, ranks: [8, dragon: 8]}]
+    concentration: [15, {con: 4, ranks: [11, {dragon: 9, psionic-fist: 2}]}]
+    diplomacy: [4, {cha: 1, ranks: [3, dragon: 3]}]
+    escape-artist: [11, {dex: 5, ranks: [6, dragon: 6]}]
+    gather-information: [2, {cha: 1, ranks: [1, psionic-fist: 2]}]
+    heal: [4, {wis: 3, ranks: [1, psionic-fist: 2]}]
+    hide: [12, {dex: 5, ranks: [7, dragon: 7]}]
+    jump: [19, {str: 6, ranks: [5, dragon: 5], speed: 8}]
+    listen: [7, {wis: 3, ranks: [2, psionic-fist: 2], racial: 2}]
+    move-silently: [8, {dex: 5, ranks: [3, dragon: 3]}]
+    spot: [15, {wis: 3, ranks: [10, {dragon: 8, psionic-fist: 2}], racial: 2}]
+    swim: [11, {str: 6, ranks: [5, dragon: 5]}]
+    tumble: [17, {dex: 5, ranks: [8, dragon: 8], jump-synergy: 2, misc: 2}]
   special:
     feats:
       - [Hover, hd: 1, [move action to hover then half speed or full attack]]
@@ -106,7 +102,7 @@ character:
       - Line of Force (can be subdual)
       - DR 5/magic
     proficiencies:
-      - "club, crossbow (light or heavy), dagger, handaxe, javelin, kama, nunchaku, quarterstaff, sai, shuriken, siangham, and sling"
+      - club, crossbow (light or heavy), dagger, handaxe, javelin, kama, nunchaku, quarterstaff, sai, shuriken, siangham, and sling
     languages:
       - Common
       - Goblin
@@ -123,12 +119,12 @@ character:
       - [Flask, 1, container, 1.5 lbs, 42]
       - [Quarterstaff, 1, weapon, 4 lbs, 43, {damage: 1d6, crit: x2}]
       - [Monk's Robes, 1, clothing, 2 lbs, 44]
-      - [Sling +1 Holy, 1, weapon, 0.01 lbs, 45, {damage: 1d4, crit: x2, range: 50ft, enhancement: 1, holy: "+2d6 vs evil"}, [magic]]
-      - [Bracers of Armor +1, 1, gear, 1 lb, 46, {ac: 1}, [magic, arms-slot]]
-      - [Amulet of Natural Armor +1, 1, gear, 0.1 lbs, 47, {natural: 1}, [magic, throat-slot]]
+      - [Sling +1 Holy, 1, weapon, 0.01 lbs, 45, {damage: 1d4, crit: x2, range: 50ft, enhancement: 1, holy: +2d6 vs evil}, [magic]]
+      - [Bracers of Armor +1, 1, gear, 1 lb, 46, ac: 1, [magic, arms-slot]]
+      - [Amulet of Natural Armor +1, 1, gear, 0.1 lbs, 47, natural: 1, [magic, throat-slot]]
       - [Everburning Candle, 1, gear, 1 lb, 48, [magic]]
       - [Turkey bone, 1, gear, 0.1 lbs, 49]
-      - [Cloak of Charisma +2, 1, gear, 0 lbs, 50, {cha-enhancement: 2}, [magic, shoulders-slot]]
+      - [Cloak of Charisma +2, 1, gear, 0 lbs, 50, cha-enhancement: 2, [magic, shoulders-slot]]
       - [Sling Ammo Adamantine, 5, supplies, 0.5 lbs, 51, [adamantine]]
       - [Sling Ammo Silvered, 18, supplies, 0.5 lbs, 52, [silver]]
       - [Sling Ammo Cold Iron, 58, supplies, 0.5 lbs, 53, [cold-iron]]
@@ -138,14 +134,14 @@ character:
       - [Potion Cure Light Wounds 1d8+1, 2, potion, 0.1 lbs, 57]
       - [Potion Reduce Person, 1, potion, 0.1 lbs, 58]
       - [Resurrection Gem, 1, gear, 0.1 lbs, 59, [magic]]
-      - [Belt of Giant's Strength +4, 1, gear, 1 lb, 60, {str-enhancement: 4}, [magic, waist-slot]]
+      - [Belt of Giant's Strength +4, 1, gear, 1 lb, 60, str-enhancement: 4, [magic, waist-slot]]
     pack: []
   notes:
     devotee: Obad-Hai
     money: 734 Gp
     value: 23169.05
     nonlethal: /42
-    jump-speed-bonus: "+8 bonus to Jump from 40ft base speed"
-    tumble-bonus: "+4 bonus to Tumble (likely synergy from Jump 5+ ranks)"
-    listen-spot-bonus: "+2 racial bonus to Listen and Spot (dragon keen senses)"
-    balance-bonus: "+2 bonus to Balance"
+    jump-speed-bonus: +8 bonus to Jump from 40ft base speed
+    tumble-bonus: +4 bonus to Tumble (likely synergy from Jump 5+ ranks)
+    listen-spot-bonus: +2 racial bonus to Listen and Spot (dragon keen senses)
+    balance-bonus: +2 bonus to Balance

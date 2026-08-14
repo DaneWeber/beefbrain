@@ -17,7 +17,7 @@ character:
   levels:
     xp: 68992
     hd: [12, 4]
-    hp: [31, {max-hp: 43, damage: -12}]
+    hp: [43, {max-hp: 43, damage: 0}]
     max-hp: [43, {con: 12, rolls: 31}]
     wizard: [12, hp: [31], {hd: 4, bab: poor, fort: poor, ref: poor, will: good}]
   combat:
@@ -30,16 +30,12 @@ character:
       bab: [6, wizard: 6]
       melee:
         _: [7, {bab: 6, str: 0, size: 1}]
-        dagger:
-          [7, 1d3, 19-20/x2, {_: 7}, str: 0, [dagger]]
-        spear:
-          [7, 1d6, 19-20/x2, {_: 7}, str: 0, [spear]]
+        dagger: [7, 1d3, 19-20/x2, _: 7, str: 0, [dagger]]
+        spear: [7, 1d6, 19-20/x2, _: 7, str: 0, [spear]]
       ranged:
         _: [9, {bab: 6, dex: 2, size: 1}]
-        light-crossbow:
-          [9, 1d6, 19-20/x2, {_: 9}, {}, [crossbow, light, 80ft]]
-        dagger:
-          [9, 1d3, 19-20/x2, {_: 9}, str: 0, [dagger, 10ft]]
+        light-crossbow: [9, 1d6, 19-20/x2, _: 9, {}, [crossbow, light, 80ft]]
+        dagger: [9, 1d3, 19-20/x2, _: 9, str: 0, [dagger, 10ft]]
       grapple: [2, {bab: 6, str: 0, size: -4}]
     defense:
       ac: [14, {base: 10, deflection: 2, dex: 2}]
@@ -53,21 +49,21 @@ character:
     capacity: {light: 25 lbs, medium: 50 lbs, heavy: 75 lbs, lift: 150 lbs, drag: 375 lbs}
   skills:
     _points: [87, {wizard: 75, first-level: 12}]
-    concentration: [16, {con: 1, ranks: 15}, {points: {class: 15}}]
-    decipher-script: [15, {int: 5, ranks: 10}, {points: {class: 10}}]
+    concentration: [16, {con: 1, ranks: [15, class: 15]}]
+    decipher-script: [15, {int: 5, ranks: [10, class: 10]}]
     heal: [3, {wis: 1, healer-kit: 2}]
-    knowledge-arcana: [13, {int: 5, ranks: 8}, {points: {class: 8}}]
-    knowledge-arch-eng: [6, {int: 5, ranks: 1}, {points: {class: 1}}]
-    knowledge-dungeoneering: [15, {int: 5, ranks: 10}, {points: {class: 10}}]
-    knowledge-geography: [6, {int: 5, ranks: 1}, {points: {class: 1}}]
-    knowledge-history: [13, {int: 5, ranks: 8}, {points: {class: 8}}]
-    knowledge-local: [6, {int: 5, ranks: 1}, {points: {class: 1}}]
-    knowledge-nature: [6, {int: 5, ranks: 1}, {points: {class: 1}}]
-    knowledge-nobility: [6, {int: 5, ranks: 1}, {points: {class: 1}}]
-    knowledge-religion: [6, {int: 5, ranks: 1}, {points: {class: 1}}]
-    knowledge-planes: [20, {int: 5, ranks: 15}, {points: {class: 15}}]
+    knowledge-arcana: [13, {int: 5, ranks: [8, class: 8]}]
+    knowledge-arch-eng: [6, {int: 5, ranks: [1, class: 1]}]
+    knowledge-dungeoneering: [15, {int: 5, ranks: [10, class: 10]}]
+    knowledge-geography: [6, {int: 5, ranks: [1, class: 1]}]
+    knowledge-history: [13, {int: 5, ranks: [8, class: 8]}]
+    knowledge-local: [6, {int: 5, ranks: [1, class: 1]}]
+    knowledge-nature: [6, {int: 5, ranks: [1, class: 1]}]
+    knowledge-nobility: [6, {int: 5, ranks: [1, class: 1]}]
+    knowledge-religion: [6, {int: 5, ranks: [1, class: 1]}]
+    knowledge-planes: [20, {int: 5, ranks: [15, class: 15]}]
     search: [7, {int: 5, racial: 2}]
-    spellcraft: [22, {int: 5, ranks: 15, knowledge-arcana-synergy: 2}, {points: {class: 15}}]
+    spellcraft: [22, {int: 5, ranks: [15, class: 15], knowledge-arcana-synergy: 2}]
   special:
     feats:
       - [Empower Spell, level: 1]
@@ -111,9 +107,9 @@ character:
       coins: [3471.8 gp, 69.58 lbs, bag-of-holding, {pp: 0, gp: 3471, sp: 8, cp: 0}, 0.02 lbs]
     equipped:
       - [Clothes Artisan Outfit, 1, clothing, 1 lb, 79]
-      - [Cloak of Resistance +2, 1, gear, 1 lb, 80, {saves-resistance: 2}, [magic, shoulders-slot]]
+      - [Cloak of Resistance +2, 1, gear, 1 lb, 80, saves-resistance: 2, [magic, shoulders-slot]]
       - [Metamagic Rod of Empower lesser (level 1-3), 1, gear, 5 lbs, 81, [magic]]
-      - [Ring of Protection +2, 1, gear, 0.01 lbs, 82, {deflection: 2}, [magic, right-ring-slot]]
+      - [Ring of Protection +2, 1, gear, 0.01 lbs, 82, deflection: 2, [magic, right-ring-slot]]
       - [Ring of Mind Shielding, 1, gear, 0.01 lbs, 83, [magic, left-ring-slot]]
       - [Wand Magic Missile 9th level (48/50 charges), 1, wand, 0.1 lbs, 84, [magic]]
       - [Wand Bull's Strength 3rd level (50/50), 1, wand, 0.1 lbs, 85, [magic]]
@@ -144,19 +140,66 @@ character:
     caster-class: wizard
     caster-level: 12
     key-ability: intelligence
-    ranges: {close: 55ft, medium: 220ft, long: 880ft}
-    spells-per-day: {0: 4, 1: 6, 2: 5, 3: 5, 4: 4, 5: 4, 6: 2}
-    save-dc: {0: 15, 1: 16, 2: 17, 3: 18, 4: 19, 5: 20, 6: 21}
+    ranges:
+      close: 55ft
+      medium: 220ft
+      long: 880ft
+    spells-per-day:
+      "0": 4
+      "1": 6
+      "2": 5
+      "3": 5
+      "4": 4
+      "5": 4
+      "6": 2
+    save-dc:
+      "0": 15
+      "1": 16
+      "2": 17
+      "3": 18
+      "4": 19
+      "5": 20
+      "6": 21
     spells-prepared:
-      0: [Daze, Detect Magic, Light, Mage Hand]
-      1: [Detect Secret Doors, Endure Elements, Mage Armor, Protection vs. Evil, Ray of Enfeeblement, Sheild]
-      2: [Blur, Invisibility, Invisibility, Fox's Cunning, See Invisibility]
-      3: [Sound Lance, Sound Lance, Fly, Lightning Bolt, Lightning Bolt]
-      4: [Dimension Door, Enervation, Greater Invisibility, Greater Invisibility]
-      5: [Feeblemind, Teleport, Transmute Rock to Mud, Lucent Lance]
-      6: [Disintegrate, Greater Dispel Magic]
+      "0":
+        - Daze
+        - Detect Magic
+        - Light
+        - Mage Hand
+      "1":
+        - Detect Secret Doors
+        - Endure Elements
+        - Mage Armor
+        - Protection vs. Evil
+        - Ray of Enfeeblement
+        - Sheild
+      "2":
+        - Blur
+        - Invisibility
+        - Invisibility
+        - Fox's Cunning
+        - See Invisibility
+      "3":
+        - Sound Lance
+        - Sound Lance
+        - Fly
+        - Lightning Bolt
+        - Lightning Bolt
+      "4":
+        - Dimension Door
+        - Enervation
+        - Greater Invisibility
+        - Greater Invisibility
+      "5":
+        - Feeblemind
+        - Teleport
+        - Transmute Rock to Mud
+        - Lucent Lance
+      "6":
+        - Disintegrate
+        - Greater Dispel Magic
     spellbook:
-      0:
+      "0":
         - Acid Splash
         - Arcane Mark
         - Dancing Lights
@@ -176,7 +219,7 @@ character:
         - Read Magic
         - Resistance
         - Touch of Fatigue
-      1:
+      "1":
         - Animate Rope
         - Charm Person
         - Comprehend Languages
@@ -195,7 +238,7 @@ character:
         - Ray of Enfeeblement
         - Shield
         - Sleep
-      2:
+      "2":
         - Bear's Endurance
         - Blindness
         - Blur
@@ -215,7 +258,7 @@ character:
         - Spider Climb
         - Web
         - Whispering Wind
-      3:
+      "3":
         - Blink
         - Daylight
         - Dispel Magic
@@ -230,19 +273,19 @@ character:
         - Protection vs. Energy
         - Rage
         - Sound Lance
-      4:
+      "4":
         - Assay Spell Resistance
         - Black Tentacles
         - Dimension Door
         - Enervation
-        - "Greater Invisibility"
+        - Greater Invisibility
         - Ice Storm
         - Shout
         - Solid Fog
         - Stoneskin
         - Wall of Ice
-      5:
-        - "Bigby's Interposing Hand"
+      "5":
+        - Bigby's Interposing Hand
         - Cone of Cold
         - Feeble Mind
         - Hold Monster
@@ -251,15 +294,15 @@ character:
         - Summon Monster V
         - Teleport
         - Transmute Rock to Mud
-      6:
+      "6":
         - Disintegrate
         - Greater Dispel
         - Legend Lore
         - Mass Suggestion
         - Shadow Walk
   notes:
-    spell-resistance-check: "+16 total vs SR (BAB 6 + Spell Penetration 2 + Greater Spell Penetration 4 + caster level adjustments)"
-    ring-of-protection: "+2 deflection bonus to AC"
-    cloak-of-resistance: "+2 resistance bonus to all saves"
+    spell-resistance-check: +16 total vs SR (BAB 6 + Spell Penetration 2 + Greater Spell Penetration 4 + caster level adjustments)
+    ring-of-protection: +2 deflection bonus to AC
+    cloak-of-resistance: +2 resistance bonus to all saves
     value: 91500 gp
     money: 3471.8 gp

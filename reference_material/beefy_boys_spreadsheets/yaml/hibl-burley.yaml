@@ -31,14 +31,11 @@ character:
       bab: [6, sorcerer: 6]
       melee:
         _: [4, {bab: 6, str: -2}]
-        dagger:
-          [4, 1d4-2, 19-20/x2, {_: 4}, str: -2, [dagger]]
+        dagger: [4, 1d4-2, 19-20/x2, _: 4, str: -2, [dagger]]
       ranged:
         _: [10, {bab: 6, dex: 4}]
-        light-crossbow:
-          [10, 1d8, 19-20/x2, {_: 10}, {}, [crossbow, light, 80ft]]
-        dagger:
-          [10, 1d4-2, 19-20/x2, {_: 10}, str: -2, [dagger, 10ft]]
+        light-crossbow: [10, 1d8, 19-20/x2, _: 10, {}, [crossbow, light, 80ft]]
+        dagger: [10, 1d4-2, 19-20/x2, _: 10, str: -2, [dagger, 10ft]]
       grapple: [4, {bab: 6, str: -2}]
     defense:
       ac: [24, {base: 10, armor: 5, deflection: 2, natural: 3, dex: 4}]
@@ -52,11 +49,11 @@ character:
     capacity: {light: 23 lbs, medium: 46 lbs, heavy: 70 lbs, lift: 140 lbs, drag: 350 lbs}
   skills:
     _points: [32, {sorcerer: 26, first-level: 6}]
-    bluff: [8, {cha: 6, ranks: 2}, {points: {sorcerer: 2}}]
-    concentration: [11, {con: 0, ranks: 11}, {points: {sorcerer: 11}}]
-    spellcraft: [11, {int: 0, ranks: 11}, {points: {sorcerer: 11}}]
-    tumble: [5, {dex: 4, ranks: 1}, {points: {sorcerer: 2}}]
-    use-magic-device: [7, {cha: 6, ranks: 1}, {points: {sorcerer: 2}}]
+    bluff: [8, {cha: 6, ranks: [2, sorcerer: 2]}]
+    concentration: [11, {con: 0, ranks: [11, sorcerer: 11]}]
+    spellcraft: [11, {int: 0, ranks: [11, sorcerer: 11]}]
+    tumble: [5, {dex: 4, ranks: [1, sorcerer: 2]}]
+    use-magic-device: [7, {cha: 6, ranks: [1, sorcerer: 2]}]
   special:
     feats:
       - [Improved Initiative, level: 1, [combat.initiative, 4]]
@@ -89,16 +86,16 @@ character:
       - [Dagger, 1, weapon, 1 lb, 92, {damage: 1d4, crit: 19-20/x2}]
       - [Heward's Handy Haversack, 1, container, 5 lbs, 93, [magic, other-slot]]
       - [Robe of the Archmagi, 1, armor, 0 lbs, 94, {ac: 5, sr: 18, saves-resistance: 4, spell-resistance: 2}, [magic, body-slot]]
-      - [+2 Gloves of Dexterity, 1, gear, 0 lbs, 95, {dex-enhancement: 2}, [magic, hands-slot]]
-      - [+3 Amulet of Natural Armor, 1, gear, 0 lbs, 96, {natural: 3}, [magic, throat-slot]]
-      - [+2 Ring of Protection, 1, gear, 0 lbs, 97, {deflection: 2}, [magic, left-ring-slot]]
-      - [+2 Charisma Cloak, 1, gear, 0 lbs, 98, {cha-enhancement: 2}, [magic, shoulders-slot]]
+      - [+2 Gloves of Dexterity, 1, gear, 0 lbs, 95, dex-enhancement: 2, [magic, hands-slot]]
+      - [+3 Amulet of Natural Armor, 1, gear, 0 lbs, 96, natural: 3, [magic, throat-slot]]
+      - [+2 Ring of Protection, 1, gear, 0 lbs, 97, deflection: 2, [magic, left-ring-slot]]
+      - [+2 Charisma Cloak, 1, gear, 0 lbs, 98, cha-enhancement: 2, [magic, shoulders-slot]]
       - [Light Crossbow, 1, weapon, 4 lbs, 99, {damage: 1d8, crit: 19-20/x2, range: 80ft}]
       - [Bolts, 20, supplies, 0.1 lbs, 100]
       - [Dimension Stride Boots, 1, gear, 0 lbs, 101, {charges: "1/20ft, 3/40ft, 5/60ft"}, [magic, feet-slot]]
       - [Healing Belt, 1, gear, 0.1 lbs, 102, {charges: "1: 2d8, 2: 3d8, 3: 4d8", heal-bonus: 2}, [magic, waist-slot]]
-      - [Wand of Floating Disk, 1, wand, 0.1 lbs, 103, {charges: 7}, [magic]]
-      - [Wand of Non Detection, 1, wand, 0.1 lbs, 104, {charges: 30}, [magic]]
+      - [Wand of Floating Disk, 1, wand, 0.1 lbs, 103, charges: 7, [magic]]
+      - [Wand of Non Detection, 1, wand, 0.1 lbs, 104, charges: 30, [magic]]
       - [Potion Cure Light Wounds, 1, potion, 0.1 lbs, 105]
       - [Scroll See Invisible, 1, scroll, 0.1 lbs, 106, [magic]]
     pack:
@@ -124,11 +121,28 @@ character:
     caster-class: sorcerer
     caster-level: 13
     key-ability: charisma
-    ranges: {close: 55ft, medium: 230ft, long: 920ft}
-    spells-per-day: {0: 6, 1: 8, 2: 8, 3: 7, 4: 7, 5: 7, 6: 5}
-    save-dc: {0: 16, 1: 17, 2: 18, 3: 19, 4: 20, 5: 21, 6: 22}
+    ranges:
+      close: 55ft
+      medium: 230ft
+      long: 920ft
+    spells-per-day:
+      "0": 6
+      "1": 8
+      "2": 8
+      "3": 7
+      "4": 7
+      "5": 7
+      "6": 5
+    save-dc:
+      "0": 16
+      "1": 17
+      "2": 18
+      "3": 19
+      "4": 20
+      "5": 21
+      "6": 22
     spells-known:
-      0:
+      "0":
         - Arcane Mark
         - Detect Magic
         - Light
@@ -138,33 +152,33 @@ character:
         - Prestidigitation
         - Read Magic
         - Resistance
-      1:
+      "1":
         - Color Spray
         - Enlarge Person
         - Expeditious Retreat
         - Magic Missile
         - Unseen Servant
-      2:
+      "2":
         - Glitterdust
         - Mirror Image
         - Pyrotechnics
         - Scorching Ray
         - See Invisible
-      3:
+      "3":
         - Haste
         - Invisibility Sphere
         - Lightning Bolt
         - Phantom Steed
-      4:
+      "4":
         - Black Tentacles
-        - "Greater Invisibility"
+        - Greater Invisibility
         - Rainbow Pattern
-      5:
+      "5":
         - Prying Eyes
         - Teleport
-      6:
+      "6":
         - Disintegrate
   notes:
     money: 1005 gp
     value: 112239.72 gp
-    feats-9-and-12: "Blank in spreadsheet — needs player input"
+    feats-9-and-12: Blank in spreadsheet — needs player input

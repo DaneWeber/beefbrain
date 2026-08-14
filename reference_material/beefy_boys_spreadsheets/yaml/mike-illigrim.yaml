@@ -34,20 +34,14 @@ character:
       bab: [7, rogue: 7]
       melee:
         _: [11, {bab: 7, str: 4}]
-        rapier-1-ghost-touch:
-          [14, 1d6+5, 18-20/x2, {_: 11, enhancement: 1, weapon-finesse: 2}, {str: 4, enhancement: 1}, [rapier, ghost-touch, finesse]]
-        sap:
-          [13, 1d6+4 NL, x2, {_: 11, weapon-finesse: 2}, str: 4, [sap, nonlethal, finesse]]
-        punching-dagger:
-          [13, 1d4+4, x3, {_: 11, weapon-finesse: 2}, str: 4, [dagger, punching, finesse]]
+        rapier-1-ghost-touch: [14, 1d6+5, 18-20/x2, {_: 11, enhancement: 1, weapon-finesse: 2}, {str: 4, enhancement: 1}, [rapier, ghost-touch, finesse]]
+        sap: [13, 1d6+4 NL, x2, {_: 11, weapon-finesse: 2}, str: 4, [sap, nonlethal, finesse]]
+        punching-dagger: [13, 1d4+4, x3, {_: 11, weapon-finesse: 2}, str: 4, [dagger, punching, finesse]]
       ranged:
         _: [13, {bab: 7, dex: 6}]
-        crossbow-light:
-          [13, 1d8, 19-20/x2, {_: 13}, {}, [crossbow, light, 80ft]]
-        javelins:
-          [13, 1d6+4, x2, {_: 13}, str: 4, [javelin, 30ft]]
-        composite-longbow-mw-4-mighty:
-          [14, 1d8+4, x3, {_: 13, masterwork: 1}, str: 4, [longbow, composite, mighty-4, 110ft]]
+        crossbow-light: [13, 1d8, 19-20/x2, _: 13, {}, [crossbow, light, 80ft]]
+        javelins: [13, 1d6+4, x2, _: 13, str: 4, [javelin, 30ft]]
+        composite-longbow-mw-4-mighty: [14, 1d8+4, x3, {_: 13, masterwork: 1}, str: 4, [longbow, composite, mighty-4, 110ft]]
       grapple: [11, {bab: 7, str: 4}]
     defense:
       ac: [27, {base: 10, armor: 8, deflection: 1, natural: 2, dex: 6}]
@@ -61,34 +55,34 @@ character:
     capacity: {light: 100 lbs, medium: 200 lbs, heavy: 300 lbs, lift: 600 lbs, drag: 1500 lbs}
   skills:
     _points: [148, {rogue: 143, first-level: 5}]
-    appraise: [4, {int: 3, ranks: 1}, {points: {rogue: 1}}]
-    balance: [11, {dex: 6, ranks: 3, tumble-synergy: 2}, {points: {rogue: 3}}]
-    bluff: [13, {cha: 1, ranks: 12}, {points: {rogue: 12}}]
-    climb: [8, {str: 4, ranks: 4}, {points: {rogue: 4}}]
+    appraise: [4, {int: 3, ranks: [1, rogue: 1]}]
+    balance: [11, {dex: 6, ranks: [3, rogue: 3], tumble-synergy: 2}]
+    bluff: [13, {cha: 1, ranks: [12, rogue: 12]}]
+    climb: [8, {str: 4, ranks: [4, rogue: 4]}]
     diplomacy: [3, {cha: 1, bluff-synergy: 2}]
-    disable-device: [16, {int: 3, ranks: 13}, {points: {rogue: 13}}]
-    disguise: [3, {cha: 1, ranks: 2}, {points: {rogue: 2}}]
-    escape-artist: [18, {dex: 6, ranks: 12}, {points: {rogue: 12}}]
-    gather-information: [3, {cha: 1, ranks: 2}, {points: {rogue: 2}}]
+    disable-device: [16, {int: 3, ranks: [13, rogue: 13]}]
+    disguise: [3, {cha: 1, ranks: [2, rogue: 2]}]
+    escape-artist: [18, {dex: 6, ranks: [12, rogue: 12]}]
+    gather-information: [3, {cha: 1, ranks: [2, rogue: 2]}]
     heal: [4, {wis: 2, healer-kit: 2}]
-    hide: [19, {dex: 6, ranks: 11, armor-bonus: 2}, {points: {rogue: 11}}]
+    hide: [19, {dex: 6, ranks: [11, rogue: 11], armor-bonus: 2}]
     intimidate: [3, {cha: 1, bluff-synergy: 2}]
-    jump: [9, {str: 4, ranks: 3, tumble-synergy: 2}, {points: {rogue: 3}}]
-    listen: [15, {wis: 2, ranks: 9, racial: 2, alertness: 2}, {points: {rogue: 9}}]
-    move-silently: [18, {dex: 6, ranks: 10, armor-bonus: 2}, {points: {rogue: 10}}]
-    open-lock: [18, {dex: 6, ranks: 12}, {points: {rogue: 12}}]
-    search: [15, {int: 3, ranks: 10, racial: 2}, {points: {rogue: 10}}]
-    sleight-of-hand: [16, {dex: 6, ranks: 8, bluff-synergy: 2}, {points: {rogue: 8}}]
-    spot: [17, {wis: 2, ranks: 11, racial: 2, alertness: 2}, {points: {rogue: 11}}]
+    jump: [9, {str: 4, ranks: [3, rogue: 3], tumble-synergy: 2}]
+    listen: [15, {wis: 2, ranks: [9, rogue: 9], racial: 2, alertness: 2}]
+    move-silently: [18, {dex: 6, ranks: [10, rogue: 10], armor-bonus: 2}]
+    open-lock: [18, {dex: 6, ranks: [12, rogue: 12]}]
+    search: [15, {int: 3, ranks: [10, rogue: 10], racial: 2}]
+    sleight-of-hand: [16, {dex: 6, ranks: [8, rogue: 8], bluff-synergy: 2}]
+    spot: [17, {wis: 2, ranks: [11, rogue: 11], racial: 2, alertness: 2}]
     swim: [4, str: 4]
-    tumble: [18, {dex: 6, ranks: 12}, {points: {rogue: 12}}]
-    use-magic-device: [19, {cha: 1, ranks: 13, skill-focus: 5}, {points: {rogue: 13}}]
+    tumble: [18, {dex: 6, ranks: [12, rogue: 12]}]
+    use-magic-device: [19, {cha: 1, ranks: [13, rogue: 13], skill-focus: 5}]
   special:
     feats:
       - [Dodge, level: 1]
-      - [Mobility, level: 3, ["+4 AC on AoOs"]]
+      - [Mobility, level: 3, [+4 AC on AoOs]]
       - [Combat Expertise, level: 6]
-      - [Multiattack, level: 9, ["secondary attacks at -2 instead of -5"]]
+      - [Multiattack, level: 9, [secondary attacks at -2 instead of -5]]
       - [Iron Will, were-rat: bonus, [combat.saves.will, 2]]
       - [Alertness, were-rat: bonus, [{listen: 2, spot: 2}]]
       - [Weapon Finesse, were-rat: bonus, [use-dex-for-melee]]
@@ -97,7 +91,7 @@ character:
       - Immune to Sleep
       - Low-light Vision
       - Auto-search within 5'
-      - "+2 Search, Spot, Listen"
+      - +2 Search, Spot, Listen
     class-abilities:
       rogue:
         - Sneak Attack +5d6
@@ -116,8 +110,8 @@ character:
       - Scent (detect presence 30' or 60' downwind, pinpoint 5')
     proficiencies:
       - Simple Weapons
-      - "Bows, hand crossbow"
-      - "Short sword, long sword, rapier, sap"
+      - Bows, hand crossbow
+      - Short sword, long sword, rapier, sap
       - Light Armor
     languages:
       - Common
@@ -131,7 +125,7 @@ character:
       ac: 13
       touch-ac: 10
       capacity: {light: 228 lbs, medium: 459 lbs, heavy: 690 lbs, drag: 3450 lbs}
-      scent: "Detect presence 30' or 60' downwind, pinpoint 5'"
+      scent: Detect presence 30' or 60' downwind, pinpoint 5'
   inventory:
     _on: [equipped, pack]
     money:
@@ -152,16 +146,16 @@ character:
       - [Thieves' Tools MW (+2), 1, tool, 2 lbs, 122, {}, [mw]]
       - [Universal Solvent, 3, supplies, 1 lb, 123]
       - [Immovable Rod, 2, gear, 1 lb, 124, {}, [magic]]
-      - [Cloak of Resistance +3, 1, gear, 0 lbs, 126, {saves-resistance: 3}, [magic, shoulder-slot]]
+      - [Cloak of Resistance +3, 1, gear, 0 lbs, 126, saves-resistance: 3, [magic, shoulder-slot]]
       - [Dagger MW, 1, weapon, 1 lb, 127, {damage: 1d4, crit: 19-20/x2}, [mw]]
       - [Dagger Punching, 1, weapon, 1 lb, 128, {damage: 1d4, crit: x3}]
       - [Sap, 1, weapon, 2 lbs, 129, {damage: 1d6, crit: x2}, [nonlethal]]
       - [Rogue's Vest, 1, gear, 0 lbs, 130, {}, [magic, torso-slot]]
-      - [Gloves of Dex +2, 1, gear, 0 lbs, 131, {dex-enhancement: 2}, [magic, hands-slot]]
+      - [Gloves of Dex +2, 1, gear, 0 lbs, 131, dex-enhancement: 2, [magic, hands-slot]]
       - [Belt of Battle (3 charges/day extra actions), 1, gear, 0 lbs, 132, {}, [magic, waist-slot]]
-      - [Celestial Armor (5 AC +3 2 ACP fly 1/day), 1, armor, 0 lbs, 133, {ac: 8, acp: -2, asfc: "15%", fly: "1/day"}, [magic, body-slot]]
-      - [Ring of Use Magic Device, 1, gear, 0 lbs, 134, {use-magic-device: 5}, [magic, left-ring-slot]]
-      - [Ring of Protection +1, 1, gear, 0 lbs, 135, {deflection: 1}, [magic, right-ring-slot]]
+      - [Celestial Armor (5 AC +3 2 ACP fly 1/day), 1, armor, 0 lbs, 133, {ac: 8, acp: -2, asfc: 15%, fly: 1/day}, [magic, body-slot]]
+      - [Ring of Use Magic Device, 1, gear, 0 lbs, 134, use-magic-device: 5, [magic, left-ring-slot]]
+      - [Ring of Protection +1, 1, gear, 0 lbs, 135, deflection: 1, [magic, right-ring-slot]]
       - [Dagger Punching, 1, weapon, 1 lb, 136, {damage: 1d4, crit: x3}]
       - [Lantern Bullseye, 1, gear, 3 lbs, 137]
       - [Oil Pint, 3, supplies, 1 lb, 138]
@@ -177,7 +171,7 @@ character:
       - [Wand Invisibility, 1, wand, 0 lbs, 149, {}, [magic]]
       - [Javelins Cold Iron, 3, weapon, 2 lbs, 150, {damage: 1d6, crit: x2, range: 30ft}, [cold-iron]]
       - [Javelins Silver, 3, weapon, 2 lbs, 151, {damage: 1d6, crit: x2, range: 30ft}, [silver]]
-      - [Staff of Fire & Ice (35 charges), 1, weapon, 4 lbs, 152, {damage: "1d6/1d6", crit: x2, enhancement: "+1 flaming/+1 frost", charges: 35}, [magic, staff]]
+      - [Staff of Fire & Ice (35 charges), 1, weapon, 4 lbs, 152, {damage: 1d6/1d6, crit: x2, enhancement: +1 flaming/+1 frost, charges: 35}, [magic, staff]]
     pack:
       - [Ring of 2 Wishes, 1, gear, 0.1 lbs, 125, {}, [magic]]
       - ["Healing Belt (1: 2d8, 2: 3d8, 3: 4d8, +2 heal)", 1, gear, 0.1 lbs, 145, {}, [magic, belt-slot]]
@@ -224,57 +218,58 @@ character:
       active: false
       effects:
         abilities:
-          dexterity: [+6, were-rat: 6]
-          constitution: [+2, were-rat: 2]
+          dexterity: [6, were-rat: 6]
+          constitution: [2, were-rat: 2]
         levels:
-          hp: [+11, con-increase: 11]
-          max-hp: [+11, con-increase: 11]
+          hp: [11, con-increase: 11]
+          max-hp: [11, con-increase: 11]
         combat:
-          initiative: [+3, dex: 3]
+          initiative: [3, dex: 3]
           saves:
-            fortitude: [+1, con: 1]
-            reflex: [+3, dex: 3]
+            fortitude: [1, con: 1]
+            reflex: [3, dex: 3]
           attack:
             melee:
-              _: [+3, dex: 3]
-              rapier-1-ghost-touch: [+3, dex: 3]
-              sap: [+3, dex: 3]
-              punching-dagger: [+3, dex: 3]
+              _: [3, dex: 3]
+              rapier-1-ghost-touch: [3, dex: 3]
+              sap: [3, dex: 3]
+              punching-dagger: [3, dex: 3]
               claw: [16, 1d4+2, x2, {bab: 7, dex: 9}, str: 2, [natural, secondary]]
               bite: [16, 1d6+2, x2, {bab: 7, dex: 9}, str: 2, [natural, secondary]]
             ranged:
-              _: [+3, dex: 3]
-            full-attack: "Rapier+16/+11, Bite+13, Claw+13"
+              _: [3, dex: 3]
+            full-attack: Rapier+16/+11, Bite+13, Claw+13
           defense:
-            ac: [+4, {were-rat-natural: 3, dex: 1}]
-            touch-ac: [+3, dex: 3]
-            flat-footed-ac: [+1, were-rat-natural: 3]
+            ac: [4, {were-rat-natural: 3, dex: 1}]
+            touch-ac: [3, dex: 3]
+            flat-footed-ac: [1, were-rat-natural: 3]
         movement:
-          speed: [0]
+          speed:
+            - 0
         skills:
-          balance: [+3, dex: 3]
-          climb: [+13, {dex-over-str: 5, were-rat-racial: 8}]
-          escape-artist: [+3, dex: 3]
-          hide: [+3, dex: 3]
-          move-silently: [+3, dex: 3]
-          open-lock: [+3, dex: 3]
-          sleight-of-hand: [+3, dex: 3]
-          swim: [+5, dex-over-str: 5]
-          tumble: [+3, dex: 3]
+          balance: [3, dex: 3]
+          climb: [13, {dex-over-str: 5, were-rat-racial: 8}]
+          escape-artist: [3, dex: 3]
+          hide: [3, dex: 3]
+          move-silently: [3, dex: 3]
+          open-lock: [3, dex: 3]
+          sleight-of-hand: [3, dex: 3]
+          swim: [5, dex-over-str: 5]
+          tumble: [3, dex: 3]
     dire-rat-form:
       active: false
       effects:
         abilities:
-          dexterity: [+6, were-rat: 6]
-          constitution: [+2, were-rat: 2]
+          dexterity: [6, were-rat: 6]
+          constitution: [2, were-rat: 2]
         levels:
-          hp: [+11, con-increase: 11]
-          max-hp: [+11, con-increase: 11]
+          hp: [11, con-increase: 11]
+          max-hp: [11, con-increase: 11]
         combat:
-          initiative: [+3, dex: 3]
+          initiative: [3, dex: 3]
           saves:
-            fortitude: [+1, con: 1]
-            reflex: [+3, dex: 3]
+            fortitude: [1, con: 1]
+            reflex: [3, dex: 3]
           attack:
             melee:
               bite: [17, 1d4+6, x2, {bab: 7, dex: 9, size: 1}, str: 6, [natural, primary]]
@@ -283,26 +278,28 @@ character:
               removes: [crossbow-light, javelins, composite-longbow-mw-4-mighty]
           defense:
             ac: [-3, {armor: -8, were-rat-natural: 3, dex: 2}]
-            touch-ac: [+4, dex: 4]
+            touch-ac: [4, dex: 4]
             flat-footed-ac: [-6, {armor: -8, were-rat-natural: 3}]
         movement:
-          speed: [+10, dire-rat: 10]
+          speed:
+            - 10
+            - dire-rat: 10
         skills:
-          balance: [+3, dex: 3]
-          climb: [+13, {dex-over-str: 5, were-rat-racial: 8}]
-          escape-artist: [+3, dex: 3]
-          hide: [+7, {dex: 3, size: 4}]
-          move-silently: [+3, dex: 3]
-          open-lock: [+3, dex: 3]
-          sleight-of-hand: [+3, dex: 3]
-          swim: [+13, {dex-over-str: 5, were-rat-racial: 8}]
-          tumble: [+3, dex: 3]
+          balance: [3, dex: 3]
+          climb: [13, {dex-over-str: 5, were-rat-racial: 8}]
+          escape-artist: [3, dex: 3]
+          hide: [7, {dex: 3, size: 4}]
+          move-silently: [3, dex: 3]
+          open-lock: [3, dex: 3]
+          sleight-of-hand: [3, dex: 3]
+          swim: [13, {dex-over-str: 5, were-rat-racial: 8}]
+          tumble: [3, dex: 3]
   view-notes:
-    senses: "Scent (30ft, 60ft downwind); Low-light Vision; Auto-search within 5ft"
-    combat-defense: "DR 10/silver; Evasion; Improved Evasion; Improved Uncanny Dodge"
+    senses: Scent (30ft, 60ft downwind); Low-light Vision; Auto-search within 5ft
+    combat-defense: DR 10/silver; Evasion; Improved Evasion; Improved Uncanny Dodge
     combat-offense: "Sneak Attack +5d6; Deathstrike Bracers (swift: sneak vs targets immune to crits)"
-    social: "Lycanthropic Empathy (+4 vs rats)"
-    movement: "Celestial Armor fly 1/day; Chrono Charm (1/day swift 15ft)"
+    social: Lycanthropic Empathy (+4 vs rats)
+    movement: Celestial Armor fly 1/day; Chrono Charm (1/day swift 15ft)
   notes:
     special-damage: 8
     nonlethal: 0/42

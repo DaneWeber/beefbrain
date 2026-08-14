@@ -22,6 +22,20 @@ const flowStylePaths = [
   'character.spells.*.slots.*',
   'character.spells.*.prepared.*',
   'character.spells.*.known.*',
+  'character.spells.*.spells-per-day',
+  'character.spells.*.save-dc',
+  'character.spells.*.spells-prepared.*',
+  'character.spells.*.spells-known.*',
+  'character.spells.*.spellbook.*',
+  'character.templates.*.effects.abilities.*',
+  'character.templates.*.effects.levels.*',
+  'character.templates.*.effects.combat.initiative',
+  'character.templates.*.effects.combat.saves.*',
+  'character.templates.*.effects.combat.attack.melee.*',
+  'character.templates.*.effects.combat.attack.ranged.*',
+  'character.templates.*.effects.combat.defense.*',
+  'character.templates.*.effects.skills.*',
+  'character.companions.*.*',
 ]
 export function setSelectiveFlowStyle(node: unknown, path: string[] = []) {
   for (const pattern of flowStylePaths) {
