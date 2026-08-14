@@ -130,11 +130,19 @@ SvelteKit web application for viewing and managing characters. Currently a funct
 2. Add comprehensive test coverage
    - Component tests for all sheets
    - E2E tests for critical workflows
-3. Add character editing capabilities
-4. Add file upload/download functionality
-5. Implement live calculation preview
-6. Add schema selection (D&D 3.5e vs M&M 3e)
-7. Consider authentication for DM-only features
+3. **Character editing** with YAML export for Git workflows
+4. **Equip/unequip system** with live recalculation
+   - Encumbrance tracking (light/medium/heavy load)
+   - AC and attack bonus updates
+5. **Temporary effects system** for gameplay
+   - Toggle buff spells (Bull's Strength, Haste, etc.)
+   - Wild shape transformations
+   - Custom effect builder
+6. **GUID-based sharing** (static site, no auth)
+   - DM view with all characters
+   - Individual player views
+   - Security through random GUIDs
+7. **Multi-party support** for multiple campaigns
 8. Deploy to production environment
 
 ---
