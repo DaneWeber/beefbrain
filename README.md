@@ -1,8 +1,273 @@
-# beefbrain
+# BeefBrain
 
-TTRPG character and creature calculator using human-readable data formats
+> TTRPG character and creature calculator using human-readable data formats
 
-## Web
+BeefBrain is a monorepo containing tools for managing tabletop RPG characters and creatures using YAML files. The project emphasizes human-readable data formats that work seamlessly with Git, text editors, and automated calculations.
 
-For development, `pnpm dev` will start the bnb-web dev server.
+## Architecture
+
+BeefBrain follows a layered architecture with clear separation of concerns:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  bnb-web (Web UI)          bnb-cli (CLI)                │
+│  - Character viewer        - File validation            │
+│  - DM tools                - Field calculation          │
+│  - Inventory mgmt          - Formatting                 │
+└──────────────────┬─────────────────┬────────────────────┘
+                   │                 │
+                   └────────┬────────┘
+                            │ depends on
+                   ┌────────▼────────┐
+                   │   bnb-core      │
+                   │  (Core Library) │
+                   │                 │
+                   │  - Validation   │
+                   │  - Calculations │
+                   │  - Formatting   │
+                   │  - Type system  │
+                   │  - Schema sys.  │
+                   └─────────────────┘
+```
+
+### Package Relationships
+
+- **bnb-core**: Foundation library with no external dependencies (except dev tools)
+- **bnb-cli**: Thin wrapper around bnb-core for command-line usage
+- **bnb-web**: Web interface that should depend on bnb-core (currently independent)
+
+## Packages
+
+### 📦 bnb-core
+
+**Status**: ✅ Core functionality complete, actively maintained
+
+The heart of BeefBrain. A TypeScript library that handles validation, calculation, and formatting of YAML character data.
+
+**Key Features**:
+- Schema-based validation system (JSON schemas for game systems)
+- Automatic calculation of derived fields (modifiers, saves, combat stats)
+- YAML formatting with compact style (preserves readability)
+- Support for D&D 3.5e (primary), extensible to other systems
+- Zero runtime dependencies
+
+**Testing**: Jest with 60+ tests covering:
+- Validation logic
+- Calculation engine (ability modifiers, skills, saves, combat stats)
+- Magic item bonuses
+- Equipment-derived stats
+- Integration tests with real character files
+
+**Next Steps**:
+1. Add M&M 3e schema and calculations
+2. Improve error messages for validation failures
+3. Add modifier application API (apply template/effect to character)
+4. Document calculation formulas
+5. Performance optimization for large character files
+
+---
+
+### 🖥️ bnb-cli
+
+**Status**: ✅ Working, needs test coverage
+
+Command-line interface for validating, calculating, and formatting character YAML files. Perfect for Git workflows and scripting.
+
+**Usage**:
+```bash
+bnb character.yaml              # Validate and print formatted
+bnb character.yaml --calc       # Calculate fields and print
+bnb character.yaml --write      # Update file in place
+```
+
+**Dependencies**: `bnb-core`
+
+**Testing**: Jest configured but no tests yet (`--passWithNoTests`)
+
+**Next Steps**:
+1. Add unit tests for CLI argument parsing
+2. Add integration tests for file operations
+3. Implement batch processing mode (`bnb *.yaml --write`)
+4. Add watch mode for auto-formatting on save
+5. Add diff mode to show what would change
+6. Add verbose mode for detailed calculation output
+7. Consider switching to Commander.js for better arg parsing
+
+---
+
+### 🌐 bnb-web
+
+**Status**: 🚧 Working prototype, needs refactoring
+
+SvelteKit web application for viewing and managing characters. Currently a functional prototype with multiple views.
+
+**Features**:
+- Character list and individual character pages
+- Streamlined character sheet view
+- Detailed character sheet view
+- Inventory management with CSV export
+- DM-only pages with loot metadata
+- Responsive design
+
+**Dependencies**: Currently independent (uses `js-yaml` directly)
+
+**Testing**: 
+- Vitest for unit/component tests (example tests exist)
+- Playwright for e2e tests (configured)
+- ⚠️ Minimal test coverage currently
+
+**Critical Issues**:
+- ❌ Does NOT use bnb-core (parses YAML directly)
+- ❌ Missing validation logic
+- ❌ No automatic calculations
+- ❌ Duplicates logic that exists in bnb-core
+
+**Next Steps**:
+1. **HIGH PRIORITY**: Integrate bnb-core library
+   - Replace direct YAML parsing with bnb-core functions
+   - Add validation feedback in UI
+   - Use calculation engine for live updates
+2. Add comprehensive test coverage
+   - Component tests for all sheets
+   - E2E tests for critical workflows
+3. Add character editing capabilities
+4. Add file upload/download functionality
+5. Implement live calculation preview
+6. Add schema selection (D&D 3.5e vs M&M 3e)
+7. Consider authentication for DM-only features
+8. Deploy to production environment
+
+---
+
+### 📦 bnb-cli-commander
+
+**Status**: ⚠️ Empty/Deprecated
+
+Directory exists but contains no source code (only `dist/` and `node_modules/`).
+
+**Next Steps**: Remove from monorepo or repurpose
+
+---
+
+### 🔌 bnb-ext
+
+**Status**: ⚠️ Empty/Planned
+
+Directory exists but contains no source code. Likely intended for a VS Code extension.
+
+**Vision**: VS Code extension for:
+- YAML validation with inline errors
+- Auto-completion for fields
+- Live calculation preview
+- Schema-aware editing
+- Format on save
+
+**Next Steps**:
+1. Define minimum viable features
+2. Create extension scaffold
+3. Integrate bnb-core
+4. Implement basic validation
+5. Add language server protocol support
+
+## Testing Strategy
+
+### Unit Testing
+- **bnb-core**: Jest with comprehensive coverage of calculation logic
+- **bnb-cli**: Jest (needs tests)
+- **bnb-web**: Vitest for components and utilities (needs expansion)
+
+### Integration Testing
+- **bnb-core**: Tests with real character YAML files
+- **bnb-web**: Playwright for end-to-end workflows (needs expansion)
+
+### Test Philosophy
+- Core calculation logic is heavily tested (60+ tests)
+- Integration tests ensure real-world files work correctly
+- Web UI needs more component and e2e test coverage
+- CLI needs basic test coverage for confidence in refactoring
+
+## Development
+
+### Quick Start
+
+```bash
+# Install dependencies
+pnpm install
+
+# Run tests
+pnpm test
+
+# Start web dev server
+pnpm dev
+
+# Build all packages
+pnpm build
+```
+
+### Development Workflows
+
+**Core Library Development**:
+```bash
+cd packages/bnb-core
+pnpm test:watch    # Run tests in watch mode
+pnpm build:watch   # Build on changes
+```
+
+**CLI Development**:
+```bash
+cd packages/bnb-cli
+pnpm build
+node dist/index.js path/to/character.yaml
+```
+
+**Web Development**:
+```bash
+pnpm dev  # Starts at http://localhost:5173 (accessible from host)
+```
+
+## Project Roadmap
+
+### Phase 1: Consolidation (Current)
+- [x] Establish bnb-core as stable foundation
+- [x] Create working CLI tool
+- [x] Build web prototype
+- [ ] Integrate bnb-core into bnb-web
+- [ ] Add test coverage across packages
+- [ ] Clean up deprecated packages
+
+### Phase 2: Feature Completion
+- [ ] Complete D&D 3.5e schema coverage
+- [ ] Add M&M 3e support
+- [ ] Implement character editing in web UI
+- [ ] Add modifier/template application
+- [ ] Create VS Code extension
+
+### Phase 3: Production Ready
+- [ ] Comprehensive documentation
+- [ ] Performance optimization
+- [ ] CI/CD pipeline
+- [ ] Deploy web app
+- [ ] Publish CLI to npm
+- [ ] Publish VS Code extension
+
+### Phase 4: Advanced Features
+- [ ] Multi-user support
+- [ ] Campaign management
+- [ ] Real-time collaboration
+- [ ] Mobile app
+- [ ] Custom schema builder
+
+## Contributing
+
+This project uses:
+- **pnpm** for package management
+- **TypeScript** for type safety
+- **Jest/Vitest** for testing
+- **Prettier** for formatting
+- **ESLint** for linting
+- **Conventional Commits** for commit messages
+
+## License
+
+MIT
 

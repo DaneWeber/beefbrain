@@ -1,14 +1,139 @@
-# Beef Brain CLI
+# bnb-cli
 
-Command-line interface for Beef Brain. This, git, and a text editor is all you need to manage your TTRPG characters and creatures.
+> Command-line interface for BeefBrain character management
+
+**Status**: ✅ Working, needs test coverage
+
+## Overview
+
+A simple command-line tool for validating, calculating, and formatting TTRPG character YAML files. Perfect for Git workflows, scripting, and automation.
+
+Combine this with Git and your favorite text editor, and you have everything you need to manage TTRPG characters in a version-controlled, human-readable format.
+
+## Installation
+
+```bash
+pnpm add -g bnb-cli
+# or use locally within a project
+pnpm add bnb-cli
+```
 
 ## Usage
 
-```sh
+### Validate and Format
+
+```bash
 bnb gimli.yaml
-# Prints formatted file to stdout or provides validation errors.
-bnb gimli.yaml --calc
-# Prints formatted file with calculated fields to stdout or provides validation errors.
-bnb gimli.yaml --write
-# Updates the file in place with calculated fields.
+# Validates and prints formatted YAML to stdout
+# Exit code 0 = valid, 1 = invalid
 ```
+
+### Calculate Derived Fields
+
+```bash
+bnb gimli.yaml --calc
+# Calculates all derived fields (modifiers, bonuses, etc.)
+# Prints complete YAML to stdout
+```
+
+### Update Files In Place
+
+```bash
+bnb gimli.yaml --write
+# Updates the file with calculated fields
+# Useful after manually editing base stats
+```
+
+### Common Workflows
+
+**After editing a character:**
+```bash
+bnb characters/*.yaml --write
+# Update all character files
+```
+
+**Pre-commit validation:**
+```bash
+for file in characters/*.yaml; do
+  bnb "$file" || exit 1
+done
+```
+
+**View changes before committing:**
+```bash
+bnb gimli.yaml --calc | diff gimli.yaml -
+```
+
+## Options
+
+- **(no options)**: Validate and print formatted YAML
+- `--calc`: Calculate derived fields and print
+- `--write`: Calculate and update file in place
+- `--help`: Show help message
+
+## Use Cases
+
+- **Version Control**: Keep character files in Git with automatic formatting
+- **Batch Updates**: Update all characters after a rule change
+- **Validation**: Check files before committing
+- **CI/CD**: Validate character files in automated pipelines
+- **Scripting**: Integrate into character management workflows
+
+## Dependencies
+
+- [bnb-core](../bnb-core/README.md) - Core calculation and validation library
+
+## Testing
+
+```bash
+pnpm test  # Currently configured but no tests
+```
+
+**Next Steps for Testing:**
+- Add unit tests for argument parsing
+- Add integration tests for file operations
+- Test error handling scenarios
+- Test batch processing
+
+## Next Steps
+
+1. **Add test coverage** (unit + integration tests)
+2. **Batch processing**: `bnb *.yaml --write` support
+3. **Watch mode**: Auto-format on file changes
+4. **Diff mode**: Show what would change without writing
+5. **Verbose mode**: Detailed calculation output for debugging
+6. **Better arg parsing**: Consider Commander.js for subcommands
+7. **Output formats**: JSON output option for scripting
+8. **Schema selection**: `--schema dnd35|mnm3` flag
+
+## Examples
+
+### Git Pre-commit Hook
+
+```bash
+#!/bin/bash
+# .git/hooks/pre-commit
+for file in $(git diff --cached --name-only | grep '\.yaml$'); do
+  bnb "$file" || exit 1
+done
+```
+
+### Makefile Integration
+
+```makefile
+.PHONY: validate update
+
+validate:
+	@for file in characters/*.yaml; do \
+		bnb "$$file" || exit 1; \
+	done
+
+update:
+	@for file in characters/*.yaml; do \
+		bnb "$$file" --write; \
+	done
+```
+
+## License
+
+MIT
