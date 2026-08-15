@@ -1,8 +1,9 @@
-name: bnb-core Tests
+name: bnb-cli Tests
 
 on:
   pull_request:
     paths:
+      - "packages/bnb-cli/**"
       - "packages/bnb-core/**"
       - "pnpm-lock.yaml"
       - "package.json"
@@ -25,22 +26,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build bnb-core
+      - name: Build bnb-core (dependency)
         run: pnpm --filter bnb-core build
 
-      - name: Run bnb-core tests
-        run: pnpm --filter bnb-core test
+      - name: Build bnb-cli
+        run: pnpm --filter bnb-cli build
 
-      - name: Run bnb-core linting
-        run: pnpm --filter bnb-core lint
+      - name: Run bnb-cli tests
+        run: pnpm --filter bnb-cli test
 
-      - name: Run bnb-core formatting check
-        run: pnpm --filter bnb-core format
+      - name: Run bnb-cli linting
+        run: pnpm --filter bnb-cli lint
 
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./packages/bnb-core/coverage/lcov.info
-          flags: bnb-core
-          fail_ci_if_error: false
-
+      - name: Run bnb-cli formatting check
+        run: pnpm --filter bnb-cli format
