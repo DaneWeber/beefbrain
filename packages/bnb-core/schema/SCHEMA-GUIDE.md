@@ -449,6 +449,215 @@ For example:
 - `packages/bnb-core/schema/dnd35/dnd35-character.json`
 - `packages/bnb-core/schema/mnm3/mnm3-character.json`
 
+## Adding a New Game System
+
+Follow these steps to add support for a new tabletop RPG system:
+
+### Step 1: Create the Schema File
+
+1. Create a new directory: `packages/bnb-core/schema/<system-abbrev>/`
+2. Create the main schema file: `<system-abbrev>-character.json`
+
+Example structure for a new system called "pathfinder1e":
+
+```bash
+mkdir packages/bnb-core/schema/pathfinder1e
+touch packages/bnb-core/schema/pathfinder1e/pathfinder1e-character.json
+```
+
+### Step 2: Define the Root Type Structure
+
+Start with the basic character structure:
+
+```json
+{
+  "root": {
+    "children": [
+      {
+        "name": "character",
+        "type": "Character"
+      }
+    ]
+  },
+  "Character": {
+    "children": [
+      {
+        "name": "abilities",
+        "type": "Abilities"
+      },
+      {
+        "name": "skills",
+        "type": "Skills"
+      },
+      {
+        "name": "combat",
+        "type": "Combat"
+      }
+    ]
+  }
+}
+```
+
+### Step 3: Add Ability Score Definitions
+
+Define how ability scores work in your system:
+
+```json
+"Abilities": {
+  "children": [
+    {"name": "strength", "type": "AbilityScore"},
+    {"name": "dexterity", "type": "AbilityScore"},
+    {"name": "constitution", "type": "AbilityScore"},
+    {"name": "intelligence", "type": "AbilityScore"},
+    {"name": "wisdom", "type": "AbilityScore"},
+    {"name": "charisma", "type": "AbilityScore"}
+  ]
+},
+"AbilityScore": {
+  "type": "number",
+  "validValues": [
+    {
+      "integers": {"min": 1, "max": 30}
+    }
+  ]
+}
+```
+
+### Step 4: Add Calculation Definitions
+
+Add any derived fields with their calculation formulas:
+
+```json
+"AbilityModifier": {
+  "type": "number",
+  "calculation": {
+    "formula": "floor((score - 10) / 2)",
+    "variables": {
+      "score": "parent[0]"
+    }
+  }
+}
+```
+
+### Step 5: Register the Schema
+
+The schema is automatically discovered by the `loadSchema()` function using the directory name. Update `src/schemaLoader.ts` if needed to add system-specific handling.
+
+### Step 6: Create Test Files
+
+Create example character files for testing:
+
+```bash
+mkdir -p packages/bnb-core/src/examples/unchanged
+mkdir -p packages/bnb-core/src/examples/update
+mkdir -p packages/bnb-core/src/examples/final
+
+# Create test character files
+touch packages/bnb-core/src/examples/unchanged/pathfinder1e-archer.yaml
+```
+
+Add a character example to test your schema:
+
+```yaml
+---
+character:
+  abilities:
+    strength: [15, str: 2, { base: 11, racial: 2, level: 2 }]
+    dexterity: [18, dex: 4, { base: 14, racial: 2, level: 2 }]
+    constitution: [13, con: 1, { base: 13 }]
+    intelligence: [10, int: 0, { base: 10 }]
+    wisdom: [12, wis: 1, { base: 12 }]
+    charisma: [8, cha: -1, { base: 8 }]
+```
+
+### Step 7: Write Integration Tests
+
+Add tests in `packages/bnb-core/src/integration.test.ts` to verify your system works:
+
+```typescript
+describe('Pathfinder 1e Schema', () => {
+  it('should calculate ability modifiers correctly', () => {
+    const yaml = fs.readFileSync(
+      'src/examples/unchanged/pathfinder1e-archer.yaml',
+      'utf-8'
+    )
+    const result = parseYAML(updateCalculatedFields(yaml))
+    
+    // Verify calculations
+    expect(result.character.abilities.strength[1]).toBe(2)
+    expect(result.character.abilities.dexterity[1]).toBe(4)
+  })
+})
+```
+
+### Step 8: Document System-Specific Rules
+
+Create a documentation file explaining system-specific rules:
+
+```bash
+touch packages/bnb-core/schema/pathfinder1e/RULES.md
+```
+
+Document things like:
+- Ability score modifiers (how ability scores map to modifiers)
+- Skill calculation (base, ability modifier, ranks, class bonus)
+- Combat calculations (AC, attack bonuses, damage)
+- Special rules (feat interactions, prestige class impacts, etc.)
+
+### Step 9: Test Your Implementation
+
+Run the full test suite:
+
+```bash
+pnpm test  # From root or packages/bnb-core
+```
+
+Verify:
+- Schema validates correctly
+- Calculations produce expected results
+- Integration tests pass
+- Linting passes
+- No TypeScript errors
+
+### Step 10: Update Documentation
+
+1. Add your system to the README: `packages/bnb-core/README.md`
+2. Add an example in `schema/SCHEMA-GUIDE.md`
+3. Link to your system's documentation in the main [README.md](../../README.md)
+
+### Minimal Working Schema Template
+
+Here's a minimal template you can copy and modify:
+
+```json
+{
+  "root": {
+    "children": [
+      {"name": "character", "type": "Character"}
+    ]
+  },
+  "Character": {
+    "children": [
+      {"name": "abilities", "type": "Abilities"}
+    ]
+  },
+  "Abilities": {
+    "children": [
+      {"name": "strength", "type": "Score"},
+      {"name": "dexterity", "type": "Score"},
+      {"name": "constitution", "type": "Score"},
+      {"name": "intelligence", "type": "Score"},
+      {"name": "wisdom", "type": "Score"},
+      {"name": "charisma", "type": "Score"}
+    ]
+  },
+  "Score": {
+    "type": "number",
+    "validValues": [{"integers": {"min": 1, "max": 30}}]
+  }
+}
+```
+
 ## Testing Your Schema
 
 Create test YAML files in:

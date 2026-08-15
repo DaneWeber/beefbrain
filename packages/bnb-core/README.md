@@ -105,12 +105,51 @@ Test coverage includes:
 
 ## Schema System
 
-Schemas define game system rules in JSON format. See [SCHEMA-GUIDE.md](schema/SCHEMA-GUIDE.md) for details.
+Schemas define game system rules in JSON format. See [SCHEMA-GUIDE.md](schema/SCHEMA-GUIDE.md) for complete documentation on the schema format, formula syntax, and validation rules.
 
-Supported systems:
+### Supported Systems
 
-- **D&D 3.5e**: `catalogs/dnd35/` (complete)
-- **M&M 3e**: `catalogs/mnm3/` (in progress)
+- **D&D 3.5e**: `schema/dnd35/` (complete)
+- **M&M 3e**: `schema/mnm3/` (in progress)
+
+### Adding a New Game System
+
+To add support for a new TTRPG system:
+
+1. Create a schema file in `schema/<system-name>/`
+2. Define types, validations, and calculation formulas
+3. Create example character files
+4. Add integration tests
+5. See [SCHEMA-GUIDE.md](schema/SCHEMA-GUIDE.md#adding-a-new-game-system) for detailed step-by-step instructions
+
+### How Schemas Work
+
+Schemas consist of three parts:
+
+- **Type Definitions**: The structure of character data (abilities, skills, combat, etc.)
+- **Validations**: Rules for what values are allowed (min/max ranges, specific values)
+- **Calculations**: Automatic computation of derived fields using mathematical formulas
+
+Example calculation (D&D 3.5e ability modifier):
+
+```json
+"AbilityModifier": {
+  "type": "number",
+  "calculation": {
+    "formula": "floor((score - 10) / 2)",
+    "variables": {
+      "score": "parent[0]"
+    }
+  }
+}
+```
+
+Formulas use [Math.js](https://mathjs.org/) for safe, sandboxed evaluation with support for:
+- Arithmetic operations: `+`, `-`, `*`, `/`, `^`, `%`
+- Comparisons: `==`, `!=`, `<`, `>`, `<=`, `>=`
+- Logical operators: `and`, `or`, `not`
+- Built-in functions: `floor()`, `ceil()`, `sum()`, `max()`, `min()`, etc.
+- Variable references using jq-style paths
 
 ## Development
 
