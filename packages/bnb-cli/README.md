@@ -47,12 +47,14 @@ bnb gimli.yaml --write
 ### Common Workflows
 
 **After editing a character:**
+
 ```bash
 bnb characters/*.yaml --write
 # Update all character files
 ```
 
 **Pre-commit validation:**
+
 ```bash
 for file in characters/*.yaml; do
   bnb "$file" || exit 1
@@ -60,6 +62,7 @@ done
 ```
 
 **View changes before committing:**
+
 ```bash
 bnb gimli.yaml --calc | diff gimli.yaml -
 ```
@@ -86,14 +89,26 @@ bnb gimli.yaml --calc | diff gimli.yaml -
 ## Testing
 
 ```bash
-pnpm test  # Currently configured but no tests
+pnpm build # Build CLI distribution used by integration tests
+pnpm test  # Run all tests
 ```
 
-**Next Steps for Testing:**
-- Add unit tests for argument parsing
-- Add integration tests for file operations
-- Test error handling scenarios
-- Test batch processing
+**Current Status**: ✅ Integration tests in place
+
+Current suite covers:
+
+1. CLI argument parsing and help behavior
+2. Validation and calculation flows (`--calc`, `--write`)
+3. File error handling and multi-file processing
+4. Output behavior and edge cases
+
+**Priority Next Steps for Testing:**
+
+1. Add unit tests for argument parsing and CLI flag handling
+2. Add integration tests for file I/O operations and error handling
+3. Test batch file processing with multiple YAML files
+4. Test error scenarios (invalid files, missing dependencies, permission errors)
+5. Add snapshot tests for output formatting
 
 ## Next Steps
 

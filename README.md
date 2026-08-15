@@ -147,21 +147,11 @@ SvelteKit web application for viewing and managing characters. Currently a funct
 
 ---
 
-### 📦 bnb-cli-commander
-
-**Status**: ⚠️ Empty/Deprecated
-
-Directory exists but contains no source code (only `dist/` and `node_modules/`).
-
-**Next Steps**: Remove from monorepo or repurpose
-
----
-
 ### 🔌 bnb-ext
 
 **Status**: ⚠️ Empty/Planned
 
-Directory exists but contains no source code. Likely intended for a VS Code extension.
+Currently not in monorepo. Intended for a VS Code extension.
 
 **Vision**: VS Code extension for:
 - YAML validation with inline errors

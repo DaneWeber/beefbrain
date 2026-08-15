@@ -9,38 +9,18 @@ import { updateCalculatedFields } from './updateCalculatedFields'
  * @public
  */
 
-// Type definitions
-
-export type YAMLdoc = `---\n${string}`
-
-export type CalculationDetails = {
-  base: number
-  [key: string]: number
-}
-
-export type ModifierData = {
-  [key: string]: number
-}
-
-export type AbilityData = [number, ModifierData, CalculationDetails?]
-
-export type Abilities = {
-  [abilityName: string]: AbilityData
-}
-
-export type Character = {
-  abilities: Abilities
-  skills?: Record<string, [number, Record<string, number>]>
-  combat?: Record<string, unknown>
-}
-
-export type BeefBrainData = {
-  character?: Character
-}
+// Re-export all type definitions from types.ts
+export type {
+  YAMLdoc,
+  CalculationDetails,
+  ModifierData,
+  AbilityData,
+  Abilities,
+  Character,
+  BeefBrainData,
+  BeefBrainModifier,
+} from './types'
 
 export { validateBeefBrainData }
 export { updateCalculatedFields }
 export { dataToCompactYAML } from './dataToCompactYAML'
-
-// Export all functions
-export * from './types'

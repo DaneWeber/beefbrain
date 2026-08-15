@@ -1,5 +1,4 @@
-import type { Schema, SchemaComponentBindings } from './schemaLoader'
-import { evaluateFormula } from './calculationEngine'
+import type { SchemaComponentBindings } from './schemaLoader'
 
 /**
  * Resolve a jq-style path to a value in the data object.
@@ -52,7 +51,9 @@ function resolveBindingPath(data: unknown, path: string): unknown {
   if (!path.startsWith('.')) return undefined
 
   // Split path into segments, handling [N] notation
-  const parts: Array<{ type: 'prop', name: string } | { type: 'index', idx: number }> = []
+  const parts: Array<
+    { type: 'prop'; name: string } | { type: 'index'; idx: number }
+  > = []
   const regex = /\.([^.[]+)|\[(\d+)\]/g
   let match
   while ((match = regex.exec(path)) !== null) {
@@ -83,7 +84,11 @@ function resolveBindingPath(data: unknown, path: string): unknown {
 
   // If the result is a single-key object (from YAML spread format like {str: 2}),
   // extract the value
-  if (current !== null && typeof current === 'object' && !Array.isArray(current)) {
+  if (
+    current !== null &&
+    typeof current === 'object' &&
+    !Array.isArray(current)
+  ) {
     const keys = Object.keys(current as Record<string, unknown>)
     if (keys.length === 1) {
       return (current as Record<string, unknown>)[keys[0]!]

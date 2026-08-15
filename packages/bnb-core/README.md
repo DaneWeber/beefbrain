@@ -6,29 +6,31 @@
 
 The foundation of the BeefBrain ecosystem. This TypeScript library handles validation, automatic calculation, and formatting of YAML character data files for tabletop RPG systems.
 
-**Status**: ✅ Core functionality complete, actively maintained
+**Status**: ✅ Core functionality complete and well-tested (60+ tests)
 
 ## Features
 
 ### ✅ Implemented
 
-- **Schema-based validation**: Validates YAML files against JSON schemas for different game systems
-- **Automatic calculations**: Computes derived fields (ability modifiers, skill bonuses, saves, combat stats)
+- **YAML validation**: Validates YAML files for proper syntax and structure
+- **Automatic calculations**: Computes derived fields like ability modifiers using game system rules
 - **YAML formatting**: Outputs compact, human-readable YAML with consistent styling
-- **D&D 3.5e support**: Complete calculation engine for D&D 3.5 edition
+- **D&D 3.5e support**: Complete calculation engine for D&D 3.5 edition with 60+ comprehensive tests
 - **Type safety**: Full TypeScript type definitions for character data
-- **Zero dependencies**: No runtime dependencies (only dev dependencies)
+- **Schema system**: Extensible schema framework for game system definitions
+- **Minimal dependencies**: Single runtime dependency (yaml library only)
 
 ### 🚧 In Progress
 
 - M&M 3e schema and calculations
-- Enhanced error messages for validation failures
+- Enhanced validation error messages with field paths
 
 ### 📋 Planned
 
 - Modifier/template application API (apply effects to characters)
 - Performance optimization for large files
 - Additional game system support
+- Calculation debugging/tracing mode
 
 ## Installation
 
@@ -39,7 +41,11 @@ pnpm add bnb-core
 ## Usage
 
 ```typescript
-import { validateBeefBrainData, updateCalculatedFields, dataToCompactYAML } from 'bnb-core';
+import {
+  validateBeefBrainData,
+  updateCalculatedFields,
+  dataToCompactYAML,
+} from 'bnb-core'
 
 // Validate a YAML string
 const yamlContent = `---
@@ -47,19 +53,19 @@ character:
   name: Gimli
   abilities:
     strength: [16, {str: 3}]
-`;
+`
 
 if (validateBeefBrainData(yamlContent)) {
-  console.log('Valid character data!');
+  console.log('Valid character data!')
 }
 
 // Calculate derived fields
-const updated = updateCalculatedFields(yamlContent);
-console.log(updated); // YAML with all calculated fields
+const updated = updateCalculatedFields(yamlContent)
+console.log(updated) // YAML with all calculated fields
 
 // Format to compact YAML
-const data = { character: { name: 'Gimli' } };
-const formatted = dataToCompactYAML(data);
+const data = { character: { name: 'Gimli' } }
+const formatted = dataToCompactYAML(data)
 ```
 
 ## API Reference
@@ -87,6 +93,7 @@ pnpm test:coverage # With coverage report
 ```
 
 Test coverage includes:
+
 - Validation logic
 - Ability score calculations
 - Skill bonus calculations (including synergies, class skills)
@@ -98,11 +105,52 @@ Test coverage includes:
 
 ## Schema System
 
-Schemas define game system rules in JSON format. See [SCHEMA-GUIDE.md](schema/SCHEMA-GUIDE.md) for details.
+Schemas define game system rules in JSON format. See [SCHEMA-GUIDE.md](schema/SCHEMA-GUIDE.md) for complete documentation on the schema format, formula syntax, and validation rules.
 
-Supported systems:
-- **D&D 3.5e**: `catalogs/dnd35/` (complete)
-- **M&M 3e**: `catalogs/mnm3/` (in progress)
+### Supported Systems
+
+- **D&D 3.5e**: `schema/dnd35/` (complete)
+- **M&M 3e**: `schema/mnm3/` (in progress)
+
+### Adding a New Game System
+
+To add support for a new TTRPG system:
+
+1. Create a schema file in `schema/<system-name>/`
+2. Define types, validations, and calculation formulas
+3. Create example character files
+4. Add integration tests
+5. See [SCHEMA-GUIDE.md](schema/SCHEMA-GUIDE.md#adding-a-new-game-system) for detailed step-by-step instructions
+
+### How Schemas Work
+
+Schemas consist of three parts:
+
+- **Type Definitions**: The structure of character data (abilities, skills, combat, etc.)
+- **Validations**: Rules for what values are allowed (min/max ranges, specific values)
+- **Calculations**: Automatic computation of derived fields using mathematical formulas
+
+Example calculation (D&D 3.5e ability modifier):
+
+```json
+"AbilityModifier": {
+  "type": "number",
+  "calculation": {
+    "formula": "floor((score - 10) / 2)",
+    "variables": {
+      "score": "parent[0]"
+    }
+  }
+}
+```
+
+Formulas use [Math.js](https://mathjs.org/) for safe, sandboxed evaluation with support for:
+
+- Arithmetic operations: `+`, `-`, `*`, `/`, `^`, `%`
+- Comparisons: `==`, `!=`, `<`, `>`, `<=`, `>=`
+- Logical operators: `and`, `or`, `not`
+- Built-in functions: `floor()`, `ceil()`, `sum()`, `max()`, `min()`, etc.
+- Variable references using jq-style paths
 
 ## Development
 

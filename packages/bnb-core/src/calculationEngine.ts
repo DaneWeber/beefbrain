@@ -3,7 +3,7 @@ import { getTypeDefinition } from './schemaLoader'
 import * as mathjs from 'mathjs'
 
 // Create a mathjs instance with all standard functions
-// @ts-ignore - mathjs.all type issue
+// @ts-expect-error mathjs namespace typing for `all` is incomplete here
 const math = mathjs.create(mathjs.all)
 
 // Add custom type-checking functions
@@ -43,7 +43,7 @@ function resolveJqPath(data: unknown, path: string): unknown {
 
     // Handle array index with collection [n][]
     const arrayIndexWithCollectionMatch = segment.match(
-      /^([^\[]+)\[(\d+)\]\[\]$/,
+      /^([^[]+)\[(\d+)\]\[\]$/,
     )
     if (arrayIndexWithCollectionMatch && arrayIndexWithCollectionMatch[2]) {
       const propName = arrayIndexWithCollectionMatch[1]
@@ -87,7 +87,7 @@ function resolveJqPath(data: unknown, path: string): unknown {
     }
 
     // Handle array index [n]
-    const arrayIndexMatch = segment.match(/^([^\[]+)\[(\d+)\]$/)
+    const arrayIndexMatch = segment.match(/^([^[]+)\[(\d+)\]$/)
     if (arrayIndexMatch && arrayIndexMatch[2]) {
       const propName = arrayIndexMatch[1]
       const index = parseInt(arrayIndexMatch[2], 10)

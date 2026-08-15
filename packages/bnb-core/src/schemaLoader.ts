@@ -52,10 +52,12 @@ export interface SchemaTypeDefinition {
  * anywhere a [total, {str: N, ...}] pattern appears, str should equal the strength modifier.
  */
 export interface SchemaComponentBindings {
-  [componentKey: string]: string | {
-    formula: string
-    variables: Record<string, string>
-  }
+  [componentKey: string]:
+    | string
+    | {
+        formula: string
+        variables: Record<string, string>
+      }
 }
 
 /**
@@ -83,7 +85,7 @@ export interface SchemaConditionalComponent {
   conditionVariables?: Record<string, string>
   target: string
   key: string
-  value: number | { formula: string, variables: Record<string, string> }
+  value: number | { formula: string; variables: Record<string, string> }
   removeIfFalse: boolean
   description?: string
 }
@@ -94,7 +96,13 @@ export interface Schema {
   functions?: Record<string, SchemaFunction>
   lookupTables?: Record<string, SchemaLookupTable>
   conditionalComponents?: SchemaConditionalComponent[]
-  [typeName: string]: SchemaTypeDefinition | SchemaComponentBindings | Record<string, SchemaFunction> | Record<string, SchemaLookupTable> | SchemaConditionalComponent[] | undefined
+  [typeName: string]:
+    | SchemaTypeDefinition
+    | SchemaComponentBindings
+    | Record<string, SchemaFunction>
+    | Record<string, SchemaLookupTable>
+    | SchemaConditionalComponent[]
+    | undefined
 }
 
 const schemaCache: Record<string, Schema> = {}
@@ -115,14 +123,15 @@ export function loadSchema(schemaName: string): Schema {
     return schemaCache[schemaName]
   }
 
-  const dir = SCHEMA_DIRS[schemaName] || schemaName.split('-')[0] || schemaName
-  const schemaPath = join(
-    __dirname,
-    '..',
-    'schema',
-    dir,
-    `${schemaName}.json`,
-  )
+  const dir = SCHEMA_DIRS[schemaName]
+  if (!dir) {
+    throw new Error(
+      `Unknown schema "${schemaName}". Available schemas: ${Object.keys(
+        SCHEMA_DIRS,
+      ).join(', ')}`,
+    )
+  }
+  const schemaPath = join(__dirname, '..', 'schema', dir, `${schemaName}.json`)
   const schemaContent = readFileSync(schemaPath, 'utf-8')
   const schema = JSON.parse(schemaContent) as Schema
   schemaCache[schemaName] = schema
