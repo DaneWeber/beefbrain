@@ -1,6 +1,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import yaml from 'js-yaml';
+import { validateBeefBrainData, updateCalculatedFields, type BeefBrainData } from 'bnb-core';
 
 const YAML_DIR = join(
 	import.meta.dirname,
@@ -18,6 +19,13 @@ export interface CharacterSummary {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type CharacterData = Record<string, any>;
 
+export interface LoadedCharacter {
+	data: BeefBrainData;
+	raw: string;
+	isValid: boolean;
+	validationError?: string;
+}
+
 export async function listCharacters(): Promise<CharacterSummary[]> {
 	const files = await readdir(YAML_DIR);
 	const yamlFiles = files.filter((f) => f.endsWith('.yaml') || f.endsWith('.yml')).sort();
@@ -25,6 +33,13 @@ export async function listCharacters(): Promise<CharacterSummary[]> {
 	const summaries: CharacterSummary[] = [];
 	for (const file of yamlFiles) {
 		const raw = await readFile(join(YAML_DIR, file), 'utf-8');
+		
+		// Validate using bnb-core
+		if (!validateBeefBrainData(raw)) {
+			console.warn(`Invalid character file: ${file}`);
+			continue;
+		}
+		
 		const data = yaml.load(raw) as CharacterData;
 		const char = data?.character;
 		if (!char) continue;
@@ -62,6 +77,13 @@ export async function loadAllCharacters(): Promise<{ slug: string; character: Ch
 	const results: { slug: string; character: CharacterData }[] = [];
 	for (const file of yamlFiles) {
 		const raw = await readFile(join(YAML_DIR, file), 'utf-8');
+		
+		// Validate using bnb-core
+		if (!validateBeefBrainData(raw)) {
+			console.warn(`Invalid character file: ${file}`);
+			continue;
+		}
+		
 		const data = yaml.load(raw) as CharacterData;
 		if (data?.character) {
 			results.push({ slug: basename(file, '.yaml'), character: data.character });
@@ -74,8 +96,50 @@ export async function loadCharacter(slug: string): Promise<CharacterData | null>
 	const filePath = join(YAML_DIR, `${slug}.yaml`);
 	try {
 		const raw = await readFile(filePath, 'utf-8');
+		
+		// Validate using bnb-core
+		if (!validateBeefBrainData(raw)) {
+			console.error(`Invalid character file: ${slug}.yaml`);
+			return null;
+		}
+		
 		return yaml.load(raw) as CharacterData;
 	} catch {
+		return null;
+	}
+}
+
+/**
+ * Load character with validation info and automatic calculations
+ */
+export async function loadCharacterWithValidation(slug: string): Promise<LoadedCharacter | null> {
+	const filePath = join(YAML_DIR, `${slug}.yaml`);
+	try {
+		const raw = await readFile(filePath, 'utf-8');
+		
+		// Validate using bnb-core
+		const isValid = validateBeefBrainData(raw);
+		
+		if (!isValid) {
+			return {
+				data: yaml.load(raw) as BeefBrainData,
+				raw,
+				isValid: false,
+				validationError: 'Invalid character data format'
+			};
+		}
+		
+		// Apply automatic calculations from bnb-core
+		const calculatedYaml = updateCalculatedFields(raw);
+		const data = yaml.load(calculatedYaml) as BeefBrainData;
+		
+		return {
+			data,
+			raw: calculatedYaml,
+			isValid: true
+		};
+	} catch (error) {
+		console.error(`Error loading character ${slug}:`, error);
 		return null;
 	}
 }
