@@ -7,18 +7,25 @@ import { applyComponentBindings } from './genericEngine'
 // BAB and save progression formulas (used by class entries in character YAML)
 function calculateBab(progression: string, level: number): number {
   switch (progression) {
-    case 'good': return level
-    case 'average': return Math.floor(level * 3 / 4)
-    case 'poor': return Math.floor(level / 2)
-    default: return 0
+    case 'good':
+      return level
+    case 'average':
+      return Math.floor((level * 3) / 4)
+    case 'poor':
+      return Math.floor(level / 2)
+    default:
+      return 0
   }
 }
 
 function calculateBaseSave(progression: string, level: number): number {
   switch (progression) {
-    case 'good': return 2 + Math.floor(level / 2)
-    case 'poor': return Math.floor(level / 3)
-    default: return 0
+    case 'good':
+      return 2 + Math.floor(level / 2)
+    case 'poor':
+      return Math.floor(level / 3)
+    default:
+      return 0
   }
 }
 
@@ -100,7 +107,10 @@ export function updateCalculatedFields(yamlContent: string): string {
 
   // Step 5: Calculate effective ACP and max-dex
   const effectiveAcp = calculateEffectiveAcp(equipStats, updatedLoadEffects)
-  const effectiveMaxDex = calculateEffectiveMaxDex(equipStats, updatedLoadEffects)
+  const effectiveMaxDex = calculateEffectiveMaxDex(
+    equipStats,
+    updatedLoadEffects,
+  )
 
   // Step 6: Derive class-based values (must run before bindings so BAB is available)
   hasChanges = propagateToHitDice(data, hasChanges)
@@ -119,13 +129,25 @@ export function updateCalculatedFields(yamlContent: string): string {
   // Step 8: Specialized propagation that overrides bindings where needed
   // (e.g., dex capped by max-dex in AC, con*HD in max-hp, bonus spell slots)
   hasChanges = propagateToSkillAcp(data, effectiveAcp, hasChanges)
-  hasChanges = propagateToDefense(data, abilityMods, equipStats, effectiveMaxDex, effectiveAcp, hasChanges)
+  hasChanges = propagateToDefense(
+    data,
+    abilityMods,
+    equipStats,
+    effectiveMaxDex,
+    effectiveAcp,
+    hasChanges,
+  )
   hasChanges = propagateToMaxHp(data, abilityMods, hasChanges)
   hasChanges = propagateToMeleeWeaponDetails(data, abilityMods, hasChanges)
   hasChanges = propagateToRangedWeaponDetails(data, hasChanges)
   hasChanges = propagateToInventoryWeight(data, hasChanges)
   hasChanges = propagateToSynergy(data, hasChanges)
-  hasChanges = propagateToSpeed(data, equipStats, updatedLoadEffects, hasChanges)
+  hasChanges = propagateToSpeed(
+    data,
+    equipStats,
+    updatedLoadEffects,
+    hasChanges,
+  )
   hasChanges = propagateToSpellSlots(data, abilityMods, hasChanges)
 
   if (hasChanges) {
@@ -154,12 +176,19 @@ function propagateEquipmentToAbilities(
   data: { character?: Record<string, unknown> },
   hasChanges: boolean,
 ): boolean {
-  const abilities = data.character?.abilities as Record<string, unknown> | undefined
-  const inventory = data.character?.inventory as Record<string, unknown> | undefined
+  const abilities = data.character?.abilities as
+    | Record<string, unknown>
+    | undefined
+  const inventory = data.character?.inventory as
+    | Record<string, unknown>
+    | undefined
   if (!abilities || !inventory) return hasChanges
 
   // Collect ability bonuses from all equipped items
-  const abilityBonuses: Record<string, Array<{ source: string, value: number }>> = {}
+  const abilityBonuses: Record<
+    string,
+    Array<{ source: string; value: number }>
+  > = {}
 
   const onList = inventory._on as string[] | undefined
   const equippedContainers = onList || ['equipped']
@@ -195,7 +224,12 @@ function propagateEquipmentToAbilities(
     if (!Array.isArray(abilityArr) || abilityArr.length < 3) continue
 
     const components = abilityArr[2]
-    if (!components || typeof components !== 'object' || Array.isArray(components)) continue
+    if (
+      !components ||
+      typeof components !== 'object' ||
+      Array.isArray(components)
+    )
+      continue
     const comps = components as Record<string, number>
 
     for (const { source, value } of bonuses) {
@@ -214,7 +248,9 @@ function propagateEquipmentToAbilities(
 /**
  * Read equipment stats from equipped inventory items
  */
-function readEquipmentStats(data: { character?: Record<string, unknown> }): EquipmentStats {
+function readEquipmentStats(data: {
+  character?: Record<string, unknown>
+}): EquipmentStats {
   const result: EquipmentStats = {
     armorAc: 0,
     shieldAc: 0,
@@ -224,7 +260,9 @@ function readEquipmentStats(data: { character?: Record<string, unknown> }): Equi
     armorCategory: 'none',
   }
 
-  const inventory = data.character?.inventory as Record<string, unknown> | undefined
+  const inventory = data.character?.inventory as
+    | Record<string, unknown>
+    | undefined
   if (!inventory) return result
 
   // Find equipped items — look at _on list or default to "equipped"
@@ -245,9 +283,12 @@ function readEquipmentStats(data: { character?: Record<string, unknown> }): Equi
       if (category === 'armor') {
         if (typeof props.ac === 'number') result.armorAc = props.ac
         if (typeof props.acp === 'number') result.armorAcp = props.acp
-        if (typeof props['max-dex'] === 'number') result.armorMaxDex = props['max-dex']
+        if (typeof props['max-dex'] === 'number')
+          result.armorMaxDex = props['max-dex']
         // Detect armor weight category from tags
-        const tags = Array.isArray(item[item.length - 1]) ? (item[item.length - 1] as string[]) : []
+        const tags = Array.isArray(item[item.length - 1])
+          ? (item[item.length - 1] as string[])
+          : []
         if (tags.includes('heavy-armor')) result.armorCategory = 'heavy'
         else if (tags.includes('medium-armor')) result.armorCategory = 'medium'
         else if (tags.includes('light-armor')) result.armorCategory = 'light'
@@ -265,7 +306,9 @@ function readEquipmentStats(data: { character?: Record<string, unknown> }): Equi
 /**
  * Determine load category from current load weight vs carrying capacity
  */
-function determineLoadCategory(data: { character?: Record<string, unknown> }): LoadEffects {
+function determineLoadCategory(data: {
+  character?: Record<string, unknown>
+}): LoadEffects {
   const defaultEffects: LoadEffects = {
     category: 'unknown',
     maxDex: null,
@@ -274,7 +317,9 @@ function determineLoadCategory(data: { character?: Record<string, unknown> }): L
     speedReduction20: 0,
   }
 
-  const movement = data.character?.movement as Record<string, unknown> | undefined
+  const movement = data.character?.movement as
+    | Record<string, unknown>
+    | undefined
   if (!movement?.load || !movement?.capacity) return defaultEffects
 
   const loadArr = movement.load as unknown[]
@@ -296,15 +341,36 @@ function determineLoadCategory(data: { character?: Record<string, unknown> }): L
   const mediumMax = parseWeight(cap.medium || '0')
 
   if (currentWeight <= lightMax) {
-    return { category: 'light', maxDex: null, acp: 0, speedReduction30: 0, speedReduction20: 0 }
+    return {
+      category: 'light',
+      maxDex: null,
+      acp: 0,
+      speedReduction30: 0,
+      speedReduction20: 0,
+    }
   } else if (currentWeight <= mediumMax) {
-    return { category: 'medium', maxDex: 3, acp: -3, speedReduction30: -10, speedReduction20: -5 }
+    return {
+      category: 'medium',
+      maxDex: 3,
+      acp: -3,
+      speedReduction30: -10,
+      speedReduction20: -5,
+    }
   } else {
-    return { category: 'heavy', maxDex: 1, acp: -6, speedReduction30: -10, speedReduction20: -5 }
+    return {
+      category: 'heavy',
+      maxDex: 1,
+      acp: -6,
+      speedReduction30: -10,
+      speedReduction20: -5,
+    }
   }
 }
 
-function calculateEffectiveAcp(equip: EquipmentStats, load: LoadEffects): { value: number, sources: Record<string, number> } {
+function calculateEffectiveAcp(
+  equip: EquipmentStats,
+  load: LoadEffects,
+): { value: number; sources: Record<string, number> } {
   const equipAcp = equip.armorAcp + equip.shieldAcp
   const loadAcp = load.acp
 
@@ -324,20 +390,23 @@ function calculateEffectiveAcp(equip: EquipmentStats, load: LoadEffects): { valu
   return { value: 0, sources: {} }
 }
 
-function calculateEffectiveMaxDex(equip: EquipmentStats, load: LoadEffects): { value: number | null, sources: Record<string, number> } {
+function calculateEffectiveMaxDex(
+  equip: EquipmentStats,
+  load: LoadEffects,
+): { value: number | null; sources: Record<string, number> } {
   const armorMax = equip.armorMaxDex
   const loadMax = load.maxDex
 
   if (armorMax !== null && loadMax !== null) {
     // Both apply — use the worse (lower)
     if (armorMax <= loadMax) {
-      return { value: armorMax, sources: { 'armor': armorMax } }
+      return { value: armorMax, sources: { armor: armorMax } }
     } else {
       const categoryKey = `${load.category}-load`
       return { value: loadMax, sources: { [categoryKey]: loadMax } }
     }
   } else if (armorMax !== null) {
-    return { value: armorMax, sources: { 'armor': armorMax } }
+    return { value: armorMax, sources: { armor: armorMax } }
   } else if (loadMax !== null) {
     const categoryKey = `${load.category}-load`
     return { value: loadMax, sources: { [categoryKey]: loadMax } }
@@ -349,9 +418,7 @@ function calculateEffectiveMaxDex(equip: EquipmentStats, load: LoadEffects): { v
 /**
  * Get the current modifier value for each ability from the parsed data
  */
-function getAbilityModifiers(
-  abilities: Abilities,
-): Record<string, number> {
+function getAbilityModifiers(abilities: Abilities): Record<string, number> {
   const mods: Record<string, number> = {}
   for (const [abilityName, abilityArr] of Object.entries(abilities)) {
     const abbr = ABILITY_ABBR[abilityName]
@@ -447,12 +514,10 @@ const DOUBLE_ACP_SKILLS = new Set(['swim'])
  */
 function propagateToSkillAcp(
   data: { character?: Record<string, unknown> },
-  effectiveAcp: { value: number, sources: Record<string, number> },
+  effectiveAcp: { value: number; sources: Record<string, number> },
   hasChanges: boolean,
 ): boolean {
-  const skills = data.character?.skills as
-    | Record<string, unknown>
-    | undefined
+  const skills = data.character?.skills as Record<string, unknown> | undefined
   if (!skills) return hasChanges
 
   for (const [skillName, skillArr] of Object.entries(skills)) {
@@ -489,8 +554,9 @@ function propagateToMeleeWeaponDetails(
   abilityMods: Record<string, number>,
   hasChanges: boolean,
 ): boolean {
-  const attack = (data.character?.combat as Record<string, unknown>)
-    ?.attack as Record<string, unknown> | undefined
+  const attack = (data.character?.combat as Record<string, unknown>)?.attack as
+    | Record<string, unknown>
+    | undefined
   if (!attack?.melee) return hasChanges
 
   const melee = attack.melee as Record<string, unknown>
@@ -501,7 +567,11 @@ function propagateToMeleeWeaponDetails(
     if (!Array.isArray(weaponArr) || weaponArr.length < 5) continue
 
     // Propagate generic melee total to weaponArr[3]._
-    if (melee._ && Array.isArray(melee._) && typeof (melee._ as unknown[])[0] === 'number') {
+    if (
+      melee._ &&
+      Array.isArray(melee._) &&
+      typeof (melee._ as unknown[])[0] === 'number'
+    ) {
       if (weaponArr[3] && typeof weaponArr[3] === 'object') {
         const atkMods = weaponArr[3] as Record<string, number>
         if (atkMods._ !== (melee._ as unknown[])[0]) {
@@ -525,7 +595,10 @@ function propagateToMeleeWeaponDetails(
       const tags = Array.isArray(weaponArr[weaponArr.length - 1])
         ? (weaponArr[weaponArr.length - 1] as string[])
         : []
-      const isTwoHanded = tags.includes('two-handed') || tags.includes('2h') || tags.includes('2-hand')
+      const isTwoHanded =
+        tags.includes('two-handed') ||
+        tags.includes('2h') ||
+        tags.includes('2-hand')
       const isOffHand = tags.includes('off-hand') || tags.includes('oh')
       const isSecondary = tags.includes('secondary')
 
@@ -540,7 +613,12 @@ function propagateToMeleeWeaponDetails(
       }
 
       // Update str in the damage breakdown (position 4)
-      if (weaponArr[4] && typeof weaponArr[4] === 'object' && !Array.isArray(weaponArr[4]) && 'str' in weaponArr[4]) {
+      if (
+        weaponArr[4] &&
+        typeof weaponArr[4] === 'object' &&
+        !Array.isArray(weaponArr[4]) &&
+        'str' in weaponArr[4]
+      ) {
         if ((weaponArr[4] as Record<string, number>).str !== strDamageMod) {
           ;(weaponArr[4] as Record<string, number>).str = strDamageMod
           hasChanges = true
@@ -550,7 +628,11 @@ function propagateToMeleeWeaponDetails(
       // Sum the damage breakdown to get total damage bonus
       const damageObj = weaponArr[4]
       let totalDamageMod: number | null = null
-      if (damageObj && typeof damageObj === 'object' && !Array.isArray(damageObj)) {
+      if (
+        damageObj &&
+        typeof damageObj === 'object' &&
+        !Array.isArray(damageObj)
+      ) {
         totalDamageMod = sumValues(damageObj as Record<string, unknown>)
       }
 
@@ -580,8 +662,9 @@ function propagateToRangedWeaponDetails(
   data: { character?: Record<string, unknown> },
   hasChanges: boolean,
 ): boolean {
-  const attack = (data.character?.combat as Record<string, unknown>)
-    ?.attack as Record<string, unknown> | undefined
+  const attack = (data.character?.combat as Record<string, unknown>)?.attack as
+    | Record<string, unknown>
+    | undefined
   if (!attack?.ranged) return hasChanges
 
   const ranged = attack.ranged as Record<string, unknown>
@@ -591,7 +674,11 @@ function propagateToRangedWeaponDetails(
     if (!Array.isArray(weaponArr) || weaponArr.length < 4) continue
 
     // Propagate generic ranged total to weaponArr[3]._
-    if (ranged._ && Array.isArray(ranged._) && typeof (ranged._ as unknown[])[0] === 'number') {
+    if (
+      ranged._ &&
+      Array.isArray(ranged._) &&
+      typeof (ranged._ as unknown[])[0] === 'number'
+    ) {
       if (weaponArr[3] && typeof weaponArr[3] === 'object') {
         const atkMods = weaponArr[3] as Record<string, number>
         if (atkMods._ !== (ranged._ as unknown[])[0]) {
@@ -617,8 +704,8 @@ function propagateToDefense(
   data: { character?: Record<string, unknown> },
   abilityMods: Record<string, number>,
   equipStats: EquipmentStats,
-  effectiveMaxDex: { value: number | null, sources: Record<string, number> },
-  effectiveAcp: { value: number, sources: Record<string, number> },
+  effectiveMaxDex: { value: number | null; sources: Record<string, number> },
+  effectiveAcp: { value: number; sources: Record<string, number> },
   hasChanges: boolean,
 ): boolean {
   const defense = (data.character?.combat as Record<string, unknown>)
@@ -628,26 +715,40 @@ function propagateToDefense(
   const dexMod = abilityMods['dex'] ?? 0
 
   // Cap dex mod by effective max-dex for AC purposes
-  const dexForAc = effectiveMaxDex.value !== null
-    ? Math.min(dexMod, effectiveMaxDex.value)
-    : dexMod
+  const dexForAc =
+    effectiveMaxDex.value !== null
+      ? Math.min(dexMod, effectiveMaxDex.value)
+      : dexMod
 
   // AC: [total, {base: 10, armor: N, shield: N, dex: n, ...}]
   if (defense.ac && Array.isArray(defense.ac)) {
     const acArr = defense.ac as unknown[]
-    if (acArr.length >= 2 && typeof acArr[1] === 'object' && !Array.isArray(acArr[1])) {
+    if (
+      acArr.length >= 2 &&
+      typeof acArr[1] === 'object' &&
+      !Array.isArray(acArr[1])
+    ) {
       const mods = acArr[1] as Record<string, number>
       let changed = false
 
       // Update dex (capped)
-      if (mods.dex !== dexForAc) { mods.dex = dexForAc; changed = true }
+      if (mods.dex !== dexForAc) {
+        mods.dex = dexForAc
+        changed = true
+      }
 
       // Update armor bonus from equipment
       if (equipStats.armorAc > 0) {
-        if (mods.armor !== equipStats.armorAc) { mods.armor = equipStats.armorAc; changed = true }
+        if (mods.armor !== equipStats.armorAc) {
+          mods.armor = equipStats.armorAc
+          changed = true
+        }
       }
       if (equipStats.shieldAc > 0) {
-        if (mods.shield !== equipStats.shieldAc) { mods.shield = equipStats.shieldAc; changed = true }
+        if (mods.shield !== equipStats.shieldAc) {
+          mods.shield = equipStats.shieldAc
+          changed = true
+        }
       }
 
       if (changed) {
@@ -659,7 +760,13 @@ function propagateToDefense(
 
   // Touch AC: [total, {base: 10, dex: n, ...}] — no armor, shield, or natural armor
   if (defense['touch-ac'] && Array.isArray(defense['touch-ac'])) {
-    if (updateAndVerifyModifierArray(defense['touch-ac'] as unknown[], 'dex', dexForAc)) {
+    if (
+      updateAndVerifyModifierArray(
+        defense['touch-ac'] as unknown[],
+        'dex',
+        dexForAc,
+      )
+    ) {
       hasChanges = true
     }
   }
@@ -685,7 +792,10 @@ function propagateToDefense(
       if (equipStats.armorAc > 0) {
         const armorEntry = mods.find(([k]) => k === 'armor')
         if (armorEntry) {
-          if (armorEntry[1] !== equipStats.armorAc) { armorEntry[1] = equipStats.armorAc; ffChanged = true }
+          if (armorEntry[1] !== equipStats.armorAc) {
+            armorEntry[1] = equipStats.armorAc
+            ffChanged = true
+          }
         } else {
           mods.push(['armor', equipStats.armorAc])
           ffChanged = true
@@ -694,7 +804,10 @@ function propagateToDefense(
       if (equipStats.shieldAc > 0) {
         const shieldEntry = mods.find(([k]) => k === 'shield')
         if (shieldEntry) {
-          if (shieldEntry[1] !== equipStats.shieldAc) { shieldEntry[1] = equipStats.shieldAc; ffChanged = true }
+          if (shieldEntry[1] !== equipStats.shieldAc) {
+            shieldEntry[1] = equipStats.shieldAc
+            ffChanged = true
+          }
         } else {
           mods.push(['shield', equipStats.shieldAc])
           ffChanged = true
@@ -705,7 +818,10 @@ function propagateToDefense(
       const dexIdx = mods.findIndex(([k]) => k === 'dex')
       if (dexMod < 0) {
         if (dexIdx >= 0) {
-          if (mods[dexIdx]![1] !== dexMod) { mods[dexIdx]![1] = dexMod; ffChanged = true }
+          if (mods[dexIdx]![1] !== dexMod) {
+            mods[dexIdx]![1] = dexMod
+            ffChanged = true
+          }
         } else {
           mods.push(['dex', dexMod])
           ffChanged = true
@@ -747,7 +863,11 @@ function propagateToDefense(
   }
 
   // Max-dex: update from effective max-dex
-  if (defense['max-dex'] && Array.isArray(defense['max-dex']) && effectiveMaxDex.value !== null) {
+  if (
+    defense['max-dex'] &&
+    Array.isArray(defense['max-dex']) &&
+    effectiveMaxDex.value !== null
+  ) {
     const mdArr = defense['max-dex'] as unknown[]
     if (mdArr.length >= 2) {
       const currentTotal = mdArr[0]
@@ -783,8 +903,8 @@ function propagateToCarryingCapacity(
 
   // Official D&D 3.5e carrying capacity table for STR 1–29
   const heavyTable = [
-    10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 115, 130, 150, 175, 200, 230,
-    260, 300, 350, 400, 460, 520, 600, 700, 800, 920, 1040, 1200, 1400,
+    10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 115, 130, 150, 175, 200, 230, 260,
+    300, 350, 400, 460, 520, 600, 700, 800, 920, 1040, 1200, 1400,
   ]
   let heavy = 10
   if (strengthScore >= 1 && strengthScore <= 29) {
@@ -806,11 +926,26 @@ function propagateToCarryingCapacity(
   const drag = heavy * 5
   const cap = movement.capacity as Record<string, string>
 
-  if (cap.light !== `${light} lbs`) { cap.light = `${light} lbs`; hasChanges = true }
-  if (cap.medium !== `${medium} lbs`) { cap.medium = `${medium} lbs`; hasChanges = true }
-  if (cap.heavy !== `${heavy} lbs`) { cap.heavy = `${heavy} lbs`; hasChanges = true }
-  if (cap.lift !== `${lift} lbs`) { cap.lift = `${lift} lbs`; hasChanges = true }
-  if (cap.drag !== `${drag} lbs`) { cap.drag = `${drag} lbs`; hasChanges = true }
+  if (cap.light !== `${light} lbs`) {
+    cap.light = `${light} lbs`
+    hasChanges = true
+  }
+  if (cap.medium !== `${medium} lbs`) {
+    cap.medium = `${medium} lbs`
+    hasChanges = true
+  }
+  if (cap.heavy !== `${heavy} lbs`) {
+    cap.heavy = `${heavy} lbs`
+    hasChanges = true
+  }
+  if (cap.lift !== `${lift} lbs`) {
+    cap.lift = `${lift} lbs`
+    hasChanges = true
+  }
+  if (cap.drag !== `${drag} lbs`) {
+    cap.drag = `${drag} lbs`
+    hasChanges = true
+  }
 
   return hasChanges
 }
@@ -829,7 +964,8 @@ function propagateToMaxHp(
   const maxHpArr = levels['max-hp'] as unknown[]
   if (maxHpArr.length < 2) return hasChanges
   const maxHpMods = maxHpArr[1]
-  if (!maxHpMods || typeof maxHpMods !== 'object' || Array.isArray(maxHpMods)) return hasChanges
+  if (!maxHpMods || typeof maxHpMods !== 'object' || Array.isArray(maxHpMods))
+    return hasChanges
   const mods = maxHpMods as Record<string, unknown>
 
   // Count total HD from class entries
@@ -857,7 +993,12 @@ function propagateToMaxHp(
   }
 
   // Update current hp if it references max-hp
-  if (hasChanges && levels.hp && Array.isArray(levels.hp) && (levels.hp as unknown[]).length >= 2) {
+  if (
+    hasChanges &&
+    levels.hp &&
+    Array.isArray(levels.hp) &&
+    (levels.hp as unknown[]).length >= 2
+  ) {
     const hpMods = (levels.hp as unknown[])[1]
     if (hpMods && typeof hpMods === 'object' && !Array.isArray(hpMods)) {
       const hpModObj = hpMods as Record<string, number>
@@ -899,7 +1040,9 @@ function parseClassEntry(entry: unknown[]): ClassEntry | null {
 
     // Check if this is an hp rolls entry: {hp: [rolls]}
     if ('hp' in obj && Array.isArray(obj.hp)) {
-      hpRolls = (obj.hp as unknown[]).filter((v): v is number => typeof v === 'number')
+      hpRolls = (obj.hp as unknown[]).filter(
+        (v): v is number => typeof v === 'number',
+      )
     }
     // Check if this is a class definition: has hd, bab, etc.
     if ('hd' in obj || 'bab' in obj) {
@@ -923,7 +1066,12 @@ function countTotalHitDice(levels: Record<string, unknown>): number {
     const entry = parseClassEntry(value)
     if (entry) total += entry.level
   }
-  if (total === 0 && levels.hd && Array.isArray(levels.hd) && typeof (levels.hd as unknown[])[0] === 'number') {
+  if (
+    total === 0 &&
+    levels.hd &&
+    Array.isArray(levels.hd) &&
+    typeof (levels.hd as unknown[])[0] === 'number'
+  ) {
     return (levels.hd as number[])[0] ?? 0
   }
   return total
@@ -953,14 +1101,16 @@ function propagateToBab(
   hasChanges: boolean,
 ): boolean {
   const levels = data.character?.levels as Record<string, unknown> | undefined
-  const attack = (data.character?.combat as Record<string, unknown>)
-    ?.attack as Record<string, unknown> | undefined
+  const attack = (data.character?.combat as Record<string, unknown>)?.attack as
+    | Record<string, unknown>
+    | undefined
   if (!levels || !attack?.bab || !Array.isArray(attack.bab)) return hasChanges
 
   const babArr = attack.bab as unknown[]
   if (babArr.length < 2) return hasChanges
   const babMods = babArr[1]
-  if (!babMods || typeof babMods !== 'object' || Array.isArray(babMods)) return hasChanges
+  if (!babMods || typeof babMods !== 'object' || Array.isArray(babMods))
+    return hasChanges
   const mods = babMods as Record<string, number>
 
   let changed = false
@@ -1003,11 +1153,12 @@ function propagateToBaseSaves(
   hasChanges: boolean,
 ): boolean {
   const levels = data.character?.levels as Record<string, unknown> | undefined
-  const saves = (data.character?.combat as Record<string, unknown>)
-    ?.saves as Record<string, unknown> | undefined
+  const saves = (data.character?.combat as Record<string, unknown>)?.saves as
+    | Record<string, unknown>
+    | undefined
   if (!levels || !saves) return hasChanges
 
-  const saveTypes: Array<{ name: string, saveKey: string }> = [
+  const saveTypes: Array<{ name: string; saveKey: string }> = [
     { name: 'fortitude', saveKey: 'fort' },
     { name: 'reflex', saveKey: 'ref' },
     { name: 'will', saveKey: 'will' },
@@ -1017,7 +1168,8 @@ function propagateToBaseSaves(
     const saveArr = saves[name]
     if (!Array.isArray(saveArr) || saveArr.length < 2) continue
     const saveMods = saveArr[1]
-    if (!saveMods || typeof saveMods !== 'object' || Array.isArray(saveMods)) continue
+    if (!saveMods || typeof saveMods !== 'object' || Array.isArray(saveMods))
+      continue
     const mods = saveMods as Record<string, number>
 
     let changed = false
@@ -1086,7 +1238,11 @@ function propagateToHitDice(
   // Only update hdArr[1] if it's a number (single-class simple format).
   // If it's a string (e.g., "6d8 + 3d10 + 4d6") or object (e.g., {cleric: 8, mystic-theurge: 4}),
   // preserve the user's format since we can't improve on it.
-  if (largestDie > 0 && typeof hdArr[1] === 'number' && hdArr[1] !== largestDie) {
+  if (
+    largestDie > 0 &&
+    typeof hdArr[1] === 'number' &&
+    hdArr[1] !== largestDie
+  ) {
     hdArr[1] = largestDie
     hasChanges = true
   }
@@ -1102,9 +1258,14 @@ function propagateToInventoryWeight(
   data: { character?: Record<string, unknown> },
   hasChanges: boolean,
 ): boolean {
-  const inventory = data.character?.inventory as Record<string, unknown> | undefined
-  const movement = data.character?.movement as Record<string, unknown> | undefined
-  if (!inventory || !movement?.load || !Array.isArray(movement.load)) return hasChanges
+  const inventory = data.character?.inventory as
+    | Record<string, unknown>
+    | undefined
+  const movement = data.character?.movement as
+    | Record<string, unknown>
+    | undefined
+  if (!inventory || !movement?.load || !Array.isArray(movement.load))
+    return hasChanges
 
   const loadArr = movement.load as unknown[]
   if (loadArr.length < 2) return hasChanges
@@ -1161,7 +1322,8 @@ function propagateToInventoryWeight(
 
   // Update the load array
   const loadMods = loadArr[1]
-  if (!loadMods || typeof loadMods !== 'object' || Array.isArray(loadMods)) return hasChanges
+  if (!loadMods || typeof loadMods !== 'object' || Array.isArray(loadMods))
+    return hasChanges
   const mods = loadMods as Record<string, string>
 
   let changed = false
@@ -1243,7 +1405,12 @@ function propagateToSynergy(
     const targetArr = skills[target]
     if (!Array.isArray(targetArr) || targetArr.length < 2) continue
     const targetMods = targetArr[1]
-    if (!targetMods || typeof targetMods !== 'object' || Array.isArray(targetMods)) continue
+    if (
+      !targetMods ||
+      typeof targetMods !== 'object' ||
+      Array.isArray(targetMods)
+    )
+      continue
     const modsObj = targetMods as Record<string, number>
 
     const synergyKey = `synergy-${source}`
@@ -1276,13 +1443,16 @@ function propagateToSpeed(
   loadEffects: LoadEffects,
   hasChanges: boolean,
 ): boolean {
-  const movement = data.character?.movement as Record<string, unknown> | undefined
+  const movement = data.character?.movement as
+    | Record<string, unknown>
+    | undefined
   if (!movement?.speed || !Array.isArray(movement.speed)) return hasChanges
 
   const speedArr = movement.speed as unknown[]
   if (speedArr.length < 2) return hasChanges
   const mods = speedArr[1]
-  if (!mods || typeof mods !== 'object' || Array.isArray(mods)) return hasChanges
+  if (!mods || typeof mods !== 'object' || Array.isArray(mods))
+    return hasChanges
   const modsObj = mods as Record<string, number>
 
   const baseSpeed = modsObj.base
@@ -1292,8 +1462,11 @@ function propagateToSpeed(
   // Medium/heavy armor or medium/heavy load: 30ft→20ft (-10), 20ft→15ft (-5)
   const speedRed30 = baseSpeed >= 30 ? -10 : -5
 
-  const armorReduces = equipStats.armorCategory === 'medium' || equipStats.armorCategory === 'heavy'
-  const loadReduces = loadEffects.category === 'medium' || loadEffects.category === 'heavy'
+  const armorReduces =
+    equipStats.armorCategory === 'medium' ||
+    equipStats.armorCategory === 'heavy'
+  const loadReduces =
+    loadEffects.category === 'medium' || loadEffects.category === 'heavy'
 
   // Determine which source to show — armor or load (whichever applies; if both, either works)
   let reductionKey: string | null = null
@@ -1314,7 +1487,7 @@ function propagateToSpeed(
   // Check for user-specified speed reduction keys (e.g., "heavy-armor: -10")
   // These may not match our computed key format exactly, so detect them
   const existingReductionKeys = Object.keys(modsObj).filter(
-    k => k.endsWith('-load') || k.endsWith('-armor')
+    (k) => k.endsWith('-load') || k.endsWith('-armor'),
   )
 
   // If user already has a speed reduction key, don't override it unless
@@ -1371,7 +1544,12 @@ function propagateToSpellSlots(
   if (!spells) return hasChanges
 
   for (const [className, classSpells] of Object.entries(spells)) {
-    if (!classSpells || typeof classSpells !== 'object' || Array.isArray(classSpells)) continue
+    if (
+      !classSpells ||
+      typeof classSpells !== 'object' ||
+      Array.isArray(classSpells)
+    )
+      continue
     const spellBlock = classSpells as Record<string, unknown>
 
     // Read casting info: [type, stat] e.g. [prepared, int]

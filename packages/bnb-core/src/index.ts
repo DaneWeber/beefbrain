@@ -24,4 +24,3 @@ export type {
 export { validateBeefBrainData }
 export { updateCalculatedFields }
 export { dataToCompactYAML } from './dataToCompactYAML'
-

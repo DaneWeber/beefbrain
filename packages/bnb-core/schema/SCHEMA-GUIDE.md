@@ -7,6 +7,7 @@ BeefBrain schemas define the structure and automatic calculations for character 
 ## Schema File Structure
 
 A BeefBrain schema is a JSON file that defines:
+
 1. **Types** - The structural elements of your character data
 2. **Validations** - Rules for what values are allowed
 3. **Calculations** - Automatic computation of derived values
@@ -56,6 +57,7 @@ Use `children` for objects with named properties:
 ```
 
 This corresponds to YAML like:
+
 ```yaml
 abilities:
   strength: 15
@@ -85,8 +87,9 @@ Use `array` for positional data (tuples):
 ```
 
 This corresponds to YAML like:
+
 ```yaml
-strength: [15, str: 2, {base: 11, racial: 2, level: 2}]
+strength: [15, str: 2, { base: 11, racial: 2, level: 2 }]
 ```
 
 ### Simple Types
@@ -139,7 +142,7 @@ Formulas use [Math.js](https://mathjs.org/) for mathematical operations. See [Ma
 #### Common Math Functions
 
 - `sum(array)` - Sum all elements in an array
-- `floor(value)` - Round down to nearest integer  
+- `floor(value)` - Round down to nearest integer
 - `ceil(value)` - Round up to nearest integer
 - `round(value)` - Round to nearest integer
 - `abs(value)` - Absolute value
@@ -170,7 +173,6 @@ These custom functions have been added to make type-checking easier in formulas.
 - `isArray(value)` → `Array.isArray(value)`
 - `isObject(value)` → `typeof value === 'object' && !Array.isArray(value)`
 
-
 ### Variables and Paths
 
 Variables reference data from the YAML file using **jq-style path syntax**. BeefBrain implements a custom path resolver supporting common jq patterns.
@@ -184,6 +186,7 @@ Reference data from anywhere in the character sheet using dot notation starting 
 - `".character.level.power-level"` - A specific property value
 
 Example (Mutants & Masterminds):
+
 ```json
 "PowerPointsAssigned": {
   "type": "number",
@@ -201,11 +204,13 @@ Example (Mutants & Masterminds):
 Reference data relative to the current field's location in the data structure:
 
 **Basic parent access:**
+
 - `"parent[0]"` - First element in parent array
-- `"parent[1]"` - Second element in parent array  
+- `"parent[1]"` - Second element in parent array
 - `"parent[2][]"` - All numeric values from third element (if it's an object or array)
 
 **Parent function (for navigating up multiple levels):**
+
 - `"parent(1)"` or `"parent"` - One level up (same as accessing parent directly)
 - `"parent(2)"` - Two levels up (grandparent)
 - `"parent(3)"` - Three levels up (great-grandparent)
@@ -214,6 +219,7 @@ Reference data relative to the current field's location in the data structure:
 The `parent(n)` function navigates `n` levels up in the data hierarchy from the current field's path.
 
 Example:
+
 ```json
 "calculation": {
   "formula": "sum(components)",
@@ -237,6 +243,7 @@ For YAML like `strength: [15, str: 2, {base: 11, racial: 2, level: 2}]`, when ca
 #### Supported Path Patterns
 
 ✅ **Implemented:**
+
 - `.character.abilities[]` - Collect all numeric values
 - `.character.abilities.strength[0]` - Access specific array index
 - `parent[0]` - Access parent array element
@@ -244,6 +251,7 @@ For YAML like `strength: [15, str: 2, {base: 11, racial: 2, level: 2}]`, when ca
 - `parent[2][]` - Collect from parent's element
 
 ❌ **Not Yet Implemented:**
+
 - Complex jq filters (`select`, `map`, etc.)
 - Recursive descent (`..`)
 - Pipe operations (`|`)
@@ -384,6 +392,7 @@ Begin with basic structure and add calculations incrementally:
 ### 2. Use Descriptive Type Names
 
 Type names should clearly indicate their purpose:
+
 - ✅ `"StrengthScore"`, `"MeleeAttackBonus"`
 - ❌ `"Score1"`, `"Value"`
 
@@ -393,7 +402,7 @@ Add comments in your YAML data to explain the calculation purpose:
 
 ```yaml
 # Ability modifier: (score - 10) / 2, rounded down
-strength: [15, str: 2, {base: 11, racial: 2, level: 2}]
+strength: [15, str: 2, { base: 11, racial: 2, level: 2 }]
 ```
 
 ### 4. Keep Formulas Simple
@@ -430,17 +439,20 @@ See `dnd35-character.json` for array-based structures with multi-step calculatio
 ## Schema Location
 
 Place your schema files in:
+
 ```
 packages/bnb-core/schema/<system-name>/<system-name>-character.json
 ```
 
 For example:
+
 - `packages/bnb-core/schema/dnd35/dnd35-character.json`
 - `packages/bnb-core/schema/mnm3/mnm3-character.json`
 
 ## Testing Your Schema
 
 Create test YAML files in:
+
 ```
 packages/bnb-core/src/examples/
   unchanged/<system>-<character>.yaml
@@ -470,20 +482,23 @@ Then add integration tests to verify calculations update correctly.
 ### 4. Formula Safety
 
 BeefBrain uses [Math.js](https://mathjs.org/) for formula evaluation, which provides:
+
 - ✅ **Sandboxed evaluation** - No access to file system, network, or process
 - ✅ **No arbitrary code execution** - Only mathematical and logical operations
 - ✅ **Type safety** - Automatic type checking and conversion
 - ✅ **Deterministic** - Same input always produces same output
 
 **Safe operations:**
+
 - Mathematical expressions: `(score - 10) / 2`
 - Comparisons and logic: `score > 10 and dex <= 20`
 - Built-in functions: `floor()`, `sum()`, `max()`, etc.
 - Ternary operators: `condition ? value1 : value2`
 
 **Not available (and that's good):**
+
 - File/network access
-- System calls  
+- System calls
 - Variable mutation
 - Arbitrary function execution
 - Access to JavaScript globals
@@ -534,6 +549,7 @@ Use multiple array accesses:
 Current schema format version: **1.0**
 
 Future versions may add:
+
 - String manipulation functions
 - Lookup tables
 - Custom function definitions

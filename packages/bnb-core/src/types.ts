@@ -72,4 +72,3 @@ export interface BeefBrainModifier {
   /** Optional description of what this modifier does */
   description?: string
 }
-

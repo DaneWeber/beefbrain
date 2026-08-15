@@ -41,7 +41,11 @@ pnpm add bnb-core
 ## Usage
 
 ```typescript
-import { validateBeefBrainData, updateCalculatedFields, dataToCompactYAML } from 'bnb-core';
+import {
+  validateBeefBrainData,
+  updateCalculatedFields,
+  dataToCompactYAML,
+} from 'bnb-core'
 
 // Validate a YAML string
 const yamlContent = `---
@@ -49,19 +53,19 @@ character:
   name: Gimli
   abilities:
     strength: [16, {str: 3}]
-`;
+`
 
 if (validateBeefBrainData(yamlContent)) {
-  console.log('Valid character data!');
+  console.log('Valid character data!')
 }
 
 // Calculate derived fields
-const updated = updateCalculatedFields(yamlContent);
-console.log(updated); // YAML with all calculated fields
+const updated = updateCalculatedFields(yamlContent)
+console.log(updated) // YAML with all calculated fields
 
 // Format to compact YAML
-const data = { character: { name: 'Gimli' } };
-const formatted = dataToCompactYAML(data);
+const data = { character: { name: 'Gimli' } }
+const formatted = dataToCompactYAML(data)
 ```
 
 ## API Reference
@@ -89,6 +93,7 @@ pnpm test:coverage # With coverage report
 ```
 
 Test coverage includes:
+
 - Validation logic
 - Ability score calculations
 - Skill bonus calculations (including synergies, class skills)
@@ -103,6 +108,7 @@ Test coverage includes:
 Schemas define game system rules in JSON format. See [SCHEMA-GUIDE.md](schema/SCHEMA-GUIDE.md) for details.
 
 Supported systems:
+
 - **D&D 3.5e**: `catalogs/dnd35/` (complete)
 - **M&M 3e**: `catalogs/mnm3/` (in progress)
 

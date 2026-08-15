@@ -145,10 +145,7 @@
   },
   "AbilityScore": {
     "type": "number",
-    "validValues": [
-      "_",
-      { "integers": { "min": 1 } }
-    ],
+    "validValues": ["_", { "integers": { "min": 1 } }],
     "calculation": {
       "formula": "sum(components)",
       "variables": {
@@ -158,9 +155,7 @@
   },
   "AbilityModifier": {
     "type": "number",
-    "validValues": [
-      { "integers": { "min": -5 } }
-    ],
+    "validValues": [{ "integers": { "min": -5 } }],
     "calculation": {
       "formula": "isNum(score) ? floor((score - 10) / 2) : 0",
       "variables": {
@@ -187,7 +182,10 @@
   "HitDice": {
     "array": {
       "0": { "type": "number", "description": "Total number of hit dice" },
-      "1": { "type": "number", "description": "Largest hit die size (e.g., 10 for d10)" }
+      "1": {
+        "type": "number",
+        "description": "Largest hit die size (e.g., 10 for d10)"
+      }
     }
   },
   "HitPoints": {
@@ -221,7 +219,10 @@
   },
   "ClassLevel": {
     "array": {
-      "0": { "type": "number", "description": "Number of levels in this class" },
+      "0": {
+        "type": "number",
+        "description": "Number of levels in this class"
+      },
       "1": { "type": "ClassLevelDetails" }
     }
   },
@@ -316,7 +317,11 @@
   },
   "MeleeAttacks": {
     "children": [
-      { "name": "_", "type": "GenericMeleeAttack", "description": "Base melee attack modifiers" }
+      {
+        "name": "_",
+        "type": "GenericMeleeAttack",
+        "description": "Base melee attack modifiers"
+      }
     ],
     "additionalChildren": {
       "type": "NamedMeleeWeapon",
@@ -349,17 +354,38 @@
   "NamedMeleeWeapon": {
     "array": {
       "0": { "type": "number", "description": "Total attack bonus" },
-      "1": { "type": "string", "description": "Damage string (e.g., 1d8+2 slashing)" },
-      "2": { "type": "string", "description": "Critical range (e.g., 19-20/x2)" },
-      "3": { "type": "object", "description": "Attack bonus components: {_: generic, special: N, ...}" },
+      "1": {
+        "type": "string",
+        "description": "Damage string (e.g., 1d8+2 slashing)"
+      },
+      "2": {
+        "type": "string",
+        "description": "Critical range (e.g., 19-20/x2)"
+      },
+      "3": {
+        "type": "object",
+        "description": "Attack bonus components: {_: generic, special: N, ...}"
+      },
       "4": { "type": "object", "description": "Damage modifier: {str: N}" },
-      "5": { "type": "object", "optional": true, "description": "Extra properties" },
-      "6": { "type": "array", "optional": true, "description": "Tags: [weapon-name, feat-tags, ...]" }
+      "5": {
+        "type": "object",
+        "optional": true,
+        "description": "Extra properties"
+      },
+      "6": {
+        "type": "array",
+        "optional": true,
+        "description": "Tags: [weapon-name, feat-tags, ...]"
+      }
     }
   },
   "RangedAttacks": {
     "children": [
-      { "name": "_", "type": "GenericRangedAttack", "description": "Base ranged attack modifiers" }
+      {
+        "name": "_",
+        "type": "GenericRangedAttack",
+        "description": "Base ranged attack modifiers"
+      }
     ],
     "additionalChildren": {
       "type": "NamedRangedWeapon",
@@ -394,9 +420,20 @@
       "0": { "type": "number", "description": "Total attack bonus" },
       "1": { "type": "string", "description": "Damage string" },
       "2": { "type": "string", "description": "Critical range" },
-      "3": { "type": "object", "description": "Attack bonus components: {_: generic, ...}" },
-      "4": { "type": "object", "optional": true, "description": "Damage modifier" },
-      "5": { "type": "object", "optional": true, "description": "Extra properties" },
+      "3": {
+        "type": "object",
+        "description": "Attack bonus components: {_: generic, ...}"
+      },
+      "4": {
+        "type": "object",
+        "optional": true,
+        "description": "Damage modifier"
+      },
+      "5": {
+        "type": "object",
+        "optional": true,
+        "description": "Extra properties"
+      },
       "6": { "type": "array", "optional": true, "description": "Tags" }
     }
   },
@@ -476,13 +513,19 @@
   "ArmorCheckPenalty": {
     "array": {
       "0": { "type": "number", "description": "Total ACP (negative value)" },
-      "1": { "type": "object", "description": "ACP sources: armor, shield, or encumbrance (use worst)" }
+      "1": {
+        "type": "object",
+        "description": "ACP sources: armor, shield, or encumbrance (use worst)"
+      }
     }
   },
   "MaxDexBonus": {
     "array": {
       "0": { "type": "number", "description": "Effective max Dex bonus to AC" },
-      "1": { "type": "object", "description": "Max Dex sources: armor or encumbrance (use worst)" }
+      "1": {
+        "type": "object",
+        "description": "Max Dex sources: armor or encumbrance (use worst)"
+      }
     }
   },
   "Movement": {
@@ -514,13 +557,22 @@
   "RunSpeed": {
     "array": {
       "0": { "type": "number", "description": "Run speed in feet" },
-      "1": { "type": "object", "description": "Run multiplier info: {base: x4} or {base: x3}" }
+      "1": {
+        "type": "object",
+        "description": "Run multiplier info: {base: x4} or {base: x3}"
+      }
     }
   },
   "CurrentLoad": {
     "array": {
-      "0": { "type": "string", "description": "Total carried weight (e.g., 75.5 lbs)" },
-      "1": { "type": "object", "description": "Weight by location: {equipped: N lbs, pack: N lbs}" }
+      "0": {
+        "type": "string",
+        "description": "Total carried weight (e.g., 75.5 lbs)"
+      },
+      "1": {
+        "type": "object",
+        "description": "Weight by location: {equipped: N lbs, pack: N lbs}"
+      }
     }
   },
   "CarryingCapacity": {
@@ -609,13 +661,24 @@
   "Feat": {
     "array": {
       "0": { "type": "string", "description": "Feat name" },
-      "1": { "type": "object", "description": "Source: {level: N} or {class: N} or {human: N}" },
-      "2": { "type": "array", "optional": true, "description": "Effects: references to affected fields and modifiers" }
+      "1": {
+        "type": "object",
+        "description": "Source: {level: N} or {class: N} or {human: N}"
+      },
+      "2": {
+        "type": "array",
+        "optional": true,
+        "description": "Effects: references to affected fields and modifiers"
+      }
     }
   },
   "Inventory": {
     "children": [
-      { "name": "_on", "type": "array", "description": "List of carried containers: [equipped, pack]" },
+      {
+        "name": "_on",
+        "type": "array",
+        "description": "List of carried containers: [equipped, pack]"
+      },
       { "name": "money", "type": "Money", "optional": true }
     ],
     "additionalChildren": {
@@ -625,17 +688,30 @@
   },
   "Money": {
     "children": [
-      { "name": "_total", "type": "string", "description": "Total value in gp" },
+      {
+        "name": "_total",
+        "type": "string",
+        "description": "Total value in gp"
+      },
       { "name": "coins", "type": "CoinEntry", "optional": true }
     ]
   },
   "CoinEntry": {
     "array": {
-      "0": { "type": "string", "description": "Total coin value (e.g., 20.5 gp)" },
+      "0": {
+        "type": "string",
+        "description": "Total coin value (e.g., 20.5 gp)"
+      },
       "1": { "type": "string", "description": "Weight" },
       "2": { "type": "string", "description": "Location" },
-      "3": { "type": "object", "description": "Coin breakdown: {pp: N, gp: N, sp: N, cp: N}" },
-      "4": { "type": "string", "description": "Weight per coin (e.g., 0.02 lbs)" }
+      "3": {
+        "type": "object",
+        "description": "Coin breakdown: {pp: N, gp: N, sp: N, cp: N}"
+      },
+      "4": {
+        "type": "string",
+        "description": "Weight per coin (e.g., 0.02 lbs)"
+      }
     }
   },
   "ItemList": {
@@ -646,11 +722,22 @@
     "array": {
       "0": { "type": "string", "description": "Item name" },
       "1": { "type": "number", "description": "Quantity" },
-      "2": { "type": "string", "description": "Category (weapon, armor, shield, gear, supplies, container)" },
+      "2": {
+        "type": "string",
+        "description": "Category (weapon, armor, shield, gear, supplies, container)"
+      },
       "3": { "type": "string", "description": "Weight per item (e.g., 4 lbs)" },
       "4": { "type": "string", "description": "Cost per item (e.g., 15 gp)" },
-      "5": { "type": "object", "optional": true, "description": "Item properties (varies by category)" },
-      "6": { "type": "array", "optional": true, "description": "Tags: [size, proficiency, type, ...]" }
+      "5": {
+        "type": "object",
+        "optional": true,
+        "description": "Item properties (varies by category)"
+      },
+      "6": {
+        "type": "array",
+        "optional": true,
+        "description": "Tags: [size, proficiency, type, ...]"
+      }
     }
   }
 }

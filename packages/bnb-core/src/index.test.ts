@@ -104,7 +104,9 @@ character:
 `
           const output = parseYAML(updateCalculatedFields(yamlContent))
           // 1.5x Str mod of 4 = floor(6) = 6
-          expect(output.character.combat.attack.melee.greatsword[1]).toBe('2d6+6 slashing')
+          expect(output.character.combat.attack.melee.greatsword[1]).toBe(
+            '2d6+6 slashing',
+          )
         })
         it('should apply 0.5x str to off-hand weapon damage', () => {
           const yamlContent = `---
@@ -119,7 +121,9 @@ character:
 `
           const output = parseYAML(updateCalculatedFields(yamlContent))
           // 0.5x Str mod of 4 = floor(2) = 2
-          expect(output.character.combat.attack.melee.dagger[1]).toBe('1d4+2 piercing')
+          expect(output.character.combat.attack.melee.dagger[1]).toBe(
+            '1d4+2 piercing',
+          )
         })
         it('should update carrying capacity in movement', () => {
           const yamlContent = `---
@@ -399,7 +403,9 @@ character:
           expect(output.character.combat.defense.ac[0]).toBe(7)
           // Flat-footed uses spread format: [total, {base: 10}, {dex: -3}]
           expect(output.character.combat.defense['flat-footed-ac'][0]).toBe(7)
-          expect(output.character.combat.defense['flat-footed-ac'][2].dex).toBe(-3)
+          expect(output.character.combat.defense['flat-footed-ac'][2].dex).toBe(
+            -3,
+          )
         })
       })
       describe('equipment-derived defense stats', () => {
@@ -502,7 +508,9 @@ character:
 `
           const output = parseYAML(updateCalculatedFields(yamlContent))
           // Belt adds str: 4 to components, score = 14 + 4 = 18, mod = 4
-          expect(output.character.abilities.strength[2]['belt-of-giant-strength']).toBe(4)
+          expect(
+            output.character.abilities.strength[2]['belt-of-giant-strength'],
+          ).toBe(4)
           expect(output.character.abilities.strength[0]).toBe(18)
           expect(output.character.abilities.strength[1].str).toBe(4)
         })
@@ -661,7 +669,9 @@ character:
     diplomacy: [0, cha: 0]
 `
           const output = parseYAML(updateCalculatedFields(yamlContent))
-          expect(output.character.skills.diplomacy[1]['synergy-bluff']).toBeUndefined()
+          expect(
+            output.character.skills.diplomacy[1]['synergy-bluff'],
+          ).toBeUndefined()
           expect(output.character.skills.diplomacy[0]).toBe(0)
         })
       })
@@ -837,7 +847,11 @@ character:
           expect(output.character.spells.sorcerer.slots[1][1].cha).toBe(1)
           expect(output.character.spells.sorcerer.slots[1][0]).toBe(7) // 6+1
           // Known list preserved
-          expect(output.character.spells.sorcerer.known[1]).toEqual(['magic missile', 'shield', 'grease'])
+          expect(output.character.spells.sorcerer.known[1]).toEqual([
+            'magic missile',
+            'shield',
+            'grease',
+          ])
         })
       })
       it('should calculate the correct strength without modifiers', () => {
