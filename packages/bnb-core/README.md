@@ -6,29 +6,31 @@
 
 The foundation of the BeefBrain ecosystem. This TypeScript library handles validation, automatic calculation, and formatting of YAML character data files for tabletop RPG systems.
 
-**Status**: ✅ Core functionality complete, actively maintained
+**Status**: ✅ Core functionality complete and well-tested (60+ tests)
 
 ## Features
 
 ### ✅ Implemented
 
-- **Schema-based validation**: Validates YAML files against JSON schemas for different game systems
-- **Automatic calculations**: Computes derived fields (ability modifiers, skill bonuses, saves, combat stats)
+- **YAML validation**: Validates YAML files for proper syntax and structure
+- **Automatic calculations**: Computes derived fields like ability modifiers using game system rules
 - **YAML formatting**: Outputs compact, human-readable YAML with consistent styling
-- **D&D 3.5e support**: Complete calculation engine for D&D 3.5 edition
+- **D&D 3.5e support**: Complete calculation engine for D&D 3.5 edition with 60+ comprehensive tests
 - **Type safety**: Full TypeScript type definitions for character data
-- **Zero dependencies**: No runtime dependencies (only dev dependencies)
+- **Schema system**: Extensible schema framework for game system definitions
+- **Minimal dependencies**: Single runtime dependency (yaml library only)
 
 ### 🚧 In Progress
 
 - M&M 3e schema and calculations
-- Enhanced error messages for validation failures
+- Enhanced validation error messages with field paths
 
 ### 📋 Planned
 
 - Modifier/template application API (apply effects to characters)
 - Performance optimization for large files
 - Additional game system support
+- Calculation debugging/tracing mode
 
 ## Installation
 

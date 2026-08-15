@@ -1,9 +1,24 @@
 {
   "name": "beefbrain",
   "private": true,
+  "version": "1.0.0",
+  "description": "TTRPG character and creature calculator using human-readable data formats",
+  "license": "MIT",
+  "author": "DaneWeber",
+  "pnpm": {
+    "workspace-dir": "."
+  },
   "scripts": {
-    "build": "pnpm -r build",
+    "build": "pnpm -r --filter '!bnb-web' build",
+    "build:all": "pnpm -r build",
+    "clean": "pnpm -r clean",
     "test": "pnpm -r test",
+    "test:watch": "pnpm -r test:watch",
+    "test:coverage": "pnpm -r test:coverage",
+    "lint": "pnpm -r lint",
+    "lint:fix": "pnpm -r lint:fix",
+    "format": "pnpm -r format",
+    "format:check": "pnpm -r format",
     "init-items": "node scripts/init-item-metadata.js",
     "dev": "pnpm --filter bnb-web dev"
   },
@@ -11,5 +26,13 @@
     "glob": "^13.0.6",
     "js-yaml": "^4.1.1",
     "yaml": "^2.8.2"
-  }
+  },
+  "keywords": [
+    "typescript",
+    "ttrpg",
+    "character",
+    "creature",
+    "dnd",
+    "monorepo"
+  ]
 }

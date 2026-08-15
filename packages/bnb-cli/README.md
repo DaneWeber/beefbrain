@@ -86,14 +86,17 @@ bnb gimli.yaml --calc | diff gimli.yaml -
 ## Testing
 
 ```bash
-pnpm test  # Currently configured but no tests
+pnpm test  # Run all tests
 ```
 
-**Next Steps for Testing:**
-- Add unit tests for argument parsing
-- Add integration tests for file operations
-- Test error handling scenarios
-- Test batch processing
+**Current Status**: ⚠️ No test coverage yet
+
+**Priority Next Steps for Testing:**
+1. Add unit tests for argument parsing and CLI flag handling
+2. Add integration tests for file I/O operations and error handling
+3. Test batch file processing with multiple YAML files
+4. Test error scenarios (invalid files, missing dependencies, permission errors)
+5. Add snapshot tests for output formatting
 
 ## Next Steps
 
