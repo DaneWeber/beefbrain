@@ -18,8 +18,8 @@
     "test:coverage": "pnpm -r test:coverage",
     "lint": "pnpm -r lint",
     "lint:fix": "pnpm -r lint:fix",
-    "format": "pnpm -r format",
-    "format:check": "pnpm -r format",
+    "format": "pnpm --filter bnb-core --filter bnb-cli format:fix",
+    "format:check": "pnpm --filter bnb-core --filter bnb-cli format",
     "init-items": "node scripts/init-item-metadata.js",
     "dev": "pnpm --filter bnb-web dev"
   },

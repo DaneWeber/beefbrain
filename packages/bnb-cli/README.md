@@ -89,10 +89,18 @@ bnb gimli.yaml --calc | diff gimli.yaml -
 ## Testing
 
 ```bash
+pnpm build # Build CLI distribution used by integration tests
 pnpm test  # Run all tests
 ```
 
-**Current Status**: ⚠️ No test coverage yet
+**Current Status**: ✅ Integration tests in place
+
+Current suite covers:
+
+1. CLI argument parsing and help behavior
+2. Validation and calculation flows (`--calc`, `--write`)
+3. File error handling and multi-file processing
+4. Output behavior and edge cases
 
 **Priority Next Steps for Testing:**
 

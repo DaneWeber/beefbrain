@@ -123,7 +123,14 @@ export function loadSchema(schemaName: string): Schema {
     return schemaCache[schemaName]
   }
 
-  const dir = SCHEMA_DIRS[schemaName] || schemaName.split('-')[0] || schemaName
+  const dir = SCHEMA_DIRS[schemaName]
+  if (!dir) {
+    throw new Error(
+      `Unknown schema "${schemaName}". Available schemas: ${Object.keys(
+        SCHEMA_DIRS,
+      ).join(', ')}`,
+    )
+  }
   const schemaPath = join(__dirname, '..', 'schema', dir, `${schemaName}.json`)
   const schemaContent = readFileSync(schemaPath, 'utf-8')
   const schema = JSON.parse(schemaContent) as Schema

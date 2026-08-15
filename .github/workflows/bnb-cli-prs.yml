@@ -32,6 +32,9 @@ jobs:
       - name: Build bnb-cli
         run: pnpm --filter bnb-cli build
 
+      - name: Verify CLI build artifact
+        run: test -f packages/bnb-cli/dist/index.js
+
       - name: Run bnb-cli tests
         run: pnpm --filter bnb-cli test
 

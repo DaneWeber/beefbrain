@@ -28,8 +28,8 @@ jobs:
       - name: Build bnb-core
         run: pnpm --filter bnb-core build
 
-      - name: Run bnb-core tests
-        run: pnpm --filter bnb-core test
+      - name: Run bnb-core tests with coverage
+        run: pnpm --filter bnb-core test:coverage
 
       - name: Run bnb-core linting
         run: pnpm --filter bnb-core lint

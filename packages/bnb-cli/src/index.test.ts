@@ -1,11 +1,20 @@
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals'
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  afterAll,
+} from '@jest/globals'
 import {
   readFileSync,
   writeFileSync,
   unlinkSync,
   mkdirSync,
+  rmSync,
   readdirSync,
 } from 'fs'
+import { tmpdir } from 'os'
 import { resolve } from 'path'
 import * as childProcess from 'child_process'
 
@@ -13,14 +22,14 @@ import * as childProcess from 'child_process'
 const VALID_YAML = `---
 character:
   abilities:
-    strength: [15, str: 2, { base: 11, orc: 2, hd: 2 }]
+    strength: [15, { str: 2 }, { base: 11, orc: 2, hd: 2 }]
 `
 
 const INVALID_YAML = `---
 character: abilities: strength: [15, str: 2]
 `
 
-const TEMP_DIR = '/tmp/bnb-cli-tests'
+const TEMP_DIR = resolve(tmpdir(), `bnb-cli-tests-${process.pid}-${Date.now()}`)
 
 describe('bnb-cli integration tests', () => {
   beforeEach(() => {
@@ -38,6 +47,14 @@ describe('bnb-cli integration tests', () => {
       for (const file of files) {
         unlinkSync(resolve(TEMP_DIR, file))
       }
+    } catch {
+      // Ignore cleanup errors
+    }
+  })
+
+  afterAll(() => {
+    try {
+      rmSync(TEMP_DIR, { recursive: true, force: true })
     } catch {
       // Ignore cleanup errors
     }
