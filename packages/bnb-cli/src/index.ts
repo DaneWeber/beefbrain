@@ -1,9 +1,6 @@
 import { readFileSync, writeFileSync } from 'fs'
 import { resolve } from 'path'
-import {
-  validateBeefBrainData,
-  updateCalculatedFields,
-} from 'bnb-core'
+import { validateBeefBrainData, updateCalculatedFields } from 'bnb-core'
 
 function printUsage(): void {
   console.log(`Usage: bnb <file.yaml> [options]
@@ -43,7 +40,9 @@ function main(): void {
     try {
       content = readFileSync(filePath, 'utf-8')
     } catch (err) {
-      console.error(`Error: Cannot read file "${file}": ${(err as Error).message}`)
+      console.error(
+        `Error: Cannot read file "${file}": ${(err as Error).message}`,
+      )
       process.exit(1)
     }
 
@@ -69,9 +68,7 @@ function main(): void {
         writeFileSync(filePath, output, 'utf-8')
         console.log(`Updated: ${file}`)
       } catch (err) {
-        console.error(
-          `Error writing file "${file}": ${(err as Error).message}`,
-        )
+        console.error(`Error writing file "${file}": ${(err as Error).message}`)
         process.exit(1)
       }
     } else {

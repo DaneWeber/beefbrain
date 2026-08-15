@@ -145,6 +145,7 @@ Example calculation (D&D 3.5e ability modifier):
 ```
 
 Formulas use [Math.js](https://mathjs.org/) for safe, sandboxed evaluation with support for:
+
 - Arithmetic operations: `+`, `-`, `*`, `/`, `^`, `%`
 - Comparisons: `==`, `!=`, `<`, `>`, `<=`, `>=`
 - Logical operators: `and`, `or`, `not`

@@ -579,10 +579,10 @@ describe('Pathfinder 1e Schema', () => {
   it('should calculate ability modifiers correctly', () => {
     const yaml = fs.readFileSync(
       'src/examples/unchanged/pathfinder1e-archer.yaml',
-      'utf-8'
+      'utf-8',
     )
     const result = parseYAML(updateCalculatedFields(yaml))
-    
+
     // Verify calculations
     expect(result.character.abilities.strength[1]).toBe(2)
     expect(result.character.abilities.dexterity[1]).toBe(4)
@@ -599,6 +599,7 @@ touch packages/bnb-core/schema/pathfinder1e/RULES.md
 ```
 
 Document things like:
+
 - Ability score modifiers (how ability scores map to modifiers)
 - Skill calculation (base, ability modifier, ranks, class bonus)
 - Combat calculations (AC, attack bonuses, damage)
@@ -613,6 +614,7 @@ pnpm test  # From root or packages/bnb-core
 ```
 
 Verify:
+
 - Schema validates correctly
 - Calculations produce expected results
 - Integration tests pass
@@ -632,28 +634,24 @@ Here's a minimal template you can copy and modify:
 ```json
 {
   "root": {
-    "children": [
-      {"name": "character", "type": "Character"}
-    ]
+    "children": [{ "name": "character", "type": "Character" }]
   },
   "Character": {
-    "children": [
-      {"name": "abilities", "type": "Abilities"}
-    ]
+    "children": [{ "name": "abilities", "type": "Abilities" }]
   },
   "Abilities": {
     "children": [
-      {"name": "strength", "type": "Score"},
-      {"name": "dexterity", "type": "Score"},
-      {"name": "constitution", "type": "Score"},
-      {"name": "intelligence", "type": "Score"},
-      {"name": "wisdom", "type": "Score"},
-      {"name": "charisma", "type": "Score"}
+      { "name": "strength", "type": "Score" },
+      { "name": "dexterity", "type": "Score" },
+      { "name": "constitution", "type": "Score" },
+      { "name": "intelligence", "type": "Score" },
+      { "name": "wisdom", "type": "Score" },
+      { "name": "charisma", "type": "Score" }
     ]
   },
   "Score": {
     "type": "number",
-    "validValues": [{"integers": {"min": 1, "max": 30}}]
+    "validValues": [{ "integers": { "min": 1, "max": 30 } }]
   }
 }
 ```

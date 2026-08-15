@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals'
-import { readFileSync, writeFileSync, unlinkSync, mkdirSync } from 'fs'
+import {
+  readFileSync,
+  writeFileSync,
+  unlinkSync,
+  mkdirSync,
+  readdirSync,
+} from 'fs'
 import { resolve } from 'path'
 import * as childProcess from 'child_process'
 
@@ -28,7 +34,7 @@ describe('bnb-cli integration tests', () => {
   afterEach(() => {
     // Clean up test files
     try {
-      const files = require('fs').readdirSync(TEMP_DIR)
+      const files = readdirSync(TEMP_DIR)
       for (const file of files) {
         unlinkSync(resolve(TEMP_DIR, file))
       }
@@ -39,17 +45,25 @@ describe('bnb-cli integration tests', () => {
 
   describe('argument parsing', () => {
     it('should show help with --help flag', () => {
-      const result = childProcess.spawnSync('node', ['dist/index.js', '--help'], {
-        cwd: resolve(__dirname, '..'),
-      })
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', '--help'],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
       expect(result.status).toBe(0)
       expect(result.stdout.toString()).toContain('Usage: bnb')
     })
 
     it('should error when no files specified', () => {
-      const result = childProcess.spawnSync('node', ['dist/index.js', '--calc'], {
-        cwd: resolve(__dirname, '..'),
-      })
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', '--calc'],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
       expect(result.status).toBe(1)
       expect(result.stderr.toString()).toContain('No file specified')
     })
@@ -60,9 +74,13 @@ describe('bnb-cli integration tests', () => {
       const testFile = resolve(TEMP_DIR, 'valid.yaml')
       writeFileSync(testFile, VALID_YAML)
 
-      const result = childProcess.spawnSync('node', ['dist/index.js', testFile], {
-        cwd: resolve(__dirname, '..'),
-      })
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', testFile],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
 
       expect(result.status).toBe(0)
       expect(result.stdout.toString()).toContain('character')
@@ -73,18 +91,26 @@ describe('bnb-cli integration tests', () => {
       const testFile = resolve(TEMP_DIR, 'invalid.yaml')
       writeFileSync(testFile, INVALID_YAML)
 
-      const result = childProcess.spawnSync('node', ['dist/index.js', testFile], {
-        cwd: resolve(__dirname, '..'),
-      })
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', testFile],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
 
       expect(result.status).toBe(1)
       expect(result.stderr.toString()).toContain('not valid YAML')
     })
 
     it('should error when file does not exist', () => {
-      const result = childProcess.spawnSync('node', ['dist/index.js', '/nonexistent/file.yaml'], {
-        cwd: resolve(__dirname, '..'),
-      })
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', '/nonexistent/file.yaml'],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
 
       expect(result.status).toBe(1)
       expect(result.stderr.toString()).toContain('Cannot read file')
@@ -96,9 +122,13 @@ describe('bnb-cli integration tests', () => {
       const testFile = resolve(TEMP_DIR, 'calc.yaml')
       writeFileSync(testFile, VALID_YAML)
 
-      const result = childProcess.spawnSync('node', ['dist/index.js', testFile, '--calc'], {
-        cwd: resolve(__dirname, '..'),
-      })
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', testFile, '--calc'],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
 
       expect(result.status).toBe(0)
       const output = result.stdout.toString()
@@ -113,9 +143,13 @@ describe('bnb-cli integration tests', () => {
       const testFile = resolve(TEMP_DIR, 'write.yaml')
       writeFileSync(testFile, VALID_YAML)
 
-      const result = childProcess.spawnSync('node', ['dist/index.js', testFile, '--write'], {
-        cwd: resolve(__dirname, '..'),
-      })
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', testFile, '--write'],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
 
       expect(result.status).toBe(0)
       expect(result.stdout.toString()).toContain('Updated:')
@@ -130,9 +164,13 @@ describe('bnb-cli integration tests', () => {
       const testFile = resolve(TEMP_DIR, 'nowrite.yaml')
       writeFileSync(testFile, VALID_YAML)
 
-      const result = childProcess.spawnSync('node', ['dist/index.js', testFile, '--write'], {
-        cwd: resolve(__dirname, '..'),
-      })
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', testFile, '--write'],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
 
       expect(result.status).toBe(0)
       // Should only output status message, not the file content to stdout
@@ -145,9 +183,13 @@ describe('bnb-cli integration tests', () => {
 
     it('should handle write errors gracefully', () => {
       // Try to write to an invalid path
-      const result = childProcess.spawnSync('node', ['dist/index.js', '/root/invalid/path.yaml', '--write'], {
-        cwd: resolve(__dirname, '..'),
-      })
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', '/root/invalid/path.yaml', '--write'],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
 
       expect(result.status).toBe(1)
       expect(result.stderr.toString()).toContain('Error')
@@ -161,9 +203,13 @@ describe('bnb-cli integration tests', () => {
       writeFileSync(file1, VALID_YAML)
       writeFileSync(file2, VALID_YAML)
 
-      const result = childProcess.spawnSync('node', ['dist/index.js', file1, file2], {
-        cwd: resolve(__dirname, '..'),
-      })
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', file1, file2],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
 
       expect(result.status).toBe(0)
       const output = result.stdout.toString()
@@ -177,9 +223,13 @@ describe('bnb-cli integration tests', () => {
       writeFileSync(validFile, VALID_YAML)
       writeFileSync(invalidFile, INVALID_YAML)
 
-      const result = childProcess.spawnSync('node', ['dist/index.js', validFile, invalidFile], {
-        cwd: resolve(__dirname, '..'),
-      })
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', validFile, invalidFile],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
 
       expect(result.status).toBe(1)
       expect(result.stderr.toString()).toContain('not valid YAML')
@@ -191,9 +241,13 @@ describe('bnb-cli integration tests', () => {
       const testFile = resolve(TEMP_DIR, 'output.yaml')
       writeFileSync(testFile, VALID_YAML)
 
-      const result = childProcess.spawnSync('node', ['dist/index.js', testFile], {
-        cwd: resolve(__dirname, '..'),
-      })
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', testFile],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
 
       expect(result.status).toBe(0)
       expect(result.stdout.toString()).toContain('---')
@@ -204,9 +258,13 @@ describe('bnb-cli integration tests', () => {
       const testFile = resolve(TEMP_DIR, 'structure.yaml')
       writeFileSync(testFile, VALID_YAML)
 
-      const result = childProcess.spawnSync('node', ['dist/index.js', testFile], {
-        cwd: resolve(__dirname, '..'),
-      })
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', testFile],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
 
       expect(result.status).toBe(0)
       const output = result.stdout.toString()
@@ -220,9 +278,13 @@ describe('bnb-cli integration tests', () => {
       const testFile = resolve(TEMP_DIR, 'empty.yaml')
       writeFileSync(testFile, '')
 
-      const result = childProcess.spawnSync('node', ['dist/index.js', testFile], {
-        cwd: resolve(__dirname, '..'),
-      })
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', testFile],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
 
       expect(result.status).toBe(0)
     })
@@ -231,9 +293,13 @@ describe('bnb-cli integration tests', () => {
       const testFile = resolve(TEMP_DIR, 'whitespace.yaml')
       writeFileSync(testFile, '   \n\n  ')
 
-      const result = childProcess.spawnSync('node', ['dist/index.js', testFile], {
-        cwd: resolve(__dirname, '..'),
-      })
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', testFile],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
 
       expect(result.status).toBe(0)
     })
@@ -255,9 +321,13 @@ describe('bnb-cli integration tests', () => {
       const testFile = resolve(TEMP_DIR, 'both-flags.yaml')
       writeFileSync(testFile, VALID_YAML)
 
-      const result = childProcess.spawnSync('node', ['dist/index.js', testFile, '--calc', '--write'], {
-        cwd: resolve(__dirname, '..'),
-      })
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', testFile, '--calc', '--write'],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
 
       expect(result.status).toBe(0)
       expect(result.stdout.toString()).toContain('Updated:')
@@ -268,4 +338,3 @@ describe('bnb-cli integration tests', () => {
     })
   })
 })
-

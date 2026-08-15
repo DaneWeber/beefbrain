@@ -1,6 +1,7 @@
 import { describe, it, expect } from '@jest/globals'
 import { parse as parseYAML } from 'yaml'
 import { validateBeefBrainData, updateCalculatedFields } from './index'
+import { evaluateFormula } from './calculationEngine'
 
 describe('Beef Brain Core', () => {
   describe('validateBeefBrainData', () => {
@@ -987,8 +988,6 @@ character:
 
   describe('Mutants & Masterminds 3e specific tests', () => {
     it('should calculate power points assigned from abilities', () => {
-      const { evaluateFormula } = require('./calculationEngine')
-
       const rootData = {
         character: {
           abilities: {

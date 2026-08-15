@@ -1,5 +1,4 @@
-import type { Schema, SchemaComponentBindings } from './schemaLoader'
-import { evaluateFormula } from './calculationEngine'
+import type { SchemaComponentBindings } from './schemaLoader'
 
 /**
  * Resolve a jq-style path to a value in the data object.
