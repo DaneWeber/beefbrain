@@ -1,5 +1,6 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join, basename } from 'node:path';
+import { updateCalculatedFields, validateBeefBrainData } from 'bnb-core';
 import yaml from 'js-yaml';
 
 const YAML_DIR = join(
@@ -18,6 +19,20 @@ export interface CharacterSummary {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type CharacterData = Record<string, any>;
 
+export function parseCharacterYamlContent(raw: string, sourceName: string): CharacterData {
+	if (!validateBeefBrainData(raw)) {
+		throw new Error(`Invalid character YAML in "${sourceName}"`);
+	}
+
+	const calculated = updateCalculatedFields(raw);
+	const parsed = yaml.load(calculated);
+	if (!parsed || typeof parsed !== 'object') {
+		throw new Error(`Character YAML in "${sourceName}" did not parse to an object`);
+	}
+
+	return parsed as CharacterData;
+}
+
 export async function listCharacters(): Promise<CharacterSummary[]> {
 	const files = await readdir(YAML_DIR);
 	const yamlFiles = files.filter((f) => f.endsWith('.yaml') || f.endsWith('.yml')).sort();
@@ -25,7 +40,7 @@ export async function listCharacters(): Promise<CharacterSummary[]> {
 	const summaries: CharacterSummary[] = [];
 	for (const file of yamlFiles) {
 		const raw = await readFile(join(YAML_DIR, file), 'utf-8');
-		const data = yaml.load(raw) as CharacterData;
+		const data = parseCharacterYamlContent(raw, file);
 		const char = data?.character;
 		if (!char) continue;
 
@@ -62,7 +77,7 @@ export async function loadAllCharacters(): Promise<{ slug: string; character: Ch
 	const results: { slug: string; character: CharacterData }[] = [];
 	for (const file of yamlFiles) {
 		const raw = await readFile(join(YAML_DIR, file), 'utf-8');
-		const data = yaml.load(raw) as CharacterData;
+		const data = parseCharacterYamlContent(raw, file);
 		if (data?.character) {
 			results.push({ slug: basename(file, '.yaml'), character: data.character });
 		}
@@ -74,9 +89,12 @@ export async function loadCharacter(slug: string): Promise<CharacterData | null>
 	const filePath = join(YAML_DIR, `${slug}.yaml`);
 	try {
 		const raw = await readFile(filePath, 'utf-8');
-		return yaml.load(raw) as CharacterData;
-	} catch {
-		return null;
+		return parseCharacterYamlContent(raw, `${slug}.yaml`);
+	} catch (error: unknown) {
+		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+			return null;
+		}
+		throw error;
 	}
 }
 

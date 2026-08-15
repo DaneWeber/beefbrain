@@ -8,17 +8,17 @@
 
 A SvelteKit web application for viewing and managing TTRPG characters stored in YAML files. Provides multiple views optimized for different use cases (streamlined for gameplay, detailed for planning, DM-only tools).
 
-**Critical Issue**: Currently does NOT use bnb-core library. Integration is the top priority.
+**Status Update**: Character loading now uses `bnb-core` for validation and calculated-field updates before rendering.
 
 ## Features
 
 ### ✅ Implemented
 
 - **Character List**: Browse all available characters
-- **Character Sheets**: 
+- **Character Sheets**:
   - Streamlined view (combat-focused)
   - Detailed view (complete stats)
-- **Inventory Management**: 
+- **Inventory Management**:
   - View character equipment
   - CSV export for spreadsheet analysis
   - Weight/value calculations
@@ -29,7 +29,6 @@ A SvelteKit web application for viewing and managing TTRPG characters stored in 
 
 ### ❌ Missing (Critical)
 
-- bnb-core integration
 - Validation feedback
 - Automatic calculations
 - Character editing
@@ -38,20 +37,24 @@ A SvelteKit web application for viewing and managing TTRPG characters stored in 
 ### 📋 Planned (Key Features)
 
 **Editing & Git Integration:**
+
 - In-browser character editing with YAML export for version control
 - File upload/download (Git-friendly workflows)
 
 **Live Gameplay:**
+
 - Equip/unequip items with live recalculation (encumbrance, AC, attack bonuses)
 - Temporary effect system (buff spells, wild shape, conditions)
 - Real-time stat updates during gameplay
 
 **Campaign Management:**
+
 - GUID-based sharing (DM view + individual player views)
 - Multi-party support for multiple campaigns
 - Player-specific visibility controls
 
 **Advanced:**
+
 - Schema selection (D&D 3.5e vs M&M 3e)
 - Print-friendly character sheets
 - Mobile-optimized gameplay interface
@@ -133,15 +136,18 @@ pnpm preview     # Preview production build
 
 ## Current Architecture Issues
 
-### 🚨 Critical: Not Using bnb-core
+### ✅ bnb-core Integration (Server-side character loading)
 
-**Problem**: The web app currently:
-- Parses YAML directly with `js-yaml`
-- Has no validation logic
-- Doesn't calculate derived fields
-- Duplicates logic that exists in bnb-core
+**Current behavior**:
 
-**Solution**: Integrate bnb-core
+- Character YAML is validated with `validateBeefBrainData`
+- Derived fields are updated via `updateCalculatedFields`
+- The parsed calculated output is used by list/detail page loaders
+
+**Remaining gaps**:
+
+- Surface validation/calculation errors in UI
+- Extend bnb-core integration to DM metadata paths where appropriate
 
 ```typescript
 // Current (bad)
@@ -151,7 +157,7 @@ const data = yaml.load(raw);
 // Should be (good)
 import { validateBeefBrainData, updateCalculatedFields } from 'bnb-core';
 if (!validateBeefBrainData(raw)) {
-  // Show validation errors
+	// Show validation errors
 }
 const calculated = updateCalculatedFields(raw);
 const data = yaml.load(calculated);
@@ -160,12 +166,13 @@ const data = yaml.load(calculated);
 ### Missing Dependency
 
 `package.json` should include:
+
 ```json
 {
-  "dependencies": {
-    "bnb-core": "workspace:*",
-    "js-yaml": "^4.1.1"
-  }
+	"dependencies": {
+		"bnb-core": "workspace:*",
+		"js-yaml": "^4.1.1"
+	}
 }
 ```
 
@@ -196,6 +203,7 @@ GUID Generation:
 ```
 
 **Implementation**:
+
 - SvelteKit static adapter (prerendered or SPA mode)
 - Campaign files stored in `static/campaigns/` or loaded dynamically
 - Route params `[guid]` load appropriate character data
@@ -208,56 +216,57 @@ GUID Generation:
 ```typescript
 // Effect definition
 interface Effect {
-  id: string;
-  name: string;
-  description: string;
-  modifiers: {
-    [stat: string]: number;  // e.g., { strength: 4, attack: 2 }
-  };
-  duration?: {
-    type: 'rounds' | 'minutes' | 'hours';
-    value: number;
-  };
-  category: 'spell' | 'ability' | 'condition' | 'equipment';
+	id: string;
+	name: string;
+	description: string;
+	modifiers: {
+		[stat: string]: number; // e.g., { strength: 4, attack: 2 }
+	};
+	duration?: {
+		type: 'rounds' | 'minutes' | 'hours';
+		value: number;
+	};
+	category: 'spell' | 'ability' | 'condition' | 'equipment';
 }
 
 // Common buff presets
 const COMMON_BUFFS: Effect[] = [
-  {
-    id: 'bulls-strength',
-    name: "Bull's Strength",
-    modifiers: { strength: 4 },
-    duration: { type: 'minutes', value: 10 }
-  },
-  {
-    id: 'wild-shape-polar-bear',
-    name: 'Wild Shape: Polar Bear',
-    modifiers: {
-      strength: 16,  // Replace base
-      dexterity: -2,
-      constitution: 8,
-      naturalArmor: 5,
-      // ... full stat replacement
-    }
-  }
+	{
+		id: 'bulls-strength',
+		name: "Bull's Strength",
+		modifiers: { strength: 4 },
+		duration: { type: 'minutes', value: 10 }
+	},
+	{
+		id: 'wild-shape-polar-bear',
+		name: 'Wild Shape: Polar Bear',
+		modifiers: {
+			strength: 16, // Replace base
+			dexterity: -2,
+			constitution: 8,
+			naturalArmor: 5
+			// ... full stat replacement
+		}
+	}
 ];
 
 // Application
 function applyEffect(character: Character, effect: Effect): Character {
-  // Clone character data
-  const modified = { ...character };
-  
-  // Apply modifiers
-  for (const [stat, value] of Object.entries(effect.modifiers)) {
-    // Use bnb-core to recalculate derived stats
-    // This needs bnb-core API: applyModifier()
-  }
-  
-  return modified;
+	// Clone character data
+	const modified = { ...character };
+
+	// Apply modifiers
+	for (const [stat, value] of Object.entries(effect.modifiers)) {
+		// Use bnb-core to recalculate derived stats
+		// This needs bnb-core API: applyModifier()
+	}
+
+	return modified;
 }
 ```
 
 **Storage**:
+
 - Active effects stored in browser localStorage (per-session)
 - Effects NOT saved to YAML (temporary by definition)
 - Option to "make permanent" by adding to character YAML
@@ -268,69 +277,75 @@ function applyEffect(character: Character, effect: Effect): Character {
 
 ```typescript
 interface InventoryItem {
-  name: string;
-  weight: number;
-  value: number;
-  status: 'worn' | 'carried' | 'stored';  // Add status field
-  bonuses?: {
-    ac?: number;
-    attack?: number;
-    damage?: string;
-    // ... other bonuses
-  };
+	name: string;
+	weight: number;
+	value: number;
+	status: 'worn' | 'carried' | 'stored'; // Add status field
+	bonuses?: {
+		ac?: number;
+		attack?: number;
+		damage?: string;
+		// ... other bonuses
+	};
 }
 
 function calculateEncumbrance(character: Character): {
-  current: number;
-  light: number;
-  medium: number;
-  heavy: number;
-  status: 'light' | 'medium' | 'heavy' | 'overloaded';
+	current: number;
+	light: number;
+	medium: number;
+	heavy: number;
+	status: 'light' | 'medium' | 'heavy' | 'overloaded';
 } {
-  const str = character.abilities.strength[0];
-  const carriedWeight = character.inventory
-    .filter(i => i.status === 'worn' || i.status === 'carried')
-    .reduce((sum, i) => sum + i.weight, 0);
-  
-  // D&D 3.5e encumbrance rules
-  const light = str * 5;
-  const medium = str * 10;
-  const heavy = str * 15;
-  
-  return {
-    current: carriedWeight,
-    light, medium, heavy,
-    status: carriedWeight <= light ? 'light'
-          : carriedWeight <= medium ? 'medium'
-          : carriedWeight <= heavy ? 'heavy'
-          : 'overloaded'
-  };
+	const str = character.abilities.strength[0];
+	const carriedWeight = character.inventory
+		.filter((i) => i.status === 'worn' || i.status === 'carried')
+		.reduce((sum, i) => sum + i.weight, 0);
+
+	// D&D 3.5e encumbrance rules
+	const light = str * 5;
+	const medium = str * 10;
+	const heavy = str * 15;
+
+	return {
+		current: carriedWeight,
+		light,
+		medium,
+		heavy,
+		status:
+			carriedWeight <= light
+				? 'light'
+				: carriedWeight <= medium
+					? 'medium'
+					: carriedWeight <= heavy
+						? 'heavy'
+						: 'overloaded'
+	};
 }
 
 function calculateAC(character: Character): {
-  total: number;
-  breakdown: Record<string, number>;
+	total: number;
+	breakdown: Record<string, number>;
 } {
-  const base = 10;
-  const dex = character.abilities.dexterity[1].dex;
-  
-  // Find equipped armor and shield
-  const armor = character.inventory.find(i => 
-    i.status === 'worn' && i.bonuses?.ac && i.type === 'armor'
-  );
-  const shield = character.inventory.find(i => 
-    i.status === 'worn' && i.bonuses?.ac && i.type === 'shield'
-  );
-  
-  return {
-    total: base + dex + (armor?.bonuses?.ac ?? 0) + (shield?.bonuses?.ac ?? 0),
-    breakdown: {
-      base,
-      dex,
-      armor: armor?.bonuses?.ac ?? 0,
-      shield: shield?.bonuses?.ac ?? 0
-    }
-  };
+	const base = 10;
+	const dex = character.abilities.dexterity[1].dex;
+
+	// Find equipped armor and shield
+	const armor = character.inventory.find(
+		(i) => i.status === 'worn' && i.bonuses?.ac && i.type === 'armor'
+	);
+	const shield = character.inventory.find(
+		(i) => i.status === 'worn' && i.bonuses?.ac && i.type === 'shield'
+	);
+
+	return {
+		total: base + dex + (armor?.bonuses?.ac ?? 0) + (shield?.bonuses?.ac ?? 0),
+		breakdown: {
+			base,
+			dex,
+			armor: armor?.bonuses?.ac ?? 0,
+			shield: shield?.bonuses?.ac ?? 0
+		}
+	};
 }
 ```
 
@@ -494,6 +509,7 @@ Campaign Switcher UI:
 ## Contributing
 
 When adding features:
+
 1. Use bnb-core for all character data operations
 2. Add component tests with Vitest
 3. Add e2e tests for workflows with Playwright
