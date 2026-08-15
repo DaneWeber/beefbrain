@@ -1,9 +1,65 @@
 /**
  * Core types for Beef Brain data structures
+ * @public
  */
 
 /**
- * Represents a modifier that can be applied to character or creature data
+ * The marker type for YAML document strings (must start with ---)
+ * @public
+ */
+export type YAMLdoc = `---\n${string}`
+
+/**
+ * Details about how an ability score is calculated (base + modifiers)
+ * @public
+ */
+export type CalculationDetails = {
+  base: number
+  [key: string]: number
+}
+
+/**
+ * A modifier value that can be applied to an ability or attribute
+ * @public
+ */
+export type ModifierData = {
+  [key: string]: number
+}
+
+/**
+ * An ability score entry: [score, modifiers, calculation_details]
+ * @public
+ */
+export type AbilityData = [number, ModifierData, CalculationDetails?]
+
+/**
+ * Character abilities (e.g., strength, dexterity, wisdom)
+ * @public
+ */
+export type Abilities = {
+  [abilityName: string]: AbilityData
+}
+
+/**
+ * Character data including abilities, skills, and combat stats
+ * @public
+ */
+export type Character = {
+  abilities: Abilities
+  skills?: Record<string, [number, Record<string, number>]>
+  combat?: Record<string, unknown>
+}
+
+/**
+ * Root Beef Brain data structure for character or creature files
+ * @public
+ */
+export type BeefBrainData = {
+  character?: Character
+}
+
+/**
+ * Represents a modifier or effect that can be applied to character or creature data
  * @public
  */
 export interface BeefBrainModifier {
@@ -17,24 +73,3 @@ export interface BeefBrainModifier {
   description?: string
 }
 
-/**
- * Base structure for Beef Brain data files
- * @public
- */
-export interface BeefBrainData {
-  /** Version of the data format */
-  version: string
-  /** Type of data (character, creature, etc.) */
-  type: 'character' | 'creature' | 'item' | 'spell'
-  /** The main data content */
-  data: Record<string, unknown>
-  /** Calculated fields that are derived from the main data */
-  calculated?: Record<string, unknown>
-  /** Metadata about the data file */
-  metadata?: {
-    created?: string
-    modified?: string
-    author?: string
-    description?: string
-  }
-}
