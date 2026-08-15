@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseCharacterYamlContent } from './characters';
+import { fileNameToSlug, isYamlFileName, parseCharacterYamlContent } from './characters';
 
 describe('parseCharacterYamlContent', () => {
 	it('validates and calculates character YAML through bnb-core', () => {
@@ -28,5 +28,19 @@ character: abilities: strength: [15, str: 2]
 		expect(() => parseCharacterYamlContent('42', 'scalar.yaml')).toThrow(
 			'Character YAML in "scalar.yaml" did not parse to an object'
 		);
+	});
+});
+
+describe('character file utilities', () => {
+	it('detects yaml filenames', () => {
+		expect(isYamlFileName('gimli.yaml')).toBe(true);
+		expect(isYamlFileName('gimli.yml')).toBe(true);
+		expect(isYamlFileName('gimli.json')).toBe(false);
+	});
+
+	it('converts yaml and yml filenames to slugs', () => {
+		expect(fileNameToSlug('gimli.yaml')).toBe('gimli');
+		expect(fileNameToSlug('gimli.yml')).toBe('gimli');
+		expect(fileNameToSlug('gimli')).toBe('gimli');
 	});
 });

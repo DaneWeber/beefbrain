@@ -7,6 +7,7 @@ const YAML_DIR = join(
 	import.meta.dirname,
 	'../../../../../reference_material/beefy_boys_spreadsheets/yaml'
 );
+const LEVEL_SKIP_KEYS = new Set(['xp', 'hd', 'hp', 'max-hp', 'ecl', 'level-adjustment']);
 
 export interface CharacterSummary {
 	slug: string;
@@ -33,9 +34,23 @@ export function parseCharacterYamlContent(raw: string, sourceName: string): Char
 	return parsed as CharacterData;
 }
 
+export function isYamlFileName(fileName: string): boolean {
+	return fileName.endsWith('.yaml') || fileName.endsWith('.yml');
+}
+
+export function fileNameToSlug(fileName: string): string {
+	if (fileName.endsWith('.yaml')) {
+		return basename(fileName, '.yaml');
+	}
+	if (fileName.endsWith('.yml')) {
+		return basename(fileName, '.yml');
+	}
+	return fileName;
+}
+
 export async function listCharacters(): Promise<CharacterSummary[]> {
 	const files = await readdir(YAML_DIR);
-	const yamlFiles = files.filter((f) => f.endsWith('.yaml') || f.endsWith('.yml')).sort();
+	const yamlFiles = files.filter((f) => isYamlFileName(f)).sort();
 
 	const summaries: CharacterSummary[] = [];
 	for (const file of yamlFiles) {
@@ -47,10 +62,9 @@ export async function listCharacters(): Promise<CharacterSummary[]> {
 		const desc = char.description ?? {};
 		const levels = char.levels ?? {};
 
-		// Extract class names from levels (skip xp, hd, hp, max-hp, ecl, level-adjustment)
-		const skipKeys = new Set(['xp', 'hd', 'hp', 'max-hp', 'ecl', 'level-adjustment']);
+		// Extract class names from levels (skip non-class fields)
 		const classes = Object.keys(levels)
-			.filter((k) => !skipKeys.has(k))
+			.filter((k) => !LEVEL_SKIP_KEYS.has(k))
 			.map((k) => {
 				const val = levels[k];
 				const level = Array.isArray(val) ? val[0] : val;
@@ -59,7 +73,7 @@ export async function listCharacters(): Promise<CharacterSummary[]> {
 			.join(' / ');
 
 		summaries.push({
-			slug: basename(file, '.yaml'),
+			slug: fileNameToSlug(file),
 			name: desc.name ?? 'Unknown',
 			player: desc.player ?? 'Unknown',
 			race: desc.race ?? 'Unknown',
@@ -72,14 +86,14 @@ export async function listCharacters(): Promise<CharacterSummary[]> {
 
 export async function loadAllCharacters(): Promise<{ slug: string; character: CharacterData }[]> {
 	const files = await readdir(YAML_DIR);
-	const yamlFiles = files.filter((f) => f.endsWith('.yaml') || f.endsWith('.yml')).sort();
+	const yamlFiles = files.filter((f) => isYamlFileName(f)).sort();
 
 	const results: { slug: string; character: CharacterData }[] = [];
 	for (const file of yamlFiles) {
 		const raw = await readFile(join(YAML_DIR, file), 'utf-8');
 		const data = parseCharacterYamlContent(raw, file);
 		if (data?.character) {
-			results.push({ slug: basename(file, '.yaml'), character: data.character });
+			results.push({ slug: fileNameToSlug(file), character: data.character });
 		}
 	}
 	return results;
