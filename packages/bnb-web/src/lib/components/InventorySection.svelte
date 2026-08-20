@@ -64,6 +64,7 @@
 		notes: string;
 		location: string;
 		orderIndex: number;
+		arrayIndex: number;
 		props: Record<string, unknown>;
 	}
 
@@ -72,7 +73,15 @@
 		hasConflict: boolean;
 	}
 
-	function makeSlottedItem(item: unknown[], location: string): SlottedItem {
+	function inventoryItemsWithIndex(inv: Record<string, unknown>, location: string): { item: unknown[]; arrayIndex: number }[] {
+		const items = inv[location];
+		if (!Array.isArray(items)) return [];
+		return items
+			.map((item: unknown, arrayIndex: number) => ({ item, arrayIndex }))
+			.filter(({ item }) => Array.isArray(item) && item.length > 0) as { item: unknown[]; arrayIndex: number }[];
+	}
+
+	function makeSlottedItem(item: unknown[], location: string, arrayIndex: number): SlottedItem {
 		const props = (item[5] && typeof item[5] === 'object' && !Array.isArray(item[5]))
 			? item[5] as Record<string, unknown>
 			: {};
@@ -81,6 +90,7 @@
 			notes: Object.entries(props).map(([k, v]) => `${k}: ${v}`).join(', '),
 			location,
 			orderIndex: Number(item[4] ?? 0),
+			arrayIndex,
 			props
 		};
 	}
@@ -91,7 +101,7 @@
 		bodySlots.forEach(slot => slots[slot] = { items: [], hasConflict: false });
 
 		for (const location of getLocations(inventory)) {
-			for (const item of inventoryItems(inventory, location)) {
+			for (const { item, arrayIndex } of inventoryItemsWithIndex(inventory, location)) {
 				// Tags are always the last item in the array
 				const tags = Array.isArray(item[item.length - 1]) ? (item[item.length - 1] as string[]).map(String) : [];
 
@@ -102,7 +112,7 @@
 						const slotName = slotNameMap[tagBase];
 						if (!slotName) continue;
 						if (bodySlots.includes(slotName)) {
-							slots[slotName].items.push(makeSlottedItem(item, location));
+							slots[slotName].items.push(makeSlottedItem(item, location, arrayIndex));
 						}
 					}
 				}
@@ -124,12 +134,12 @@
 		const items: SlottedItem[] = [];
 
 		for (const location of getLocations(inventory)) {
-			for (const item of inventoryItems(inventory, location)) {
+			for (const { item, arrayIndex } of inventoryItemsWithIndex(inventory, location)) {
 				// Tags are always the last item in the array
 				const tags = Array.isArray(item[item.length - 1]) ? (item[item.length - 1] as string[]).map(String) : [];
 
 				if (tags.includes('other-slot')) {
-					items.push(makeSlottedItem(item, location));
+					items.push(makeSlottedItem(item, location, arrayIndex));
 				}
 			}
 		}
@@ -138,12 +148,12 @@
 	});
 
 	// Edit state
-	let editingItem: { location: string; orderIndex: number } | null = $state(null);
+	let editingItem: { location: string; arrayIndex: number } | null = $state(null);
 	let editName = $state('');
 	let editEffects = $state('');
 
 	function startEdit(item: SlottedItem) {
-		editingItem = { location: item.location, orderIndex: item.orderIndex };
+		editingItem = { location: item.location, arrayIndex: item.arrayIndex };
 		editName = item.name;
 		editEffects = Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join('\n');
 	}
@@ -153,7 +163,7 @@
 	}
 
 	function isEditing(item: SlottedItem): boolean {
-		return editingItem?.location === item.location && editingItem?.orderIndex === item.orderIndex;
+		return editingItem?.location === item.location && editingItem?.arrayIndex === item.arrayIndex;
 	}
 
 	function enhanceAndRefresh() {
@@ -207,6 +217,7 @@
 									>
 										<input type="hidden" name="location" value={item.location} />
 										<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
+										<input type="hidden" name="itemArrayIndex" value={item.arrayIndex} />
 										<input class="edit-name" name="name" bind:value={editName} />
 										<textarea class="edit-effects" name="effects" bind:value={editEffects} rows="3" placeholder="key: value (one per line)"></textarea>
 										<div class="edit-actions">
@@ -223,6 +234,7 @@
 										>
 											<input type="hidden" name="fromLocation" value={item.location} />
 											<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
+											<input type="hidden" name="itemArrayIndex" value={item.arrayIndex} />
 											<label class="move-label">Move to:
 												<select name="toLocation" class="move-select">
 													{#each inventoryLocations.filter(l => l !== item.location) as loc}
@@ -267,6 +279,7 @@
 							>
 								<input type="hidden" name="location" value={item.location} />
 								<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
+								<input type="hidden" name="itemArrayIndex" value={item.arrayIndex} />
 								<input class="edit-name" name="name" bind:value={editName} />
 								<textarea class="edit-effects" name="effects" bind:value={editEffects} rows="3" placeholder="key: value (one per line)"></textarea>
 								<div class="edit-actions">
@@ -283,6 +296,7 @@
 								>
 									<input type="hidden" name="fromLocation" value={item.location} />
 									<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
+									<input type="hidden" name="itemArrayIndex" value={item.arrayIndex} />
 									<label class="move-label">Move to:
 										<select name="toLocation" class="move-select">
 											{#each inventoryLocations.filter(l => l !== item.location) as loc}

@@ -15,10 +15,11 @@ export const actions = {
 		const form = await request.formData();
 		const location = form.get('location') as string;
 		const itemOrderIndex = Number(form.get('itemOrderIndex'));
+		const itemArrayIndex = Number(form.get('itemArrayIndex'));
 		const newName = (form.get('name') as string | null) ?? '';
 		const effectsRaw = (form.get('effects') as string | null) ?? '';
 
-		if (!location || !Number.isFinite(itemOrderIndex)) {
+		if (!location || (!Number.isFinite(itemOrderIndex) && !Number.isFinite(itemArrayIndex))) {
 			return fail(400, { error: 'Invalid form data' });
 		}
 
@@ -33,7 +34,14 @@ export const actions = {
 		}
 
 		try {
-			await saveCharacterMagicItem(params.slug, location, itemOrderIndex, newName.trim(), effects);
+			await saveCharacterMagicItem(
+				params.slug,
+				location,
+				Number.isFinite(itemArrayIndex) ? itemArrayIndex : null,
+				Number.isFinite(itemOrderIndex) ? itemOrderIndex : null,
+				newName.trim(),
+				effects
+			);
 		} catch (err) {
 			return fail(500, { error: String(err) });
 		}
@@ -47,13 +55,24 @@ export const actions = {
 		const fromLocation = form.get('fromLocation') as string;
 		const toLocation = form.get('toLocation') as string;
 		const itemOrderIndex = Number(form.get('itemOrderIndex'));
+		const itemArrayIndex = Number(form.get('itemArrayIndex'));
 
-		if (!fromLocation || !toLocation || !Number.isFinite(itemOrderIndex)) {
+		if (
+			!fromLocation ||
+			!toLocation ||
+			(!Number.isFinite(itemOrderIndex) && !Number.isFinite(itemArrayIndex))
+		) {
 			return fail(400, { error: 'Invalid form data' });
 		}
 
 		try {
-			await moveCharacterMagicItem(params.slug, fromLocation, toLocation, itemOrderIndex);
+			await moveCharacterMagicItem(
+				params.slug,
+				fromLocation,
+				toLocation,
+				Number.isFinite(itemArrayIndex) ? itemArrayIndex : null,
+				Number.isFinite(itemOrderIndex) ? itemOrderIndex : null
+			);
 		} catch (err) {
 			return fail(500, { error: String(err) });
 		}
