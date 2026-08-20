@@ -235,7 +235,11 @@ function propagateEquipmentToAbilities(
         if (!parsed) continue
         const { abilityName, normalizedKey } = parsed
         if (!abilityBonuses[abilityName]) abilityBonuses[abilityName] = []
-        abilityBonuses[abilityName].push({ source: itemName, value, normalizedKey })
+        abilityBonuses[abilityName].push({
+          source: itemName,
+          value,
+          normalizedKey,
+        })
       }
     }
   }
@@ -276,10 +280,9 @@ function propagateEquipmentToAbilities(
 
     for (const { source, value, normalizedKey } of bonuses) {
       // Use a sanitized item name as the component key
-      const key =
-        normalizedKey.endsWith('-enhancement')
-          ? normalizedKey
-          : source.toLowerCase().replace(/\s+/g, '-')
+      const key = normalizedKey.endsWith('-enhancement')
+        ? normalizedKey
+        : source.toLowerCase().replace(/\s+/g, '-')
       if (comps[key] !== value) {
         comps[key] = value
         hasChanges = true
