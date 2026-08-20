@@ -36,7 +36,7 @@
 {#if viewMode === 'streamlined'}
 	<StreamlinedSheet {character} />
 {:else}
-	<DetailedSheet {character} />
+	<DetailedSheet {character} slug={data.slug} />
 {/if}
 
 <style>

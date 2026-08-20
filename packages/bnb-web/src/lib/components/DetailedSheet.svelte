@@ -3,7 +3,7 @@
 	import InventorySection from './InventorySection.svelte';
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let { character }: { character: Record<string, any> } = $props();
+	let { character, slug = '' }: { character: Record<string, any>; slug?: string } = $props();
 	const desc = $derived(character.description ?? {});
 	const abilities = $derived(character.abilities ?? {});
 	const levels = $derived(character.levels ?? {});
@@ -563,7 +563,7 @@
 	</div>
 
 	<!-- INVENTORY (full width) -->
-	<InventorySection {inventory} />
+	<InventorySection {inventory} {slug} editable />
 
 	<!-- NOTES -->
 	{#if Object.keys(notes).length > 0}

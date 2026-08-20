@@ -1,4 +1,4 @@
-import { readdir, readFile } from 'node:fs/promises';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import yaml from 'js-yaml';
 import { validateBeefBrainData, updateCalculatedFields, type BeefBrainData } from 'bnb-core';
@@ -149,4 +149,80 @@ export function formatKey(key: string): string {
 		.split('-')
 		.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
 		.join(' ');
+}
+
+/**
+ * Update a single magic item's name and effects in the character YAML.
+ *
+ * @param slug - Character file slug (without .yaml)
+ * @param location - Inventory location key (e.g. 'equipped', 'pack')
+ * @param itemOrderIndex - The numeric index stored at item[4] (1-based sort order)
+ * @param newName - Updated item name (item[0])
+ * @param newEffects - Updated effects as a flat key:value object (replaces item[5] properties)
+ */
+export async function saveCharacterMagicItem(
+	slug: string,
+	location: string,
+	itemOrderIndex: number,
+	newName: string,
+	newEffects: Record<string, string>
+): Promise<void> {
+	const filePath = join(YAML_DIR, `${slug}.yaml`);
+	const raw = await readFile(filePath, 'utf-8');
+	const data = yaml.load(raw) as CharacterData;
+
+	const items: unknown[] = data?.character?.inventory?.[location];
+	if (!Array.isArray(items)) throw new Error(`Location "${location}" not found`);
+
+	const idx = items.findIndex((item) => Array.isArray(item) && item[4] === itemOrderIndex);
+	if (idx === -1) throw new Error(`Item with order index ${itemOrderIndex} not found`);
+
+	const item = items[idx] as unknown[];
+	item[0] = newName;
+
+	// Determine where properties object sits (may or may not exist)
+	const tagsPos = Array.isArray(item[item.length - 1]) ? item.length - 1 : -1;
+	const tags = tagsPos >= 0 ? item[tagsPos] : null;
+
+	// Build new effects object; omit if empty
+	const effectKeys = Object.keys(newEffects).filter((k) => k.trim() !== '');
+	if (effectKeys.length > 0) {
+		const effectsObj: Record<string, unknown> = {};
+		for (const k of effectKeys) {
+			const raw = newEffects[k].trim();
+			// Coerce numeric values
+			const num = Number(raw);
+			effectsObj[k.trim()] = Number.isFinite(num) && raw !== '' ? num : raw;
+		}
+		// Slot 5 is properties (if tags at end), or append before tags
+		if (tagsPos === 6) {
+			item[5] = effectsObj;
+		} else if (tagsPos === 5) {
+			// Currently: [name, qty, type, weight, order, [tags]] — insert effects
+			item.splice(5, 0, effectsObj);
+		} else if (tagsPos < 0) {
+			// No tags — just set or append at 5
+			item[5] = effectsObj;
+		} else {
+			item[5] = effectsObj;
+		}
+	} else {
+		// Remove effects object if present (keep tags)
+		if (tagsPos === 6 && item[5] && typeof item[5] === 'object' && !Array.isArray(item[5])) {
+			item.splice(5, 1);
+		} else if (tagsPos < 0 && item.length > 5 && typeof item[5] === 'object' && !Array.isArray(item[5])) {
+			item.splice(5, 1);
+		}
+	}
+
+	// Restore tags at end if they were shifted
+	if (tags !== null) {
+		const currentLast = item[item.length - 1];
+		if (!Array.isArray(currentLast)) {
+			item.push(tags);
+		}
+	}
+
+	const newYaml = yaml.dump(data, { lineWidth: -1, quotingType: '"' });
+	await writeFile(filePath, `---\n${newYaml}`, 'utf-8');
 }

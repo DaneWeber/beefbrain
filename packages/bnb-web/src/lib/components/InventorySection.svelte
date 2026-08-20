@@ -1,9 +1,15 @@
 <script lang="ts">
 	import { formatKey } from '$lib/format';
+	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let { inventory, compact = false }: { inventory: Record<string, any>; compact?: boolean } =
-		$props();
+	let { inventory, compact = false, slug = '', editable = false }: {
+		inventory: Record<string, any>;
+		compact?: boolean;
+		slug?: string;
+		editable?: boolean;
+	} = $props();
 
 	function inventoryLocations(inv: Record<string, unknown>): string[] {
 		if (Array.isArray(inv._on)) return inv._on as string[];
@@ -55,11 +61,27 @@
 	interface SlottedItem {
 		name: string;
 		notes: string;
+		location: string;
+		orderIndex: number;
+		props: Record<string, unknown>;
 	}
 
 	interface SlotData {
 		items: SlottedItem[];
 		hasConflict: boolean;
+	}
+
+	function makeSlottedItem(item: unknown[], location: string): SlottedItem {
+		const props = (item[5] && typeof item[5] === 'object' && !Array.isArray(item[5]))
+			? item[5] as Record<string, unknown>
+			: {};
+		return {
+			name: String(item[0] ?? ''),
+			notes: Object.entries(props).map(([k, v]) => `${k}: ${v}`).join(', '),
+			location,
+			orderIndex: Number(item[4] ?? 0),
+			props
+		};
 	}
 
 	// Extract items by body slot
@@ -71,23 +93,15 @@
 			for (const item of inventoryItems(inventory, location)) {
 				// Tags are always the last item in the array
 				const tags = Array.isArray(item[item.length - 1]) ? (item[item.length - 1] as string[]).map(String) : [];
-				// Properties are at position [5] if they exist
-				const props = (item[5] && typeof item[5] === 'object' && !Array.isArray(item[5]))
-					? item[5] as Record<string, unknown>
-					: {};
-				
-				const notes = Object.entries(props).map(([k, v]) => `${k}: ${v}`).join(', ');
-				
+
 				// Check for slot tags
 				for (const tag of tags) {
 					if (tag.endsWith('-slot')) {
 						const tagBase = tag.replace('-slot', '');
 						const slotName = slotNameMap[tagBase];
-						
 						if (!slotName) continue;
-						
 						if (bodySlots.includes(slotName)) {
-							slots[slotName].items.push({ name: String(item[0] ?? ''), notes });
+							slots[slotName].items.push(makeSlottedItem(item, location));
 						}
 					}
 				}
@@ -112,20 +126,34 @@
 			for (const item of inventoryItems(inventory, location)) {
 				// Tags are always the last item in the array
 				const tags = Array.isArray(item[item.length - 1]) ? (item[item.length - 1] as string[]).map(String) : [];
-				
+
 				if (tags.includes('other-slot')) {
-					// Properties are at position [5] if they exist
-					const props = (item[5] && typeof item[5] === 'object' && !Array.isArray(item[5]))
-						? item[5] as Record<string, unknown>
-						: {};
-					const notes = Object.entries(props).map(([k, v]) => `${k}: ${v}`).join(', ');
-					items.push({ name: String(item[0] ?? ''), notes });
+					items.push(makeSlottedItem(item, location));
 				}
 			}
 		}
 
 		return items;
 	});
+
+	// Edit state
+	let editingItem: { location: string; orderIndex: number } | null = $state(null);
+	let editName = $state('');
+	let editEffects = $state('');
+
+	function startEdit(item: SlottedItem) {
+		editingItem = { location: item.location, orderIndex: item.orderIndex };
+		editName = item.name;
+		editEffects = Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join('\n');
+	}
+
+	function cancelEdit() {
+		editingItem = null;
+	}
+
+	function isEditing(item: SlottedItem): boolean {
+		return editingItem?.location === item.location && editingItem?.orderIndex === item.orderIndex;
+	}
 </script>
 
 <section class="inventory-section" class:compact>
@@ -159,12 +187,38 @@
 						{#if slotData.items.length > 0}
 							{#each slotData.items as item, i}
 								{#if i > 0}<span class="item-separator"> + </span>{/if}
-								<span class="item-entry">
-									<span class="item-name">{item.name}</span>
-									{#if item.notes}
-										<span class="item-notes">({item.notes})</span>
-									{/if}
-								</span>
+								{#if editable && isEditing(item)}
+									<form
+										method="POST"
+										action="?/updateMagicItem"
+										class="edit-form"
+										use:enhance={() => {
+											return async ({ result, update }) => {
+												await update();
+												cancelEdit();
+											};
+										}}
+									>
+										<input type="hidden" name="location" value={item.location} />
+										<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
+										<input class="edit-name" name="name" bind:value={editName} />
+										<textarea class="edit-effects" name="effects" bind:value={editEffects} rows="3" placeholder="key: value (one per line)"></textarea>
+										<div class="edit-actions">
+											<button type="submit" class="btn-save">Save</button>
+											<button type="button" class="btn-cancel" onclick={cancelEdit}>Cancel</button>
+										</div>
+									</form>
+								{:else}
+									<span class="item-entry">
+										<span class="item-name">{item.name}</span>
+										{#if item.notes}
+											<span class="item-notes">({item.notes})</span>
+										{/if}
+										{#if editable}
+											<button class="btn-edit" onclick={() => startEdit(item)} title="Edit item">✎</button>
+										{/if}
+									</span>
+								{/if}
 							{/each}
 						{:else}
 							<span class="empty-slot">—</span>
@@ -173,18 +227,44 @@
 				</div>
 			{/each}
 		</div>
-		
+
 		{#if otherItems().length > 0}
 			<div class="other-items">
 				<h4>Other (Slotless Items)</h4>
 				<div class="other-list">
 					{#each otherItems() as item}
-						<div class="other-item">
-							<span class="item-name">{item.name}</span>
-							{#if item.notes}
-								<span class="item-notes">({item.notes})</span>
-							{/if}
-						</div>
+						{#if editable && isEditing(item)}
+							<form
+								method="POST"
+								action="?/updateMagicItem"
+								class="edit-form"
+								use:enhance={() => {
+									return async ({ update }) => {
+										await update();
+										cancelEdit();
+									};
+								}}
+							>
+								<input type="hidden" name="location" value={item.location} />
+								<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
+								<input class="edit-name" name="name" bind:value={editName} />
+								<textarea class="edit-effects" name="effects" bind:value={editEffects} rows="3" placeholder="key: value (one per line)"></textarea>
+								<div class="edit-actions">
+									<button type="submit" class="btn-save">Save</button>
+									<button type="button" class="btn-cancel" onclick={cancelEdit}>Cancel</button>
+								</div>
+							</form>
+						{:else}
+							<div class="other-item">
+								<span class="item-name">{item.name}</span>
+								{#if item.notes}
+									<span class="item-notes">({item.notes})</span>
+								{/if}
+								{#if editable}
+									<button class="btn-edit" onclick={() => startEdit(item)} title="Edit item">✎</button>
+								{/if}
+							</div>
+						{/if}
 					{/each}
 				</div>
 			</div>
@@ -427,6 +507,78 @@
 		font-size: 0.72rem;
 		color: #999;
 		font-style: italic;
+	}
+
+	/* Edit form */
+	.btn-edit {
+		background: none;
+		border: none;
+		cursor: pointer;
+		color: #999;
+		font-size: 0.8rem;
+		padding: 0 0.2rem;
+		line-height: 1;
+		vertical-align: middle;
+	}
+	.btn-edit:hover {
+		color: #555;
+	}
+	.edit-form {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+		margin: 0.25rem 0;
+		padding: 0.4rem;
+		background: #f0f4ff;
+		border: 1px solid #b0c0e8;
+		border-radius: 4px;
+		font-size: 0.8rem;
+	}
+	.edit-name {
+		width: 100%;
+		font-size: 0.82rem;
+		padding: 0.2rem 0.35rem;
+		border: 1px solid #b0c0e8;
+		border-radius: 3px;
+		box-sizing: border-box;
+	}
+	.edit-effects {
+		width: 100%;
+		font-size: 0.78rem;
+		font-family: monospace;
+		padding: 0.2rem 0.35rem;
+		border: 1px solid #b0c0e8;
+		border-radius: 3px;
+		box-sizing: border-box;
+		resize: vertical;
+	}
+	.edit-actions {
+		display: flex;
+		gap: 0.4rem;
+	}
+	.btn-save {
+		padding: 0.2rem 0.6rem;
+		background: #2a6;
+		color: #fff;
+		border: none;
+		border-radius: 3px;
+		cursor: pointer;
+		font-size: 0.78rem;
+	}
+	.btn-save:hover {
+		background: #1a5;
+	}
+	.btn-cancel {
+		padding: 0.2rem 0.6rem;
+		background: #888;
+		color: #fff;
+		border: none;
+		border-radius: 3px;
+		cursor: pointer;
+		font-size: 0.78rem;
+	}
+	.btn-cancel:hover {
+		background: #666;
 	}
 
 	@media print {
