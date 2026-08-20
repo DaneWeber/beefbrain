@@ -166,6 +166,28 @@ const ABBR_TO_ABILITY: Record<string, string> = {
   cha: 'charisma',
 }
 
+function parseAbilityBonusKey(
+  key: string,
+): { abilityName: string; normalizedKey: string } | null {
+  if (key in ABBR_TO_ABILITY) {
+    return {
+      abilityName: ABBR_TO_ABILITY[key]!,
+      normalizedKey: key,
+    }
+  }
+
+  const enhancementMatch = key.match(
+    /^(str|dex|con|int|wis|cha|strength|dexterity|constitution|intelligence|wisdom|charisma)-enhancement$/,
+  )
+  if (!enhancementMatch) return null
+
+  const rawAbility = enhancementMatch[1]!
+  const abilityName =
+    rawAbility in ABBR_TO_ABILITY ? ABBR_TO_ABILITY[rawAbility]! : rawAbility
+  const normalizedKey = `${ABILITY_ABBR[abilityName]}-enhancement`
+  return { abilityName, normalizedKey }
+}
+
 /**
  * Read magic item bonuses from equipped items and apply to ability score components.
  * Items specify ability bonuses in their properties, e.g.:
@@ -187,7 +209,7 @@ function propagateEquipmentToAbilities(
   // Collect ability bonuses from all equipped items
   const abilityBonuses: Record<
     string,
-    Array<{ source: string; value: number }>
+    Array<{ source: string; value: number; normalizedKey: string }>
   > = {}
 
   const onList = inventory._on as string[] | undefined
@@ -200,7 +222,6 @@ function propagateEquipmentToAbilities(
     for (const item of items) {
       if (!Array.isArray(item) || item.length < 3) continue
       const itemName = item[0] as string
-      const category = item[2] as string
       const props = item[5] as Record<string, unknown> | undefined
 
       // Only wondrous items / magic items contribute ability bonuses
@@ -209,11 +230,36 @@ function propagateEquipmentToAbilities(
 
       // Check for ability score keys in properties
       for (const [key, value] of Object.entries(props)) {
-        if (key in ABBR_TO_ABILITY && typeof value === 'number') {
-          const abilityName = ABBR_TO_ABILITY[key]!
-          if (!abilityBonuses[abilityName]) abilityBonuses[abilityName] = []
-          abilityBonuses[abilityName].push({ source: itemName, value })
-        }
+        if (typeof value !== 'number') continue
+        const parsed = parseAbilityBonusKey(key)
+        if (!parsed) continue
+        const { abilityName, normalizedKey } = parsed
+        if (!abilityBonuses[abilityName]) abilityBonuses[abilityName] = []
+        abilityBonuses[abilityName].push({
+          source: itemName,
+          value,
+          normalizedKey,
+        })
+      }
+    }
+  }
+
+  // Clear previous enhancement-style components so unequipping/moving items
+  // does not leave stale equipment bonuses behind.
+  for (const abilityArr of Object.values(abilities)) {
+    if (!Array.isArray(abilityArr) || abilityArr.length < 3) continue
+    const components = abilityArr[2]
+    if (
+      !components ||
+      typeof components !== 'object' ||
+      Array.isArray(components)
+    )
+      continue
+    const comps = components as Record<string, number>
+    for (const key of Object.keys(comps)) {
+      if (key.endsWith('-enhancement')) {
+        delete comps[key]
+        hasChanges = true
       }
     }
   }
@@ -232,9 +278,11 @@ function propagateEquipmentToAbilities(
       continue
     const comps = components as Record<string, number>
 
-    for (const { source, value } of bonuses) {
+    for (const { source, value, normalizedKey } of bonuses) {
       // Use a sanitized item name as the component key
-      const key = source.toLowerCase().replace(/\s+/g, '-')
+      const key = normalizedKey.endsWith('-enhancement')
+        ? normalizedKey
+        : source.toLowerCase().replace(/\s+/g, '-')
       if (comps[key] !== value) {
         comps[key] = value
         hasChanges = true

@@ -155,6 +155,16 @@
 	function isEditing(item: SlottedItem): boolean {
 		return editingItem?.location === item.location && editingItem?.orderIndex === item.orderIndex;
 	}
+
+	function enhanceAndRefresh() {
+		return async ({ result, update }: { result: { type: string }; update: () => Promise<void> }) => {
+			await update();
+			if (result.type === 'success') {
+				await invalidateAll();
+				cancelEdit();
+			}
+		};
+	}
 </script>
 
 <section class="inventory-section" class:compact>
@@ -193,12 +203,7 @@
 										method="POST"
 										action="?/updateMagicItem"
 										class="edit-form"
-										use:enhance={() => {
-											return async ({ update }) => {
-												await update();
-												cancelEdit();
-											};
-										}}
+										use:enhance={enhanceAndRefresh}
 									>
 										<input type="hidden" name="location" value={item.location} />
 										<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
@@ -214,12 +219,7 @@
 											method="POST"
 											action="?/moveItem"
 											class="move-form"
-											use:enhance={() => {
-												return async ({ update }) => {
-													await update();
-													cancelEdit();
-												};
-											}}
+											use:enhance={enhanceAndRefresh}
 										>
 											<input type="hidden" name="fromLocation" value={item.location} />
 											<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
@@ -263,12 +263,7 @@
 								method="POST"
 								action="?/updateMagicItem"
 								class="edit-form"
-								use:enhance={() => {
-									return async ({ update }) => {
-										await update();
-										cancelEdit();
-									};
-								}}
+								use:enhance={enhanceAndRefresh}
 							>
 								<input type="hidden" name="location" value={item.location} />
 								<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
@@ -284,12 +279,7 @@
 									method="POST"
 									action="?/moveItem"
 									class="move-form"
-									use:enhance={() => {
-										return async ({ update }) => {
-											await update();
-											cancelEdit();
-										};
-									}}
+									use:enhance={enhanceAndRefresh}
 								>
 									<input type="hidden" name="fromLocation" value={item.location} />
 									<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
