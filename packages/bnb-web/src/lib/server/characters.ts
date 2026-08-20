@@ -203,6 +203,30 @@ async function saveAndRecalculate(filePath: string, data: BeefBrainData): Promis
 	await writeFile(filePath, recalculated, 'utf-8');
 }
 
+function resolveItemIndex(
+	items: unknown[],
+	itemArrayIndex: number | null,
+	itemOrderIndex: number | null
+): number {
+	if (
+		Number.isInteger(itemArrayIndex) &&
+		itemArrayIndex >= 0 &&
+		itemArrayIndex < items.length &&
+		Array.isArray(items[itemArrayIndex])
+	) {
+		return itemArrayIndex;
+	}
+
+	if (Number.isFinite(itemOrderIndex)) {
+		const byOrder = items.findIndex(
+			(item) => Array.isArray(item) && (item as unknown[])[4] === itemOrderIndex
+		);
+		if (byOrder !== -1) return byOrder;
+	}
+
+	throw new Error('Target item not found');
+}
+
 /**
  * Update a single magic item's name and effects in the character YAML,
  * then recalculate all derived fields.
@@ -210,7 +234,8 @@ async function saveAndRecalculate(filePath: string, data: BeefBrainData): Promis
 export async function saveCharacterMagicItem(
 	slug: string,
 	location: string,
-	itemOrderIndex: number,
+	itemArrayIndex: number | null,
+	itemOrderIndex: number | null,
 	newName: string,
 	newEffects: Record<string, string>
 ): Promise<void> {
@@ -222,8 +247,7 @@ export async function saveCharacterMagicItem(
 	const items: unknown[] = (data as any)?.character?.inventory?.[location];
 	if (!Array.isArray(items)) throw new Error(`Location "${location}" not found`);
 
-	const idx = items.findIndex((item) => Array.isArray(item) && (item as unknown[])[4] === itemOrderIndex);
-	if (idx === -1) throw new Error(`Item with order index ${itemOrderIndex} not found`);
+	const idx = resolveItemIndex(items, itemArrayIndex, itemOrderIndex);
 
 	applyItemEdits(items[idx] as unknown[], newName, newEffects);
 	await saveAndRecalculate(filePath, data);
@@ -237,7 +261,8 @@ export async function moveCharacterMagicItem(
 	slug: string,
 	fromLocation: string,
 	toLocation: string,
-	itemOrderIndex: number
+	itemArrayIndex: number | null,
+	itemOrderIndex: number | null
 ): Promise<void> {
 	const filePath = join(YAML_DIR, `${slug}.yaml`);
 	const raw = await readFile(filePath, 'utf-8');
@@ -247,8 +272,7 @@ export async function moveCharacterMagicItem(
 	const fromItems: unknown[] = data?.character?.inventory?.[fromLocation];
 	if (!Array.isArray(fromItems)) throw new Error(`Location "${fromLocation}" not found`);
 
-	const idx = fromItems.findIndex((item) => Array.isArray(item) && (item as unknown[])[4] === itemOrderIndex);
-	if (idx === -1) throw new Error(`Item with order index ${itemOrderIndex} not found`);
+	const idx = resolveItemIndex(fromItems, itemArrayIndex, itemOrderIndex);
 
 	const [item] = fromItems.splice(idx, 1);
 
