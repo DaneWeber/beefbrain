@@ -3,7 +3,7 @@
 	import InventorySection from './InventorySection.svelte';
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let { character, slug = '' }: { character: Record<string, any>; slug?: string } = $props();
+	let { character, slug = '', inventoryLocations = [] }: { character: Record<string, any>; slug?: string; inventoryLocations?: string[] } = $props();
 	const desc = $derived(character.description ?? {});
 	const abilities = $derived(character.abilities ?? {});
 	const levels = $derived(character.levels ?? {});
@@ -82,17 +82,6 @@
 			}
 		}
 		return { atk, damage, crit, atkBreakdown, dmgBreakdown, tags };
-	}
-
-	function inventoryLocations(inv: Record<string, unknown>): string[] {
-		if (Array.isArray(inv._on)) return inv._on as string[];
-		return Object.keys(inv).filter((k) => !k.startsWith('_') && k !== 'money');
-	}
-
-	function inventoryItems(inv: Record<string, unknown>, location: string): unknown[][] {
-		const items = inv[location];
-		if (!Array.isArray(items)) return [];
-		return items.filter((item: unknown) => Array.isArray(item) && (item as unknown[]).length > 0);
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -563,7 +552,7 @@
 	</div>
 
 	<!-- INVENTORY (full width) -->
-	<InventorySection {inventory} {slug} editable />
+	<InventorySection {inventory} {slug} {inventoryLocations} editable />
 
 	<!-- NOTES -->
 	{#if Object.keys(notes).length > 0}

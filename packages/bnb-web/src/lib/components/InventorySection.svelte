@@ -4,14 +4,15 @@
 	import { invalidateAll } from '$app/navigation';
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let { inventory, compact = false, slug = '', editable = false }: {
+	let { inventory, compact = false, slug = '', editable = false, inventoryLocations = [] }: {
 		inventory: Record<string, any>;
 		compact?: boolean;
 		slug?: string;
 		editable?: boolean;
+		inventoryLocations?: string[];
 	} = $props();
 
-	function inventoryLocations(inv: Record<string, unknown>): string[] {
+	function getLocations(inv: Record<string, unknown>): string[] {
 		if (Array.isArray(inv._on)) return inv._on as string[];
 		return Object.keys(inv).filter((k) => !k.startsWith('_') && k !== 'money');
 	}
@@ -89,7 +90,7 @@
 		const slots: Record<string, SlotData> = {};
 		bodySlots.forEach(slot => slots[slot] = { items: [], hasConflict: false });
 
-		for (const location of inventoryLocations(inventory)) {
+		for (const location of getLocations(inventory)) {
 			for (const item of inventoryItems(inventory, location)) {
 				// Tags are always the last item in the array
 				const tags = Array.isArray(item[item.length - 1]) ? (item[item.length - 1] as string[]).map(String) : [];
@@ -122,7 +123,7 @@
 	const otherItems = $derived(() => {
 		const items: SlottedItem[] = [];
 
-		for (const location of inventoryLocations(inventory)) {
+		for (const location of getLocations(inventory)) {
 			for (const item of inventoryItems(inventory, location)) {
 				// Tags are always the last item in the array
 				const tags = Array.isArray(item[item.length - 1]) ? (item[item.length - 1] as string[]).map(String) : [];
@@ -193,7 +194,7 @@
 										action="?/updateMagicItem"
 										class="edit-form"
 										use:enhance={() => {
-											return async ({ result, update }) => {
+											return async ({ update }) => {
 												await update();
 												cancelEdit();
 											};
@@ -208,6 +209,30 @@
 											<button type="button" class="btn-cancel" onclick={cancelEdit}>Cancel</button>
 										</div>
 									</form>
+									{#if inventoryLocations.length > 1}
+										<form
+											method="POST"
+											action="?/moveItem"
+											class="move-form"
+											use:enhance={() => {
+												return async ({ update }) => {
+													await update();
+													cancelEdit();
+												};
+											}}
+										>
+											<input type="hidden" name="fromLocation" value={item.location} />
+											<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
+											<label class="move-label">Move to:
+												<select name="toLocation" class="move-select">
+													{#each inventoryLocations.filter(l => l !== item.location) as loc}
+														<option value={loc}>{formatKey(loc)}</option>
+													{/each}
+												</select>
+											</label>
+											<button type="submit" class="btn-move">Move</button>
+										</form>
+									{/if}
 								{:else}
 									<span class="item-entry">
 										<span class="item-name">{item.name}</span>
@@ -254,6 +279,30 @@
 									<button type="button" class="btn-cancel" onclick={cancelEdit}>Cancel</button>
 								</div>
 							</form>
+							{#if inventoryLocations.length > 1}
+								<form
+									method="POST"
+									action="?/moveItem"
+									class="move-form"
+									use:enhance={() => {
+										return async ({ update }) => {
+											await update();
+											cancelEdit();
+										};
+									}}
+								>
+									<input type="hidden" name="fromLocation" value={item.location} />
+									<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
+									<label class="move-label">Move to:
+										<select name="toLocation" class="move-select">
+											{#each inventoryLocations.filter(l => l !== item.location) as loc}
+												<option value={loc}>{formatKey(loc)}</option>
+											{/each}
+										</select>
+									</label>
+									<button type="submit" class="btn-move">Move</button>
+								</form>
+							{/if}
 						{:else}
 							<div class="other-item">
 								<span class="item-name">{item.name}</span>
@@ -272,7 +321,7 @@
 	</div>
 
 	<div class="inv-flow">
-	{#each inventoryLocations(inventory) as location}
+	{#each getLocations(inventory) as location}
 		{@const items = inventoryItems(inventory, location)}
 		{#if items.length > 0}
 			<div class="inv-group">
@@ -579,6 +628,38 @@
 	}
 	.btn-cancel:hover {
 		background: #666;
+	}
+
+	.btn-move {
+		padding: 0.2rem 0.6rem;
+		background: #46a;
+		color: #fff;
+		border: none;
+		border-radius: 3px;
+		cursor: pointer;
+		font-size: 0.78rem;
+	}
+	.btn-move:hover {
+		background: #35a;
+	}
+	.move-form {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		margin-top: 0.2rem;
+		font-size: 0.78rem;
+	}
+	.move-label {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		color: #555;
+	}
+	.move-select {
+		font-size: 0.78rem;
+		padding: 0.1rem 0.25rem;
+		border: 1px solid #b0c0e8;
+		border-radius: 3px;
 	}
 
 	@media print {

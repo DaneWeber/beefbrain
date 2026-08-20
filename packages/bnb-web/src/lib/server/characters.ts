@@ -1,7 +1,7 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import yaml from 'js-yaml';
-import { validateBeefBrainData, updateCalculatedFields, type BeefBrainData } from 'bnb-core';
+import { validateBeefBrainData, updateCalculatedFields, dataToCompactYAML, type BeefBrainData } from 'bnb-core';
 
 const YAML_DIR = join(
 	import.meta.dirname,
@@ -152,13 +152,60 @@ export function formatKey(key: string): string {
 }
 
 /**
- * Update a single magic item's name and effects in the character YAML.
- *
- * @param slug - Character file slug (without .yaml)
- * @param location - Inventory location key (e.g. 'equipped', 'pack')
- * @param itemOrderIndex - The numeric index stored at item[4] (1-based sort order)
- * @param newName - Updated item name (item[0])
- * @param newEffects - Updated effects as a flat key:value object (replaces item[5] properties)
+ * Mutate an item array in-place: update name and replace the effects object.
+ */
+function applyItemEdits(
+	item: unknown[],
+	newName: string,
+	newEffects: Record<string, string>
+): void {
+	item[0] = newName;
+
+	const tagsPos = Array.isArray(item[item.length - 1]) ? item.length - 1 : -1;
+	const tags = tagsPos >= 0 ? item[tagsPos] : null;
+
+	const effectKeys = Object.keys(newEffects).filter((k) => k.trim() !== '');
+	if (effectKeys.length > 0) {
+		const effectsObj: Record<string, unknown> = {};
+		for (const k of effectKeys) {
+			const v = newEffects[k].trim();
+			const num = Number(v);
+			effectsObj[k.trim()] = Number.isFinite(num) && v !== '' ? num : v;
+		}
+		if (tagsPos === 5) {
+			// [name, qty, type, weight, order, [tags]] — insert effects before tags
+			item.splice(5, 0, effectsObj);
+		} else {
+			item[5] = effectsObj;
+		}
+	} else {
+		// Remove effects object if present, keep tags
+		if (tagsPos === 6 && item[5] && typeof item[5] === 'object' && !Array.isArray(item[5])) {
+			item.splice(5, 1);
+		} else if (tagsPos < 0 && item.length > 5 && typeof item[5] === 'object' && !Array.isArray(item[5])) {
+			item.splice(5, 1);
+		}
+	}
+
+	// Ensure tags are still last
+	if (tags !== null && !Array.isArray(item[item.length - 1])) {
+		item.push(tags);
+	}
+}
+
+/**
+ * Write the data back to disk using bnb-core's compact YAML format,
+ * then run updateCalculatedFields so derived stats stay in sync.
+ */
+async function saveAndRecalculate(filePath: string, data: BeefBrainData): Promise<void> {
+	const compactYaml = dataToCompactYAML(data);
+	const recalculated = updateCalculatedFields(compactYaml);
+	await writeFile(filePath, recalculated, 'utf-8');
+}
+
+/**
+ * Update a single magic item's name and effects in the character YAML,
+ * then recalculate all derived fields.
  */
 export async function saveCharacterMagicItem(
 	slug: string,
@@ -169,60 +216,57 @@ export async function saveCharacterMagicItem(
 ): Promise<void> {
 	const filePath = join(YAML_DIR, `${slug}.yaml`);
 	const raw = await readFile(filePath, 'utf-8');
-	const data = yaml.load(raw) as CharacterData;
+	const data = yaml.load(raw) as BeefBrainData;
 
-	const items: unknown[] = data?.character?.inventory?.[location];
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const items: unknown[] = (data as any)?.character?.inventory?.[location];
 	if (!Array.isArray(items)) throw new Error(`Location "${location}" not found`);
 
-	const idx = items.findIndex((item) => Array.isArray(item) && item[4] === itemOrderIndex);
+	const idx = items.findIndex((item) => Array.isArray(item) && (item as unknown[])[4] === itemOrderIndex);
 	if (idx === -1) throw new Error(`Item with order index ${itemOrderIndex} not found`);
 
-	const item = items[idx] as unknown[];
-	item[0] = newName;
+	applyItemEdits(items[idx] as unknown[], newName, newEffects);
+	await saveAndRecalculate(filePath, data);
+}
 
-	// Determine where properties object sits (may or may not exist)
-	const tagsPos = Array.isArray(item[item.length - 1]) ? item.length - 1 : -1;
-	const tags = tagsPos >= 0 ? item[tagsPos] : null;
+/**
+ * Move a magic item from one inventory location to another.
+ * Recalculates derived fields after the move so equipped bonuses update.
+ */
+export async function moveCharacterMagicItem(
+	slug: string,
+	fromLocation: string,
+	toLocation: string,
+	itemOrderIndex: number
+): Promise<void> {
+	const filePath = join(YAML_DIR, `${slug}.yaml`);
+	const raw = await readFile(filePath, 'utf-8');
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const data = yaml.load(raw) as any;
 
-	// Build new effects object; omit if empty
-	const effectKeys = Object.keys(newEffects).filter((k) => k.trim() !== '');
-	if (effectKeys.length > 0) {
-		const effectsObj: Record<string, unknown> = {};
-		for (const k of effectKeys) {
-			const raw = newEffects[k].trim();
-			// Coerce numeric values
-			const num = Number(raw);
-			effectsObj[k.trim()] = Number.isFinite(num) && raw !== '' ? num : raw;
-		}
-		// Slot 5 is properties (if tags at end), or append before tags
-		if (tagsPos === 6) {
-			item[5] = effectsObj;
-		} else if (tagsPos === 5) {
-			// Currently: [name, qty, type, weight, order, [tags]] — insert effects
-			item.splice(5, 0, effectsObj);
-		} else if (tagsPos < 0) {
-			// No tags — just set or append at 5
-			item[5] = effectsObj;
-		} else {
-			item[5] = effectsObj;
-		}
-	} else {
-		// Remove effects object if present (keep tags)
-		if (tagsPos === 6 && item[5] && typeof item[5] === 'object' && !Array.isArray(item[5])) {
-			item.splice(5, 1);
-		} else if (tagsPos < 0 && item.length > 5 && typeof item[5] === 'object' && !Array.isArray(item[5])) {
-			item.splice(5, 1);
-		}
-	}
+	const fromItems: unknown[] = data?.character?.inventory?.[fromLocation];
+	if (!Array.isArray(fromItems)) throw new Error(`Location "${fromLocation}" not found`);
 
-	// Restore tags at end if they were shifted
-	if (tags !== null) {
-		const currentLast = item[item.length - 1];
-		if (!Array.isArray(currentLast)) {
-			item.push(tags);
-		}
-	}
+	const idx = fromItems.findIndex((item) => Array.isArray(item) && (item as unknown[])[4] === itemOrderIndex);
+	if (idx === -1) throw new Error(`Item with order index ${itemOrderIndex} not found`);
 
-	const newYaml = yaml.dump(data, { lineWidth: -1, quotingType: '"' });
-	await writeFile(filePath, `---\n${newYaml}`, 'utf-8');
+	const [item] = fromItems.splice(idx, 1);
+
+	const toItems: unknown[] = data?.character?.inventory?.[toLocation];
+	if (!Array.isArray(toItems)) throw new Error(`Location "${toLocation}" not found`);
+	toItems.push(item);
+
+	await saveAndRecalculate(filePath, data as BeefBrainData);
+}
+
+/**
+ * Return all inventory location keys for a character (excluding _ prefixed and money).
+ */
+export async function getInventoryLocations(slug: string): Promise<string[]> {
+	const filePath = join(YAML_DIR, `${slug}.yaml`);
+	const raw = await readFile(filePath, 'utf-8');
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const data = yaml.load(raw) as any;
+	const inv = data?.character?.inventory ?? {};
+	return Object.keys(inv).filter((k) => !k.startsWith('_') && k !== 'money');
 }
