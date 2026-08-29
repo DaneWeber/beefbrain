@@ -5,6 +5,7 @@ on:
     paths:
       - "packages/bnb-cli/**"
       - "packages/bnb-core/**"
+      - "packages/bnb-latex/**"
       - "pnpm-lock.yaml"
       - "package.json"
 
@@ -28,6 +29,9 @@ jobs:
 
       - name: Build bnb-core (dependency)
         run: pnpm --filter bnb-core build
+
+      - name: Build bnb-latex (dependency)
+        run: pnpm --filter bnb-latex build
 
       - name: Build bnb-cli
         run: pnpm --filter bnb-cli build
