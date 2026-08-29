@@ -83,7 +83,10 @@ function getClassSummary(characterData: Record<string, unknown>): string {
 function buildFieldMap(data: BeefBrainData): LatexFieldMap {
   const characterData =
     ((data.character ?? {}) as Record<string, unknown>) || {}
-  const description = (characterData.description ?? {}) as Record<string, unknown>
+  const description = (characterData.description ?? {}) as Record<
+    string,
+    unknown
+  >
   const abilities = (characterData.abilities ?? {}) as Record<string, unknown>
   const combat = (characterData.combat ?? {}) as Record<string, unknown>
   const defense = (combat.defense ?? {}) as Record<string, unknown>
