@@ -214,6 +214,9 @@ Currently not in monorepo. Intended for a VS Code extension.
 # Install dependencies
 pnpm install
 
+# Verify PDF compiler prerequisite (for bnb-latex / bnb-cli --pdf)
+pnpm doctor:latex
+
 # Run tests
 pnpm test
 
@@ -243,6 +246,17 @@ node dist/index.js path/to/character.yaml
 **Web Development**:
 ```bash
 pnpm dev  # Starts at http://localhost:5173 (accessible from host)
+```
+
+### WSL LaTeX prerequisite for PDF generation
+
+`pnpm install` installs Node dependencies only. PDF generation requires a system
+LaTeX compiler (`pdflatex`).
+
+```bash
+sudo apt update
+sudo apt install -y texlive-latex-base texlive-latex-recommended texlive-fonts-recommended
+pnpm doctor:latex
 ```
 
 ## Project Roadmap

@@ -6,7 +6,8 @@
 	"image": "mcr.microsoft.com/devcontainers/base:noble",
 	"features": {
 		"ghcr.io/devcontainers/features/node:1": {}
-	}
+	},
+	"postCreateCommand": "sudo apt-get update && sudo apt-get install -y texlive-latex-base texlive-latex-recommended texlive-fonts-recommended"
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},

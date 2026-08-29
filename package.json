@@ -21,7 +21,8 @@
     "format": "pnpm --filter bnb-core --filter bnb-cli format:fix",
     "format:check": "pnpm --filter bnb-core --filter bnb-cli format",
     "init-items": "node scripts/init-item-metadata.js",
-    "dev": "pnpm --filter bnb-web dev"
+    "dev": "pnpm --filter bnb-web dev",
+    "doctor:latex": "node scripts/doctor-latex.js"
   },
   "devDependencies": {
     "glob": "^13.0.6",
