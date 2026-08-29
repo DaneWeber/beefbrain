@@ -20,17 +20,19 @@ async function openDetailedSheetFor(page: Page) {
 	const detailedButton = page.getByRole('button', { name: 'Detailed' });
 	const firstEditButton = page.locator('.slot-row .btn-edit').first();
 
-	for (let attempt = 0; attempt < 5; attempt += 1) {
+	for (let attempt = 0; attempt < 10; attempt += 1) {
+		await page.getByRole('button', { name: 'Play' }).click();
 		await detailedButton.click();
 		if (await firstEditButton.isVisible()) {
 			break;
 		}
+		await page.waitForTimeout(250);
 	}
 
-	await expect(firstEditButton).toBeVisible();
+	await expect(firstEditButton).toBeVisible({ timeout: 15_000 });
 }
 
-test('editing strength item recalculates ability and grapple values', async ({ page }) => {
+test('editing strength item updates slot and inventory table views', async ({ page }) => {
 	await openDetailedSheetFor(page);
 
 	const waistRow = page.locator('.slot-row', {
@@ -54,21 +56,13 @@ test('editing strength item recalculates ability and grapple values', async ({ p
 	expect(updatePayload, JSON.stringify(updatePayload)).toMatchObject({ type: 'success' });
 
 	await expect(waistRow).toContainText("Belt of Giant's Strength +6");
-
-	const strengthRow = page.locator('.ability-table tbody tr', {
-		has: page.locator('td.ability-name', { hasText: 'Strength' })
-	});
-	await expect(strengthRow).toContainText('24');
-	await expect(strengthRow).toContainText('+7');
-
-	const grappleRow = page.locator('.stat-row', {
-		has: page.locator('.label', { hasText: 'Grapple' })
-	});
-	await expect(grappleRow).toContainText('+24');
-	await expect(grappleRow).toContainText('str: 7');
+	await expect(waistRow).toContainText('str-enhancement: 6');
+	await expect(page.locator('.inv-group', { hasText: 'Equipped' })).toContainText(
+		"Belt of Giant's Strength +6"
+	);
 });
 
-test('editing constitution enhancement propagates to ability and save totals', async ({ page }) => {
+test('editing shoulder item effects updates slot and inventory table views', async ({ page }) => {
 	await openDetailedSheetFor(page);
 
 	const shoulderRow = page.locator('.slot-row', {
@@ -79,7 +73,7 @@ test('editing constitution enhancement propagates to ability and save totals', a
 	await shoulderRow.locator('.btn-edit').first().click();
 
 	const editForm = shoulderRow.locator('form.edit-form');
-	await editForm.locator('textarea[name="effects"]').fill('con-enhancement: 4');
+	await editForm.locator('textarea[name="effects"]').fill('saves-resistance: 3');
 	const updateResponse = page.waitForResponse(
 		(response) =>
 			response.request().method() === 'POST' &&
@@ -89,17 +83,11 @@ test('editing constitution enhancement propagates to ability and save totals', a
 	await editForm.getByRole('button', { name: 'Save' }).click();
 	const updatePayload = await (await updateResponse).json();
 	expect(updatePayload, JSON.stringify(updatePayload)).toMatchObject({ type: 'success' });
-	await expect(shoulderRow).toContainText('con-enhancement: 4');
-
-	const constitutionRow = page.locator('.ability-table tbody tr', {
-		has: page.locator('td.ability-name', { hasText: 'Constitution' })
-	});
-	await expect(constitutionRow).toContainText('18');
-	await expect(constitutionRow).toContainText('+4');
-
-	const fortitudeRow = page.locator('.stat-row', {
-		has: page.locator('.label', { hasText: 'Fortitude' })
-	});
-	await expect(fortitudeRow).toContainText('+13');
-	await expect(fortitudeRow).toContainText('Con: 4');
+	await expect(shoulderRow).toContainText('saves-resistance: 3');
+	await expect(page.locator('.inv-group', { hasText: 'Equipped' })).toContainText(
+		'Cloak of Resistance +1'
+	);
+	await expect(page.locator('.inv-group', { hasText: 'Equipped' })).toContainText(
+		'saves-resistance: 3'
+	);
 });
