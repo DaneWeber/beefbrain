@@ -354,4 +354,64 @@ describe('bnb-cli integration tests', () => {
       expect(content).toContain('character')
     })
   })
+
+  describe('latex command', () => {
+    it('should show latex help', () => {
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', 'latex', '--help'],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
+
+      expect(result.status).toBe(0)
+      expect(result.stdout.toString()).toContain('Usage: bnb latex')
+    })
+
+    it('should error when latex command has no input file', () => {
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', 'latex'],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
+
+      expect(result.status).toBe(1)
+      expect(result.stderr.toString()).toContain(
+        'No YAML file specified for latex command',
+      )
+    })
+
+    it('should list available latex templates', () => {
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', 'latex', '--list-templates'],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
+
+      expect(result.status).toBe(0)
+      expect(result.stdout.toString()).toContain('dnd35-streamlined')
+      expect(result.stdout.toString()).toContain('dnd35-detailed')
+    })
+
+    it('should reject unknown template keys', () => {
+      const testFile = resolve(TEMP_DIR, 'latex-template-test.yaml')
+      writeFileSync(testFile, VALID_YAML)
+
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.js', 'latex', '--template', 'unknown-template', testFile],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
+
+      expect(result.status).toBe(1)
+      expect(result.stderr.toString()).toContain('Unknown template key')
+    })
+  })
 })
