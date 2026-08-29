@@ -67,11 +67,20 @@ done
 bnb gimli.yaml --calc | diff gimli.yaml -
 ```
 
+### Generate LaTeX and PDF Character Sheets
+
+```bash
+bnb latex gimli.yaml --template dnd35-streamlined --out gimli.tex
+bnb latex gimli.yaml --template dnd35-detailed --out gimli.tex --pdf
+bnb latex --list-templates
+```
+
 ## Options
 
 - **(no options)**: Validate and print formatted YAML
 - `--calc`: Calculate derived fields and print
 - `--write`: Calculate and update file in place
+- `latex`: Generate LaTeX files (and optional PDF) from character YAML
 - `--help`: Show help message
 
 ## Use Cases
@@ -85,6 +94,7 @@ bnb gimli.yaml --calc | diff gimli.yaml -
 ## Dependencies
 
 - [bnb-core](../bnb-core/README.md) - Core calculation and validation library
+- [bnb-latex](../bnb-latex/README.md) - Shared LaTeX/PDF rendering package
 
 ## Testing
 

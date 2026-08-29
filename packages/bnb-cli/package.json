@@ -28,7 +28,8 @@
   "author": "DaneWeber",
   "license": "MIT",
   "dependencies": {
-    "bnb-core": "workspace:*"
+    "bnb-core": "workspace:*",
+    "bnb-latex": "workspace:*"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
