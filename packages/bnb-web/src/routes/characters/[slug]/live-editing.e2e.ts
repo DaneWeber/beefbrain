@@ -18,8 +18,8 @@ test.beforeEach(async () => {
 async function openDetailedSheetFor(page: Page) {
 	await page.goto(`/characters/${slug}`);
 	await page.getByRole('button', { name: 'Detailed' }).click();
-	await expect(page.getByRole('heading', { name: 'Levels' })).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'Inventory' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Magic Item Slots' })).toBeVisible();
 }
 
 test('editing strength item recalculates ability and grapple values', async ({ page }) => {
