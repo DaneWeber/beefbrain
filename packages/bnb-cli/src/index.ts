@@ -34,31 +34,30 @@ function getFlagValue(args: string[], flag: string): string | undefined {
   if (idx === -1) {
     return undefined
   }
-
-  function getPositionalArgs(
-    args: string[],
-    flagsWithValues: Set<string>,
-  ): string[] {
-    const positional: string[] = []
-    for (let i = 0; i < args.length; i += 1) {
-      const item = args[i]
-      if (item.startsWith('--')) {
-        if (flagsWithValues.has(item)) {
-          i += 1
-        }
-        continue
-      }
-      positional.push(item)
-    }
-    return positional
-  }
-
   const value = args[idx + 1]
   if (!value || value.startsWith('--')) {
     console.error(`Error: Missing value for ${flag}`)
     process.exit(1)
   }
   return value
+}
+
+function getPositionalArgs(
+  args: string[],
+  flagsWithValues: Set<string>,
+): string[] {
+  const positional: string[] = []
+  for (let i = 0; i < args.length; i += 1) {
+    const item = args[i]
+    if (item.startsWith('--')) {
+      if (flagsWithValues.has(item)) {
+        i += 1
+      }
+      continue
+    }
+    positional.push(item)
+  }
+  return positional
 }
 
 function toTexPath(sourcePath: string): string {
@@ -201,14 +200,14 @@ async function runLatexCommand(rawArgs: string[]): Promise<void> {
 async function main(): Promise<void> {
   const args = process.argv.slice(2)
 
-  if (args.includes('--help') || args.length === 0) {
-    printUsage()
-    process.exit(args.includes('--help') ? 0 : 1)
-  }
-
   if (args[0] === 'latex') {
     await runLatexCommand(args.slice(1))
     return
+  }
+
+  if (args.includes('--help') || args.length === 0) {
+    printUsage()
+    process.exit(args.includes('--help') ? 0 : 1)
   }
 
   const flags = args.filter((a) => a.startsWith('--'))
