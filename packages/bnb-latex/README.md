@@ -20,6 +20,23 @@ selected template with safe token substitution.
 - Input size guards for YAML and custom templates
 - Escaped text substitution for LaTeX safety
 
+## PDF prerequisite
+
+`compilePdf` requires `pdflatex` on your system `PATH`.
+
+For WSL (Ubuntu):
+
+```bash
+sudo apt update
+sudo apt install -y texlive-latex-base texlive-latex-recommended texlive-fonts-recommended
+```
+
+From repo root, you can verify with:
+
+```bash
+pnpm doctor:latex
+```
+
 ## Example
 
 ```ts

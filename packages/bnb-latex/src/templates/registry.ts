@@ -21,8 +21,7 @@ const TEMPLATE_REGISTRY: Record<LatexTemplateKey, TemplateRecord> = {
     info: {
       key: 'dnd35-detailed',
       name: 'D&D 3.5 Detailed',
-      description:
-        'Expanded combat summary with saves and movement details.',
+      description: 'Expanded combat summary with saves and movement details.',
     },
     template: DND35_DETAILED_TEMPLATE,
   },
