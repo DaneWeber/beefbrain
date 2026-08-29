@@ -1,0 +1,35 @@
+import { readFileSync } from 'fs'
+import { resolve } from 'path'
+import { describe, expect, it } from '@jest/globals'
+import { renderLatex } from './renderLatex'
+import { LatexGenerationError } from './errors'
+
+const VALID_YAML = readFileSync(
+  resolve(__dirname, '../../bnb-core/src/examples/final/dnd35-fighter-1.yaml'),
+  'utf-8',
+)
+
+describe('renderLatex', () => {
+  it('renders default dnd35 template with calculated data', () => {
+    const result = renderLatex({ yaml: VALID_YAML })
+    expect(result.template.key).toBe('dnd35-streamlined')
+    expect(result.latex).toContain('D\\&D 3.5 Character Sheet (Streamlined)')
+    expect(result.latex).toContain('Landorf the Human Fighter')
+    expect(result.latex).toContain('fighter 1')
+  })
+
+  it('supports secure value escaping in field substitution', () => {
+    const editedYaml = VALID_YAML.replace(
+      'Landorf the Human Fighter',
+      'Landorf & Friends',
+    )
+    const result = renderLatex({ yaml: editedYaml })
+    expect(result.latex).toContain('Landorf \\& Friends')
+  })
+
+  it('rejects oversized yaml payloads', () => {
+    expect(() => renderLatex({ yaml: VALID_YAML, maxYamlBytes: 8 })).toThrow(
+      LatexGenerationError,
+    )
+  })
+})
