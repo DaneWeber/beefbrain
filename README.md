@@ -4,6 +4,10 @@
 
 BeefBrain is a monorepo containing tools for managing tabletop RPG characters and creatures using YAML files. The project emphasizes human-readable data formats that work seamlessly with Git, text editors, and automated calculations.
 
+## Active Implementation Plans
+
+- [bnb-latex package roadmap](docs/bnb-latex-roadmap.md) - shared LaTeX/PDF generation for CLI and web
+
 ## Architecture
 
 BeefBrain follows a layered architecture with clear separation of concerns:
@@ -268,4 +272,3 @@ This project uses:
 ## License
 
 MIT
-
