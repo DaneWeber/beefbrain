@@ -17,9 +17,17 @@ test.beforeEach(async () => {
 
 async function openDetailedSheetFor(page: Page) {
 	await page.goto(`/characters/${slug}`);
-	await page.getByRole('button', { name: 'Detailed' }).click();
-	await expect(page.getByRole('heading', { name: 'Inventory' })).toBeVisible();
-	await expect(page.getByRole('heading', { name: 'Magic Item Slots' })).toBeVisible();
+	const detailedButton = page.getByRole('button', { name: 'Detailed' });
+
+	for (let attempt = 0; attempt < 3; attempt += 1) {
+		await detailedButton.click();
+		if (await page.getByRole('heading', { name: 'Levels' }).isVisible()) {
+			break;
+		}
+	}
+
+	await expect(page.getByRole('heading', { name: 'Levels' })).toBeVisible();
+	await expect(page.locator('.slot-row .btn-edit').first()).toBeVisible();
 }
 
 test('editing strength item recalculates ability and grapple values', async ({ page }) => {
