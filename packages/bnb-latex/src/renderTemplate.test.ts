@@ -11,6 +11,8 @@ describe('renderTemplate', () => {
   })
 
   it('throws when a required template field is missing', () => {
-    expect(() => renderTemplate('Hello {{name}}', {})).toThrow(LatexGenerationError)
+    expect(() => renderTemplate('Hello {{name}}', {})).toThrow(
+      LatexGenerationError,
+    )
   })
 })
