@@ -94,6 +94,7 @@ bnb latex --list-templates
 ## Dependencies
 
 - [bnb-core](../bnb-core/README.md) - Core calculation and validation library
+- [bnb-latex](../bnb-latex/README.md) - Shared LaTeX/PDF rendering package
 
 ## Testing
 

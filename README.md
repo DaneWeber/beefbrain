@@ -38,7 +38,8 @@ BeefBrain follows a layered architecture with clear separation of concerns:
 
 - **bnb-core**: Foundation library with no external dependencies (except dev tools)
 - **bnb-cli**: Thin wrapper around bnb-core for command-line usage
-- **bnb-web**: Web interface that should depend on bnb-core (currently independent)
+- **bnb-latex**: Shared LaTeX/PDF generation package for CLI + web
+- **bnb-web**: Web interface for character viewing, editing, and exports
 
 ## Packages
 
@@ -96,6 +97,23 @@ bnb character.yaml --write      # Update file in place
 5. Add diff mode to show what would change
 6. Add verbose mode for detailed calculation output
 7. Consider switching to Commander.js for better arg parsing
+
+---
+
+### 🧾 bnb-latex
+
+**Status**: 🚧 Active implementation
+
+Shared package for rendering BeefBrain YAML to LaTeX and compiling PDFs with
+secure defaults. Intended for reuse by both `bnb-cli` and `bnb-web`.
+
+**Current Features**:
+- D&D 3.5 template variants (streamlined, detailed, spellcaster)
+- LaTeX token rendering with escaped substitutions
+- Size limits for YAML/template inputs
+- Optional PDF compilation with timeout and no shell-escape
+
+**Dependencies**: `bnb-core`
 
 ---
 
