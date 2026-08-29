@@ -2,11 +2,15 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import yaml from 'js-yaml';
 import { validateBeefBrainData, updateCalculatedFields, dataToCompactYAML, type BeefBrainData } from 'bnb-core';
+import { listTemplates, renderLatex, type LatexTemplateKey, type TemplateInfo } from 'bnb-latex';
 
 const YAML_DIR = join(
 	import.meta.dirname,
 	'../../../../../reference_material/beefy_boys_spreadsheets/yaml'
 );
+
+const LATEX_TEMPLATES = listTemplates();
+const LATEX_TEMPLATE_KEYS = new Set(LATEX_TEMPLATES.map((template) => template.key));
 
 export interface CharacterSummary {
 	slug: string;
@@ -269,4 +273,29 @@ export async function getInventoryLocations(slug: string): Promise<string[]> {
 	const data = yaml.load(raw) as any;
 	const inv = data?.character?.inventory ?? {};
 	return Object.keys(inv).filter((k) => !k.startsWith('_') && k !== 'money');
+}
+
+export function getLatexTemplateOptions(): TemplateInfo[] {
+	return LATEX_TEMPLATES;
+}
+
+export async function generateCharacterLatex(
+	slug: string,
+	templateKey: string
+): Promise<{ latex: string; templateKey: LatexTemplateKey }> {
+	if (!LATEX_TEMPLATE_KEYS.has(templateKey as LatexTemplateKey)) {
+		throw new Error(`Unknown LaTeX template "${templateKey}"`);
+	}
+
+	const filePath = join(YAML_DIR, `${slug}.yaml`);
+	const raw = await readFile(filePath, 'utf-8');
+	const rendered = renderLatex({
+		yaml: raw,
+		templateKey: templateKey as LatexTemplateKey
+	});
+
+	return {
+		latex: rendered.latex,
+		templateKey: rendered.template.key
+	};
 }

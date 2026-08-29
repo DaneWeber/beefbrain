@@ -1,5 +1,11 @@
 import { error, fail } from '@sveltejs/kit';
-import { loadCharacter, saveCharacterMagicItem, moveCharacterMagicItem, getInventoryLocations } from '$lib/server/characters';
+import {
+	loadCharacter,
+	saveCharacterMagicItem,
+	moveCharacterMagicItem,
+	getInventoryLocations,
+	getLatexTemplateOptions
+} from '$lib/server/characters';
 
 export async function load({ params }) {
 	const data = await loadCharacter(params.slug);
@@ -7,7 +13,12 @@ export async function load({ params }) {
 		error(404, 'Character not found');
 	}
 	const locations = await getInventoryLocations(params.slug);
-	return { character: data.character, slug: params.slug, inventoryLocations: locations };
+	return {
+		character: data.character,
+		slug: params.slug,
+		inventoryLocations: locations,
+		latexTemplates: getLatexTemplateOptions()
+	};
 }
 
 export const actions = {

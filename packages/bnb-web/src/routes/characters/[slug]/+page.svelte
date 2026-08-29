@@ -5,9 +5,14 @@
 	let { data } = $props();
 	const character = $derived(data.character);
 	const name = $derived(character?.description?.name ?? 'Character');
+	const latexTemplates = $derived(data.latexTemplates ?? []);
 
 	type ViewMode = 'streamlined' | 'detailed';
 	let viewMode: ViewMode = $state('streamlined');
+	let selectedLatexTemplate = $state(latexTemplates[0]?.key ?? 'dnd35-streamlined');
+	const latexDownloadHref = $derived(
+		`/characters/${data.slug}/latex?template=${encodeURIComponent(selectedLatexTemplate)}`
+	);
 </script>
 
 <svelte:head>
@@ -29,6 +34,14 @@
 		>
 			Detailed
 		</button>
+	</div>
+	<div class="latex-export">
+		<select bind:value={selectedLatexTemplate}>
+			{#each latexTemplates as template}
+				<option value={template.key}>{template.name}</option>
+			{/each}
+		</select>
+		<a class="latex-link" href={latexDownloadHref}>Download LaTeX</a>
 	</div>
 	<button class="print-btn" onclick={() => window.print()}>Print</button>
 </div>
@@ -77,6 +90,29 @@
 	.view-toggle button.active {
 		background: #333;
 		color: #fff;
+	}
+	.latex-export {
+		display: flex;
+		gap: 0.5rem;
+		align-items: center;
+	}
+	.latex-export select {
+		padding: 0.3rem 0.5rem;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		font-size: 0.82rem;
+		background: #fff;
+	}
+	.latex-link {
+		padding: 0.3rem 0.75rem;
+		background: #2f5f2f;
+		color: #fff;
+		border-radius: 4px;
+		text-decoration: none;
+		font-size: 0.82rem;
+	}
+	.latex-link:hover {
+		background: #3e7a3e;
 	}
 	.print-btn {
 		margin-left: auto;
