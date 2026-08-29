@@ -1,0 +1,1963 @@
+nextId: 246
+items:
+  '1':
+    description: Heward's Handy Haversack
+    marketValue: 2000
+    auraStrength: moderate
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '2':
+    description: Everfull Mug
+    marketValue: 200
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '3':
+    description: Everlasting Rations
+    marketValue: 350
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '4':
+    description: Sickle +1
+    marketValue: 2306
+    auraStrength: faint
+    auraType: evocation
+    origin: ''
+    dmNotes: ''
+  '5':
+    description: Weapon Crystal Energy Assault Greater (Acid)
+    marketValue: 3000
+    auraStrength: moderate
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '6':
+    description: Weapon Crystal Energy Assault Greater (Shocking)
+    marketValue: 3000
+    auraStrength: moderate
+    auraType: evocation
+    origin: ''
+    dmNotes: ''
+  '7':
+    description: Weapon Crystal Energy Assault Greater (Fire)
+    marketValue: 3000
+    auraStrength: moderate
+    auraType: evocation
+    origin: ''
+    dmNotes: ''
+  '8':
+    description: Dagger
+    marketValue: 2
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '9':
+    description: Leather Mask
+    marketValue: 5
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '10':
+    description: Dagger Silver MW
+    marketValue: 322
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '11':
+    description: Bow of the Wintermoon +1 Full Str Bonus
+    marketValue: 3400
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '12':
+    description: Arrows
+    marketValue: 0.05
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '13':
+    description: Horned Helm +1 (1d8 natural attack 1/2 str; +1 AC)
+    marketValue: 10000
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '14':
+    description: +4 Deathward Improved Stamina/Agility Mindarmor Mithralmist Chain Shirt (+8 AC)
+    marketValue: 38400
+    auraStrength: strong
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '15':
+    description: Ring of Protection +1
+    marketValue: 2000
+    auraStrength: faint
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '16':
+    description: Gloves of Dexterity +2
+    marketValue: 4000
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '17':
+    description: 'Dimension Stride Boots (5 charges: 1/20ft, 3/40ft, 5/60ft)'
+    marketValue: 2000
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '18':
+    description: Pearl of Speech (Giant, Abyssal, Celestial)
+    marketValue: 600
+    auraStrength: faint
+    auraType: divination
+    origin: ''
+    dmNotes: ''
+  '19':
+    description: 'Vanisher Cloak (3 charges/day: 1=4rds, 2=3rds, 3=2rds invisibility)'
+    marketValue: 2500
+    auraStrength: faint
+    auraType: illusion
+    origin: ''
+    dmNotes: ''
+  '20':
+    description: Vest of Resistance +2 Saves
+    marketValue: 4000
+    auraStrength: faint
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '21':
+    description: Filcher's Friend (+5 Sleight of Hand/metal)
+    marketValue: 2500
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '22':
+    description: Flask Holy Water
+    marketValue: 25
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '23':
+    description: Flask Acid
+    marketValue: 10
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '24':
+    description: Everburning Torch (Candle/Skull)
+    marketValue: 110
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '25':
+    description: Holy Symbol wooden (Obad-Hai)
+    marketValue: 1
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '26':
+    description: Alchemist Arrow (+1d4 next rnd)
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '27':
+    description: Blessed Bandages
+    marketValue: 10
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '28':
+    description: Ghost Oil (2 rds Ghost Touch)
+    marketValue: 50
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '29':
+    description: Wand Cure Light (45 charges)
+    marketValue: 750
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '30':
+    description: Third Eye Improvisation (1/day +5 and trained in any skill)
+    marketValue: 1000
+    auraStrength: faint
+    auraType: divination
+    origin: ''
+    dmNotes: ''
+  '31':
+    description: Third Eye Clarity (negate stunned/confused/dazed/fascinated)
+    marketValue: 3000
+    auraStrength: faint
+    auraType: divination
+    origin: ''
+    dmNotes: ''
+  '32':
+    description: Amulet of Natural Armor +2
+    marketValue: 8000
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '33':
+    description: Sphere of Awakening (60ft burst)
+    marketValue: 1800
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '34':
+    description: Belt of Giant's Strength +4
+    marketValue: 16000
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '35':
+    description: Tan Bag of Tricks
+    marketValue: 6300
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '36':
+    description: Holy Symbol golden (Pelor)
+    marketValue: 100
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '37':
+    description: 'Healing Belt (1: 2d8, 2: 3d8, 3: 4d8, +2 heal)'
+    marketValue: 750
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '38':
+    description: Heavy Warhorse named Obad-Hai
+    marketValue: 400
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '39':
+    description: Military Saddle plus bit/bridle/saddlebags
+    marketValue: 20
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '40':
+    description: Wooden Bowl
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '41':
+    description: Smokestick
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '42':
+    description: Flask
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '43':
+    description: Quarterstaff
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '44':
+    description: Monk's Robes
+    marketValue: 0
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '45':
+    description: Sling +1 Holy
+    marketValue: 0
+    auraStrength: moderate
+    auraType: evocation
+    origin: ''
+    dmNotes: ''
+  '46':
+    description: Bracers of Armor +1
+    marketValue: 0
+    auraStrength: faint
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '47':
+    description: Amulet of Natural Armor +1
+    marketValue: 0
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '48':
+    description: Everburning Candle
+    marketValue: 0
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '49':
+    description: Turkey bone
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '50':
+    description: Cloak of Charisma +2
+    marketValue: 0
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '51':
+    description: Sling Ammo Adamantine
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '52':
+    description: Sling Ammo Silvered
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '53':
+    description: Sling Ammo Cold Iron
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '54':
+    description: Potion Barkskin
+    marketValue: 0
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '55':
+    description: Potion Fly
+    marketValue: 0
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '56':
+    description: Potion Blur
+    marketValue: 0
+    auraStrength: faint
+    auraType: illusion
+    origin: ''
+    dmNotes: ''
+  '57':
+    description: Potion Cure Light Wounds 1d8+1
+    marketValue: 0
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '58':
+    description: Potion Reduce Person
+    marketValue: 0
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '59':
+    description: Resurrection Gem
+    marketValue: 0
+    auraStrength: strong
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '60':
+    description: Belt of Giant's Strength +4
+    marketValue: 0
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '61':
+    description: Armband of Maximized Healing
+    marketValue: 0
+    auraStrength: moderate
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '62':
+    description: Mirror of time-hop (2/day gaze 30ft push creature 5 rounds forward; DC 14 Will)
+    marketValue: 0
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '63':
+    description: Orb of environmental adaptation within 30 feet
+    marketValue: 0
+    auraStrength: faint
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '64':
+    description: Diamond dust for Glyph of Warding (200gp/casting)
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '65':
+    description: Powdered silver for Wall of Good (25gp/casting)
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '66':
+    description: Spell Components
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '67':
+    description: Other expensive material spell components
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '68':
+    description: Clothes
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '69':
+    description: Holy Symbol
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '70':
+    description: Book of Sermons
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '71':
+    description: 'USED: Diamond dust for Glyph of Warding (200gp/casting)'
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '72':
+    description: 'USED: Powdered silver for Wall of Good (25gp/casting)'
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '73':
+    description: Walking cane (light mace)
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '74':
+    description: +1 Blurring Full Plate (+9 AC; -5 ACP; 5 rounds 3/day)
+    marketValue: 0
+    auraStrength: moderate
+    auraType: illusion
+    origin: ''
+    dmNotes: ''
+  '75':
+    description: +2 Ring of Protection
+    marketValue: 0
+    auraStrength: faint
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '76':
+    description: Half-Celestial Bison war-trained (Sacred Cow)
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '77':
+    description: Saddle exotic military (+2 ride)
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '78':
+    description: Battle Bridle (+5 ride; mounted combat feat)
+    marketValue: 0
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '79':
+    description: Clothes Artisan Outfit
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '80':
+    description: Cloak of Resistance +2
+    marketValue: 0
+    auraStrength: faint
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '81':
+    description: Metamagic Rod of Empower lesser (level 1-3)
+    marketValue: 0
+    auraStrength: strong
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '82':
+    description: Ring of Protection +2
+    marketValue: 0
+    auraStrength: faint
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '83':
+    description: Ring of Mind Shielding
+    marketValue: 0
+    auraStrength: faint
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '84':
+    description: Wand Magic Missile 9th level (48/50 charges)
+    marketValue: 0
+    auraStrength: moderate
+    auraType: evocation
+    origin: ''
+    dmNotes: ''
+  '85':
+    description: Wand Bull's Strength 3rd level (50/50)
+    marketValue: 0
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '86':
+    description: Spell Component Pouch
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '87':
+    description: Sling
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '88':
+    description: Wand Lightning Bolt 10th level (50/50)
+    marketValue: 0
+    auraStrength: moderate
+    auraType: evocation
+    origin: ''
+    dmNotes: ''
+  '89':
+    description: Spells copied into spellbook
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '90':
+    description: Bag of Holding I (250 lbs capacity)
+    marketValue: 0
+    auraStrength: moderate
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '91':
+    description: Backpack
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '92':
+    description: Dagger
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '93':
+    description: Heward's Handy Haversack
+    marketValue: 0
+    auraStrength: moderate
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '94':
+    description: Robe of the Archmagi
+    marketValue: 0
+    auraStrength: strong
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '95':
+    description: +2 Gloves of Dexterity
+    marketValue: 0
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '96':
+    description: +3 Amulet of Natural Armor
+    marketValue: 0
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '97':
+    description: +2 Ring of Protection
+    marketValue: 0
+    auraStrength: faint
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '98':
+    description: +2 Charisma Cloak
+    marketValue: 0
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '99':
+    description: Light Crossbow
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '100':
+    description: Bolts
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '101':
+    description: Dimension Stride Boots
+    marketValue: 0
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '102':
+    description: Healing Belt
+    marketValue: 0
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '103':
+    description: Wand of Floating Disk
+    marketValue: 0
+    auraStrength: faint
+    auraType: evocation
+    origin: ''
+    dmNotes: ''
+  '104':
+    description: Wand of Non Detection
+    marketValue: 0
+    auraStrength: faint
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '105':
+    description: Potion Cure Light Wounds
+    marketValue: 0
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '106':
+    description: Scroll See Invisible
+    marketValue: 0
+    auraStrength: faint
+    auraType: divination
+    origin: ''
+    dmNotes: ''
+  '107':
+    description: Spiked Gauntlet
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '108':
+    description: Healing Belt
+    marketValue: 0
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '109':
+    description: Light Warhorse
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '110':
+    description: Military Saddle
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '111':
+    description: Flint and Steel
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '112':
+    description: Everburning Torch (green)
+    marketValue: 0
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '113':
+    description: Fish Hook
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '114':
+    description: Silver Ring w Moonstones
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '115':
+    description: Feather Token anchor
+    marketValue: 0
+    auraStrength: strong
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '116':
+    description: Flask Acid
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '117':
+    description: Caltrops Bag
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '118':
+    description: Life Saver
+    marketValue: 0
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '119':
+    description: Smoke Stick
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '120':
+    description: Sunrod
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '121':
+    description: Tanglefoot bag
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '122':
+    description: Thieves' Tools MW (+2)
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '123':
+    description: Universal Solvent
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '124':
+    description: Immovable Rod
+    marketValue: 0
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '125':
+    description: Ring of 2 Wishes
+    marketValue: 0
+    auraStrength: strong
+    auraType: universal
+    origin: ''
+    dmNotes: ''
+  '126':
+    description: Cloak of Resistance +3
+    marketValue: 0
+    auraStrength: faint
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '127':
+    description: Dagger MW
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '128':
+    description: Dagger Punching
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '129':
+    description: Sap
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '130':
+    description: Rogue's Vest
+    marketValue: 0
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '131':
+    description: Gloves of Dex +2
+    marketValue: 0
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '132':
+    description: Belt of Battle (3 charges/day extra actions)
+    marketValue: 0
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '133':
+    description: Celestial Armor (5 AC +3 2 ACP fly 1/day)
+    marketValue: 0
+    auraStrength: faint
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '134':
+    description: Ring of Use Magic Device
+    marketValue: 0
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '135':
+    description: Ring of Protection +1
+    marketValue: 0
+    auraStrength: faint
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '136':
+    description: Dagger Punching
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '137':
+    description: Lantern Bullseye
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '138':
+    description: Oil Pint
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '139':
+    description: Rapier MW Cold Iron
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '140':
+    description: MW Mighty +4 Composite Longbow
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '141':
+    description: Oil Bless Weapon
+    marketValue: 0
+    auraStrength: faint
+    auraType: evocation
+    origin: ''
+    dmNotes: ''
+  '142':
+    description: Potion Water Breathing
+    marketValue: 0
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '143':
+    description: Potion Cure Light Wounds
+    marketValue: 0
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '144':
+    description: Potion Cure Moderate Wounds
+    marketValue: 0
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '145':
+    description: 'Healing Belt (1: 2d8, 2: 3d8, 3: 4d8, +2 heal)'
+    marketValue: 0
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '146':
+    description: Chrono Charm Horizon Walker (1/day swift 15ft)
+    marketValue: 0
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '147':
+    description: Deathstrike Bracers (swift action)
+    marketValue: 0
+    auraStrength: moderate
+    auraType: necromancy
+    origin: ''
+    dmNotes: ''
+  '148':
+    description: Wand Cure Light (50 charges)
+    marketValue: 0
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '149':
+    description: Wand Invisibility
+    marketValue: 0
+    auraStrength: faint
+    auraType: illusion
+    origin: ''
+    dmNotes: ''
+  '150':
+    description: Javelins Cold Iron
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '151':
+    description: Javelins Silver
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '152':
+    description: Staff of Fire & Ice (35 charges)
+    marketValue: 0
+    auraStrength: strong
+    auraType: evocation
+    origin: ''
+    dmNotes: ''
+  '153':
+    description: Waterskin 1 day
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '154':
+    description: Towel
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '155':
+    description: Silk Rope 50 ft
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '156':
+    description: Rations Trail 5 days
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '157':
+    description: Backpack
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '158':
+    description: Chalk Piece
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '159':
+    description: Twine 50 ft
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '160':
+    description: Grappling Hook
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '161':
+    description: Ink Pen
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '162':
+    description: Ink Vial
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '163':
+    description: Dose Belladonna
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '164':
+    description: Dose Knockout
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '165':
+    description: Antitoxin +5
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '166':
+    description: Kit Disguise
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '167':
+    description: Kit Healer's
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '168':
+    description: Potion Fire Resistance 10
+    marketValue: 0
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '169':
+    description: Scroll Case
+    marketValue: 1
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '170':
+    description: Scroll Bane
+    marketValue: 0
+    auraStrength: faint
+    auraType: enchantment
+    origin: ''
+    dmNotes: ''
+  '171':
+    description: Scroll Cure Light Wounds
+    marketValue: 0
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '172':
+    description: Scroll Delay Poison
+    marketValue: 0
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '173':
+    description: Scroll Endure Elements
+    marketValue: 0
+    auraStrength: faint
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '174':
+    description: Scroll Entangle
+    marketValue: 0
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '175':
+    description: Scroll Knock
+    marketValue: 0
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '176':
+    description: Scroll Mage Armor
+    marketValue: 0
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '177':
+    description: Scroll Magic Weapon
+    marketValue: 0
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '178':
+    description: Scroll Shield of Faith
+    marketValue: 0
+    auraStrength: faint
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '179':
+    description: Unguent of Timelessness
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '180':
+    description: Potion of Jump
+    marketValue: 0
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '181':
+    description: Potion of Water Breathing
+    marketValue: 0
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '182':
+    description: Incense of Obsession
+    marketValue: 0
+    auraStrength: moderate
+    auraType: enchantment
+    origin: ''
+    dmNotes: ''
+  '183':
+    description: Bedroll
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '184':
+    description: Clothes Spare Explorers
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '185':
+    description: Waterskin 1 day
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '186':
+    description: Silk Rope 50 ft
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '187':
+    description: Heavy Warhorse
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '188':
+    description: Military Saddle
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '189':
+    description: Rapier +1 Ghost Touch Lesser Return Gem
+    marketValue: 0
+    auraStrength: moderate
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '190':
+    description: Mithril Breastplate MW
+    marketValue: 4200
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '191':
+    description: +1 Composite Shortbow
+    marketValue: 2400
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '192':
+    description: Dagger
+    marketValue: 2
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '193':
+    description: Throwing Axe
+    marketValue: 8
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '194':
+    description: Arrows
+    marketValue: 1
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '195':
+    description: Arrows Cold Iron
+    marketValue: 2
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '196':
+    description: Arrows Silvered
+    marketValue: 40
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '197':
+    description: Traveler's Outfit
+    marketValue: 2
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '198':
+    description: Cold Weather Outfit
+    marketValue: 8
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '199':
+    description: Backpack
+    marketValue: 2
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '200':
+    description: Bedroll
+    marketValue: 0.1
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '201':
+    description: Fishhook
+    marketValue: 0.1
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '202':
+    description: Lantern Bullseye
+    marketValue: 12
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '203':
+    description: Oil Smokeless 1 pint
+    marketValue: 0.1
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '204':
+    description: Iron Pot
+    marketValue: 0.5
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '205':
+    description: Waterskin
+    marketValue: 1
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '206':
+    description: Silk Rope 50 ft
+    marketValue: 10
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '207':
+    description: Sewing Needle
+    marketValue: 0.5
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '208':
+    description: Dagger
+    marketValue: 2
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '209':
+    description: Bastard Sword +2 Giant-Bane
+    marketValue: 18335
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '210':
+    description: Frost Brand Greatsword +3
+    marketValue: 0
+    auraStrength: strong
+    auraType: evocation
+    origin: ''
+    dmNotes: ''
+  '211':
+    description: Mithril Plate of Speed +1
+    marketValue: 26500
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '212':
+    description: Lion Shield +2
+    marketValue: 9170
+    auraStrength: moderate
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '213':
+    description: MW Mighty +4 Composite Long Bow
+    marketValue: 775
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '214':
+    description: Winged Boots
+    marketValue: 16000
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '215':
+    description: Cloak of Resistance +1
+    marketValue: 1000
+    auraStrength: faint
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '216':
+    description: Arrows
+    marketValue: 0.05
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '217':
+    description: +1 Arrow
+    marketValue: 46.05
+    auraStrength: faint
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '218':
+    description: Climbing Kit
+    marketValue: 80
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '219':
+    description: Potion Shield of Faith
+    marketValue: 50
+    auraStrength: faint
+    auraType: abjuration
+    origin: ''
+    dmNotes: ''
+  '220':
+    description: Potion Cure Light Wounds
+    marketValue: 50
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '221':
+    description: Silver Sheen
+    marketValue: 250
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '222':
+    description: Life Saver
+    marketValue: 10
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '223':
+    description: Vigor
+    marketValue: 10
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '224':
+    description: Ornate Iron Key
+    marketValue: 0
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '225':
+    description: Belt of Giant's Strength +4
+    marketValue: 16000
+    auraStrength: moderate
+    auraType: transmutation
+    origin: ''
+    dmNotes: ''
+  '226':
+    description: Backpack
+    marketValue: 2
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '227':
+    description: Bedroll
+    marketValue: 0.1
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '228':
+    description: Clothes Spare Set Thainman
+    marketValue: 10
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '229':
+    description: Towel
+    marketValue: 0.4
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '230':
+    description: Soap Bar
+    marketValue: 0.5
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '231':
+    description: Candles
+    marketValue: 0.01
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '232':
+    description: Flint and Steel
+    marketValue: 1
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '233':
+    description: Rations Trail 5 days
+    marketValue: 0.5
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '234':
+    description: Waterskin 1 day
+    marketValue: 1
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '235':
+    description: Rope Hempen 50 ft
+    marketValue: 1
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '236':
+    description: Sack (empty)
+    marketValue: 0.1
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '237':
+    description: Flask Pint (empty)
+    marketValue: 0.03
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '238':
+    description: Torch
+    marketValue: 0.01
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '239':
+    description: Chalk Piece
+    marketValue: 0.01
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '240':
+    description: Crowbar
+    marketValue: 2
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '241':
+    description: Healing Belt
+    marketValue: 750
+    auraStrength: faint
+    auraType: conjuration
+    origin: ''
+    dmNotes: ''
+  '242':
+    description: Heavy Warhorse
+    marketValue: 400
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '243':
+    description: Military Saddle
+    marketValue: 20
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '244':
+    description: Heavy Warhorse
+    marketValue: 400
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+  '245':
+    description: Military Saddle
+    marketValue: 20
+    auraStrength: none
+    auraType: none
+    origin: ''
+    dmNotes: ''
+itemMapping:
+  Black Stag/equipped/0: 1
+  Black Stag/equipped/1: 2
+  Black Stag/equipped/2: 3
+  Black Stag/equipped/3: 4
+  Black Stag/equipped/4: 5
+  Black Stag/equipped/5: 6
+  Black Stag/equipped/6: 7
+  Black Stag/equipped/7: 8
+  Black Stag/equipped/8: 9
+  Black Stag/equipped/9: 10
+  Black Stag/equipped/10: 11
+  Black Stag/equipped/11: 12
+  Black Stag/equipped/12: 13
+  Black Stag/equipped/13: 14
+  Black Stag/equipped/14: 15
+  Black Stag/equipped/15: 16
+  Black Stag/equipped/16: 17
+  Black Stag/equipped/17: 18
+  Black Stag/equipped/18: 19
+  Black Stag/equipped/19: 20
+  Black Stag/equipped/20: 21
+  Black Stag/equipped/21: 22
+  Black Stag/equipped/22: 23
+  Black Stag/equipped/23: 24
+  Black Stag/equipped/24: 25
+  Black Stag/equipped/25: 26
+  Black Stag/equipped/26: 27
+  Black Stag/equipped/27: 28
+  Black Stag/equipped/28: 29
+  Black Stag/equipped/29: 30
+  Black Stag/equipped/30: 31
+  Black Stag/equipped/31: 32
+  Black Stag/equipped/32: 33
+  Black Stag/equipped/33: 34
+  Black Stag/equipped/34: 35
+  Black Stag/equipped/35: 36
+  Black Stag/equipped/36: 37
+  Black Stag/mount/0: 38
+  Black Stag/mount/1: 39
+  Surfeit/equipped/0: 40
+  Surfeit/equipped/1: 41
+  Surfeit/equipped/2: 42
+  Surfeit/equipped/3: 43
+  Surfeit/equipped/4: 44
+  Surfeit/equipped/5: 45
+  Surfeit/equipped/6: 46
+  Surfeit/equipped/7: 47
+  Surfeit/equipped/8: 48
+  Surfeit/equipped/9: 49
+  Surfeit/equipped/10: 50
+  Surfeit/equipped/11: 51
+  Surfeit/equipped/12: 52
+  Surfeit/equipped/13: 53
+  Surfeit/equipped/14: 54
+  Surfeit/equipped/15: 55
+  Surfeit/equipped/16: 56
+  Surfeit/equipped/17: 57
+  Surfeit/equipped/18: 58
+  Surfeit/equipped/19: 59
+  Surfeit/equipped/20: 60
+  Phileum Collins/equipped/0: 61
+  Phileum Collins/equipped/1: 62
+  Phileum Collins/equipped/2: 63
+  Phileum Collins/equipped/3: 64
+  Phileum Collins/equipped/4: 65
+  Phileum Collins/equipped/5: 66
+  Phileum Collins/equipped/6: 67
+  Phileum Collins/equipped/7: 68
+  Phileum Collins/equipped/8: 69
+  Phileum Collins/equipped/9: 70
+  Phileum Collins/equipped/10: 71
+  Phileum Collins/equipped/11: 72
+  Phileum Collins/equipped/12: 73
+  Phileum Collins/equipped/13: 74
+  Phileum Collins/equipped/14: 75
+  Phileum Collins/mount/0: 76
+  Phileum Collins/mount/1: 77
+  Phileum Collins/mount/2: 78
+  Cade/equipped/0: 79
+  Cade/equipped/1: 80
+  Cade/equipped/2: 81
+  Cade/equipped/3: 82
+  Cade/equipped/4: 83
+  Cade/equipped/5: 84
+  Cade/equipped/6: 85
+  Cade/equipped/7: 86
+  Cade/equipped/8: 87
+  Cade/equipped/9: 88
+  Cade/equipped/10: 89
+  Cade/pack/0: 90
+  Cade/pack/1: 91
+  '"Burley" Darkburle Blue/equipped/0': 92
+  '"Burley" Darkburle Blue/equipped/1': 93
+  '"Burley" Darkburle Blue/equipped/2': 94
+  '"Burley" Darkburle Blue/equipped/3': 95
+  '"Burley" Darkburle Blue/equipped/4': 96
+  '"Burley" Darkburle Blue/equipped/5': 97
+  '"Burley" Darkburle Blue/equipped/6': 98
+  '"Burley" Darkburle Blue/equipped/7': 99
+  '"Burley" Darkburle Blue/equipped/8': 100
+  '"Burley" Darkburle Blue/equipped/9': 101
+  '"Burley" Darkburle Blue/equipped/10': 102
+  '"Burley" Darkburle Blue/equipped/11': 103
+  '"Burley" Darkburle Blue/equipped/12': 104
+  '"Burley" Darkburle Blue/equipped/13': 105
+  '"Burley" Darkburle Blue/equipped/14': 106
+  '"Burley" Darkburle Blue/equipped/15': 107
+  '"Burley" Darkburle Blue/equipped/16': 108
+  '"Burley" Darkburle Blue/mount/0': 109
+  '"Burley" Darkburle Blue/mount/1': 110
+  Illigrim/equipped/0: 111
+  Illigrim/equipped/1: 112
+  Illigrim/equipped/2: 113
+  Illigrim/equipped/3: 114
+  Illigrim/equipped/4: 115
+  Illigrim/equipped/5: 116
+  Illigrim/equipped/6: 117
+  Illigrim/equipped/7: 118
+  Illigrim/equipped/8: 119
+  Illigrim/equipped/9: 120
+  Illigrim/equipped/10: 121
+  Illigrim/equipped/11: 122
+  Illigrim/equipped/12: 123
+  Illigrim/equipped/13: 124
+  Illigrim/equipped/14: 125
+  Illigrim/equipped/15: 126
+  Illigrim/equipped/16: 127
+  Illigrim/equipped/17: 128
+  Illigrim/equipped/18: 129
+  Illigrim/equipped/19: 130
+  Illigrim/equipped/20: 131
+  Illigrim/equipped/21: 132
+  Illigrim/equipped/22: 133
+  Illigrim/equipped/23: 134
+  Illigrim/equipped/24: 135
+  Illigrim/equipped/25: 136
+  Illigrim/equipped/26: 137
+  Illigrim/equipped/27: 138
+  Illigrim/equipped/28: 139
+  Illigrim/equipped/29: 140
+  Illigrim/equipped/30: 141
+  Illigrim/equipped/31: 142
+  Illigrim/equipped/32: 143
+  Illigrim/equipped/33: 144
+  Illigrim/equipped/34: 145
+  Illigrim/equipped/35: 146
+  Illigrim/equipped/36: 147
+  Illigrim/equipped/37: 148
+  Illigrim/equipped/38: 149
+  Illigrim/equipped/39: 150
+  Illigrim/equipped/40: 151
+  Illigrim/equipped/41: 152
+  Illigrim/pack/0: 153
+  Illigrim/pack/1: 154
+  Illigrim/pack/2: 155
+  Illigrim/pack/3: 156
+  Illigrim/pack/4: 157
+  Illigrim/pack/5: 158
+  Illigrim/pack/6: 159
+  Illigrim/pack/7: 160
+  Illigrim/pack/8: 161
+  Illigrim/pack/9: 162
+  Illigrim/pack/10: 163
+  Illigrim/pack/11: 164
+  Illigrim/pack/12: 165
+  Illigrim/pack/13: 166
+  Illigrim/pack/14: 167
+  Illigrim/pack/15: 168
+  Illigrim/pack/16: 169
+  Illigrim/pack/17: 170
+  Illigrim/pack/18: 171
+  Illigrim/pack/19: 172
+  Illigrim/pack/20: 173
+  Illigrim/pack/21: 174
+  Illigrim/pack/22: 175
+  Illigrim/pack/23: 176
+  Illigrim/pack/24: 177
+  Illigrim/pack/25: 178
+  Illigrim/pack/26: 179
+  Illigrim/pack/27: 180
+  Illigrim/pack/28: 181
+  Illigrim/pack/29: 182
+  Illigrim/mount/0: 183
+  Illigrim/mount/1: 184
+  Illigrim/mount/2: 185
+  Illigrim/mount/3: 186
+  Illigrim/mount/4: 187
+  Illigrim/mount/5: 188
+  Illigrim/mount/6: 189
+  Runa Frostwhisper/equipped/0: 190
+  Runa Frostwhisper/equipped/1: 191
+  Runa Frostwhisper/equipped/2: 192
+  Runa Frostwhisper/equipped/3: 193
+  Runa Frostwhisper/equipped/4: 194
+  Runa Frostwhisper/equipped/5: 195
+  Runa Frostwhisper/equipped/6: 196
+  Runa Frostwhisper/equipped/7: 197
+  Runa Frostwhisper/pack/0: 198
+  Runa Frostwhisper/pack/1: 199
+  Runa Frostwhisper/pack/2: 200
+  Runa Frostwhisper/pack/3: 201
+  Runa Frostwhisper/pack/4: 202
+  Runa Frostwhisper/pack/5: 203
+  Runa Frostwhisper/pack/6: 204
+  Runa Frostwhisper/pack/7: 205
+  Runa Frostwhisper/pack/8: 206
+  Runa Frostwhisper/pack/9: 207
+  Landorf/equipped/0: 208
+  Landorf/equipped/1: 209
+  Landorf/equipped/2: 210
+  Landorf/equipped/3: 211
+  Landorf/equipped/4: 212
+  Landorf/equipped/5: 213
+  Landorf/equipped/6: 214
+  Landorf/equipped/7: 215
+  Landorf/equipped/8: 216
+  Landorf/equipped/9: 217
+  Landorf/equipped/10: 218
+  Landorf/equipped/11: 219
+  Landorf/equipped/12: 220
+  Landorf/equipped/13: 221
+  Landorf/equipped/14: 222
+  Landorf/equipped/15: 223
+  Landorf/equipped/16: 224
+  Landorf/equipped/17: 225
+  Landorf/pack/0: 226
+  Landorf/pack/1: 227
+  Landorf/pack/2: 228
+  Landorf/pack/3: 229
+  Landorf/pack/4: 230
+  Landorf/pack/5: 231
+  Landorf/pack/6: 232
+  Landorf/pack/7: 233
+  Landorf/pack/8: 234
+  Landorf/pack/9: 235
+  Landorf/pack/10: 236
+  Landorf/pack/11: 237
+  Landorf/pack/12: 238
+  Landorf/pack/13: 239
+  Landorf/pack/14: 240
+  Landorf/pack/15: 241
+  Landorf/horse/0: 242
+  Landorf/horse/1: 243
+  Landorf/mount/0: 244
+  Landorf/mount/1: 245

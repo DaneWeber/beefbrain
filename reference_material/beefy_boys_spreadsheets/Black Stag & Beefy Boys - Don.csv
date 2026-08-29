@@ -1,0 +1,72 @@
+,[DON] – Cade,,,,,,,,,,,,,"2026-01-26
+Stag was definitely not cheating",,,,,
+Name,Cade,,,,,,Skills,,,,,,,,,,,,
+Race,Gnome,,,,,,,Total,ACP,Skill,Bonus,Abil,,,W,,W,,
+Alignment,CE,,43 HP,,,,Appraise,5,,0,,5,U,Int,1,,,,
+Size,S,,,,,,Balance,2,2,0,0,2,U,Dex,1,,,,
+Sex,M,,,,,,Bluff,-2,,0,,-2,U,Cha,1,,,,
+Age,,,,,,,Climb,0,0,0,,0,U,Str,1,,,,
+Height,,,,,,,Concentration,16,,15,,1,U,Con,2,,15,,===============
+Weight,,,,,,,Craft (),5,,0,,5,U,Int,2,,,,
+Eyes,,,,,,,Decipher Script,15,,10,,5,T,Int,2,,10,,==========
+Hair,,,,,,,Diplomacy,-2,,0,0,-2,U,Cha,1,,,,
+Complexion,,,,,,,Disable Device,5,,0,,5,T,Int,1,,,,
+Build,,,,,,,Disguise,-2,,0,,-2,U,Cha,1,,,,
+,,,Nonlethal:,,,,Escape Artist,2,2,0,,2,U,Dex,1,,,,
+HD,12d4 + 12,,,,,,Forgery,5,,0,,5,U,Int,1,,,,
+HP,43,31,Mods,,,,Gather Information,-2,,0,0,-2,U,Cha,1,,,,
+Str,10,,0,-2,12,,Handle Animal,-2,,0,,-2,T,Cha,1,,,,
+Dex,15,,2,,15,,Heal,3,,0,2,1,U,Wis,1,,,,
+Con,12,,1,2,10,,Hide,2,2,0,,2,U,Dex,1,,,,
+Int,20,,5,,20,,Intimidate,-2,,0,0,-2,U,Cha,1,,,,
+Wis,13,,1,,13,,Jump,2,2,0,2,0,U,Str,1,,,,
+Cha,6,,-2,,6,,Knowledge (arcana),13,,8,,5,T,Int,2,,8,,========
+Saves,,,Pack,17,,,Knowledge (arch & eng),6,,1,,5,T,Int,2,,1,,=
+,,,Equipped,9.42,,,Knowledge (dungeon),15,,10,,5,T,Int,2,,10,,==========
+Fort,7,2,Total,26.42,,,Knowledge (geography),6,,1,,5,T,Int,2,,1,,=
+Ref,8,2,Drag,375,,,Knowledge (history),13,,8,,5,T,Int,2,,8,,========
+Will,11,2,Lift,150,,,Knowledge (local),6,,1,,5,T,Int,2,,1,,=
+Speed,20,,Max Load,75,,,Knowledge (nature),6,,1,,5,T,Int,2,,1,,=
+Melee,7,1,Medium,50,,,Knowledge (nob & roy),6,,1,,5,T,Int,2,,1,,=
+Ranged,9,1,Light,25,,,Knowledge (religion),6,,1,,5,T,Int,2,,1,,=
+Grapple,2,-4,Value,91500,,,Knowledge (planes),20,,15,,5,T,Int,2,,15,,===============
+Initiative,6,4,Money,3471.8,Gp,,Listen,3,,0,2,1,U,Wis,1,,,,
+BAB +6/+1,6,,,68992,XP,,Move Silently,2,2,0,,2,U,Dex,1,,,,
+HD,12,Att,skill,plus,105,HD,Open Lock,2,,0,,2,T,Dex,1,,,,
+Wizard,12,0.5,2,3,105,4,Perform (),-2,,0,,-2,U,Cha,1,,,,
+,0,0,0,0,0,0,Profession,1,,0,,1,T,Wis,2,,,,
+,,,,,,,Ride,2,,0,,2,U,Dex,1,,,,
+,,,,,,,Search,7,,0,2,5,U,Int,1,,,,
+10+0(armor)+0(shield)+2(deflection)+0(natural)+2(DEX),,,,,,,Sense Motive,1,,0,,1,U,Wis,1,,,,
+ACP,0,,,,,,Sleight of Hand,2,2,0,0,2,T,Dex,1,,,,
+Robe +5,0,14,Max,AC,,,Speak Language,0,,0,,,T,None,1,,,,
+Deflection Ring,2,14,Touch,,,,Spellcraft,22,,15,2,5,T,Int,2,,15,,===============
+Natural Amulet,0,12,Unaware,,,,Spot,3,,0,2,1,U,Wis,1,,,,
+Dex,2,,,,,,Survival,1,,0,,1,U,Wis,1,,,,
+Shield,0,,,,,,Swim,0,0,0,,0,U,Str,1,,,,
+,,,,,,,Tumble,2,2,0,0,2,T,Dex,1,,,,
+Languages,Common,,,,,,Use M D (+2 scrolls),-2,,0,,-2,T,Cha,1,,,,
+,Gnome,,,,,,Use Rope,2,,0,,2,U,Dex,1,,,,
+,Giant,,,,,,,,,,,,,,,87,/105,,0
+,Draconic,,,,,,Attacks,,,,,,,,,,,,
+,Elven,,,,,,,D.B.,A.B.,Attk,Die,Dam,,Crit,,Range,,,
+,4,,,,,,"Crossbow, Light",0,0,9,1d6,1d6,,19-20 x2,,80ft/800ft,,,
+Racial,+2 vs. Illusion,,,,,,"Dagger, stab",0,0,7,1d3,1d3,,19-20 x2,,,,,
+,+1 on DC for Illusions,,,,,,"Dagger, throw",0,0,9,1d3,1d3,,19-20 x2,,(10ft/50ft),,,
+,+1 attack vs kobolds and goblinoids,,,,,,Spear,0,0,7,1d6,1d6,,19-20 x2,,,,,
+,+4 dodge vs. giants,,,,,,,,,,,,,,,,,,
+,"+2 to Listen, Craft (alchemy)",,,,,,-2 to attack roll for every range increment the target is away.,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+,Speak with burrowing animal,,,,,,,,,,,,,,,,,,
+,"Spell-Like Abilities: 1/day—speak with animals (burrowing mammal only, duration 1 minute). A gnome with a Charisma score of at least 10 also has the following spell-like abilities: 1/day—dancing lights, ghost sound, prestidigitation. Caster level 1st; save DC 10 + gnome’s Cha modifier + spell level.",,,,,,,,,,,,,,,,,,
+Proficient,"club, dagger, heavy crossbow, light crossbow, and quarterstaff",,,,,,,,,,,,,,,,,,
+Feats,Empower Spell,,,,,,,,,,,,,,,,,,
+3,Spell Focus (Enchantment),,,,,,,,,,,,,,,,,,
+w5,Improved Initiative,,,,,,,,,,,,,,,,,,
+6,Silent Spell,,,,,,,,,,,,,,,,,,
+9,Spell Penetration,,,,,,,,,,,,,,,,,,
+w10,Greater Spell Penetration,,,,,+16 total vs Spell Resistance,,,,,,,,,,,,,
+12,Sudden Maximize,,,,,,,,,,,,,,,,,,
+Class,Scribe Scroll,,,,,,,,,,,,,,,,,,
+,Summon Familiar,,,,,,,,,,,,,,,,,,

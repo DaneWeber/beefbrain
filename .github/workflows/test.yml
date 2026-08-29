@@ -1,0 +1,50 @@
+name: All Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - "packages/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build all packages
+        run: pnpm build
+
+      - name: Run all tests
+        run: pnpm --filter bnb-core --filter bnb-cli test
+
+      - name: Generate coverage
+        run: pnpm --filter bnb-core test:coverage
+
+      - name: Run linting
+        run: pnpm --filter bnb-core --filter bnb-cli lint
+
+      - name: Check formatting
+        run: pnpm --filter bnb-core --filter bnb-cli format
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./packages/bnb-core/coverage/lcov.info
+          fail_ci_if_error: false

@@ -1,19 +1,21 @@
-name: bnb-core PR Tests
+name: bnb-core Tests
 
 on:
   pull_request:
     paths:
       - "packages/bnb-core/**"
+      - "pnpm-lock.yaml"
+      - "package.json"
 
 jobs:
-  test-bnb-core:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "20"
 
@@ -22,16 +24,22 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
-        working-directory: packages/bnb-core
 
-      - name: Run bnb-core tests
-        run: pnpm run test
-        working-directory: packages/bnb-core
+      - name: Build bnb-core
+        run: pnpm --filter bnb-core build
+
+      - name: Run bnb-core tests with coverage
+        run: pnpm --filter bnb-core test:coverage
 
       - name: Run bnb-core linting
-        run: pnpm run lint
-        working-directory: packages/bnb-core
+        run: pnpm --filter bnb-core lint
 
-      - name: Run bnb-core formatting
-        run: pnpm run format
-        working-directory: packages/bnb-core
+      - name: Run bnb-core formatting check
+        run: pnpm --filter bnb-core format
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./packages/bnb-core/coverage/lcov.info
+          flags: bnb-core
+          fail_ci_if_error: false

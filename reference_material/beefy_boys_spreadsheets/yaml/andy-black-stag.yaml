@@ -1,0 +1,213 @@
+---
+character:
+  description:
+    name: Black Stag
+    player: Andy
+    race: Orc
+    alignment: CG
+    size: M
+    sex: M
+    age: 23 years
+    height: 5' 7"
+    weight: 155 lbs
+  abilities:
+    strength: [20, str: 5, {base: 16, gloves-enhancement: 4}]
+    dexterity: [22, dex: 6, {base: 18, gloves-enhancement: 2, racial: 2}]
+    constitution: [15, con: 2]
+    intelligence: [12, int: 1]
+    wisdom: [18, wis: 4, {base: 17, enhancement: 1}]
+    charisma: [11, cha: 0]
+  levels:
+    xp: 81284
+    hd: [13, 6d8 + 3d10 + 4d6]
+    hp: [63, {max-hp: 89, damage: -26}]
+    max-hp: [89, {con: 26, rolls: 63}]
+    ranger: [6, hp: [null], {hd: 8, bab: good, fort: good, ref: good, will: poor}]
+    fighter: [3, hp: [null], {hd: 10, bab: good, fort: good, ref: poor, will: poor}]
+    rogue: [4, hp: [null], {hd: 6, bab: average, fort: poor, ref: good, will: poor}]
+  combat:
+    initiative: [6, dex: 6]
+    saves:
+      fortitude: [14, {ranger: 5, fighter: 3, rogue: 1, con: 2, cloak-resistance: 3}]
+      reflex: [21, {ranger: 5, fighter: 1, rogue: 4, dex: 6, lightning-reflexes: 2, cloak-resistance: 3}]
+      will: [10, {ranger: 2, fighter: 1, rogue: 1, wis: 4, cloak-resistance: 2}]
+      will-vs-mental-acuity: [15, {will: 10, mental-acuity: 5}, 3/day]
+    attack:
+      bab: [12, {ranger: 6, fighter: 3, rogue: 3}]
+      full-bab: +12/+7/+2
+      melee:
+        _: [17, {bab: 12, str: 5}]
+        sickle-1-solo: [20, 1d6+6, x2, {_: 17, enhancement: 1, weapon-focus: 1, favored-enemy: 1}, {str: 5, enhancement: 1}, [sickle]]
+        sickle-1-two-weapon: [18, 1d6+6, x2, {_: 17, enhancement: 1, weapon-focus: 1, two-weapon: -2}, {str: 5, enhancement: 1}, [sickle, two-weapon]]
+        horned-helm-1: [14, 1d8+2, x2, {_: 17, enhancement: 1, secondary: -4}, str: 2, [helm, natural]]
+        dagger-stab: [18, 1d4+5, 19-20/x2, {_: 17, weapon-finesse: 1}, str: 5, [dagger]]
+      ranged:
+        _: [18, {bab: 12, dex: 6}]
+        bow-of-the-wintermoon: [19, 1d8+6, x3, {_: 18, enhancement: 1}, {str: 5, enhancement: 1}, [longbow, composite, 110ft]]
+        dagger-throw: [18, 1d4+5, 19-20/x2, _: 18, str: 5, [dagger, 10ft/50ft]]
+      grapple: [21, {bab: 12, str: 5, improved-grapple: 4}]
+      full-two-weapon-attack: +10/+10o/+5/+5o/+0/+0o
+      sneak-attack: +2d6
+    defense:
+      ac: [29, {base: 10, armor: 9, shield: 1, deflection: 1, natural: 2, dex: 6}]
+      touch-ac: [17, {base: 10, deflection: 1, dex: 6}]
+      flat-footed-ac: [23, {base: 10, armor: 9, shield: 1, deflection: 1, natural: 2}]
+      acp: [0]
+      armor: Chain Shirt (mithral, +9)
+      shield: Two-Weapon Defense (+1)
+      deflection-ring: +1 deflection
+      natural-amulet: +2 natural
+  movement:
+    speed: [30, base: 30]
+    load: [46.35 lbs, equipped: 46.35 lbs]
+    capacity: {light: 133 lbs, medium: 266 lbs, heavy: 400 lbs, lift: 800 lbs, drag: 2000 lbs}
+  skills:
+    _points: [119, {ranger: 71, fighter: 11, rogue: 37}]
+    balance: [10, {dex: 6, ranks: [2, rogue: 2], tumble-synergy: 2}]
+    bluff: [2, {cha: 0, ranks: [2, rogue: 2]}, "favored-enemy: +4"]
+    climb: [13, {str: 5, ranks: [8, {ranger: 7, fighter: 1}]}]
+    concentration: [7, {con: 2, ranks: [5, ranger: 5]}]
+    craft-traps: [2, {int: 1, ranks: [1, rogue: 1]}]
+    diplomacy: [2, {cha: 0, ranks: [2, rogue: 2]}]
+    disable-device: [3, {int: 1, ranks: [2, rogue: 2]}]
+    handle-animal: [7, {cha: 0, ranks: [7, {ranger: 6, fighter: 1}]}]
+    heal: [6, {wis: 4, healers-kit: 2}]
+    hide: [9, {dex: 6, ranks: [3, {ranger: 2, rogue: 1}]}]
+    intimidate: [6, {cha: 0, ranks: [6, fighter: 6]}]
+    jump: [12, {str: 5, ranks: [5, {ranger: 3, rogue: 2}], tumble-synergy: 2}]
+    knowledge-local: [2, {int: 1, ranks: [1, rogue: 1]}]
+    knowledge-nature: [11, {int: 1, ranks: [8, ranger: 8], survival-synergy: 2}]
+    knowledge-religion-pelor: [2, {int: 1, ranks: [1, rogue: 1]}]
+    listen: [12, {wis: 4, ranks: [8, {ranger: 7, rogue: 1}]}, "favored-enemy: +4"]
+    move-silently: [12, {dex: 6, ranks: [6, {ranger: 4, rogue: 2}]}]
+    open-lock: [7, {dex: 6, ranks: [1, rogue: 1]}]
+    perform-reed-flute: [3, {cha: 0, ranks: [3, rogue: 3]}]
+    ride: [11, {dex: 6, ranks: [5, {ranger: 4, fighter: 1}]}]
+    sleight-of-hand: [9, {dex: 6, ranks: [3, rogue: 3]}, +5 with metal objects]
+    speak-language: [1, {ranks: [1, rogue: 1]}]
+    spellcraft: [3, {int: 1, ranks: [2, ranger: 4]}]
+    spot: [15, {wis: 4, ranks: [11, {ranger: 10, rogue: 1}]}, "favored-enemy: +4"]
+    survival: [13, {wis: 4, ranks: [9, ranger: 9]}, "favored-enemy: +4, +2 in natural environments"]
+    tumble: [18, {dex: 6, ranks: [10, {fighter: 2, rogue: 9}], jump-synergy: 2}]
+    use-magic-device: [2, {cha: 0, ranks: [2, rogue: 2]}]
+  special:
+    feats:
+      - [Lightning Reflexes, level: 1, [combat.saves.reflex, 2]]
+      - [Weapon Finesse, human: 1]
+      - [Point Blank Shot, level: 3, +1 attack and damage within 30ft]
+      - [Improved Unarmed Strike, fighter: 1, no AoO on unarmed attacks]
+      - [Weapon Focus (Sickle), fighter: 2, [combat.attack.melee.sickle, atk: 1]]
+      - [Improved Grapple, level: 6, [combat.attack.grapple, 4]]
+      - [Two-Weapon Defense, level: 9, [combat.defense.ac, shield: 1]]
+      - [Greater Two-Weapon Fighting, level: 12]
+    class-abilities:
+      ranger:
+        - Track
+        - Spiritual Connection 3/day (Speak with Animals/Plants)
+        - "Favored Enemy: Humans, Giants (+4 bonus to Bluff, Listen, Sense Motive, Spot, Survival, and weapon damage)"
+        - Two-Weapon Fighting (combat style)
+        - Endurance
+        - Distracting Attack
+        - Improved Two-Weapon Fighting (combat style)
+      rogue:
+        - Trap-finding
+        - Sneak Attack +2d6
+        - Evasion
+        - Trap Sense +1
+        - Disruptive Attack
+    racial:
+      - Darkvision 60'
+      - "Dazzled in Sunlight: -1 attack, Spot, Search"
+    proficiencies:
+      - Simple Weapons
+      - Martial Weapons
+      - All Armor
+      - All Shields (including tower)
+      - Hand Crossbow
+    languages:
+      - Common
+      - Undercommon
+      - Orc
+      - Abyssal
+      - Celestial
+      - Giant
+  spells:
+    ranger:
+      - Jump (p. 246)
+  inventory:
+    _on: [equipped]
+    money:
+      _total: 230 gp
+      coins: [230 gp, 4.6 lbs, pack, {pp: 0, gp: 230, sp: 0, cp: 0}, 0.02 lbs]
+    equipped:
+      - [Heward's Handy Haversack, 1, container, 5 lbs, 1, [magic, other-slot]]
+      - [Everfull Mug, 1, gear, 5 lbs, 2, [magic]]
+      - [Everlasting Rations, 1, supplies, 5 lbs, 3, [magic]]
+      - [Sickle +1, 2, weapon, 1 lb, 4, {damage: 1d6, crit: x2, enhancement: 1}, [magic, other-slot]]
+      - [Weapon Crystal Energy Assault Greater (Acid), 1, gear, 0.1 lbs, 5, [magic, other-slot]]
+      - [Weapon Crystal Energy Assault Greater (Shocking), 1, gear, 0.1 lbs, 6, [magic]]
+      - [Weapon Crystal Energy Assault Greater (Fire), 1, gear, 0.1 lbs, 7, [magic]]
+      - [Dagger, 1, weapon, 1 lb, 8, {damage: 1d4, crit: 19-20/x2}]
+      - [Leather Mask, 1, gear, 1 lb, 9]
+      - [Dagger Silver MW, 1, weapon, 2 lbs, 10, {damage: 1d4, crit: 19-20/x2}, [mw, silver]]
+      - [Bow of the Wintermoon +1 Full Str Bonus, 1, weapon, 2 lbs, 11, {damage: 1d8, crit: x3, range: 110ft, enhancement: 1}, [magic, other-slot]]
+      - [Arrows, 31, supplies, 0.15 lbs, 12]
+      - [Horned Helm +1 (1d8 natural attack 1/2 str; +1 AC), 1, gear, 0 lbs, 13, {ac: 1, damage: 1d8, crit: x2}, [magic, head-slot]]
+      - [+4 Deathward Improved Stamina/Agility Mindarmor Mithralmist Chain Shirt (+8 AC), 1, armor, 12.5 lbs, 14, {ac: 9, acp: 0, mist: 7/day 5ft 1min, fort-resistance: 3, ref-resistance: 3, will-mental-acuity: 3/day +5 vs mind-affecting, deathward: 1/day ignore death/neg energy}, [magic, mithral, body-slot]]
+      - [Ring of Protection +1, 1, gear, 0 lbs, 15, deflection: 1, [magic, left-ring-slot]]
+      - [Gloves of Dexterity +2, 1, gear, 0 lbs, 16, dex-enhancement: 2, [magic, hands-slot]]
+      - ["Dimension Stride Boots (5 charges: 1/20ft, 3/40ft, 5/60ft)", 1, gear, 0 lbs, 17, [magic, feet-slot]]
+      - ["Pearl of Speech (Giant, Abyssal, Celestial)", 3, gear, 0 lbs, 18, [magic, face-slot]]
+      - ["Vanisher Cloak (3 charges/day: 1=4rds, 2=3rds, 3=2rds invisibility)", 1, gear, 0 lbs, 19, [magic, shoulders-slot]]
+      - [Vest of Resistance +2 Saves, 1, gear, 0 lbs, 20, saves-resistance: 2, [magic, torso-slot]]
+      - [Filcher's Friend (+5 Sleight of Hand/metal), 1, gear, 0 lbs, 21, [magic, right-ring-slot]]
+      - [Flask Holy Water, 1, supplies, 1 lb, 22]
+      - [Flask Acid, 1, supplies, 1 lb, 23]
+      - [Everburning Torch (Candle/Skull), 1, gear, 1 lb, 24, [magic]]
+      - [Holy Symbol wooden (Obad-Hai), 1, gear, 0 lbs, 25]
+      - [Alchemist Arrow (+1d4 next rnd), 6, supplies, 0.15 lbs, 26]
+      - [Blessed Bandages, 3, supplies, 0 lbs, 27]
+      - [Ghost Oil (2 rds Ghost Touch), 1, supplies, 0 lbs, 28]
+      - [Wand Cure Light (45 charges), 1, wand, 0 lbs, 29, [magic]]
+      - [Third Eye Improvisation (1/day +5 and trained in any skill), 1, gear, 0 lbs, 30, [magic, face-slot]]
+      - [Amulet of Natural Armor +2, 1, gear, 0 lbs, 32, natural: 2, [magic, throat-slot]]
+      - [Sphere of Awakening (60ft burst), 1, gear, 0 lbs, 33, [magic]]
+      - [Belt of Giant's Strength +4, 1, gear, 1 lb, 34, str-enhancement: 4, [magic, waist-slot]]
+      - [Tan Bag of Tricks, 1, gear, 0 lbs, 35, [magic]]
+      - [Holy Symbol golden (Pelor), 1, gear, 1 lb, 36]
+    pack:
+      - ["Healing Belt (1: 2d8, 2: 3d8, 3: 4d8, +2 heal)", 1, gear, 0 lbs, 37, [magic, waist-slot]]
+      - [Third Eye Clarity (negate stunned/confused/dazed/fascinated), 1, gear, 0 lbs, 31, [magic, face-slot]]
+      - [Backpack, 1, container, 2 lbs, 2 gp]
+      - [Bedroll, 1, gear, 5 lbs, 0.1 gp]
+      - [Clothes Spare Explorers, 1, clothing, 8 lbs, 10 gp]
+      - [Towel, 1, gear, 2 lbs, 0.4 gp]
+      - [Soap Bar, 1, gear, 1 lb, 0.5 gp]
+      - [Candles, 4, supplies, 0.25 lbs, 0.01 gp]
+      - [Flint and Steel, 1, gear, 0 lbs, 1 gp]
+      - [Silk Rope 50 ft, 1, gear, 5 lbs, 10 gp]
+      - [Sack (empty), 1, container, 0.5 lbs, 0.1 gp]
+      - [Flask Pint (empty), 1, container, 1.5 lbs, 0.03 gp]
+      - [Torch, 4, supplies, 1 lb, 0.01 gp]
+      - [Chalk Piece, 1, supplies, 0 lbs, 0.01 gp]
+      - [Books in Undercommon, 3, gear, 1 lb, 0 gp]
+      - [Flute reed MW, 1, gear, 1 lb, 100 gp, [mw]]
+      - [Mirror small steel, 1, gear, 0.5 lbs, 10 gp]
+      - [Bell small, 1, gear, 0 lbs, 1 gp]
+      - [Vial Anti-toxin, 1, supplies, 0 lbs, 50 gp]
+      - [Giant's sack, 1, container, 0 lbs, 0 gp]
+      - [Giant's head, 1, gear, 80 lbs, 0 gp, [trophy]]
+      - [Giant's heart, 1, gear, 80 lbs, 0 gp, [trophy]]
+      - [Map of path through Underdark, 1, gear, 0 lbs, 0 gp]
+    horse:
+      - [Heavy Warhorse named Obad-Hai, 1, mount, 0 lbs, 38]
+      - [Military Saddle plus bit/bridle/saddlebags, 1, gear, 4 lbs, 39]
+  view-notes:
+    senses: "Dazzled in sunlight: -1 attack, Spot, Search"
+    combat-offense: "Favored Enemy: Humans, Giants (+4 Bluff, Listen, Sense Motive, Spot, Survival, weapon damage)"
+    movement: "Dimension Stride Boots (5 charges: 1/20ft, 3/40ft, 5/60ft)"
+    combat-defense: Vanisher Cloak (3 charges/day invisibility); Deathward 1/day; Mental Acuity 3/day +5 vs mind-affecting
+  notes:
+    devotee: Obad-Hai, Pelor
+    special-damage: 3
+    human-until-level-10: Was Human until level 10, then became Orc

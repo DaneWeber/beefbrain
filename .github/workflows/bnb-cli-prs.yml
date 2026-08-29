@@ -1,0 +1,45 @@
+name: bnb-cli Tests
+
+on:
+  pull_request:
+    paths:
+      - "packages/bnb-cli/**"
+      - "packages/bnb-core/**"
+      - "pnpm-lock.yaml"
+      - "package.json"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build bnb-core (dependency)
+        run: pnpm --filter bnb-core build
+
+      - name: Build bnb-cli
+        run: pnpm --filter bnb-cli build
+
+      - name: Verify CLI build artifact
+        run: test -f packages/bnb-cli/dist/index.js
+
+      - name: Run bnb-cli tests
+        run: pnpm --filter bnb-cli test
+
+      - name: Run bnb-cli linting
+        run: pnpm --filter bnb-cli lint
+
+      - name: Run bnb-cli formatting check
+        run: pnpm --filter bnb-cli format

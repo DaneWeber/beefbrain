@@ -1,0 +1,172 @@
+---
+character:
+  description:
+    name: Phileum Collins
+    player: Chuck
+    race: Human
+    alignment: LG
+    size: M
+    sex: M
+  abilities:
+    strength: [7, str: -2]
+    dexterity: [8, dex: -1]
+    constitution: [14, con: 2]
+    intelligence: [10, int: 0]
+    wisdom: [18, wis: 4]
+    charisma: [12, cha: 1]
+  levels:
+    xp: 0
+    hd: [12, {cleric: 8, mystic-theurge: 4}]
+    hp: [66, {max-hp: 90, damage: -24}]
+    max-hp: [90, {con: 24, rolls: 66}]
+    cleric: [9, hp: [66], {hd: 8, bab: average, fort: good, ref: poor, will: good}]
+    mystic-theurge: [3, hp: [0], {hd: 4, bab: poor, fort: poor, ref: poor, will: good}]
+  combat:
+    initiative: [-1, dex: -1]
+    saves:
+      fortitude: [8, {cleric: 6, con: 2}]
+      reflex: [2, {cleric: 3, dex: -1}]
+      will: [10, {cleric: 6, wis: 4}]
+    attack:
+      bab: [8, {cleric: 6, mystic-theurge: 2}]
+      melee:
+        _: [6, {bab: 8, str: -2}]
+        mace: [6, 1d6-2, 17-20/x2, _: 6, str: -2, [mace]]
+        bastard-sword: [6, 1d10, 17-20/x2, _: 6, {}, [bastard-sword]]
+        dagger: [6, 1d4-2, 19-20/x2, _: 6, str: -2, [dagger]]
+      ranged:
+        _: [7, {bab: 8, dex: -1}]
+        longbow: [7, 1d8, x3, _: 7, {}, [longbow]]
+        dagger: [7, 1d4-2, 19-20/x2, _: 7, str: -2, [dagger, 10ft/50ft]]
+      grapple: [6, {bab: 8, str: -2}]
+    defense:
+      ac: [19, {base: 10, armor: 9, deflection: 1, dex: -1}]
+      touch-ac: [10, {base: 10, deflection: 1, dex: -1}]
+      flat-footed-ac: [19, {base: 10, armor: 9, deflection: 1}]
+      acp: [-5, armor: -5]
+  movement:
+    speed: [20, {base: 30, heavy-armor: -10}]
+    load: [50.3 lbs, {equipped: 30.8 lbs, pack: 19.5 lbs}]
+    capacity: {light: 100 lbs, medium: 200 lbs, heavy: 300 lbs, lift: 600 lbs, drag: 1500 lbs}
+  skills:
+    _points: [51, {cleric: 36, mystic-theurge: 15}]
+    concentration: [17, {con: 2, ranks: [15, {cleric: 12, mystic-theurge: 3}]}]
+    diplomacy: [6, {cha: 1, ranks: [5, {cleric: 3, mystic-theurge: 2}]}]
+    knowledge-arcana: [5, {int: 0, ranks: [5, cleric: 5]}]
+    knowledge-religion: [6, {int: 0, ranks: [6, {cleric: 4, mystic-theurge: 2}]}]
+    knowledge-planes: [10, {int: 0, ranks: [10, {cleric: 7, mystic-theurge: 3}]}]
+    ride: [1, {dex: -1, ranks: [2, {cleric: 1, mystic-theurge: 3}]}]
+    spellcraft: [8, {int: 0, ranks: [6, {cleric: 3, mystic-theurge: 3}], knowledge-arcana-synergy: 2}]
+  special:
+    feats:
+      - [Purify Magic, class: cleric]
+      - [Spell Focus (Good), level: 1]
+      - [Sacred Vow, level: 3]
+      - [Servant of the Heavens, level: 6]
+      - [Vow of Abstinence, level: 9]
+      - [Vow of Non-Violence, level: 12]
+    racial:
+      - +1 skill point per level
+      - +1 feat at 1st level
+    proficiencies:
+      - Simple Weapons
+      - Light, Medium, and Heavy Armor
+      - Shields (not tower)
+    class-abilities:
+      turn-undead: (+3) 4/day, 2d6+10 HD
+      domains:
+        good: +1 Caster Level (Good)
+        trickery: Bluff, Disguise, Hide as class skills
+      blessing-of-the-silver-heaven:
+        - Electricity resistance 10
+        - +2 sacred vs. disease, poison, petrification
+        - Magic Circle vs. Evil always (10 ft radius)
+        - +2 AC, +2 saves vs. evil creatures
+        - Protected from possession and mental control
+        - Summoned creatures cannot contact bodily (SR applies)
+      celestial-spells: true
+      blessing-of-the-golden-heaven:
+        - Immune to death spells and magical death effects
+    languages:
+      - Common
+  inventory:
+    _on: [equipped, pack]
+    money:
+      _total: 5475 gp
+      coins: [5475 gp, 19.5 lbs, pack, {pp: 500, gp: 475, sp: 0, cp: 0}, 0.02 lbs]
+    equipped:
+      - [Armband of Maximized Healing, 1, gear, 1 lb, 61, {}, [magic, arms-slot]]
+      - [Mirror of time-hop (2/day gaze 30ft push creature 5 rounds forward; DC 14 Will), 1, gear, 0.5 lbs, 62, {}, [magic, other-slot]]
+      - [Orb of environmental adaptation within 30 feet, 1, gear, 0.1 lbs, 63, {}, [magic, other-slot]]
+      - [Diamond dust for Glyph of Warding (200gp/casting), 8, supplies, 0.1 lbs, 64]
+      - [Powdered silver for Wall of Good (25gp/casting), 39, supplies, 0.1 lbs, 65]
+      - [Spell Components, 1, supplies, 1 lb, 66]
+      - [Other expensive material spell components, 200, supplies, 0.1 lbs, 67]
+      - [Clothes, 1, clothing, 1 lb, 68]
+      - [Holy Symbol, 1, gear, 1 lb, 69]
+      - [Book of Sermons, 1, gear, 1 lb, 70]
+      - [USED: Diamond dust (200gp/casting), 2, supplies, 0.1 lbs, 71, {}, [used]]
+      - [USED: Powdered silver (25gp/casting), 1, supplies, 0.1 lbs, 72, {}, [used]]
+      - [Walking cane (light mace), 1, weapon, 0.1 lbs, 73]
+      - [+1 Blurring Full Plate (+9 AC; -5 ACP; 5 rounds 3/day), 1, armor, 0.1 lbs, 74, {ac: 9, acp: -5, blurring: 5 rounds 3/day}, [magic, body-slot]]
+      - [+2 Ring of Protection, 1, gear, 0 lbs, 75, deflection: 2, [magic, left-ring-slot]]
+    pack:
+      - []
+    horse:
+      - [Half-Celestial Bison war-trained (Sacred Cow), 1, mount, 0 lbs, 76]
+      - [Saddle exotic military (+2 ride), 1, gear, 20 lbs, 77]
+      - [Battle Bridle (+5 ride; mounted combat feat), 1, gear, 1 lb, 78, {}, [magic]]
+  spells:
+    cleric:
+      caster-level: 12
+      key-ability: wisdom
+      domains: [Good, Trickery]
+      spells-per-day: {"0": 6, "1": 7+1D, "2": 6+1D, "3": 6+1D, "4": 5+1D, "5": 4+1D, "6": 3+1D}
+      save-dc: {"0": 14, "1": 15, "2": 16, "3": 17, "4": 18, "5": 19, "6": 20}
+      spells-prepared:
+        "0": [Detect Magic, Detect Magic, Guidance, Guidance, Read Magic, Read Magic]
+        "1": [Vision of Heaven, Vision of Heaven, Bless, Command, Command, "Blessed Aim [used]", "Blessed Aim [domain]"]
+        "2": [Aid, Avoid Planar Effects, Lastai's Caress, "Elation [domain]", Owl's Wisdom, Owl's Wisdom]
+        "3": [Prayer, Mass Resist Energy, Dispel Magic, "Dispel Magic [used]", "Inspired Aim [used]", "Inspired Aim [domain]"]
+        "4": ["Restoration [used]", Restoration, Confusion, Confusion, "Divination [domain]"]
+        "5": [Plane Shift, "Righteous Wrath [used]", Command Greater, "Warding Gems [domain]"]
+        "6": [Blade Barrier, Greater Dispel Magic]
+    special-spells:
+      - spell: Vision of Heaven
+        level: 1
+        source: Exalted
+        replaces: Deathwatch
+      - spell: Avoid Planar Effects
+        level: 2
+        source: Spell Compendium
+        replaces: Calm Emotions
+      - spell: Elation
+        level: 2
+        source: Exalted
+        replaces: Gentle Repose
+      - spell: Lastai's Caress
+        level: 2
+        source: Exalted
+        replaces: Find Traps
+      - spell: Blessed Aim
+        level: 3
+        replaces: Obscure Object
+      - spell: Inspired Aim
+        level: 3
+        source: Exalted
+        replaces: Wind Wall
+      - spell: Holy Smite
+        level: 4
+        replaces: Sending
+      - spell: Warding Gems
+        level: 5
+        source: Exalted
+        replaces: Mark of Justice
+      - spell: Call Faithful Servants
+        level: 6
+        source: Exalted
+        replaces: Symbol of Persuasion
+  notes:
+    domains: Good (special spells replace some domain spells), Trickery
+    hd-breakdown: 9d8 + 3d4 + 24
+    value: 78000 gp

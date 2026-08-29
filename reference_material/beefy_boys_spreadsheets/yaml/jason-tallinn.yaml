@@ -1,0 +1,163 @@
+---
+character:
+  description:
+    name: Tallinn
+    player: Jason
+    race: Human
+    alignment: NG
+    size: M
+    sex: M
+    age: 62 years
+    height: 5' 6"
+    weight: 155 lbs
+    eyes: Blue
+    hair: White/bald
+    complexion: Weathered
+    build: Thin
+  abilities:
+    strength: [8, str: -1]
+    dexterity: [10, dex: 0]
+    constitution: [10, con: 0]
+    intelligence: [15, int: 2]
+    wisdom: [20, wis: 5]
+    charisma: [13, cha: 1]
+  levels:
+    xp: 68992
+    hd: [12, 8]
+    hp: [65, {max-hp: 65, damage: 0}]
+    max-hp: [65, {con: 0, rolls: 65}]
+    druid: [12, hp: [65], {hd: 8, bab: average, fort: good, ref: poor, will: good}]
+  combat:
+    initiative: [0, dex: 0]
+    saves:
+      fortitude: [8, {druid: 8, con: 0}]
+      reflex: [4, {druid: 4, dex: 0}]
+      will: [13, {druid: 8, wis: 5}]
+    attack:
+      bab: [9, druid: 9]
+      melee:
+        _: [8, {bab: 9, str: -1}]
+        quarterstaff-2: [10, 1d6+1, x2, {_: 8, enhancement: 2}, {str: -1, enhancement: 2}, [quarterstaff, 2-hand, contains-mass-bulls-strength]]
+      ranged:
+        _: [9, {bab: 9, dex: 0}]
+      grapple: [8, {bab: 9, str: -1}]
+    defense:
+      ac: [16, {base: 10, armor: 6, dex: 0}]
+      touch-ac: [10, {base: 10, dex: 0}]
+      flat-footed-ac: [16, {base: 10, armor: 6}]
+      acp: [-3, armor: -3]
+  movement:
+    speed: [30, base: 30]
+    load: [42.5 lbs, {equipped: 17 lbs, pack: 25.5 lbs}]
+    capacity: {light: 26 lbs, medium: 53 lbs, heavy: 80 lbs, lift: 160 lbs, drag: 400 lbs}
+  skills:
+    _points: [105, {druid: 48, int: 24, human: 12, first-level: 21}]
+    diplomacy: [15, {cha: 1, ranks: [14, druid: 14]}]
+    handle-animal: [15, {cha: 1, ranks: [14, druid: 14]}]
+    heal: [10, {wis: 5, ranks: [5, druid: 5]}]
+    knowledge-arcana: [5, {int: 2, ranks: [3, cross-class: 6]}]
+    knowledge-nature: [20, {int: 2, ranks: [14, druid: 14], nature-sense: 2, survival-synergy: 2}]
+    listen: [10, {wis: 5, ranks: [5, druid: 5]}]
+    ride: [12, {dex: 0, ranks: [10, druid: 10], handle-animal-synergy: 2}]
+    spellcraft: [13, {int: 2, ranks: [11, druid: 11]}]
+    spot: [12, {wis: 5, ranks: [7, druid: 7]}]
+    survival: [18, {wis: 5, ranks: [11, druid: 11], nature-sense: 2}]
+    swim: [7, {str: -1, ranks: [8, druid: 8]}]
+  spells:
+    caster-class: druid
+    caster-level: 12
+    key-ability: wisdom
+    spells-per-day:
+      "0": 6
+      "1": 7
+      "2": 5
+      "3": 5
+      "4": 4
+      "5": 4
+      "6": 2
+    save-dc:
+      "0": 15
+      "1": 16
+      "2": 17
+      "3": 18
+      "4": 19
+      "5": 20
+      "6": 21
+    spells-prepared:
+      "0":
+        - Detect Magic
+        - Detect Magic
+        - Detect Magic
+        - Detect Magic
+        - Detect Magic
+        - Detect Magic
+      "1":
+        - Summon Nature's Ally I
+        - Summon Nature's Ally I
+        - Summon Nature's Ally I
+        - Summon Nature's Ally I
+        - Summon Nature's Ally I
+        - Summon Nature's Ally I
+        - Summon Nature's Ally I
+      "2":
+        - Summon Nature's Ally II
+        - Summon Nature's Ally II
+        - Summon Nature's Ally II
+        - Summon Nature's Ally II
+        - Summon Nature's Ally II
+      "3":
+        - Summon Nature's Ally III
+        - Summon Nature's Ally III
+        - Summon Nature's Ally III
+        - Summon Nature's Ally III
+        - Summon Nature's Ally III
+      "4":
+        - Summon Nature's Ally IV
+        - Summon Nature's Ally IV
+        - Summon Nature's Ally IV
+        - Summon Nature's Ally IV
+      "5":
+        - Summon Nature's Ally V
+        - Summon Nature's Ally V
+        - Summon Nature's Ally V
+        - Summon Nature's Ally V
+      "6":
+        - Summon Nature's Ally VI
+        - Summon Nature's Ally VI
+  special:
+    feats:
+      - [Natural Spell, human: 1, [allows casting in wild shape]]
+      - [Natural Bond, level: 1]
+      - [Spell Focus, level: 3]
+      - [Augment Summoning, level: 6, [summoned creatures get +4 Str and +4 Con]]
+      - [Companion Spellbond, level: 9, [30ft range]]
+      - [Energy Substitution (Cold), level: 12]
+    racial:
+      - +1 skill point per level
+      - +1 feat at 1st level
+    proficiencies:
+      - Club, dagger, dart, quarterstaff, scimitar, sickle, shortspear, sling, spear, all natural attacks
+      - Light and medium non-metal armor
+      - Shields, non-metal
+    class-abilities:
+      - Animal Companion
+      - Nature Sense (+2 Knowledge nature, +2 Survival)
+      - Wild Empathy +15
+      - Woodland Stride
+      - Trackless Step
+      - Resist Nature's Lure (+4 save vs. fey)
+      - Wild Shape (4/day) — tiny, small, medium, large
+      - Wild Shape (plants)
+      - Venom Immunity (all poisons)
+    languages:
+      - Common
+      - Druidic
+      - Sylvan
+      - Elvish
+  notes:
+    point-buy: 28
+    quarterstaff-2: Contains mass Bull's Strength
+    natural-bond: No effect currently, should be replaced
+    spell-focus: School not specified
+    load-note: Str 8 light capacity is 26 lbs but total load is 42.5 lbs (medium). CSV shows speed 30 — animal companion likely carries the pack.
+    capacity-fix: "CSV had 100/200/300 (Str 18 values). Fixed to Str 8: 26/53/80."

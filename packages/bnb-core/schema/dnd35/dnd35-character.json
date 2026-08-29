@@ -1,0 +1,743 @@
+{
+  "componentBindings": {
+    "str": ".character.abilities.strength[1].str",
+    "dex": ".character.abilities.dexterity[1].dex",
+    "con": ".character.abilities.constitution[1].con",
+    "int": ".character.abilities.intelligence[1].int",
+    "wis": ".character.abilities.wisdom[1].wis",
+    "cha": ".character.abilities.charisma[1].cha",
+    "bab": ".character.combat.attack.bab[0]"
+  },
+  "functions": {
+    "babForProgression": {
+      "params": ["progression", "level"],
+      "formula": "equalText(progression, 'good') ? level : (equalText(progression, 'average') ? floor(level * 3 / 4) : floor(level / 2))"
+    },
+    "saveForProgression": {
+      "params": ["progression", "level"],
+      "formula": "equalText(progression, 'good') ? 2 + floor(level / 2) : floor(level / 3)"
+    },
+    "bonusSpellSlots": {
+      "params": ["abilityMod", "spellLevel"],
+      "formula": "spellLevel <= 0 or abilityMod < spellLevel ? 0 : floor((abilityMod - spellLevel) / 4) + 1"
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "name": "character",
+        "type": "Character"
+      }
+    ]
+  },
+  "Character": {
+    "children": [
+      {
+        "name": "description",
+        "type": "Description",
+        "optional": true
+      },
+      {
+        "name": "abilities",
+        "type": "Abilities"
+      },
+      {
+        "name": "levels",
+        "type": "Levels"
+      },
+      {
+        "name": "combat",
+        "type": "Combat"
+      },
+      {
+        "name": "movement",
+        "type": "Movement"
+      },
+      {
+        "name": "skills",
+        "type": "Skills",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "name": "special",
+        "type": "Special",
+        "optional": true
+      },
+      {
+        "name": "inventory",
+        "type": "Inventory",
+        "optional": true
+      }
+    ]
+  },
+  "Description": {
+    "children": [
+      { "name": "name", "type": "string" },
+      { "name": "race", "type": "string" },
+      { "name": "alignment", "type": "string" },
+      { "name": "size", "type": "SizeCategory" },
+      { "name": "sex", "type": "string", "optional": true },
+      { "name": "age", "type": "string", "optional": true },
+      { "name": "height", "type": "string", "optional": true },
+      { "name": "weight", "type": "string", "optional": true },
+      { "name": "eyes", "type": "string", "optional": true },
+      { "name": "hair", "type": "string", "optional": true },
+      { "name": "complexion", "type": "string", "optional": true },
+      { "name": "build", "type": "string", "optional": true }
+    ]
+  },
+  "SizeCategory": {
+    "type": "string",
+    "validValues": ["F", "D", "T", "S", "M", "L", "H", "G", "C"]
+  },
+  "Abilities": {
+    "children": [
+      { "name": "strength", "type": "StrengthScore" },
+      { "name": "dexterity", "type": "DexterityScore" },
+      { "name": "constitution", "type": "ConstitutionScore" },
+      { "name": "intelligence", "type": "IntelligenceScore" },
+      { "name": "wisdom", "type": "WisdomScore" },
+      { "name": "charisma", "type": "CharismaScore" }
+    ]
+  },
+  "StrengthScore": {
+    "array": {
+      "0": { "type": "AbilityScore" },
+      "1": { "name": "str", "type": "AbilityModifier" },
+      "2": { "type": "AbilityScoreComponents", "optional": true }
+    }
+  },
+  "DexterityScore": {
+    "array": {
+      "0": { "type": "AbilityScore" },
+      "1": { "name": "dex", "type": "AbilityModifier" },
+      "2": { "type": "AbilityScoreComponents", "optional": true }
+    }
+  },
+  "ConstitutionScore": {
+    "array": {
+      "0": { "type": "AbilityScore" },
+      "1": { "name": "con", "type": "AbilityModifier" },
+      "2": { "type": "AbilityScoreComponents", "optional": true }
+    }
+  },
+  "IntelligenceScore": {
+    "array": {
+      "0": { "type": "AbilityScore" },
+      "1": { "name": "int", "type": "AbilityModifier" },
+      "2": { "type": "AbilityScoreComponents", "optional": true }
+    }
+  },
+  "WisdomScore": {
+    "array": {
+      "0": { "type": "AbilityScore" },
+      "1": { "name": "wis", "type": "AbilityModifier" },
+      "2": { "type": "AbilityScoreComponents", "optional": true }
+    }
+  },
+  "CharismaScore": {
+    "array": {
+      "0": { "type": "AbilityScore" },
+      "1": { "name": "cha", "type": "AbilityModifier" },
+      "2": { "type": "AbilityScoreComponents", "optional": true }
+    }
+  },
+  "AbilityScore": {
+    "type": "number",
+    "validValues": ["_", { "integers": { "min": 1 } }],
+    "calculation": {
+      "formula": "sum(components)",
+      "variables": {
+        "components": "parent[2][]"
+      }
+    }
+  },
+  "AbilityModifier": {
+    "type": "number",
+    "validValues": [{ "integers": { "min": -5 } }],
+    "calculation": {
+      "formula": "isNum(score) ? floor((score - 10) / 2) : 0",
+      "variables": {
+        "score": "parent[0]"
+      }
+    }
+  },
+  "AbilityScoreComponents": {
+    "type": "object",
+    "description": "Named components that sum to the ability score (e.g., base, racial, level-up, enhancement)"
+  },
+  "Levels": {
+    "children": [
+      { "name": "xp", "type": "number" },
+      { "name": "hd", "type": "HitDice" },
+      { "name": "hp", "type": "HitPoints" },
+      { "name": "max-hp", "type": "MaxHitPoints" }
+    ],
+    "additionalChildren": {
+      "type": "ClassLevel",
+      "description": "Each class the character has levels in (e.g., fighter, wizard)"
+    }
+  },
+  "HitDice": {
+    "array": {
+      "0": { "type": "number", "description": "Total number of hit dice" },
+      "1": {
+        "type": "number",
+        "description": "Largest hit die size (e.g., 10 for d10)"
+      }
+    }
+  },
+  "HitPoints": {
+    "array": {
+      "0": { "type": "number", "description": "Current HP" },
+      "1": { "type": "HitPointComponents" }
+    }
+  },
+  "HitPointComponents": {
+    "type": "object",
+    "description": "max-hp and damage tracking: {max-hp: N, damage: 0}"
+  },
+  "MaxHitPoints": {
+    "array": {
+      "0": {
+        "type": "number",
+        "description": "Maximum HP",
+        "calculation": {
+          "formula": "sum(components)",
+          "variables": {
+            "components": "parent[1][]"
+          }
+        }
+      },
+      "1": { "type": "MaxHpComponents" }
+    }
+  },
+  "MaxHpComponents": {
+    "type": "object",
+    "description": "Components: con (modifier * level), rolls (sum of all HD rolls)"
+  },
+  "ClassLevel": {
+    "array": {
+      "0": {
+        "type": "number",
+        "description": "Number of levels in this class"
+      },
+      "1": { "type": "ClassLevelDetails" }
+    }
+  },
+  "ClassLevelDetails": {
+    "type": "object",
+    "description": "Class-specific info: {hd: die_size, hp: [rolls_per_level]}"
+  },
+  "Combat": {
+    "children": [
+      { "name": "initiative", "type": "Initiative" },
+      { "name": "saves", "type": "SavingThrows" },
+      { "name": "attack", "type": "AttackBlock" },
+      { "name": "defense", "type": "DefenseBlock" }
+    ]
+  },
+  "Initiative": {
+    "array": {
+      "0": {
+        "type": "number",
+        "description": "Total initiative bonus",
+        "calculation": {
+          "formula": "sum(components)",
+          "variables": {
+            "components": "parent[1][]"
+          }
+        }
+      },
+      "1": {
+        "type": "InitiativeComponents",
+        "description": "Components: dex modifier + misc (feats, etc.)"
+      }
+    }
+  },
+  "InitiativeComponents": {
+    "type": "object",
+    "description": "{dex: N, feats: N, ...}"
+  },
+  "SavingThrows": {
+    "children": [
+      { "name": "fortitude", "type": "SavingThrow" },
+      { "name": "reflex", "type": "SavingThrow" },
+      { "name": "will", "type": "SavingThrow" }
+    ]
+  },
+  "SavingThrow": {
+    "array": {
+      "0": {
+        "type": "number",
+        "description": "Total save bonus",
+        "calculation": {
+          "formula": "sum(components)",
+          "variables": {
+            "components": "parent[1][]"
+          }
+        }
+      },
+      "1": {
+        "type": "SavingThrowComponents",
+        "description": "Components: class base save + ability mod + misc"
+      }
+    }
+  },
+  "SavingThrowComponents": {
+    "type": "object",
+    "description": "{class: N, abilityMod: N, ...} — fortitude uses con, reflex uses dex, will uses wis"
+  },
+  "AttackBlock": {
+    "children": [
+      { "name": "bab", "type": "BaseAttackBonus" },
+      { "name": "melee", "type": "MeleeAttacks" },
+      { "name": "ranged", "type": "RangedAttacks" },
+      { "name": "grapple", "type": "GrappleBonus" }
+    ]
+  },
+  "BaseAttackBonus": {
+    "array": {
+      "0": {
+        "type": "number",
+        "description": "Total BAB",
+        "calculation": {
+          "formula": "sum(components)",
+          "variables": {
+            "components": "parent[1][]"
+          }
+        }
+      },
+      "1": {
+        "type": "object",
+        "description": "BAB by class: {fighter: N, wizard: N, ...}"
+      }
+    }
+  },
+  "MeleeAttacks": {
+    "children": [
+      {
+        "name": "_",
+        "type": "GenericMeleeAttack",
+        "description": "Base melee attack modifiers"
+      }
+    ],
+    "additionalChildren": {
+      "type": "NamedMeleeWeapon",
+      "description": "Named melee weapons (e.g., longsword)"
+    }
+  },
+  "GenericMeleeAttack": {
+    "array": {
+      "0": {
+        "type": "number",
+        "description": "Total melee attack bonus",
+        "calculation": {
+          "formula": "sum(components)",
+          "variables": {
+            "components": "parent[1][]"
+          }
+        }
+      },
+      "1": {
+        "type": "object",
+        "description": "Attack components: {bab: N, str: N, size: N, ...}"
+      },
+      "2": {
+        "type": "array",
+        "optional": true,
+        "description": "Special notes/tags (e.g., [blind-fight])"
+      }
+    }
+  },
+  "NamedMeleeWeapon": {
+    "array": {
+      "0": { "type": "number", "description": "Total attack bonus" },
+      "1": {
+        "type": "string",
+        "description": "Damage string (e.g., 1d8+2 slashing)"
+      },
+      "2": {
+        "type": "string",
+        "description": "Critical range (e.g., 19-20/x2)"
+      },
+      "3": {
+        "type": "object",
+        "description": "Attack bonus components: {_: generic, special: N, ...}"
+      },
+      "4": { "type": "object", "description": "Damage modifier: {str: N}" },
+      "5": {
+        "type": "object",
+        "optional": true,
+        "description": "Extra properties"
+      },
+      "6": {
+        "type": "array",
+        "optional": true,
+        "description": "Tags: [weapon-name, feat-tags, ...]"
+      }
+    }
+  },
+  "RangedAttacks": {
+    "children": [
+      {
+        "name": "_",
+        "type": "GenericRangedAttack",
+        "description": "Base ranged attack modifiers"
+      }
+    ],
+    "additionalChildren": {
+      "type": "NamedRangedWeapon",
+      "description": "Named ranged weapons"
+    }
+  },
+  "GenericRangedAttack": {
+    "array": {
+      "0": {
+        "type": "number",
+        "description": "Total ranged attack bonus",
+        "calculation": {
+          "formula": "sum(components)",
+          "variables": {
+            "components": "parent[1][]"
+          }
+        }
+      },
+      "1": {
+        "type": "object",
+        "description": "Attack components: {bab: N, dex: N, size: N, ...}"
+      },
+      "2": {
+        "type": "array",
+        "optional": true,
+        "description": "Special notes/tags"
+      }
+    }
+  },
+  "NamedRangedWeapon": {
+    "array": {
+      "0": { "type": "number", "description": "Total attack bonus" },
+      "1": { "type": "string", "description": "Damage string" },
+      "2": { "type": "string", "description": "Critical range" },
+      "3": {
+        "type": "object",
+        "description": "Attack bonus components: {_: generic, ...}"
+      },
+      "4": {
+        "type": "object",
+        "optional": true,
+        "description": "Damage modifier"
+      },
+      "5": {
+        "type": "object",
+        "optional": true,
+        "description": "Extra properties"
+      },
+      "6": { "type": "array", "optional": true, "description": "Tags" }
+    }
+  },
+  "GrappleBonus": {
+    "array": {
+      "0": {
+        "type": "number",
+        "description": "Total grapple bonus = BAB + Str + special size mod",
+        "calculation": {
+          "formula": "sum(components)",
+          "variables": {
+            "components": "parent[1][]"
+          }
+        }
+      },
+      "1": {
+        "type": "object",
+        "description": "Components: {bab: N, str: N, size: N}"
+      }
+    }
+  },
+  "DefenseBlock": {
+    "children": [
+      { "name": "ac", "type": "ArmorClass" },
+      { "name": "touch-ac", "type": "TouchArmorClass" },
+      { "name": "flat-footed-ac", "type": "FlatFootedArmorClass" },
+      { "name": "acp", "type": "ArmorCheckPenalty", "optional": true },
+      { "name": "max-dex", "type": "MaxDexBonus", "optional": true },
+      { "name": "special", "type": "array", "optional": true }
+    ]
+  },
+  "ArmorClass": {
+    "array": {
+      "0": {
+        "type": "number",
+        "description": "Total AC = 10 + armor + shield + dex + size + natural + deflection + misc",
+        "calculation": {
+          "formula": "sum(components)",
+          "variables": {
+            "components": "parent[1][]"
+          }
+        }
+      },
+      "1": {
+        "type": "object",
+        "description": "{base: 10, armor: N, shield: N, dex: N, size: N, natural: N, deflection: N, ...}"
+      }
+    }
+  },
+  "TouchArmorClass": {
+    "array": {
+      "0": {
+        "type": "number",
+        "description": "Touch AC = 10 + dex + size + deflection (no armor, shield, natural)",
+        "calculation": {
+          "formula": "sum(components)",
+          "variables": {
+            "components": "parent[1][]"
+          }
+        }
+      },
+      "1": { "type": "object" }
+    }
+  },
+  "FlatFootedArmorClass": {
+    "array": {
+      "0": {
+        "type": "number",
+        "description": "Flat-footed AC = AC without positive Dex bonus (negative Dex still applies)"
+      },
+      "1": {
+        "type": "object",
+        "description": "Same as AC components but dex omitted if positive"
+      }
+    }
+  },
+  "ArmorCheckPenalty": {
+    "array": {
+      "0": { "type": "number", "description": "Total ACP (negative value)" },
+      "1": {
+        "type": "object",
+        "description": "ACP sources: armor, shield, or encumbrance (use worst)"
+      }
+    }
+  },
+  "MaxDexBonus": {
+    "array": {
+      "0": { "type": "number", "description": "Effective max Dex bonus to AC" },
+      "1": {
+        "type": "object",
+        "description": "Max Dex sources: armor or encumbrance (use worst)"
+      }
+    }
+  },
+  "Movement": {
+    "children": [
+      { "name": "speed", "type": "Speed" },
+      { "name": "run", "type": "RunSpeed", "optional": true },
+      { "name": "load", "type": "CurrentLoad", "optional": true },
+      { "name": "capacity", "type": "CarryingCapacity", "optional": true }
+    ]
+  },
+  "Speed": {
+    "array": {
+      "0": {
+        "type": "number",
+        "description": "Current speed in feet",
+        "calculation": {
+          "formula": "sum(components)",
+          "variables": {
+            "components": "parent[1][]"
+          }
+        }
+      },
+      "1": {
+        "type": "object",
+        "description": "Speed components: {base: N, armor: N, load: N, ...}"
+      }
+    }
+  },
+  "RunSpeed": {
+    "array": {
+      "0": { "type": "number", "description": "Run speed in feet" },
+      "1": {
+        "type": "object",
+        "description": "Run multiplier info: {base: x4} or {base: x3}"
+      }
+    }
+  },
+  "CurrentLoad": {
+    "array": {
+      "0": {
+        "type": "string",
+        "description": "Total carried weight (e.g., 75.5 lbs)"
+      },
+      "1": {
+        "type": "object",
+        "description": "Weight by location: {equipped: N lbs, pack: N lbs}"
+      }
+    }
+  },
+  "CarryingCapacity": {
+    "type": "object",
+    "description": "Carrying capacity thresholds based on Str score: {light: N lbs, medium: N lbs, heavy: N lbs, lift: N lbs, drag: N lbs}"
+  },
+  "Skills": {
+    "children": [
+      {
+        "name": "_ranks",
+        "type": "SkillRanks",
+        "optional": true,
+        "description": "Total available skill ranks and how they were spent"
+      }
+    ],
+    "additionalChildren": {
+      "type": "Skill",
+      "description": "Individual skills (e.g., climb, diplomacy)"
+    }
+  },
+  "SkillRanks": {
+    "array": {
+      "0": {
+        "type": "number",
+        "description": "Total skill ranks available",
+        "calculation": {
+          "formula": "sum(components)",
+          "variables": {
+            "components": "parent[1][]"
+          }
+        }
+      },
+      "1": {
+        "type": "object",
+        "description": "Rank sources: {class: N, int: N, human: N, cc: -N}"
+      }
+    }
+  },
+  "Skill": {
+    "array": {
+      "0": {
+        "type": "number",
+        "description": "Total skill check modifier",
+        "calculation": {
+          "formula": "sum(components)",
+          "variables": {
+            "components": "parent[1][]"
+          }
+        }
+      },
+      "1": {
+        "type": "SkillComponents",
+        "description": "Modifier components: {ability: N, ranks: N, acp: -N, misc: N, ...}"
+      }
+    }
+  },
+  "SkillComponents": {
+    "type": "object",
+    "description": "Named modifiers that sum to the skill total. The ability modifier key uses the ability abbreviation (str, dex, con, int, wis, cha)."
+  },
+  "Special": {
+    "children": [
+      {
+        "name": "feats",
+        "type": "FeatList",
+        "optional": true
+      },
+      {
+        "name": "class-features",
+        "type": "array",
+        "optional": true,
+        "description": "List of class features"
+      },
+      {
+        "name": "racial-traits",
+        "type": "array",
+        "optional": true,
+        "description": "List of racial traits"
+      }
+    ]
+  },
+  "FeatList": {
+    "type": "array",
+    "items": { "type": "Feat" }
+  },
+  "Feat": {
+    "array": {
+      "0": { "type": "string", "description": "Feat name" },
+      "1": {
+        "type": "object",
+        "description": "Source: {level: N} or {class: N} or {human: N}"
+      },
+      "2": {
+        "type": "array",
+        "optional": true,
+        "description": "Effects: references to affected fields and modifiers"
+      }
+    }
+  },
+  "Inventory": {
+    "children": [
+      {
+        "name": "_on",
+        "type": "array",
+        "description": "List of carried containers: [equipped, pack]"
+      },
+      { "name": "money", "type": "Money", "optional": true }
+    ],
+    "additionalChildren": {
+      "type": "ItemList",
+      "description": "Named item containers (equipped, pack, saddle-bags, etc.)"
+    }
+  },
+  "Money": {
+    "children": [
+      {
+        "name": "_total",
+        "type": "string",
+        "description": "Total value in gp"
+      },
+      { "name": "coins", "type": "CoinEntry", "optional": true }
+    ]
+  },
+  "CoinEntry": {
+    "array": {
+      "0": {
+        "type": "string",
+        "description": "Total coin value (e.g., 20.5 gp)"
+      },
+      "1": { "type": "string", "description": "Weight" },
+      "2": { "type": "string", "description": "Location" },
+      "3": {
+        "type": "object",
+        "description": "Coin breakdown: {pp: N, gp: N, sp: N, cp: N}"
+      },
+      "4": {
+        "type": "string",
+        "description": "Weight per coin (e.g., 0.02 lbs)"
+      }
+    }
+  },
+  "ItemList": {
+    "type": "array",
+    "items": { "type": "Item" }
+  },
+  "Item": {
+    "array": {
+      "0": { "type": "string", "description": "Item name" },
+      "1": { "type": "number", "description": "Quantity" },
+      "2": {
+        "type": "string",
+        "description": "Category (weapon, armor, shield, gear, supplies, container)"
+      },
+      "3": { "type": "string", "description": "Weight per item (e.g., 4 lbs)" },
+      "4": { "type": "string", "description": "Cost per item (e.g., 15 gp)" },
+      "5": {
+        "type": "object",
+        "optional": true,
+        "description": "Item properties (varies by category)"
+      },
+      "6": {
+        "type": "array",
+        "optional": true,
+        "description": "Tags: [size, proficiency, type, ...]"
+      }
+    }
+  }
+}
