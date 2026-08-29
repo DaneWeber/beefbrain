@@ -22,6 +22,21 @@ export interface RenderLatexResult {
   template: TemplateInfo
 }
 
+export interface CompilePdfInput {
+  latex: string
+  timeoutMs?: number
+  maxLatexBytes?: number
+  outputBaseName?: string
+  compilerCommand?: string
+  keepArtifacts?: boolean
+}
+
+export interface CompilePdfResult {
+  pdfBuffer: Buffer
+  pdfFileName: string
+  compilerOutput: string
+}
+
 export interface LatexFieldMap {
   [key: string]: string | number
 }
@@ -31,3 +46,7 @@ export type LatexGenerationErrorCode =
   | 'INVALID_YAML'
   | 'UNKNOWN_TEMPLATE'
   | 'INVALID_TEMPLATE'
+  | 'INVALID_OUTPUT_NAME'
+  | 'PDF_TIMEOUT'
+  | 'PDF_COMPILER_MISSING'
+  | 'PDF_COMPILE_FAILED'

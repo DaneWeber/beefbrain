@@ -9,6 +9,10 @@ selected template with safe token substitution.
 ## Current scope
 
 - Render `.tex` from BeefBrain YAML
+- Compile rendered `.tex` to `.pdf` with secure defaults:
+  - `-no-shell-escape`
+  - isolated temp working directory
+  - compile timeout
 - D&D 3.5 starter templates:
   - `dnd35-streamlined`
   - `dnd35-detailed`
@@ -27,6 +31,15 @@ const result = renderLatex({
 })
 
 console.log(result.latex)
+```
+
+```ts
+import { compilePdf } from 'bnb-latex'
+
+const { pdfBuffer } = await compilePdf({
+  latex: result.latex,
+  outputBaseName: 'landorf-sheet',
+})
 ```
 
 ## Development
