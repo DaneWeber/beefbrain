@@ -1,8 +1,16 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, basename } from 'node:path';
+import { createRequire } from 'node:module';
 import yaml from 'js-yaml';
-import { validateBeefBrainData, updateCalculatedFields, dataToCompactYAML, type BeefBrainData } from 'bnb-core';
+import type { BeefBrainData } from 'bnb-core';
 import { listTemplates, renderLatex, type LatexTemplateKey, type TemplateInfo } from 'bnb-latex';
+
+const require = createRequire(import.meta.url);
+const { validateBeefBrainData, updateCalculatedFields, dataToCompactYAML } = require('bnb-core') as {
+	validateBeefBrainData: (raw: string) => boolean;
+	updateCalculatedFields: (raw: string) => string;
+	dataToCompactYAML: (data: BeefBrainData) => string;
+};
 
 const YAML_DIR = process.env.BNB_YAML_DIR
 	? process.env.BNB_YAML_DIR

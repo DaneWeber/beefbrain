@@ -35,8 +35,15 @@ test('editing strength item recalculates ability and grapple values', async ({ p
 	const editForm = waistRow.locator('form.edit-form');
 	await editForm.locator('input[name="name"]').fill("Belt of Giant's Strength +6");
 	await editForm.locator('textarea[name="effects"]').fill('str-enhancement: 6');
+	const updateResponse = page.waitForResponse(
+		(response) =>
+			response.request().method() === 'POST' &&
+			response.url().includes(`/characters/${slug}`) &&
+			response.url().includes('updateMagicItem')
+	);
 	await editForm.getByRole('button', { name: 'Save' }).click();
-	await expect(waistRow.locator('form.edit-form')).toHaveCount(0, { timeout: 30000 });
+	const updatePayload = await (await updateResponse).json();
+	expect(updatePayload, JSON.stringify(updatePayload)).toMatchObject({ type: 'success' });
 
 	await expect(waistRow).toContainText("Belt of Giant's Strength +6");
 
@@ -65,8 +72,15 @@ test('editing resistance item propagates to all saving throws', async ({ page })
 
 	const editForm = shoulderRow.locator('form.edit-form');
 	await editForm.locator('textarea[name="effects"]').fill('saves-resistance: 3');
+	const updateResponse = page.waitForResponse(
+		(response) =>
+			response.request().method() === 'POST' &&
+			response.url().includes(`/characters/${slug}`) &&
+			response.url().includes('updateMagicItem')
+	);
 	await editForm.getByRole('button', { name: 'Save' }).click();
-	await expect(shoulderRow.locator('form.edit-form')).toHaveCount(0, { timeout: 30000 });
+	const updatePayload = await (await updateResponse).json();
+	expect(updatePayload, JSON.stringify(updatePayload)).toMatchObject({ type: 'success' });
 
 	const fortitudeRow = page.locator('.stat-row', {
 		has: page.locator('.label', { hasText: 'Fortitude' })
