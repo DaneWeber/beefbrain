@@ -17,7 +17,10 @@ const LATEX_ESCAPE_MAP: Record<string, string> = {
 }
 
 function escapeLatexText(value: string): string {
-  return value.replace(/[\\{}#$%&_^\~]/g, (char) => LATEX_ESCAPE_MAP[char])
+  return value.replace(/[\\{}#$%&_^\~]/g, (char) => {
+    const escaped = LATEX_ESCAPE_MAP[char]
+    return escaped ?? char
+  })
 }
 
 export function renderTemplate(template: string, fields: LatexFieldMap): string {
