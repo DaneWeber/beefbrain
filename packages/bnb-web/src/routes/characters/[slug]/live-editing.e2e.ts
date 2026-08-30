@@ -73,7 +73,7 @@ test('equipping a stronger giant belt recalculates combat, skills, and carrying 
 		has: page.locator('.label', { hasText: 'Grapple' })
 	});
 	await expect(grappleRow).toContainText('+24');
-	await expect(grappleRow).toContainText('str: 7');
+	await expect(grappleRow).toContainText('Str: 7');
 
 	const frostBrandRow = page.locator('.weapon', {
 		has: page.locator('.weapon-name', { hasText: 'Frost Brand Greatsword +3' })
