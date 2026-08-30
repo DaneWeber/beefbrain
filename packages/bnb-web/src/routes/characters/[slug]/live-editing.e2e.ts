@@ -32,7 +32,9 @@ async function openDetailedSheetFor(page: Page) {
 	await expect(firstEditButton).toBeVisible({ timeout: 15_000 });
 }
 
-test('editing strength item updates slot and inventory table views', async ({ page }) => {
+test('equipping a stronger giant belt recalculates combat, skills, and carrying capacity', async ({
+	page
+}) => {
 	await openDetailedSheetFor(page);
 
 	const waistRow = page.locator('.slot-row', {
@@ -60,6 +62,44 @@ test('editing strength item updates slot and inventory table views', async ({ pa
 	await expect(page.locator('.inv-group', { hasText: 'Equipped' })).toContainText(
 		"Belt of Giant's Strength +6"
 	);
+
+	const strengthRow = page.locator('.ability-table tbody tr', {
+		has: page.locator('td.ability-name', { hasText: 'Strength' })
+	});
+	await expect(strengthRow).toContainText('24');
+	await expect(strengthRow).toContainText('+7');
+
+	const grappleRow = page.locator('.stat-row', {
+		has: page.locator('.label', { hasText: 'Grapple' })
+	});
+	await expect(grappleRow).toContainText('+24');
+	await expect(grappleRow).toContainText('str: 7');
+
+	const frostBrandRow = page.locator('.weapon', {
+		has: page.locator('.weapon-name', { hasText: 'Frost Brand Greatsword +3' })
+	});
+	await expect(frostBrandRow.locator('.weapon-stats')).toContainText('+23');
+	await expect(frostBrandRow.locator('.weapon-stats')).toContainText('2d6+13+1d6 cold');
+
+	const climbSkillRow = page.locator('.skill-table tbody tr', {
+		has: page.locator('td', { hasText: 'Climb' })
+	});
+	const jumpSkillRow = page.locator('.skill-table tbody tr', {
+		has: page.locator('td', { hasText: 'Jump' })
+	});
+	const swimSkillRow = page.locator('.skill-table tbody tr', {
+		has: page.locator('td', { hasText: 'Swim' })
+	});
+	await expect(climbSkillRow).toContainText('+16');
+	await expect(jumpSkillRow).toContainText('+13');
+	await expect(swimSkillRow).toContainText('-1');
+
+	const capacityRow = page.locator('.stat-row', {
+		has: page.locator('.label', { hasText: 'Capacity' })
+	});
+	await expect(capacityRow).toContainText('Light: 233 lbs');
+	await expect(capacityRow).toContainText('Medium: 466 lbs');
+	await expect(capacityRow).toContainText('Heavy: 700 lbs');
 });
 
 test('editing shoulder item effects updates slot and inventory table views', async ({ page }) => {
