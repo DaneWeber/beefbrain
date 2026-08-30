@@ -2,6 +2,16 @@ import { defineConfig } from '@playwright/test';
 import { resolve } from 'node:path';
 
 export default defineConfig({
+	reporter: [
+		['list'],
+		['html', { outputFolder: 'playwright-report', open: 'never' }]
+	],
+	outputDir: 'test-results',
+	use: {
+		trace: 'on',
+		video: 'on',
+		screenshot: 'on'
+	},
 	webServer: {
 		command: 'node tests/prepare-playwright-fixtures.mjs && pnpm exec vite dev --host --port 4173',
 		port: 4173,

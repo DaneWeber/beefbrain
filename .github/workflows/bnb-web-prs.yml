@@ -50,6 +50,7 @@ jobs:
         with:
           name: playwright-artifacts
           path: |
-            packages/bnb-web/playwright-report
-            packages/bnb-web/test-results
-          if-no-files-found: ignore
+            packages/bnb-web/playwright-report/**
+            packages/bnb-web/test-results/**
+          if-no-files-found: error
+          retention-days: 14
