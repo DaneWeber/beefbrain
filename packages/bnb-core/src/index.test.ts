@@ -109,6 +109,24 @@ character:
             '2d6+6 slashing',
           )
         })
+        it('should recalculate skill totals with array-style rank components', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [24, str: 6]
+  skills:
+    climb: [15, {str: 6, ranks: [13, {fighter: 13}], acp: -4}]
+    jump: [12, {str: 6, ranks: [12, {fighter: 12}], acp: -6}]
+    swim: [-2, {str: 6, acp: -8}]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.skills.climb[1].str).toBe(7)
+          expect(output.character.skills.jump[1].str).toBe(7)
+          expect(output.character.skills.swim[1].str).toBe(7)
+          expect(output.character.skills.climb[0]).toBe(16)
+          expect(output.character.skills.jump[0]).toBe(13)
+          expect(output.character.skills.swim[0]).toBe(-1)
+        })
         it('should apply 0.5x str to off-hand weapon damage', () => {
           const yamlContent = `---
 character:
