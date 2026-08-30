@@ -1,7 +1,6 @@
 name: bnb-web Playwright
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
