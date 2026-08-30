@@ -1,0 +1,74 @@
+name: bnb-latex Tests and Artifacts
+
+on:
+  pull_request:
+    paths:
+      - "packages/bnb-latex/**"
+      - "packages/bnb-cli/**"
+      - "packages/bnb-core/**"
+      - "reference_material/beefy_boys_spreadsheets/yaml/**"
+      - "pnpm-lock.yaml"
+      - "package.json"
+      - ".github/workflows/bnb-latex-prs.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/bnb-latex/**"
+      - "packages/bnb-cli/**"
+      - "packages/bnb-core/**"
+      - "reference_material/beefy_boys_spreadsheets/yaml/**"
+      - "pnpm-lock.yaml"
+      - "package.json"
+      - ".github/workflows/bnb-latex-prs.yml"
+
+jobs:
+  test-and-generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Install LaTeX compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y texlive-latex-base texlive-latex-recommended texlive-fonts-recommended
+          pdflatex --version
+
+      - name: Build dependencies and bnb-latex
+        run: pnpm --filter bnb-core --filter bnb-latex --filter bnb-cli build
+
+      - name: Run bnb-latex tests
+        run: pnpm --filter bnb-latex test
+
+      - name: Run bnb-latex linting
+        run: pnpm --filter bnb-latex lint
+
+      - name: Run bnb-latex formatting check
+        run: pnpm --filter bnb-latex format
+
+      - name: Generate sample LaTeX and PDF files
+        run: |
+          mkdir -p artifacts/latex
+          node packages/bnb-cli/dist/index.js latex reference_material/beefy_boys_spreadsheets/yaml/andy-black-stag.yaml --template dnd35-streamlined --out artifacts/latex/andy-black-stag-streamlined.tex --pdf --pdf-out artifacts/latex/andy-black-stag-streamlined.pdf
+          node packages/bnb-cli/dist/index.js latex reference_material/beefy_boys_spreadsheets/yaml/ryan-landorf.yaml --template dnd35-detailed --out artifacts/latex/ryan-landorf-detailed.tex --pdf --pdf-out artifacts/latex/ryan-landorf-detailed.pdf
+          node packages/bnb-cli/dist/index.js latex reference_material/beefy_boys_spreadsheets/yaml/don-cade.yaml --template dnd35-spellcaster --out artifacts/latex/don-cade-spellcaster.tex --pdf --pdf-out artifacts/latex/don-cade-spellcaster.pdf
+          ls -lah artifacts/latex
+
+      - name: Upload generated latex/pdf artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bnb-latex-samples
+          path: artifacts/latex
+          if-no-files-found: error
