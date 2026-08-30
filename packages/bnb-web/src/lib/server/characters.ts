@@ -1,13 +1,20 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, basename } from 'node:path';
+import { createRequire } from 'node:module';
 import yaml from 'js-yaml';
-import { validateBeefBrainData, updateCalculatedFields, dataToCompactYAML, type BeefBrainData } from 'bnb-core';
+import type { BeefBrainData } from 'bnb-core';
 import { listTemplates, renderLatex, type LatexTemplateKey, type TemplateInfo } from 'bnb-latex';
 
-const YAML_DIR = join(
-	import.meta.dirname,
-	'../../../../../reference_material/beefy_boys_spreadsheets/yaml'
-);
+const require = createRequire(import.meta.url);
+const { validateBeefBrainData, updateCalculatedFields, dataToCompactYAML } = require('bnb-core') as {
+	validateBeefBrainData: (raw: string) => boolean;
+	updateCalculatedFields: (raw: string) => string;
+	dataToCompactYAML: (data: BeefBrainData) => string;
+};
+
+const YAML_DIR = process.env.BNB_YAML_DIR
+	? process.env.BNB_YAML_DIR
+	: join(import.meta.dirname, '../../../../../reference_material/beefy_boys_spreadsheets/yaml');
 
 const LATEX_TEMPLATES = listTemplates();
 const LATEX_TEMPLATE_KEYS = new Set(LATEX_TEMPLATES.map((template) => template.key));
@@ -226,7 +233,11 @@ export async function saveCharacterMagicItem(
 	const items: unknown[] = (data as any)?.character?.inventory?.[location];
 	if (!Array.isArray(items)) throw new Error(`Location "${location}" not found`);
 
-	const idx = items.findIndex((item) => Array.isArray(item) && (item as unknown[])[4] === itemOrderIndex);
+	const idx = items.findIndex((item) => {
+		if (!Array.isArray(item)) return false;
+		const orderIndex = Number((item as unknown[])[4]);
+		return Number.isFinite(orderIndex) && orderIndex === itemOrderIndex;
+	});
 	if (idx === -1) throw new Error(`Item with order index ${itemOrderIndex} not found`);
 
 	applyItemEdits(items[idx] as unknown[], newName, newEffects);
@@ -251,7 +262,11 @@ export async function moveCharacterMagicItem(
 	const fromItems: unknown[] = data?.character?.inventory?.[fromLocation];
 	if (!Array.isArray(fromItems)) throw new Error(`Location "${fromLocation}" not found`);
 
-	const idx = fromItems.findIndex((item) => Array.isArray(item) && (item as unknown[])[4] === itemOrderIndex);
+	const idx = fromItems.findIndex((item) => {
+		if (!Array.isArray(item)) return false;
+		const orderIndex = Number((item as unknown[])[4]);
+		return Number.isFinite(orderIndex) && orderIndex === itemOrderIndex;
+	});
 	if (idx === -1) throw new Error(`Item with order index ${itemOrderIndex} not found`);
 
 	const [item] = fromItems.splice(idx, 1);
