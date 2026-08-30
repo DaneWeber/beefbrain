@@ -248,9 +248,8 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'movement.speed': getArrayFirst(movement.speed),
     'movement.run': getArrayFirst(movement.run),
     'skills.summary': formatSkills(skillsContainer),
-    'inventory.equippedMagicItems': formatEquippedMagicItems(
-      inventoryContainer,
-    ),
+    'inventory.equippedMagicItems':
+      formatEquippedMagicItems(inventoryContainer),
   }
 }
 
