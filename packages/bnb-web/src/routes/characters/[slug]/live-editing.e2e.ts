@@ -82,13 +82,13 @@ test('equipping a stronger giant belt recalculates combat, skills, and carrying 
 	await expect(frostBrandRow.locator('.weapon-stats')).toContainText('2d6+13+1d6 cold');
 
 	const climbSkillRow = page.locator('.skill-table tbody tr', {
-		has: page.locator('td', { hasText: 'Climb' })
+		has: page.locator('td').filter({ hasText: /^Climb$/ })
 	});
 	const jumpSkillRow = page.locator('.skill-table tbody tr', {
-		has: page.locator('td', { hasText: 'Jump' })
+		has: page.locator('td').filter({ hasText: /^Jump$/ })
 	});
 	const swimSkillRow = page.locator('.skill-table tbody tr', {
-		has: page.locator('td', { hasText: 'Swim' })
+		has: page.locator('td').filter({ hasText: /^Swim$/ })
 	});
 	await expect(climbSkillRow).toContainText('+16');
 	await expect(jumpSkillRow).toContainText('+13');
