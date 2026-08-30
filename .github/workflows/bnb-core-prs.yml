@@ -6,6 +6,15 @@ on:
       - "packages/bnb-core/**"
       - "pnpm-lock.yaml"
       - "package.json"
+      - ".github/workflows/bnb-core-prs.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/bnb-core/**"
+      - "pnpm-lock.yaml"
+      - "package.json"
+      - ".github/workflows/bnb-core-prs.yml"
 
 jobs:
   test:

@@ -9,6 +9,7 @@ on:
       - "packages/**"
       - "package.json"
       - "pnpm-lock.yaml"
+      - ".github/workflows/test.yml"
 
 jobs:
   test:

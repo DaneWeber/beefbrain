@@ -8,6 +8,17 @@ on:
       - "packages/bnb-latex/**"
       - "pnpm-lock.yaml"
       - "package.json"
+      - ".github/workflows/bnb-cli-prs.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/bnb-cli/**"
+      - "packages/bnb-core/**"
+      - "packages/bnb-latex/**"
+      - "pnpm-lock.yaml"
+      - "package.json"
+      - ".github/workflows/bnb-cli-prs.yml"
 
 jobs:
   test:
