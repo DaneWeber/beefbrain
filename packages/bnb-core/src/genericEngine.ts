@@ -162,7 +162,13 @@ function walkAndBind(
           // Resum total
           let sum = 0
           for (const v of Object.values(modsObj)) {
-            if (typeof v === 'number') sum += v
+            if (typeof v === 'number') {
+              sum += v
+              continue
+            }
+            if (Array.isArray(v) && typeof v[0] === 'number') {
+              sum += v[0]
+            }
           }
           node[0] = sum
           onChange(true)
