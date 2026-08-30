@@ -91,3 +91,34 @@ test('editing shoulder item effects updates slot and inventory table views', asy
 		'saves-resistance: 3'
 	);
 });
+
+test('moving a slotted item updates inventory location tables', async ({ page }) => {
+	await openDetailedSheetFor(page);
+
+	const shoulderRow = page.locator('.slot-row', {
+		has: page.locator('.slot-label', { hasText: 'Shoulders:' })
+	});
+	const equippedGroup = page.locator('.inv-group', { hasText: 'Equipped' });
+	const packGroup = page.locator('.inv-group', { hasText: 'Pack' });
+
+	await expect(equippedGroup).toContainText('Cloak of Resistance +1');
+	await shoulderRow.locator('.btn-edit').first().click();
+
+	const moveForm = shoulderRow.locator('form.move-form');
+	await moveForm.locator('select[name="toLocation"]').selectOption('pack');
+
+	const moveResponse = page.waitForResponse(
+		(response) =>
+			response.request().method() === 'POST' &&
+			response.url().includes(`/characters/${slug}`) &&
+			response.url().includes('moveItem')
+	);
+
+	await moveForm.getByRole('button', { name: 'Move' }).click();
+	const movePayload = await (await moveResponse).json();
+	expect(movePayload, JSON.stringify(movePayload)).toMatchObject({ type: 'success' });
+
+	await expect(equippedGroup).not.toContainText('Cloak of Resistance +1');
+	await expect(packGroup).toContainText('Cloak of Resistance +1');
+	await expect(shoulderRow).toContainText('Cloak of Resistance +1');
+});
