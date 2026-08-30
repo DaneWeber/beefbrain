@@ -18,6 +18,28 @@ math.import(
   { override: true },
 )
 
+function collectNumericValues(value: unknown): number[] {
+  if (Array.isArray(value)) {
+    return value.filter((v): v is number => typeof v === 'number')
+  }
+
+  if (value && typeof value === 'object') {
+    const values: number[] = []
+    for (const entry of Object.values(value)) {
+      if (typeof entry === 'number') {
+        values.push(entry)
+        continue
+      }
+      if (Array.isArray(entry) && typeof entry[0] === 'number') {
+        values.push(entry[0])
+      }
+    }
+    return values
+  }
+
+  return []
+}
+
 /**
  * Simple jq-style path resolver for our specific use cases
  * @param data - The root data object
@@ -27,28 +49,6 @@ math.import(
 function resolveJqPath(data: unknown, path: string): unknown {
   if (!path.startsWith('.')) {
     return undefined
-  }
-
-  function collectNumericValues(value: unknown): number[] {
-    if (Array.isArray(value)) {
-      return value.filter((v): v is number => typeof v === 'number')
-    }
-
-    if (value && typeof value === 'object') {
-      const values: number[] = []
-      for (const entry of Object.values(value)) {
-        if (typeof entry === 'number') {
-          values.push(entry)
-          continue
-        }
-        if (Array.isArray(entry) && typeof entry[0] === 'number') {
-          values.push(entry[0])
-        }
-      }
-      return values
-    }
-
-    return []
   }
 
   // Remove leading dot
