@@ -545,7 +545,14 @@ function updateAndVerifyModifierArray(
 function sumValues(obj: Record<string, unknown>): number {
   let sum = 0
   for (const v of Object.values(obj)) {
-    if (typeof v === 'number') sum += v
+    if (typeof v === 'number') {
+      sum += v
+      continue
+    }
+    // Support component entries like ranks: [13, { fighter: 13 }]
+    if (Array.isArray(v) && typeof v[0] === 'number') {
+      sum += v[0]
+    }
   }
   return sum
 }

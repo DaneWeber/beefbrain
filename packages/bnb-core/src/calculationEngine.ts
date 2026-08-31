@@ -18,6 +18,28 @@ math.import(
   { override: true },
 )
 
+function collectNumericValues(value: unknown): number[] {
+  if (Array.isArray(value)) {
+    return value.filter((v): v is number => typeof v === 'number')
+  }
+
+  if (value && typeof value === 'object') {
+    const values: number[] = []
+    for (const entry of Object.values(value)) {
+      if (typeof entry === 'number') {
+        values.push(entry)
+        continue
+      }
+      if (Array.isArray(entry) && typeof entry[0] === 'number') {
+        values.push(entry[0])
+      }
+    }
+    return values
+  }
+
+  return []
+}
+
 /**
  * Simple jq-style path resolver for our specific use cases
  * @param data - The root data object
@@ -61,9 +83,9 @@ function resolveJqPath(data: unknown, path: string): unknown {
 
       // Now collect numeric values from this element
       if (Array.isArray(current)) {
-        return current.filter((v) => typeof v === 'number')
+        return collectNumericValues(current)
       } else if (current && typeof current === 'object') {
-        return Object.values(current).filter((v) => typeof v === 'number')
+        return collectNumericValues(current)
       }
       return []
     }
@@ -79,9 +101,9 @@ function resolveJqPath(data: unknown, path: string): unknown {
 
       // Collect numeric values
       if (Array.isArray(current)) {
-        return current.filter((v) => typeof v === 'number')
+        return collectNumericValues(current)
       } else if (current && typeof current === 'object') {
-        return Object.values(current).filter((v) => typeof v === 'number')
+        return collectNumericValues(current)
       }
       return []
     }
@@ -211,7 +233,7 @@ function resolveVariablePath(
                 value &&
                 typeof value === 'object'
               ) {
-                return Object.values(value).filter((v) => typeof v === 'number')
+                return collectNumericValues(value)
               }
               return value
             }
