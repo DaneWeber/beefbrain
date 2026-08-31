@@ -52,4 +52,45 @@ describe('renderLatex', () => {
     expect(result.latex).toContain('longsword')
     expect(result.latex).toContain('Appraise')
   })
+
+  describe('skills.detailedTable', () => {
+    const renderSkillsTable = (yaml: string) =>
+      renderLatex({ yaml, templateContent: '{{{skills.detailedTable}}}' }).latex
+
+    it('lists skills alphabetically', () => {
+      const latex = renderSkillsTable(VALID_YAML)
+      expect(latex.indexOf('Appraise')).toBeLessThan(latex.indexOf('Balance'))
+      expect(latex.indexOf('Balance')).toBeLessThan(latex.indexOf('Climb'))
+      expect(latex.indexOf('Jump')).toBeLessThan(latex.indexOf('Listen'))
+    })
+
+    it('splits a double-ACP skill into final and pre-ACP bonus', () => {
+      const latex = renderSkillsTable(VALID_YAML)
+      // swim: [-6, {str: 2, acp: -8}] -> final -6, pre-ACP -6 - (-8) = +2
+      expect(latex).toContain('Swim & -6 & +2 & Str +2 \\\\')
+    })
+
+    it('omits acp and zero-valued components from the source list', () => {
+      const latex = renderSkillsTable(VALID_YAML)
+      // appraise: [2, {int: 0, ranks: 2}] -> Int is zero, so only Ranks shows
+      expect(latex).toContain('Appraise & +2 & +2 & Ranks +2 \\\\')
+    })
+
+    it('shows a non-zero item-effect bonus as a named source', () => {
+      const yaml = `---
+character:
+  abilities:
+    charisma: [12, cha: 1]
+  skills:
+    use-magic-device: [14, {cha: 1, ranks: 13}]
+  inventory:
+    equipped:
+      - [ring of use magic device, 1, wondrous, 0 lbs, 5000 gp, {}, [], [[skills.use-magic-device, {magic-ring: 5}]]]
+`
+      const latex = renderSkillsTable(yaml)
+      expect(latex).toContain(
+        'Use Magic Device & +19 & +19 & Cha +1, Ranks +13, Magic Ring +5 \\\\',
+      )
+    })
+  })
 })
