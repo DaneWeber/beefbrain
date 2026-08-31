@@ -15,4 +15,23 @@ describe('renderTemplate', () => {
       LatexGenerationError,
     )
   })
+
+  it('substitutes a raw field without escaping LaTeX structure', () => {
+    const output = renderTemplate('Table:\n{{{rows}}}', {
+      rows: 'A & B \\\\\nC & D \\\\',
+    })
+    expect(output).toBe('Table:\n' + 'A & B \\\\\nC & D \\\\')
+  })
+
+  it('still escapes an adjacent two-brace token next to a raw one', () => {
+    const output = renderTemplate('{{{rows}}} {{name}}', {
+      rows: 'A & B',
+      name: 'A&B',
+    })
+    expect(output).toBe('A & B A\\&B')
+  })
+
+  it('throws when a required raw template field is missing', () => {
+    expect(() => renderTemplate('{{{rows}}}', {})).toThrow(LatexGenerationError)
+  })
 })
