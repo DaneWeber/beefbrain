@@ -1,46 +1,28 @@
-export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[10pt]{article}
-\usepackage[margin=0.45in]{geometry}
+export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
+\usepackage[landscape, margin=0.4in]{geometry}
 \begin{document}
+\fontsize{14}{16}\selectfont
 \section*{D\&D 3.5 Primary Character Sheet (Detailed Draft)}
+
+\noindent
+\begin{minipage}[t]{0.27\linewidth}
 \subsection*{Character Description}
-\begin{tabular}{|l|l|l|l|}
+\begin{tabular}{|l|l|}
 \hline
-Name & {{character.name}} & Player & {{character.player}} \\
-Race & {{character.race}} & Alignment & {{character.alignment}} \\
-Classes & {{character.classes}} & Level & {{character.level}} \\
-Size & {{character.size}} & Sex & {{character.sex}} \\
-Age & {{character.age}} & Height & {{character.height}} \\
-Weight & {{character.weight}} & Eyes & {{character.eyes}} \\
-Hair & {{character.hair}} & Build & {{character.build}} \\
-\hline
-\end{tabular}
-
-\subsection*{Combat Snapshot}
-\begin{tabular}{|l|r|p{5.3in}|}
-\hline
-Field & Final & Components \\
-\hline
-HP & {{combat.hp}} & {{combat.hp.breakdown}} \\
-AC & {{combat.ac}} & {{combat.ac.breakdown}} \\
-Touch AC & {{combat.touchAc}} & {{combat.touchAc.breakdown}} \\
-Flat-Footed AC & {{combat.flatFootedAc}} & {{combat.flatFootedAc.breakdown}} \\
-ACP & {{combat.acp}} & {{combat.acp.breakdown}} \\
-Initiative & {{combat.initiative}} & {{combat.initiative.breakdown}} \\
-Speed & {{movement.speed}} & {{movement.speed.breakdown}} \\
-\hline
-\end{tabular}
-
-\textbf{Defense Special:} {{combat.defenseSpecial}} \\
-\textbf{Run:} {{movement.run}} \hfill \textbf{Max Dex:} {{combat.maxDex}} \\
-
-\subsection*{Saves}
-\begin{tabular}{|l|r|p{5.3in}|}
-\hline
-Save & Final & Components \\
-\hline
-Fortitude & {{saves.fortitude}} & {{saves.fortitude.breakdown}} \\
-Reflex & {{saves.reflex}} & {{saves.reflex.breakdown}} \\
-Will & {{saves.will}} & {{saves.will.breakdown}} \\
+Name & {{character.name}} \\
+Player & {{character.player}} \\
+Race & {{character.race}} \\
+Alignment & {{character.alignment}} \\
+Classes & {{character.classes}} \\
+Level & {{character.level}} \\
+Size & {{character.size}} \\
+Sex & {{character.sex}} \\
+Age & {{character.age}} \\
+Height & {{character.height}} \\
+Weight & {{character.weight}} \\
+Eyes & {{character.eyes}} \\
+Hair & {{character.hair}} \\
+Build & {{character.build}} \\
 \hline
 \end{tabular}
 
@@ -57,18 +39,58 @@ WIS & {{abilities.wisdom.score}} & {{abilities.wisdom.mod}} \\
 CHA & {{abilities.charisma.score}} & {{abilities.charisma.mod}} \\
 \hline
 \end{tabular}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.34\linewidth}
+\subsection*{Combat Snapshot}
+\begin{tabular}{|l|r|p{0.45\linewidth}|}
+\hline
+Field & Final & Components \\
+\hline
+HP & {{combat.hp}} & {{combat.hp.breakdown}} \\
+AC & {{combat.ac}} & {{combat.ac.breakdown}} \\
+Touch AC & {{combat.touchAc}} & {{combat.touchAc.breakdown}} \\
+Flat-Footed AC & {{combat.flatFootedAc}} & {{combat.flatFootedAc.breakdown}} \\
+ACP & {{combat.acp}} & {{combat.acp.breakdown}} \\
+Initiative & {{combat.initiative}} & {{combat.initiative.breakdown}} \\
+Speed & {{movement.speed}} & {{movement.speed.breakdown}} \\
+\hline
+\end{tabular}
 
-\subsection*{Skills (Detailed Breakdown)}
-\small {{skills.summaryDetailed}} \normalsize
+\textbf{Defense Special:} {{combat.defenseSpecial}} \\
+\textbf{Run:} {{movement.run}} \quad \textbf{Max Dex:} {{combat.maxDex}} \\
 
-\subsection*{Writable Encounter Notes}
-\begin{tabular}{|p{6.8in}|}
+\subsection*{Saves}
+\begin{tabular}{|l|r|p{0.45\linewidth}|}
+\hline
+Save & Final & Components \\
+\hline
+Fortitude & {{saves.fortitude}} & {{saves.fortitude.breakdown}} \\
+Reflex & {{saves.reflex}} & {{saves.reflex.breakdown}} \\
+Will & {{saves.will}} & {{saves.will.breakdown}} \\
+\hline
+\end{tabular}
+
+\subsection*{Encounter Notes}
+\begin{tabular}{|p{0.95\linewidth}|}
 \hline
 \rule{0pt}{1.0em}Conditions, temporary effects, and in-combat adjustments: \\
 \\
-\\
 \hline
 \end{tabular}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.36\linewidth}
+\noindent\textbf{Skills}\\[2pt]
+{\renewcommand{\arraystretch}{0.82}
+\begin{tabular}{|l|r|r|p{0.4\linewidth}|}
+\hline
+Skill & Final & Pre-ACP & Sources \\
+\hline
+{{{skills.detailedTable}}}
+\hline
+\end{tabular}}
+\end{minipage}
 
 \newpage
 \section*{Inventory Sheet (Detailed Draft)}
