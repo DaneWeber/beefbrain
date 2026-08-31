@@ -16,6 +16,46 @@ import type {
 const DEFAULT_MAX_YAML_BYTES = 256 * 1024
 const DEFAULT_MAX_TEMPLATE_BYTES = 256 * 1024
 
+const COMPONENT_LABELS: Record<string, string> = {
+  str: 'Str',
+  dex: 'Dex',
+  con: 'Con',
+  int: 'Int',
+  wis: 'Wis',
+  cha: 'Cha',
+  ranks: 'Ranks',
+  feat: 'Feat',
+  feats: 'Feats',
+  acp: 'ACP',
+  bab: 'BAB',
+  base: 'Base',
+  class: 'Class',
+  racial: 'Racial',
+  armor: 'Armor',
+  shield: 'Shield',
+  misc: 'Misc',
+}
+
+const COMPONENT_SORT_ORDER = [
+  'str',
+  'dex',
+  'con',
+  'int',
+  'wis',
+  'cha',
+  'ranks',
+  'class',
+  'racial',
+  'feat',
+  'feats',
+  'bab',
+  'base',
+  'armor',
+  'shield',
+  'acp',
+  'misc',
+]
+
 function getArrayFirst(value: unknown): string | number {
   if (Array.isArray(value) && value.length > 0) {
     const first = value[0]
@@ -60,22 +100,147 @@ function toRecord(value: unknown): Record<string, unknown> {
   return {}
 }
 
+function formatTitleKey(key: string): string {
+  return key
+    .split('-')
+    .map((part) => {
+      if (part.length === 0) {
+        return part
+      }
+      return part.charAt(0).toUpperCase() + part.slice(1)
+    })
+    .join(' ')
+}
+
+function formatSigned(value: unknown): string {
+  const numeric = Number(value)
+  if (Number.isFinite(numeric)) {
+    return numeric >= 0 ? `+${numeric}` : String(numeric)
+  }
+  return String(value)
+}
+
+function formatComponentKey(key: string): string {
+  return COMPONENT_LABELS[key] ?? formatTitleKey(key)
+}
+
 function formatEffects(value: unknown): string {
   const record = toRecord(value)
   const entries = Object.entries(record)
   if (entries.length === 0) {
     return ''
   }
-  return entries.map(([key, val]) => `${key}=${String(val)}`).join('; ')
+  return entries
+    .map(([key, val]) => `${formatComponentKey(key)}=${String(val)}`)
+    .join(', ')
 }
 
-function formatSkills(skills: Record<string, unknown>): string {
+function extractBreakdown(value: unknown): Record<string, unknown> {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    return value as Record<string, unknown>
+  }
+
+  if (!Array.isArray(value)) {
+    return {}
+  }
+
+  const combined: Record<string, unknown> = {}
+  for (let i = 1; i < value.length; i++) {
+    const item = value[i]
+    if (item && typeof item === 'object' && !Array.isArray(item)) {
+      Object.assign(combined, item)
+    }
+  }
+  return combined
+}
+
+function sortComponentEntries(
+  entries: [string, unknown][],
+): [string, unknown][] {
+  const rank = new Map(COMPONENT_SORT_ORDER.map((key, index) => [key, index]))
+  return entries.sort(([a], [b]) => {
+    const aRank = rank.has(a)
+      ? (rank.get(a) as number)
+      : Number.MAX_SAFE_INTEGER
+    const bRank = rank.has(b)
+      ? (rank.get(b) as number)
+      : Number.MAX_SAFE_INTEGER
+    if (aRank !== bRank) {
+      return aRank - bRank
+    }
+    return a.localeCompare(b)
+  })
+}
+
+function formatBreakdown(value: unknown): string {
+  const entries = sortComponentEntries(
+    Object.entries(extractBreakdown(value)).filter(
+      ([key]) => !key.startsWith('_'),
+    ),
+  )
+  if (entries.length === 0) {
+    return 'none'
+  }
+
+  return entries
+    .map(([key, componentValue]) => {
+      return `${formatComponentKey(key)} ${formatSigned(componentValue)}`
+    })
+    .join(', ')
+}
+
+function formatSkillComponent(
+  key: string,
+  value: unknown,
+  includeRankSources: boolean,
+): string {
+  if (key === 'ranks' && Array.isArray(value)) {
+    const rankTotal = value[0]
+    const rankSources = toRecord(value[1])
+    const rankText = `${formatComponentKey(key)} ${formatSigned(rankTotal)}`
+    if (!includeRankSources || Object.keys(rankSources).length === 0) {
+      return rankText
+    }
+    const rankSourceText = Object.entries(rankSources)
+      .map(([source, points]) => `${formatTitleKey(source)} ${points}`)
+      .join(', ')
+    return `${rankText} (${rankSourceText})`
+  }
+
+  return `${formatComponentKey(key)} ${formatSigned(value)}`
+}
+
+function formatSkills(
+  skills: Record<string, unknown>,
+  includeRankSources: boolean,
+): string {
   const rows = Object.entries(skills)
     .filter(([key]) => !key.startsWith('_'))
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([key, value]) => `${key}: ${String(getArrayFirst(value))}`)
+    .map(([skillName, skillValue]) => {
+      const total = formatSigned(getArrayFirst(skillValue))
+      const components = sortComponentEntries(
+        Object.entries(extractBreakdown(skillValue)).filter(
+          ([component]) => !component.startsWith('_'),
+        ),
+      )
+      const componentText =
+        components.length === 0
+          ? ''
+          : ` (${components
+              .map(([component, componentValue]) =>
+                formatSkillComponent(
+                  component,
+                  componentValue,
+                  includeRankSources,
+                ),
+              )
+              .join(', ')})`
 
-  return rows.length > 0 ? rows.join(', ') : 'None listed'
+      return `${formatTitleKey(skillName)} ${total}${componentText}`
+    })
+
+  return rows.length > 0 ? rows.join('; ') : 'None listed'
 }
 
 function hasMagicIndicators(
@@ -135,6 +300,117 @@ function formatEquippedMagicItems(inventory: Record<string, unknown>): string {
   return items.length > 0 ? items.join('; ') : 'None listed'
 }
 
+function formatItemsByContainer(inventory: Record<string, unknown>): string {
+  const entries = Object.entries(inventory).filter(
+    ([key, value]) =>
+      !key.startsWith('_') && key !== 'money' && Array.isArray(value),
+  )
+  if (entries.length === 0) {
+    return 'None listed'
+  }
+
+  return entries
+    .map(([container, value]) => {
+      const items = Array.isArray(value) ? value : []
+      const summarized = items
+        .filter((entry): entry is unknown[] => Array.isArray(entry))
+        .map((entry) => {
+          const name = String(entry[0] ?? 'Unknown item')
+          const qty = Number(entry[1] ?? 1)
+          return qty > 1 ? `${name} x${qty}` : name
+        })
+      const itemText = summarized.length > 0 ? summarized.join(', ') : 'None'
+      return `${formatTitleKey(container)}: ${itemText}`
+    })
+    .join('; ')
+}
+
+function formatSpellsSummary(spellsValue: unknown): string {
+  const spells = toRecord(spellsValue)
+  const classes = Object.entries(spells).filter(
+    ([key, value]) =>
+      !key.startsWith('_') && value && typeof value === 'object',
+  )
+  if (classes.length === 0) {
+    return 'No spellcasting data'
+  }
+
+  return classes
+    .map(([className, classData]) => {
+      const classRecord = toRecord(classData)
+      const casting = Array.isArray(classRecord.casting)
+        ? classRecord.casting
+        : []
+      const castingMode = casting.length > 0 ? String(casting[0]) : 'unknown'
+      const castingAbility =
+        casting.length > 1 ? String(casting[1]).toUpperCase() : 'N/A'
+      const domains = Array.isArray(classRecord.domains)
+        ? classRecord.domains.map((entry) => String(entry)).join(', ')
+        : ''
+      const domainText = domains.length > 0 ? `; domains ${domains}` : ''
+      return `${formatTitleKey(className)}: ${castingMode} via ${castingAbility}${domainText}`
+    })
+    .join(' | ')
+}
+
+function formatSpellSlotsSummary(spellsValue: unknown): string {
+  const spells = toRecord(spellsValue)
+  const classes = Object.entries(spells).filter(
+    ([key, value]) =>
+      !key.startsWith('_') && value && typeof value === 'object',
+  )
+  if (classes.length === 0) {
+    return 'No spell slot data'
+  }
+
+  return classes
+    .map(([className, classData]) => {
+      const slots = toRecord(toRecord(classData).slots)
+      const levels = Object.keys(slots).sort((a, b) => Number(a) - Number(b))
+      if (levels.length === 0) {
+        return `${formatTitleKey(className)}: no slots listed`
+      }
+
+      const slotText = levels
+        .map((level) => `${level}:${String(getArrayFirst(slots[level]))}`)
+        .join(', ')
+      return `${formatTitleKey(className)} slots ${slotText}`
+    })
+    .join(' | ')
+}
+
+function formatPreparedSpellsSummary(spellsValue: unknown): string {
+  const spells = toRecord(spellsValue)
+  const classes = Object.entries(spells).filter(
+    ([key, value]) =>
+      !key.startsWith('_') && value && typeof value === 'object',
+  )
+  if (classes.length === 0) {
+    return 'No prepared spell data'
+  }
+
+  return classes
+    .map(([className, classData]) => {
+      const prepared = toRecord(toRecord(classData).prepared)
+      const levels = Object.keys(prepared).sort((a, b) => Number(a) - Number(b))
+      if (levels.length === 0) {
+        return `${formatTitleKey(className)}: no prepared list`
+      }
+      const preparedByLevel = levels
+        .map((level) => {
+          const spellsAtLevel = Array.isArray(prepared[level])
+            ? (prepared[level] as unknown[])
+                .map((entry) => String(entry))
+                .join(', ')
+            : String(prepared[level])
+          return `${level}[${spellsAtLevel}]`
+        })
+        .join('; ')
+      return `${formatTitleKey(className)} prepared ${preparedByLevel}`
+    })
+    .join(' | ')
+}
+
 function getClassSummary(characterData: Record<string, unknown>): string {
   const levels = characterData.levels
   if (!levels || typeof levels !== 'object' || Array.isArray(levels)) {
@@ -177,6 +453,7 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
   const hpContainer = (characterData.levels ?? {}) as Record<string, unknown>
   const skillsContainer = toRecord(characterData.skills)
   const inventoryContainer = toRecord(characterData.inventory)
+  const spellsContainer = toRecord(characterData.spells)
 
   return {
     'character.name': String(description.name ?? 'Unknown'),
@@ -233,23 +510,43 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     ),
 
     'combat.hp': getArrayFirst(hpContainer.hp),
+    'combat.hp.breakdown': formatBreakdown(hpContainer.hp),
     'combat.ac': getArrayFirst(defense.ac),
+    'combat.ac.breakdown': formatBreakdown(defense.ac),
     'combat.touchAc': getArrayFirst(defense['touch-ac']),
+    'combat.touchAc.breakdown': formatBreakdown(defense['touch-ac']),
     'combat.flatFootedAc': getArrayFirst(defense['flat-footed-ac']),
+    'combat.flatFootedAc.breakdown': formatBreakdown(defense['flat-footed-ac']),
     'combat.acp': getArrayFirst(defense.acp),
+    'combat.acp.breakdown': formatBreakdown(defense.acp),
     'combat.maxDex': getArrayFirst(defense['max-dex']),
     'combat.initiative': getArrayFirst(combat.initiative),
+    'combat.initiative.breakdown': formatBreakdown(combat.initiative),
     'combat.defenseSpecial': String(defense.special ?? 'None'),
 
     'saves.fortitude': getArrayFirst(savesContainer.fortitude),
+    'saves.fortitude.breakdown': formatBreakdown(savesContainer.fortitude),
     'saves.reflex': getArrayFirst(savesContainer.reflex),
+    'saves.reflex.breakdown': formatBreakdown(savesContainer.reflex),
     'saves.will': getArrayFirst(savesContainer.will),
+    'saves.will.breakdown': formatBreakdown(savesContainer.will),
 
     'movement.speed': getArrayFirst(movement.speed),
+    'movement.speed.breakdown': formatBreakdown(movement.speed),
     'movement.run': getArrayFirst(movement.run),
-    'skills.summary': formatSkills(skillsContainer),
+    'movement.load': getArrayFirst(movement.load),
+    'movement.capacity': formatEffects(movement.capacity),
+
+    'skills.summary': formatSkills(skillsContainer, false),
+    'skills.summaryDetailed': formatSkills(skillsContainer, true),
+
     'inventory.equippedMagicItems':
       formatEquippedMagicItems(inventoryContainer),
+    'inventory.itemsByContainer': formatItemsByContainer(inventoryContainer),
+
+    'spells.summary': formatSpellsSummary(spellsContainer),
+    'spells.slotsSummary': formatSpellSlotsSummary(spellsContainer),
+    'spells.preparedSummary': formatPreparedSpellsSummary(spellsContainer),
   }
 }
 
