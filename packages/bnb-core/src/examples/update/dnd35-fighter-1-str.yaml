@@ -80,9 +80,9 @@ character:
     use-rope: [1, { dex: 1 }]
   special:
     feats:
-      - [Weapon Focus (Longsword), { fighter: 1 }, ['combat.attack.melee[longsword]', { atk: 1, note: 'weapon-focus-longsword' }]]
-      - [Blind-Fight, { level: 1 }, ['combat.defense', 'blind-fight', 'combat.attack.melee', 'blind-fight']]
-      - [Improved Initiative, { human: 1 }, ['combat.initiative', 4]]
+      - [Weapon Focus (Longsword), { fighter: 1 }, [['combat.attack.melee.longsword[0]', { atk: 1 }, 'weapon-focus-longsword']]]
+      - [Blind-Fight, { level: 1 }, [['combat.defense.special', 'blind-fight'], ['combat.attack.melee._[2]', 'blind-fight']]]
+      - [Improved Initiative, { human: 1 }, [['combat.initiative', { feats: 4 }]]]
   inventory:
     _on: [equipped, pack]
     money:
