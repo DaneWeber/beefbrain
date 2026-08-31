@@ -93,10 +93,24 @@ an effect is applied depends on the shape found there:
 
 Unlike attack bonuses, damage and critical modifiers in this data model aren't simple numeric sums
 — damage is a dice-and-modifier string (`1d8+2 slashing`) and critical is a threat-range string
-(`19-20/x2`). Doubling a threat range or splicing a flat damage bonus into that string requires real
-string composition/parsing logic that doesn't exist yet and wasn't concretely needed for the feature
-that motivated this engine (skill and attack bonuses). Rather than guess at that design under time
-pressure, `[1]`/`[2]` fail loudly so a future change can add them deliberately.
+(`19-20/x2`).
+
+For **melee** damage specifically, the splice mechanism to make this work already exists:
+`propagateToMeleeWeaponDetails` (`packages/bnb-core/src/updateCalculatedFields.ts`) already resums
+element 4 of a named melee weapon tuple (the damage component map, e.g. `{str: 2}`) and re-splices
+the total into the damage string. A future change could merge a bonus into that same element and get
+correct behavior for free. It's deferred in this pass anyway, to keep scope matched to what this
+engine was actually built for (skills and attack bonuses) rather than opportunistically wiring up a
+channel nothing currently asks for. **Ranged** weapons have no equivalent — `propagateToRangedWeaponDetails`
+never reads or resums a damage component map at all — so a damage channel there would need that
+splice mechanism built first, not just reused.
+
+Critical multiplier/threat-range changes have no supporting mechanism anywhere in the codebase for
+either melee or ranged weapons — no code parses or rewrites a critical string like `19-20/x2` today.
+That's genuinely new design work, not a matter of reusing something that already exists.
+
+Rather than guess at either design under time pressure, `[1]`/`[2]` fail loudly (`EffectTargetError`)
+so a future change can add them deliberately, informed by which weapon shape it's targeting.
 
 ## Cleanup on equip/unequip and feat changes
 
