@@ -140,3 +140,6 @@ vite.config.ts.timestamp-*
 
 # PNPM
 .pnpm-store
+
+# GenAI
+.claude
