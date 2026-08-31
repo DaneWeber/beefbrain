@@ -27,7 +27,7 @@ character:
     max-hp: [11, { con: 1, rolls: 10 }]
     fighter: [1, hp: [10], {hd: 10, bab: good, fort: good, ref: poor, will: poor}]
   combat:
-    initiative: [5, { dex: 1, feats: 4 }]
+    initiative: [5, { dex: 1, improved: 4 }]
     saves:
       fortitude: [3, {fighter: 2, con: 1}]
       reflex: [1, {fighter: 0, dex: 1}]
@@ -35,8 +35,8 @@ character:
     attack:
       bab: [1, { fighter: 1 }]
       melee:
-        _: [1, { bab: 1, str: 0 }, ['blind-fight']]
-        longsword: [2, '1d8+0 slashing', '19-20/x2', { _: 1, special: 1 }, { str: 0 }, {}, ['longsword', 'weapon-focus-longsword']]
+        _: [1, { bab: 1, str: 0 }, ['Blind Fight: reroll concealment misses']]
+        longsword: [2, '1d8+0 slashing', '19-20/x2', { _: 1, weapon-focus-longsword: 1 }, { str: 0 }, {}, ['longsword']]
       ranged:
         _: [2, { bab: 1, dex: 1 }]
       grapple: [1, { bab: 1, str: 0 }]
@@ -46,12 +46,13 @@ character:
       flat-footed-ac: [17, { base: 10 }, { armor: 5 }, { shield: 2 }]
       acp: [-4, { armor: -2 }, { shield: -2 }]
       max-dex: [3, { medium-load: 3 }]
-      special: ['blind-fight']
+      special: ['Blind Fight: no advantage to invisible melee attackers']
   movement:
     speed: [20, { base: 30, medium-load: -10 }]
     run: [80, { base: x4 }]
     load: [75.5 lbs, {equipped: 49 lbs, pack: 26.5 lbs}]
     capacity: { light: 33 lbs, medium: 66 lbs, heavy: 100 lbs, lift: 200 lbs, drag: 600 lbs }
+    special: ['Blind Fight: 1/2 penalty when unable to see']
   skills:
     _ranks: [12, { fighter: 8, int: 0, human: 4, cc: -2 }]
     appraise: [2, { int: 0, ranks: 2 }]
@@ -80,16 +81,16 @@ character:
     use-rope: [1, { dex: 1 }]
   special:
     feats:
-      - [Weapon Focus (Longsword), { fighter: 1 }, [['combat.attack.melee.longsword[0]', { atk: 1 }, 'weapon-focus-longsword']]]
-      - [Blind-Fight, { level: 1 }, [['combat.defense.special', 'blind-fight'], ['combat.attack.melee._[2]', 'blind-fight']]]
-      - [Improved Initiative, { human: 1 }, [['combat.initiative', { feats: 4 }]]]
+      - [Weapon Focus (Longsword), { fighter: 1 }, [['combat.attack.melee.longsword[0]', { weapon-focus-longsword: 1 }]]]
+      - [Blind-Fight, { level: 1 }, [['combat.defense.special', 'Blind Fight: no advantage to invisible melee attackers'], ['combat.attack.melee._', 'Blind Fight: reroll concealment misses'], ['movement.special', 'Blind Fight: 1/2 penalty when unable to see']]]
+      - [Improved Initiative, { human: 1 }, [['combat.initiative', { improved: 4 }]]]
   inventory:
     _on: [equipped, pack]
     money:
       _total: 20.5 gp
       coins: [20.5 gp, 0.5 lbs, pack, { pp: 0, gp: 20, sp: 5, cp: 0 }, 0.02 lbs]
     equipped:
-      - [longsword, 1, weapon, 4 lbs, 15 gp, { damage: '1d8 slashing', crit: '19-20/x2' }, [m, martial, melee]]
+      - [longsword, 1, weapon, 4 lbs, 15 gp, { melee: [0, '1d8 slashing', '19-20/x2'] }, [m, martial, melee, longsword]]
       - [chain shirt, 1, armor, 25 lbs, 100 gp, { ac: 5, max-dex: 4, acp: -2, asfc: 20% }, [m, light-armor]]
       - [heavy steel shield, 1, shield, 15 lbs, 30 gp, { ac: 2, acp: -2, asfc: 15% }, [m]]
       - [travelers outfit, 1, gear, 5 lbs, 1 gp, [m]]
