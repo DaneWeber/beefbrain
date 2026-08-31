@@ -34,17 +34,19 @@ hand-edit character sheets without learning a schema. An effect is a plain array
 
 - **`targetPath`** (string, required) — a dot-separated path rooted at `character`, e.g.
   `skills.use-magic-device`, `combat.initiative`, `combat.defense.special`. No leading dot, no
-  `character.` prefix. The last segment may carry a bracket suffix (`combat.attack.melee.longsword[0]`)
-  — see "Target shapes" below for what the bracket means.
-- **`bonusDict`** (plain object, optional) — keys are bonus-source names chosen by whoever is
-  authoring the sheet (`atk`, `magic-ring`, `feats`, ...), values are numbers. Merged directly into
-  the target's existing component map — there is no `bonus:` wrapper key.
-- **`noteString`** (string, optional) — a human-readable reminder. If `bonusDict` is also present,
-  the note is merged into the *same* component map under a `note` key (this reproduces the exact
-  shape the old inert fixture data already used: `{atk: 1, note: weapon-focus-longsword}`). If no
-  `bonusDict` is given and the target resolves to an array, the note is pushed into that array as a
-  tag instead (creating the array if it doesn't exist) — this is how `combat.defense.special:
-  [blind-fight]` gets populated.
+  `character.` prefix. A bracket suffix (`combat.attack.melee.longsword[0]`) is used **only** to pick
+  a numeric channel on a named weapon — see "Target shapes" below. Every other target is written with
+  no bracket at all, including tag/note pushes.
+- **`bonusDict`** (plain object, optional) — **key names should identify the source** (the feat or
+  item name, slugified: `weapon-focus-longsword`, `magic-ring`), not a generic category
+  (`atk`, `feats`). Values are numbers. Merged directly into the target's existing component map —
+  there is no `bonus:` wrapper key, and no separate `note` needed alongside it: the key name itself
+  documents what the bonus is. Naming keys this way is what makes same-key collisions between
+  unrelated sources rare in practice (see "Known limitation" below).
+- **`noteString`** (string, optional) — a human-readable reminder, written as a full sentence
+  (`"Blind Fight: reroll concealment misses"`), not a terse slug. Used on its own (no `bonusDict`)
+  when a feat/item has a real rules effect that isn't a simple numeric bonus. The engine figures out
+  where it goes from the target's shape — see `applyNoteOnly` below — no bracket needed.
 
 A feat is `[name, source, effects?]`. An item is `[name, qty, category, weight, price, props?, tags?,
 effects?]` — effects is the item tuple's new (optional) 8th element, after tags. `effects` in both
@@ -53,15 +55,15 @@ cases is a list of zero or more of the arrays above.
 ```yaml
 special:
   feats:
-    - [Weapon Focus (Longsword), fighter: 1, [["combat.attack.melee.longsword[0]", {atk: 1}, weapon-focus-longsword]]]
-    - [Blind-Fight, level: 1, [[combat.defense.special, blind-fight], ["combat.attack.melee._[2]", blind-fight]]]
-    - [Improved Initiative, human: 1, [[combat.initiative, {feats: 4}]]]
+    - [Weapon Focus (Longsword), fighter: 1, [["combat.attack.melee.longsword[0]", {weapon-focus-longsword: 1}]]]
+    - [Blind-Fight, level: 1, [[combat.defense.special, "Blind Fight: no advantage to invisible melee attackers"], [combat.attack.melee._, "Blind Fight: reroll concealment misses"], [movement.special, "Blind Fight: 1/2 penalty when unable to see"]]]
+    - [Improved Initiative, human: 1, [[combat.initiative, {improved: 4}]]]
 inventory:
   equipped:
     - [ring of use magic device, 1, wondrous, 0 lbs, 5000 gp, {}, [], [[skills.use-magic-device, {magic-ring: 5}]]]
 ```
 
-Note the quotes around any path with a bracket suffix (`"combat.attack.melee.longsword[0]"`) — YAML's flow-sequence syntax treats an unquoted `[` as the start of a nested sequence, so a bracket-suffixed path must be quoted to parse as a single string.
+Note the quotes around any path with a bracket suffix (`"combat.attack.melee.longsword[0]"`) — YAML's flow-sequence syntax treats an unquoted `[` as the start of a nested sequence, so a bracket-suffixed path must be quoted to parse as a single string. Paths with no bracket don't need quoting.
 
 Feats/items with no meaningful calculable or displayable target simply omit `effects` entirely
 (e.g. `[Exotic Weapon Proficiency (Bastard Sword), fighter: 1]`) — there is no obligation to model
@@ -69,27 +71,43 @@ every rules text as an effect.
 
 ## Target shapes and bracket semantics
 
-The engine resolves a path's segments via plain property access on `character`. Once resolved, how
-an effect is applied depends on the shape found there:
+The engine resolves a path's segments via plain property access on `character`. What happens next
+depends on whether the effect carries a `bonusDict` or just a `noteString`, and on the shape found at
+the target.
+
+**Bonus effects** (`bonusDict` present) always need a `[total, {mods}]`-shaped target:
 
 1. **Plain `[total, {mods}]`** — skills, saves, initiative, speed, grapple, AC / touch-AC /
-   flat-footed-AC, ACP. No bracket needed. `bonusDict`/`note` merge into `mods` (element 1), the
-   total is resummed via `sumValues` and written back to element 0.
-2. **Generic attack `[total, {mods}, [tags]]`** (e.g. `combat.attack.melee._`) — bonus case is
-   identical to shape 1 (mods still at element 1). A bracket of `[2]` on a note-only effect addresses
-   the tags array literal-positionally (`combat.attack.melee._[2]`).
-3. **Named weapon `[total, damage, critical, {atkMods}, {abilityMod}, {dmgMods}, [tags]]`** (e.g.
-   `combat.attack.melee.longsword`) — the bracket is **required** here and is a semantic channel
-   selector, not a literal array index:
-   - `[0]` — attack bonus. Merges `bonusDict`/`note` into element 3 (`atkMods`), resums into element 0.
-   - `[1]` — damage bonus. **Not implemented.** Throws `EffectTargetError`.
-   - `[2]` — critical multiplier change. **Not implemented.** Throws `EffectTargetError`.
-   - A literal array-index bracket (e.g. `[6]` for the tags array) still works for a note-only push,
-     same as shape 2.
-4. **Anything else** — including ability score components — throws `EffectTargetError`. Ability
+   flat-footed-AC, ACP, and the mods element (index 1) of a generic attack tuple
+   (`combat.attack.melee._`). No bracket needed. `bonusDict` merges into `mods`, the total is resummed
+   via `sumValues` and written back to element 0.
+2. **Named weapon, attack channel** (`combat.attack.melee.longsword[0]`) — a named weapon tuple
+   (`[total, damage, critical, {atkMods}, {abilityMod}, {dmgMods}, [tags]]`) has three numeric
+   "slots" (attack/damage/critical), so a bonus there requires the `[0]` bracket to say which one:
+   merges into element 3 (`atkMods`), resums into element 0. `[1]` (damage) and `[2]` (critical) are
+   **not implemented** and throw `EffectTargetError` — see below. A bracket anywhere else (a
+   non-weapon target, or any index but 0/1/2) also throws.
+3. **Anything else** — including ability score components — throws `EffectTargetError`. Ability
    scores are deliberately out of scope: they're already owned by `propagateEquipmentToAbilities`
    and are resummed with the stricter `sumOfValues`, which (unlike `sumValues`) does not tolerate a
-   non-numeric `note` value sitting in the same component map.
+   non-numeric value sitting in the same component map.
+
+**Note-only effects** (no `bonusDict`) never use a bracket — there's no numeric channel to
+disambiguate, so the target's own shape says where the note goes (`applyNoteOnly` in
+`propagateEffects.ts`):
+
+- Target doesn't exist yet → create it as a fresh `[note]` tag list (how `movement.special` gets
+  populated the first time a feat references it).
+- Target is already a flat tag list (`combat.defense.special: [...]`) → push the note onto it.
+- Target is a tuple whose *last* element is itself an array (`combat.attack.melee._: [total, {mods},
+  [tags]]`, and this also covers a named weapon's trailing tags array) → push the note onto that
+  trailing array, not the mods object.
+- Target is a plain `[total, {mods}]` tuple with no trailing array → merge the note into `mods` under
+  a `note` key. This is a rare fallback; most note-worthy targets have a dedicated tag list.
+
+This means the exact same `combat.attack.melee._` path takes a bonus at element 1 (no bracket) but
+takes a note at element 2 (also no bracket) — the presence of `bonusDict` vs `noteString` on the
+effect itself, not a bracket, decides which.
 
 ### Why damage and critical channels are deferred
 
@@ -140,15 +158,15 @@ manually clearing the value it wrote, the same as removing any other hand-mainta
 
 ## Known limitation: same-key collisions
 
-Bonus keys are author-chosen, not auto-generated, so two unrelated sources can legally choose the
-same key at the same target (e.g. two different feats both writing `feats: 4` onto
-`combat.initiative`). The engine does not sum same-key contributions from different sources — the
-last one applied wins. This isn't a new problem introduced by this engine: BeefBrain's component
-keys are already categorical labels (`feats`, `racial`, `class`) rather than per-source-unique
-identifiers, so this ambiguity predates this feature. It is not solved here; if it becomes a real
-problem, the fix belongs in a follow-up that gives colliding sources a way to combine rather than
-overwrite (e.g. summing when the existing value and the new value are both plain numbers under a
-known category key).
+Bonus keys are author-chosen, not auto-generated, so two unrelated sources can still legally choose
+the same key at the same target — the engine does not sum same-key contributions from different
+sources, the last one applied wins. **Naming bonus keys after their source** (`weapon-focus-longsword`,
+`magic-ring`) rather than a generic category (`atk`, `feats`) is how this is avoided in practice: two
+different feats/items essentially never share a slugified name. This isn't a rule the engine enforces
+— it's a convention — so it's still possible to collide by choosing the same generic key on purpose,
+same as BeefBrain's older categorical component keys (`feats`, `racial`, `class`) always could. If
+colliding contributions ever need to legitimately stack, that's a follow-up (summing when both values
+are plain numbers under a shared key), not something this pass solves.
 
 ## Out of scope
 

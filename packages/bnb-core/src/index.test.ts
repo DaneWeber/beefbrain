@@ -733,7 +733,7 @@ character:
           ).toBeUndefined()
           expect(output.character.skills['use-magic-device'][0]).toBe(14)
         })
-        it('should merge a feat attack-bonus effect into a named weapon and resum it', () => {
+        it('should merge a source-named feat attack-bonus effect into a named weapon and resum it', () => {
           const yamlContent = `---
 character:
   abilities:
@@ -744,15 +744,14 @@ character:
         longsword: [3, 1d8+2 slashing, 19-20/x2, {_: 3}, str: 2, {}, [longsword]]
   special:
     feats:
-      - [Weapon Focus (Longsword), fighter: 1, [["combat.attack.melee.longsword[0]", {atk: 1}, weapon-focus-longsword]]]
+      - [Weapon Focus (Longsword), fighter: 1, [["combat.attack.melee.longsword[0]", {weapon-focus-longsword: 1}]]]
 `
           const output = parseYAML(updateCalculatedFields(yamlContent))
           const longsword = output.character.combat.attack.melee.longsword
-          expect(longsword[3].atk).toBe(1)
-          expect(longsword[3].note).toBe('weapon-focus-longsword')
+          expect(longsword[3]['weapon-focus-longsword']).toBe(1)
           expect(longsword[0]).toBe(4)
         })
-        it('should push note-only feat effects into tag arrays without changing totals', () => {
+        it('should push note-only feat effects into tag arrays without a bracket', () => {
           const yamlContent = `---
 character:
   abilities:
@@ -760,21 +759,26 @@ character:
   combat:
     attack:
       melee:
-        _: [0, {bab: 0, str: 0}]
+        _: [0, {bab: 0, str: 0}, []]
     defense:
       ac: [10, base: 10]
       touch-ac: [10, base: 10]
       flat-footed-ac: [10, base: 10]
+  movement:
+    speed: [30, base: 30]
   special:
     feats:
-      - [Blind-Fight, level: 1, [[combat.defense.special, blind-fight], ["combat.attack.melee._[2]", blind-fight]]]
+      - [Blind-Fight, level: 1, [[combat.defense.special, 'Blind Fight: no advantage to invisible melee attackers'], [combat.attack.melee._, 'Blind Fight: reroll concealment misses'], [movement.special, 'Blind Fight: 1/2 penalty when unable to see']]]
 `
           const output = parseYAML(updateCalculatedFields(yamlContent))
           expect(output.character.combat.defense.special).toEqual([
-            'blind-fight',
+            'Blind Fight: no advantage to invisible melee attackers',
           ])
           expect(output.character.combat.attack.melee._[2]).toEqual([
-            'blind-fight',
+            'Blind Fight: reroll concealment misses',
+          ])
+          expect(output.character.movement.special).toEqual([
+            'Blind Fight: 1/2 penalty when unable to see',
           ])
           expect(output.character.combat.attack.melee._[0]).toBe(0)
         })

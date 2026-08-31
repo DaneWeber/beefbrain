@@ -90,7 +90,7 @@ character:
       _total: 20.5 gp
       coins: [20.5 gp, 0.5 lbs, pack, { pp: 0, gp: 20, sp: 5, cp: 0 }, 0.02 lbs]
     equipped:
-      - [longsword, 1, weapon, 4 lbs, 15 gp, { melee: [0, '1d8 slashing', '19-20/x2'] }, [m, martial, melee, longsword]]
+      - [longsword, 1, weapon, 4 lbs, 15 gp, { damage: '1d8 slashing', crit: '19-20/x2' }, [m, martial, melee]]
       - [chain shirt, 1, armor, 25 lbs, 100 gp, { ac: 5, max-dex: 4, acp: -2, asfc: 20% }, [m, light-armor]]
       - [heavy steel shield, 1, shield, 15 lbs, 30 gp, { ac: 2, acp: -2, asfc: 15% }, [m]]
       - [travelers outfit, 1, gear, 5 lbs, 1 gp, [m]]

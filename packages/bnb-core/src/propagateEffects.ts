@@ -138,24 +138,53 @@ function pushTagIfMissing(tags: unknown[], note: string): boolean {
   return true
 }
 
-function applyToArraySlot(
-  container: unknown[],
-  index: number,
+/**
+ * Applies a note-only effect (no bonus dict). No bracket is needed: the target
+ * shape tells the engine where the note goes.
+ *   - undefined            -> create a fresh [note] tag list.
+ *   - a flat tag list      -> push the note onto it (combat.defense.special).
+ *   - [total, {mods}, [tags]] -> push the note onto the trailing tags array
+ *     (combat.attack.melee._), since a note carries no ambiguity about which
+ *     "channel" it belongs to.
+ *   - a plain [total, {mods}] with no trailing array -> fall back to a `note`
+ *     key inside mods (rare; most targets with a note have a dedicated array).
+ */
+function applyNoteOnly(
+  parent: Record<string, unknown>,
+  key: string,
   path: string,
-  note: string | undefined,
+  note: string,
 ): boolean {
-  if (note === undefined) return false
+  const existing = parent[key]
 
-  if (index === container.length) {
-    container.push([])
+  if (existing === undefined) {
+    parent[key] = [note]
+    return true
   }
-  const slot = container[index]
-  if (!Array.isArray(slot)) {
+
+  if (!Array.isArray(existing)) {
     throw new EffectTargetError(
-      `Effect target "${path}" does not resolve to an array.`,
+      `Effect target "${path}" does not resolve to a value this engine can attach a note to.`,
     )
   }
-  return pushTagIfMissing(slot, note)
+
+  if (typeof existing[0] !== 'number') {
+    // Already a flat tag list, e.g. combat.defense.special: [blind-fight].
+    return pushTagIfMissing(existing, note)
+  }
+
+  const last = existing[existing.length - 1]
+  if (Array.isArray(last)) {
+    return pushTagIfMissing(last, note)
+  }
+
+  const tuple = getModsTuple(existing)
+  if (!tuple) {
+    throw new EffectTargetError(
+      `Effect target "${path}" does not resolve to a value this engine can attach a note to.`,
+    )
+  }
+  return mergeIntoMods(tuple.mods, undefined, note)
 }
 
 function applyWithoutBracket(
@@ -175,32 +204,20 @@ function applyWithoutBracket(
     }
     const modsChanged = mergeIntoMods(tuple.mods, effect.bonus, effect.note)
     if (!modsChanged) return false
-    const newTotal = sumValues(tuple.mods)
-    parent[key] = [newTotal, tuple.mods]
-    return newTotal !== tuple.total || modsChanged
-  }
-
-  if (effect.note === undefined) return false
-
-  if (existing === undefined) {
-    parent[key] = [effect.note]
+    parent[key] = [sumValues(tuple.mods), tuple.mods]
     return true
   }
 
-  const tuple = getModsTuple(existing)
-  if (tuple) {
-    return mergeIntoMods(tuple.mods, undefined, effect.note)
-  }
-
-  if (Array.isArray(existing)) {
-    return pushTagIfMissing(existing, effect.note)
-  }
-
-  throw new EffectTargetError(
-    `Effect target "${path}" does not resolve to a value this engine can attach a note to.`,
-  )
+  if (effect.note === undefined) return false
+  return applyNoteOnly(parent, key, path, effect.note)
 }
 
+/**
+ * A bracket is only meaningful on a named weapon, to pick which numeric
+ * channel (attack/damage/critical) an effect targets — everything else
+ * (including note-only tag pushes) is resolved without one; see
+ * applyNoteOnly.
+ */
 function applyWithBracket(
   parent: Record<string, unknown>,
   key: string,
@@ -210,54 +227,41 @@ function applyWithBracket(
 ): boolean {
   const existing = parent[key]
 
-  if (isNamedWeaponTuple(existing)) {
-    if (bracketIndex === 0) {
-      const atkMods = existing[3]
-      if (!isPlainObject(atkMods)) {
-        throw new EffectTargetError(
-          `Effect target "${path}" has no attack-bonus component map at index 3.`,
-        )
-      }
-      const modsChanged = mergeIntoMods(atkMods, effect.bonus, effect.note)
-      if (!modsChanged) return false
-      const newTotal = sumValues(atkMods)
-      const changed = existing[0] !== newTotal || modsChanged
-      existing[0] = newTotal
-      return changed
-    }
-    if (bracketIndex === 1) {
-      throw new EffectTargetError(
-        `Effect target "${path}": damage-bonus channel ([1]) is not implemented yet. ` +
-          'See docs/bnb-core-item-feat-effects.md.',
-      )
-    }
-    if (bracketIndex === 2) {
-      throw new EffectTargetError(
-        `Effect target "${path}": critical-multiplier channel ([2]) is not implemented yet. ` +
-          'See docs/bnb-core-item-feat-effects.md.',
-      )
-    }
-    // Any other bracket index on a named weapon (e.g. the trailing tags array)
-    // is treated as a literal array slot, same as the non-weapon case below.
-    if (effect.bonus) {
-      throw new EffectTargetError(
-        `Effect target "${path}": literal array-index targets only support notes, not numeric bonuses.`,
-      )
-    }
-    return applyToArraySlot(existing, bracketIndex, path, effect.note)
+  if (!isNamedWeaponTuple(existing)) {
+    throw new EffectTargetError(
+      `Effect target "${path}[${bracketIndex}]": a bracket is only valid on a named weapon ` +
+        '(to select the attack/damage/critical channel). Omit the bracket for other targets.',
+    )
   }
 
-  if (!Array.isArray(existing)) {
+  if (bracketIndex === 0) {
+    const atkMods = existing[3]
+    if (!isPlainObject(atkMods)) {
+      throw new EffectTargetError(
+        `Effect target "${path}" has no attack-bonus component map at index 3.`,
+      )
+    }
+    const modsChanged = mergeIntoMods(atkMods, effect.bonus, effect.note)
+    if (!modsChanged) return false
+    existing[0] = sumValues(atkMods)
+    return true
+  }
+  if (bracketIndex === 1) {
     throw new EffectTargetError(
-      `Effect target "${path}" does not resolve to an array.`,
+      `Effect target "${path}": damage-bonus channel ([1]) is not implemented yet. ` +
+        'See docs/bnb-core-item-feat-effects.md.',
     )
   }
-  if (effect.bonus) {
+  if (bracketIndex === 2) {
     throw new EffectTargetError(
-      `Effect target "${path}": literal array-index targets only support notes, not numeric bonuses.`,
+      `Effect target "${path}": critical-multiplier channel ([2]) is not implemented yet. ` +
+        'See docs/bnb-core-item-feat-effects.md.',
     )
   }
-  return applyToArraySlot(existing, bracketIndex, path, effect.note)
+  throw new EffectTargetError(
+    `Effect target "${path}[${bracketIndex}]": only channels 0 (attack), 1 (damage), ` +
+      'and 2 (critical) are meaningful on a named weapon.',
+  )
 }
 
 function applyEffect(
