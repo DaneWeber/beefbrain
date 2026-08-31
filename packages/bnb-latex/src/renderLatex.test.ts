@@ -32,4 +32,19 @@ describe('renderLatex', () => {
       LatexGenerationError,
     )
   })
+
+  it('renders expanded detailed sheet sections', () => {
+    const result = renderLatex({
+      yaml: VALID_YAML,
+      templateKey: 'dnd35-detailed',
+    })
+
+    expect(result.latex).toContain('Character Description')
+    expect(result.latex).toContain('Abilities')
+    expect(result.latex).toContain('Saves and Defenses')
+    expect(result.latex).toContain('Skills')
+    expect(result.latex).toContain('Equipped Magic Items')
+    expect(result.latex).toContain('longsword')
+    expect(result.latex).toContain('appraise')
+  })
 })

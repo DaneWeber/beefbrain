@@ -53,6 +53,88 @@ function getCharacterLevel(levels: Record<string, unknown>): string | number {
   return ''
 }
 
+function toRecord(value: unknown): Record<string, unknown> {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    return value as Record<string, unknown>
+  }
+  return {}
+}
+
+function formatEffects(value: unknown): string {
+  const record = toRecord(value)
+  const entries = Object.entries(record)
+  if (entries.length === 0) {
+    return ''
+  }
+  return entries.map(([key, val]) => `${key}=${String(val)}`).join('; ')
+}
+
+function formatSkills(skills: Record<string, unknown>): string {
+  const rows = Object.entries(skills)
+    .filter(([key]) => !key.startsWith('_'))
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, value]) => `${key}: ${String(getArrayFirst(value))}`)
+
+  return rows.length > 0 ? rows.join(', ') : 'None listed'
+}
+
+function hasMagicIndicators(
+  name: string,
+  effects: Record<string, unknown>,
+  tags: unknown,
+): boolean {
+  if (Object.keys(effects).length > 0) {
+    return true
+  }
+
+  if (name.includes('+')) {
+    return true
+  }
+
+  if (!Array.isArray(tags)) {
+    return false
+  }
+
+  const loweredTags = tags
+    .map((item) => String(item).toLowerCase())
+    .filter((item) => item.length > 0)
+  return loweredTags.some((tag) =>
+    ['magic', 'wondrous', 'ring', 'staff', 'rod', 'wand'].includes(tag),
+  )
+}
+
+function formatEquippedMagicItems(inventory: Record<string, unknown>): string {
+  const equipped = inventory.equipped
+  if (!Array.isArray(equipped)) {
+    return 'None listed'
+  }
+
+  const items = equipped
+    .filter((entry): entry is unknown[] => Array.isArray(entry))
+    .map((entry) => {
+      const name = String(entry[0] ?? 'Unknown item')
+      const quantity = entry[1]
+      const effects = toRecord(entry[5])
+      const tags = entry[entry.length - 1]
+      return {
+        name,
+        quantity: String(quantity ?? 1),
+        effects,
+        tags,
+      }
+    })
+    .filter((item) => hasMagicIndicators(item.name, item.effects, item.tags))
+    .map((item) => {
+      const effectsText = formatEffects(item.effects)
+      if (effectsText.length > 0) {
+        return `${item.name} (qty ${item.quantity}; effects: ${effectsText})`
+      }
+      return `${item.name} (qty ${item.quantity})`
+    })
+
+  return items.length > 0 ? items.join('; ') : 'None listed'
+}
+
 function getClassSummary(characterData: Record<string, unknown>): string {
   const levels = characterData.levels
   if (!levels || typeof levels !== 'object' || Array.isArray(levels)) {
@@ -93,12 +175,23 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
   const movement = (characterData.movement ?? {}) as Record<string, unknown>
   const savesContainer = (combat.saves ?? {}) as Record<string, unknown>
   const hpContainer = (characterData.levels ?? {}) as Record<string, unknown>
+  const skillsContainer = toRecord(characterData.skills)
+  const inventoryContainer = toRecord(characterData.inventory)
 
   return {
     'character.name': String(description.name ?? 'Unknown'),
     'character.player': String(description.player ?? 'Unknown'),
     'character.race': String(description.race ?? 'Unknown'),
     'character.alignment': String(description.alignment ?? 'Unknown'),
+    'character.size': String(description.size ?? 'Unknown'),
+    'character.sex': String(description.sex ?? 'Unknown'),
+    'character.age': String(description.age ?? 'Unknown'),
+    'character.height': String(description.height ?? 'Unknown'),
+    'character.weight': String(description.weight ?? 'Unknown'),
+    'character.eyes': String(description.eyes ?? 'Unknown'),
+    'character.hair': String(description.hair ?? 'Unknown'),
+    'character.complexion': String(description.complexion ?? 'Unknown'),
+    'character.build': String(description.build ?? 'Unknown'),
     'character.classes': getClassSummary(characterData),
     'character.level': getCharacterLevel(hpContainer),
 
@@ -143,7 +236,10 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'combat.ac': getArrayFirst(defense.ac),
     'combat.touchAc': getArrayFirst(defense['touch-ac']),
     'combat.flatFootedAc': getArrayFirst(defense['flat-footed-ac']),
+    'combat.acp': getArrayFirst(defense.acp),
+    'combat.maxDex': getArrayFirst(defense['max-dex']),
     'combat.initiative': getArrayFirst(combat.initiative),
+    'combat.defenseSpecial': String(defense.special ?? 'None'),
 
     'saves.fortitude': getArrayFirst(savesContainer.fortitude),
     'saves.reflex': getArrayFirst(savesContainer.reflex),
@@ -151,6 +247,9 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
 
     'movement.speed': getArrayFirst(movement.speed),
     'movement.run': getArrayFirst(movement.run),
+    'skills.summary': formatSkills(skillsContainer),
+    'inventory.equippedMagicItems':
+      formatEquippedMagicItems(inventoryContainer),
   }
 }
 
