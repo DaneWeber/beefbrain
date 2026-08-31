@@ -116,17 +116,25 @@ so a future change can add them deliberately, informed by which weapon shape it'
 
 Every calculation pass:
 
-1. Collect every `(target, bonusKey)` pair declared by *any* feat and *any* item anywhere in the
-   file, regardless of whether the item is currently equipped. This is the full universe of keys the
-   engine is allowed to touch.
+1. Collect every `(target, bonusKey)` pair declared by *any* feat and *any* item **currently present
+   in the file being calculated**, regardless of whether the item is presently equipped. This is the
+   universe of keys the engine is allowed to touch on this pass.
 2. Delete each such key from its target's component map, if present.
 3. Re-apply only the currently active subset: all feats (feats are always active once granted) plus
    items in the equipped container(s) named by `inventory._on` (the same containers
    `propagateEquipmentToAbilities` already uses).
 4. Resum every touched target via `sumValues`.
 
-This mirrors the existing "clear stale enhancement keys, then reapply" pattern already used by
-`propagateEquipmentToAbilities`, and needs no extra bookkeeping across calculation passes.
+This mirrors the existing "clear stale keys, then reapply" pattern already used by
+`propagateEquipmentToAbilities`, and needs no extra bookkeeping across calculation passes — as long
+as the source that declared a key is still present in the file. **This is a real limitation, not
+just a style note**: because bonus key names are freeform (`magic-ring`, `atk`, `feats`, ...) rather
+than a fixed recognizable pattern (contrast `propagateEquipmentToAbilities`'s `-enhancement` suffix,
+or `propagateToSynergy`'s fixed `synergy-<source>` shape), the engine can only reconcile keys whose
+*declaring effect entry is still in the file*, active or not. If a feat or item is deleted from the
+YAML entirely (not just unequipped), any value it previously wrote is indistinguishable from a value
+the player typed by hand, and is left behind. Removing a feat/item's effect should be paired with
+manually clearing the value it wrote, the same as removing any other hand-maintained bonus.
 
 ## Known limitation: same-key collisions
 
