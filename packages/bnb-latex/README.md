@@ -20,6 +20,10 @@ selected template with safe token substitution.
 - Input size guards for YAML and custom templates
 - Escaped text substitution for LaTeX safety
 
+## Design guidance
+
+- D&D 3.5e print-layout direction: `../../docs/bnb-latex-character-sheet-design.md`
+
 ## PDF prerequisite
 
 `compilePdf` requires `pdflatex` on your system `PATH`.
