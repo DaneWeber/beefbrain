@@ -1,22 +1,53 @@
-export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[10pt]{article}
-\usepackage[margin=0.45in]{geometry}
+export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
+\usepackage[landscape, margin=0.3in]{geometry}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+\setlength{\tabcolsep}{3pt}
 \begin{document}
+\fontsize{14}{16}\selectfont
 \section*{D\&D 3.5 Primary Character Sheet (Detailed Draft)}
+
+\noindent
+\begin{minipage}[t]{0.22\linewidth}
 \subsection*{Character Description}
-\begin{tabular}{|l|l|l|l|}
+\begin{tabular}{|L{0.4\linewidth}|L{0.5\linewidth}|}
 \hline
-Name & {{character.name}} & Player & {{character.player}} \\
-Race & {{character.race}} & Alignment & {{character.alignment}} \\
-Classes & {{character.classes}} & Level & {{character.level}} \\
-Size & {{character.size}} & Sex & {{character.sex}} \\
-Age & {{character.age}} & Height & {{character.height}} \\
-Weight & {{character.weight}} & Eyes & {{character.eyes}} \\
-Hair & {{character.hair}} & Build & {{character.build}} \\
+Name & {{character.name}} \\
+Player & {{character.player}} \\
+Race & {{character.race}} \\
+Alignment & {{character.alignment}} \\
+Classes & {{character.classes}} \\
+Level & {{character.level}} \\
+Size & {{character.size}} \\
+Sex & {{character.sex}} \\
+Age & {{character.age}} \\
+Height & {{character.height}} \\
+Weight & {{character.weight}} \\
+Eyes & {{character.eyes}} \\
+Hair & {{character.hair}} \\
+Build & {{character.build}} \\
 \hline
 \end{tabular}
 
+\subsection*{Abilities}
+\begin{tabular}{|L{0.3\linewidth}|R{0.25\linewidth}|R{0.25\linewidth}|}
+\hline
+Ability & Score & Mod \\
+\hline
+STR & {{abilities.strength.score}} & {{abilities.strength.mod}} \\
+DEX & {{abilities.dexterity.score}} & {{abilities.dexterity.mod}} \\
+CON & {{abilities.constitution.score}} & {{abilities.constitution.mod}} \\
+INT & {{abilities.intelligence.score}} & {{abilities.intelligence.mod}} \\
+WIS & {{abilities.wisdom.score}} & {{abilities.wisdom.mod}} \\
+CHA & {{abilities.charisma.score}} & {{abilities.charisma.mod}} \\
+\hline
+\end{tabular}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.34\linewidth}
 \subsection*{Combat Snapshot}
-\begin{tabular}{|l|r|p{5.3in}|}
+\begin{tabular}{|L{0.25\linewidth}|R{0.13\linewidth}|L{0.5\linewidth}|}
 \hline
 Field & Final & Components \\
 \hline
@@ -31,10 +62,10 @@ Speed & {{movement.speed}} & {{movement.speed.breakdown}} \\
 \end{tabular}
 
 \textbf{Defense Special:} {{combat.defenseSpecial}} \\
-\textbf{Run:} {{movement.run}} \hfill \textbf{Max Dex:} {{combat.maxDex}} \\
+\textbf{Run:} {{movement.run}} \quad \textbf{Max Dex:} {{combat.maxDex}} \\
 
 \subsection*{Saves}
-\begin{tabular}{|l|r|p{5.3in}|}
+\begin{tabular}{|L{0.25\linewidth}|R{0.13\linewidth}|L{0.5\linewidth}|}
 \hline
 Save & Final & Components \\
 \hline
@@ -44,31 +75,26 @@ Will & {{saves.will}} & {{saves.will.breakdown}} \\
 \hline
 \end{tabular}
 
-\subsection*{Abilities}
-\begin{tabular}{|l|r|r|}
-\hline
-Ability & Score & Mod \\
-\hline
-STR & {{abilities.strength.score}} & {{abilities.strength.mod}} \\
-DEX & {{abilities.dexterity.score}} & {{abilities.dexterity.mod}} \\
-CON & {{abilities.constitution.score}} & {{abilities.constitution.mod}} \\
-INT & {{abilities.intelligence.score}} & {{abilities.intelligence.mod}} \\
-WIS & {{abilities.wisdom.score}} & {{abilities.wisdom.mod}} \\
-CHA & {{abilities.charisma.score}} & {{abilities.charisma.mod}} \\
-\hline
-\end{tabular}
-
-\subsection*{Skills (Detailed Breakdown)}
-\small {{skills.summaryDetailed}} \normalsize
-
-\subsection*{Writable Encounter Notes}
-\begin{tabular}{|p{6.8in}|}
+\subsection*{Encounter Notes}
+\begin{tabular}{|L{0.9\linewidth}|}
 \hline
 \rule{0pt}{1.0em}Conditions, temporary effects, and in-combat adjustments: \\
 \\
-\\
 \hline
 \end{tabular}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.4\linewidth}
+\noindent\textbf{Skills}\\[2pt]
+{\renewcommand{\arraystretch}{0.82}
+\begin{tabular}{|L{0.31\linewidth}|R{0.12\linewidth}|R{0.14\linewidth}|L{0.33\linewidth}|}
+\hline
+Skill & Final & Pre-ACP & Sources \\
+\hline
+{{{skills.detailedTable}}}
+\hline
+\end{tabular}}
+\end{minipage}
 
 \newpage
 \section*{Inventory Sheet (Detailed Draft)}

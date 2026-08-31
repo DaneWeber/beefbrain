@@ -1,6 +1,10 @@
 import { describe, it, expect } from '@jest/globals'
 import { parse as parseYAML } from 'yaml'
-import { validateBeefBrainData, updateCalculatedFields } from './index'
+import {
+  validateBeefBrainData,
+  updateCalculatedFields,
+  EffectTargetError,
+} from './index'
 import { evaluateFormula } from './calculationEngine'
 
 describe('Beef Brain Core', () => {
@@ -692,6 +696,121 @@ character:
             output.character.skills.diplomacy[1]['synergy-bluff'],
           ).toBeUndefined()
           expect(output.character.skills.diplomacy[0]).toBe(0)
+        })
+      })
+      describe('item/feat effects', () => {
+        it('should apply an equipped item bonus to a skill and resum the total', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    charisma: [12, cha: 1]
+  skills:
+    use-magic-device: [14, {cha: 1, ranks: 13}]
+  inventory:
+    equipped:
+      - [ring of use magic device, 1, wondrous, 0 lbs, 5000 gp, {}, [], [[skills.use-magic-device, {magic-ring: 5}]]]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(
+            output.character.skills['use-magic-device'][1]['magic-ring'],
+          ).toBe(5)
+          expect(output.character.skills['use-magic-device'][0]).toBe(19)
+        })
+        it('should remove a stale item bonus once the item is no longer equipped', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    charisma: [12, cha: 1]
+  skills:
+    use-magic-device: [19, {cha: 1, ranks: 13, magic-ring: 5}]
+  inventory:
+    pack:
+      - [ring of use magic device, 1, wondrous, 0 lbs, 5000 gp, {}, [], [[skills.use-magic-device, {magic-ring: 5}]]]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(
+            output.character.skills['use-magic-device'][1]['magic-ring'],
+          ).toBeUndefined()
+          expect(output.character.skills['use-magic-device'][0]).toBe(14)
+        })
+        it('should merge a source-named feat attack-bonus effect into a named weapon and resum it', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [14, str: 2]
+  combat:
+    attack:
+      melee:
+        longsword: [3, 1d8+2 slashing, 19-20/x2, {_: 3}, str: 2, {}, [longsword]]
+  special:
+    feats:
+      - [Weapon Focus (Longsword), fighter: 1, [["combat.attack.melee.longsword[0]", {weapon-focus-longsword: 1}]]]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          const longsword = output.character.combat.attack.melee.longsword
+          expect(longsword[3]['weapon-focus-longsword']).toBe(1)
+          expect(longsword[0]).toBe(4)
+        })
+        it('should push note-only feat effects into tag arrays without a bracket', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [10, str: 0]
+  combat:
+    attack:
+      melee:
+        _: [0, {bab: 0, str: 0}, []]
+    defense:
+      ac: [10, base: 10]
+      touch-ac: [10, base: 10]
+      flat-footed-ac: [10, base: 10]
+  movement:
+    speed: [30, base: 30]
+  special:
+    feats:
+      - [Blind-Fight, level: 1, [[combat.defense.special, 'Blind Fight: no advantage to invisible melee attackers'], [combat.attack.melee._, 'Blind Fight: reroll concealment misses'], [movement.special, 'Blind Fight: 1/2 penalty when unable to see']]]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.combat.defense.special).toEqual([
+            'Blind Fight: no advantage to invisible melee attackers',
+          ])
+          expect(output.character.combat.attack.melee._[2]).toEqual([
+            'Blind Fight: reroll concealment misses',
+          ])
+          expect(output.character.movement.special).toEqual([
+            'Blind Fight: 1/2 penalty when unable to see',
+          ])
+          expect(output.character.combat.attack.melee._[0]).toBe(0)
+        })
+        it('should throw for an unimplemented damage-bonus channel', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [14, str: 2]
+  combat:
+    attack:
+      melee:
+        greatsword: [3, 2d6+3 slashing, 19-20/x2, {_: 3}, str: 3, {}, [greatsword]]
+  special:
+    feats:
+      - [Weapon Specialization (Greatsword), fighter: 4, [["combat.attack.melee.greatsword[1]", {feat: 2}]]]
+`
+          expect(() => updateCalculatedFields(yamlContent)).toThrow(
+            EffectTargetError,
+          )
+        })
+        it('should throw when an effect targets an ability score', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [14, str: 2]
+  inventory:
+    equipped:
+      - [belt of giant strength, 1, wondrous, 0 lbs, 4000 gp, {}, [], [[abilities.strength, {item: 4}]]]
+`
+          expect(() => updateCalculatedFields(yamlContent)).toThrow(
+            EffectTargetError,
+          )
         })
       })
       describe('hit dice derivation', () => {

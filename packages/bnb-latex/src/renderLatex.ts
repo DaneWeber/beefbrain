@@ -6,7 +6,7 @@ import {
 } from 'bnb-core'
 import { LatexGenerationError } from './errors'
 import { DEFAULT_TEMPLATE_KEY, getTemplateRecord } from './templates/registry'
-import { renderTemplate } from './renderTemplate'
+import { renderTemplate, escapeLatexText } from './renderTemplate'
 import type {
   LatexFieldMap,
   RenderLatexInput,
@@ -241,6 +241,43 @@ function formatSkills(
     })
 
   return rows.length > 0 ? rows.join('; ') : 'None listed'
+}
+
+function isNonZeroComponent(value: unknown): boolean {
+  const numeric = Array.isArray(value) ? value[0] : value
+  return Number(numeric) !== 0
+}
+
+/**
+ * Builds one raw LaTeX table row per skill (alphabetical): name, final bonus
+ * (post-ACP), pre-ACP bonus, and only the non-zero named sources of the
+ * bonus. Cell text is escaped individually; the `&`/`\\` structure is left
+ * raw for a {{{...}}} template token.
+ */
+function buildSkillsTableRows(skills: Record<string, unknown>): string {
+  return Object.entries(skills)
+    .filter(([key]) => !key.startsWith('_'))
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([skillName, skillValue]) => {
+      const total = Number(getArrayFirst(skillValue)) || 0
+      const breakdown = extractBreakdown(skillValue)
+      const acp = breakdown.acp
+      const preAcp = total - (typeof acp === 'number' ? acp : 0)
+
+      const sources = sortComponentEntries(
+        Object.entries(breakdown).filter(
+          ([key, value]) =>
+            !key.startsWith('_') && key !== 'acp' && isNonZeroComponent(value),
+        ),
+      )
+        .map(([key, value]) => formatSkillComponent(key, value, true))
+        .join(', ')
+
+      const name = escapeLatexText(formatTitleKey(skillName))
+      const sourcesCell = escapeLatexText(sources)
+      return `${name} & ${formatSigned(total)} & ${formatSigned(preAcp)} & ${sourcesCell} \\\\`
+    })
+    .join('\n')
 }
 
 function hasMagicIndicators(
@@ -539,6 +576,7 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
 
     'skills.summary': formatSkills(skillsContainer, false),
     'skills.summaryDetailed': formatSkills(skillsContainer, true),
+    'skills.detailedTable': buildSkillsTableRows(skillsContainer),
 
     'inventory.equippedMagicItems':
       formatEquippedMagicItems(inventoryContainer),
