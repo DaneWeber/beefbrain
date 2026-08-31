@@ -13,7 +13,9 @@ describe('renderLatex', () => {
   it('renders default dnd35 template with calculated data', () => {
     const result = renderLatex({ yaml: VALID_YAML })
     expect(result.template.key).toBe('dnd35-streamlined')
-    expect(result.latex).toContain('D\\&D 3.5 Primary Sheet (Streamlined Draft)')
+    expect(result.latex).toContain(
+      'D\\&D 3.5 Primary Sheet (Streamlined Draft)',
+    )
     expect(result.latex).toContain('Landorf the Human Fighter')
     expect(result.latex).toContain('fighter 1')
     expect(result.latex).toContain('Inventory Sheet (Draft)')

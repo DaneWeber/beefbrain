@@ -159,8 +159,12 @@ function sortComponentEntries(
 ): [string, unknown][] {
   const rank = new Map(COMPONENT_SORT_ORDER.map((key, index) => [key, index]))
   return entries.sort(([a], [b]) => {
-    const aRank = rank.has(a) ? (rank.get(a) as number) : Number.MAX_SAFE_INTEGER
-    const bRank = rank.has(b) ? (rank.get(b) as number) : Number.MAX_SAFE_INTEGER
+    const aRank = rank.has(a)
+      ? (rank.get(a) as number)
+      : Number.MAX_SAFE_INTEGER
+    const bRank = rank.has(b)
+      ? (rank.get(b) as number)
+      : Number.MAX_SAFE_INTEGER
     if (aRank !== bRank) {
       return aRank - bRank
     }
@@ -170,7 +174,9 @@ function sortComponentEntries(
 
 function formatBreakdown(value: unknown): string {
   const entries = sortComponentEntries(
-    Object.entries(extractBreakdown(value)).filter(([key]) => !key.startsWith('_')),
+    Object.entries(extractBreakdown(value)).filter(
+      ([key]) => !key.startsWith('_'),
+    ),
   )
   if (entries.length === 0) {
     return 'none'
@@ -322,7 +328,8 @@ function formatItemsByContainer(inventory: Record<string, unknown>): string {
 function formatSpellsSummary(spellsValue: unknown): string {
   const spells = toRecord(spellsValue)
   const classes = Object.entries(spells).filter(
-    ([key, value]) => !key.startsWith('_') && value && typeof value === 'object',
+    ([key, value]) =>
+      !key.startsWith('_') && value && typeof value === 'object',
   )
   if (classes.length === 0) {
     return 'No spellcasting data'
@@ -331,7 +338,9 @@ function formatSpellsSummary(spellsValue: unknown): string {
   return classes
     .map(([className, classData]) => {
       const classRecord = toRecord(classData)
-      const casting = Array.isArray(classRecord.casting) ? classRecord.casting : []
+      const casting = Array.isArray(classRecord.casting)
+        ? classRecord.casting
+        : []
       const castingMode = casting.length > 0 ? String(casting[0]) : 'unknown'
       const castingAbility =
         casting.length > 1 ? String(casting[1]).toUpperCase() : 'N/A'
@@ -347,7 +356,8 @@ function formatSpellsSummary(spellsValue: unknown): string {
 function formatSpellSlotsSummary(spellsValue: unknown): string {
   const spells = toRecord(spellsValue)
   const classes = Object.entries(spells).filter(
-    ([key, value]) => !key.startsWith('_') && value && typeof value === 'object',
+    ([key, value]) =>
+      !key.startsWith('_') && value && typeof value === 'object',
   )
   if (classes.length === 0) {
     return 'No spell slot data'
@@ -372,7 +382,8 @@ function formatSpellSlotsSummary(spellsValue: unknown): string {
 function formatPreparedSpellsSummary(spellsValue: unknown): string {
   const spells = toRecord(spellsValue)
   const classes = Object.entries(spells).filter(
-    ([key, value]) => !key.startsWith('_') && value && typeof value === 'object',
+    ([key, value]) =>
+      !key.startsWith('_') && value && typeof value === 'object',
   )
   if (classes.length === 0) {
     return 'No prepared spell data'
@@ -388,7 +399,9 @@ function formatPreparedSpellsSummary(spellsValue: unknown): string {
       const preparedByLevel = levels
         .map((level) => {
           const spellsAtLevel = Array.isArray(prepared[level])
-            ? (prepared[level] as unknown[]).map((entry) => String(entry)).join(', ')
+            ? (prepared[level] as unknown[])
+                .map((entry) => String(entry))
+                .join(', ')
             : String(prepared[level])
           return `${level}[${spellsAtLevel}]`
         })
