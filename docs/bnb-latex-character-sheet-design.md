@@ -67,21 +67,38 @@ Source-list policy (all variants, and especially the detailed skills table):
   component a player needs to mentally back out often (e.g. checking an unarmored value at the table).
   The pre-ACP bonus is derived as `total - acp` at render time; `bnb-core` doesn't store it separately.
 
+Component-text emphasis policy (applies wherever a "final + components" row appears — skills, combat
+snapshot, saves): the label and the final/pre-ACP numbers are the thing a player actually reads at a
+glance, so they stay at the sheet's full baseline size; the component breakdown itself is reference
+material consulted rarely (mainly when something changes and a value needs to be recalculated by
+hand), so it renders at a visibly smaller size. This isn't just cosmetic density — it's a legibility
+hierarchy: the eye should land on the bonus first, and the components should read as a footnote to it,
+not compete with it for attention.
+
 ## Variant expectations
 
 ### `dnd35-streamlined`
 - Prioritize fast scanning and dense tables.
 - Keep component lines short and abbreviated.
 - Exclude tertiary details unless required for clarity.
+- Intended as the eventual **quick-reference** sheet: when it gets the same landscape treatment as
+  `dnd35-detailed`, it should use a **three-column** layout — its whole point is fast lookup of final
+  values, not showing where a bonus comes from, so the extra column is worth it for scan speed rather
+  than being needed for component detail.
 
 ### `dnd35-detailed`
 - Include fuller decomposition and secondary references.
 - Include rank-source parentheticals where available.
-- Main character sheet page is landscape, three columns, 14pt baseline body text: left column for
-  static reference info (character description, abilities), middle column for combat/saves/writable
-  notes, right column for the full alphabetical skills table (final bonus, pre-ACP bonus, non-zero
-  sources). Inventory and spell-sheet pages keep their existing single-column structure but inherit
-  the same landscape/14pt setting.
+- Main character sheet page is landscape, **two columns**, 14pt baseline body text for labels and
+  final/pre-ACP bonuses (see "Component-text emphasis policy" above for why component text itself
+  renders smaller). Left column stacks static reference info and mutable-but-simple data top to
+  bottom: character description, abilities, combat snapshot, saves, writable encounter notes. Right
+  column is the full alphabetical skills table (final bonus, pre-ACP bonus, non-zero sources). Two
+  columns (rather than three) is deliberate here, not just a width accommodation: this variant's job is
+  showing where every bonus's components come from, and a two-column layout gives each block enough
+  width that a component breakdown rarely needs to wrap, which a three-column split couldn't guarantee.
+  Inventory and spell-sheet pages keep their existing single-column structure but inherit the same
+  landscape/14pt setting.
 
 ### `dnd35-spellcaster`
 - Keep same final+component grammar as other variants.
