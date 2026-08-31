@@ -4,6 +4,7 @@ import type { Character, Abilities } from '.'
 import { loadSchema } from './schemaLoader'
 import { calculateFieldValue, getAbilityArrayType } from './calculationEngine'
 import { applyComponentBindings } from './genericEngine'
+import { propagateEffects } from './propagateEffects'
 // BAB and save progression formulas (used by class entries in character YAML)
 function calculateBab(progression: string, level: number): number {
   switch (progression) {
@@ -125,6 +126,10 @@ export function updateCalculatedFields(yamlContent: string): string {
       hasChanges = true
     }
   }
+
+  // Step 7.5: Apply feat/item effect targets (see docs/bnb-core-item-feat-effects.md)
+  // before ACP/synergy/etc. resum things downstream.
+  hasChanges = propagateEffects(data, hasChanges)
 
   // Step 8: Specialized propagation that overrides bindings where needed
   // (e.g., dex capped by max-dex in AC, con*HD in max-hp, bonus spell slots)
@@ -542,7 +547,7 @@ function updateAndVerifyModifierArray(
   return changed
 }
 
-function sumValues(obj: Record<string, unknown>): number {
+export function sumValues(obj: Record<string, unknown>): number {
   let sum = 0
   for (const v of Object.values(obj)) {
     if (typeof v === 'number') {

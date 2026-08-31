@@ -53,13 +53,15 @@ cases is a list of zero or more of the arrays above.
 ```yaml
 special:
   feats:
-    - [Weapon Focus (Longsword), fighter: 1, [[combat.attack.melee.longsword[0], {atk: 1}, weapon-focus-longsword]]]
-    - [Blind-Fight, level: 1, [[combat.defense.special, blind-fight], [combat.attack.melee._[2], blind-fight]]]
+    - [Weapon Focus (Longsword), fighter: 1, [["combat.attack.melee.longsword[0]", {atk: 1}, weapon-focus-longsword]]]
+    - [Blind-Fight, level: 1, [[combat.defense.special, blind-fight], ["combat.attack.melee._[2]", blind-fight]]]
     - [Improved Initiative, human: 1, [[combat.initiative, {feats: 4}]]]
 inventory:
   equipped:
     - [ring of use magic device, 1, wondrous, 0 lbs, 5000 gp, {}, [], [[skills.use-magic-device, {magic-ring: 5}]]]
 ```
+
+Note the quotes around any path with a bracket suffix (`"combat.attack.melee.longsword[0]"`) — YAML's flow-sequence syntax treats an unquoted `[` as the start of a nested sequence, so a bracket-suffixed path must be quoted to parse as a single string.
 
 Feats/items with no meaningful calculable or displayable target simply omit `effects` entirely
 (e.g. `[Exotic Weapon Proficiency (Bastard Sword), fighter: 1]`) — there is no obligation to model

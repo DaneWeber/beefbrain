@@ -1,5 +1,6 @@
 import { validateBeefBrainData } from './validateBeefBrainData'
 import { updateCalculatedFields } from './updateCalculatedFields'
+import { EffectTargetError } from './propagateEffects'
 
 /**
  * Beef Brain Core Library
@@ -24,3 +25,4 @@ export type {
 export { validateBeefBrainData }
 export { updateCalculatedFields }
 export { dataToCompactYAML } from './dataToCompactYAML'
+export { EffectTargetError }
