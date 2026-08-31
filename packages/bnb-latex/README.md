@@ -23,6 +23,7 @@ selected template with safe token substitution.
 ## Design guidance
 
 - D&D 3.5e print-layout direction: `../../docs/bnb-latex-character-sheet-design.md`
+- Item/feat effect sources shown in skill/attack breakdowns: `../../docs/bnb-core-item-feat-effects.md`
 
 ## PDF prerequisite
 

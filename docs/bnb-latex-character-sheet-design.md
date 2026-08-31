@@ -51,6 +51,22 @@ Nested rank source policy:
 - Default view: show `Ranks +N`.
 - **Detailed variant only:** include class-by-class rank breakdown (e.g. `Ranks +8 (Ranger 7, Fighter 1)`).
 
+Source-list policy (all variants, and especially the detailed skills table):
+
+- Show only **non-zero** named sources — never a fixed set of columns per source *type* (no dedicated
+  "magic item bonus" column, no dedicated "other" column). A source is just another key in the
+  calculated component map; if bnb-core's item/feat effect engine (see
+  `docs/bnb-core-item-feat-effects.md`) adds a source-named key like `magic-ring` or
+  `weapon-focus-longsword`, it renders exactly like any ability/ranks/synergy source, with no special
+  casing in the template. This is the same principle already stated under "Data and template
+  implementation guidance" (preserve unknown component keys), applied specifically to which sources
+  get *printed*: a zero-valued component (e.g. an ability mod of `+0`) is real data but not worth a
+  reader's attention, so it's dropped rather than shown as noise.
+- **`dnd35-detailed`'s skills table specifically** also splits the final bonus into two numeric
+  columns — the fully-calculated bonus (including ACP) and the pre-ACP bonus — since ACP is the one
+  component a player needs to mentally back out often (e.g. checking an unarmored value at the table).
+  The pre-ACP bonus is derived as `total - acp` at render time; `bnb-core` doesn't store it separately.
+
 ## Variant expectations
 
 ### `dnd35-streamlined`
@@ -61,6 +77,11 @@ Nested rank source policy:
 ### `dnd35-detailed`
 - Include fuller decomposition and secondary references.
 - Include rank-source parentheticals where available.
+- Main character sheet page is landscape, three columns, 14pt baseline body text: left column for
+  static reference info (character description, abilities), middle column for combat/saves/writable
+  notes, right column for the full alphabetical skills table (final bonus, pre-ACP bonus, non-zero
+  sources). Inventory and spell-sheet pages keep their existing single-column structure but inherit
+  the same landscape/14pt setting.
 
 ### `dnd35-spellcaster`
 - Keep same final+component grammar as other variants.
