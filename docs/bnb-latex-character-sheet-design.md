@@ -98,3 +98,92 @@ Compression ladder (in order):
 - Full visual art direction.
 - New gameplay rules/calculation logic in `bnb-core`.
 - Browser-side PDF compilation behavior (covered elsewhere).
+
+## Sheet-by-sheet layout plans (first implementation target)
+
+### 1. Primary character sheet
+
+Goal: fastest possible retrieval of combat, save, and skill totals during play, while keeping component math adjacent for quick recalculation.
+
+Planned structure:
+
+1. Header band:
+   - Name, player, race, alignment, classes, level.
+2. Primary combat totals row:
+   - HP, AC, Touch, Flat-footed, Initiative, Speed.
+3. Component micro-lines:
+   - AC breakdown, initiative breakdown, HP damage/max context, speed breakdown.
+4. Saves block:
+   - Fort/Ref/Will final values plus each save component line.
+5. Ability block:
+   - STR/DEX/CON/INT/WIS/CHA score + mod table.
+6. Skill quick list:
+   - Final values first, components compactly in parentheses.
+7. Writable play tracker area:
+   - Conditions, temporary modifiers, encounter notes.
+
+### 2. Inventory sheet
+
+Goal: make carried/equipped state easy to audit at table, with enough structure to pencil in loot and location changes.
+
+Planned structure:
+
+1. Carry state header:
+   - Current load and carrying capacity thresholds.
+2. Equipped items section:
+   - Existing equipped summary from YAML.
+   - Space for attack-relevant or defense-relevant annotations.
+3. Container sections:
+   - Per-container summaries (pack, saddlebags, etc.) if present.
+4. Magic and notable effects section:
+   - Surface equipped magic item effects and item-derived modifiers.
+5. Writable acquisition/log area:
+   - Blank ruled rows for loot, expenditure, handoffs.
+
+### 3. Spell sheets
+
+Goal: track at-table spell-slot and prepared/cast state with pencil while preserving YAML-sourced setup context.
+
+Planned structure:
+
+1. Casting profile block:
+   - Casting classes, casting mode, key ability, domains/schools where present.
+2. Slots by level:
+   - Per-level total slots with component context where available.
+   - Writable "used/remaining" columns.
+3. Prepared/known spell list:
+   - Level-grouped spell names from YAML when present.
+4. Casting notes:
+   - DC quick rule reminder and concentration/caster notes.
+5. Blank expansion lines:
+   - Dedicated areas for session-specific temporary spells/effects.
+
+## First-pass template implementation plan
+
+The first pass should produce reviewable drafts, not final visual polish:
+
+1. Add explicit page breaks so templates clearly separate:
+   - Primary sheet page
+   - Inventory page
+   - Spell page (or spell-focused pages)
+2. Introduce repeated row grammar for "final + components" in combat/saves/skills.
+3. Keep labels abbreviated and numeric columns right-aligned for scan speed.
+4. Include writable blank tables/lines in inventory and spell pages.
+5. Use stable headings and section names across variants so review feedback can map cleanly.
+
+## Variant-specific first-pass expectations
+
+### `dnd35-streamlined`
+- Leanest visual density.
+- Keeps full-page primary section and compact inventory/spell follow-up pages.
+- Minimizes tertiary text by default.
+
+### `dnd35-detailed`
+- Most explicit decomposition.
+- Surfaces more component lines and richer section labels.
+- Includes rank-source detail where available.
+
+### `dnd35-spellcaster`
+- Prioritizes casting profile, slots, and prepared lists.
+- Keeps enough combat summary for survivability at table.
+- Provides the largest writable spell tracking area.
