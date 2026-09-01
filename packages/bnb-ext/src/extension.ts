@@ -3,10 +3,16 @@ import { formatBnbYaml } from './core/formatBnbYaml'
 import { computeDiagnostics, BnbDiagnostic } from './core/diagnostics'
 import { isBnbYamlPath } from './core/isBnbYamlPath'
 
-const SELECTOR: vscode.DocumentSelector = { language: 'yaml' }
+const SELECTOR: vscode.DocumentSelector = [
+  { language: 'bnb-yaml' },
+  { language: 'yaml' },
+]
 const DIAGNOSTIC_COLLECTION_NAME = 'bnb'
 
 function shouldHandle(document: vscode.TextDocument): boolean {
+  if (document.languageId === 'bnb-yaml') {
+    return true
+  }
   if (document.languageId !== 'yaml') {
     return false
   }

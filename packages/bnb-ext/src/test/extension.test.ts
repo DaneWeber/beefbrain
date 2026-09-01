@@ -3,14 +3,14 @@ import * as path from 'path'
 import * as vscode from 'vscode'
 
 suite('bnb-ext extension', () => {
-  test('associates .bnb.yaml files with the yaml language', async () => {
+  test('associates .bnb.yaml files with the BeefBrain YAML language', async () => {
     const fixturePath = path.resolve(
       __dirname,
       '../../src/test/fixtures/sample.bnb.yaml',
     )
     const document = await vscode.workspace.openTextDocument(fixturePath)
 
-    assert.strictEqual(document.languageId, 'yaml')
+    assert.strictEqual(document.languageId, 'bnb-yaml')
   })
 
   test('activates and registers the format command', async () => {
@@ -30,6 +30,28 @@ suite('bnb-ext extension', () => {
     assert.ok(
       commands.includes('bnb.formatDocument'),
       'bnb.formatDocument command should be registered',
+    )
+  })
+
+  test('registers as the document formatter for .bnb.yaml files', async () => {
+    const fixturePath = path.resolve(
+      __dirname,
+      '../../src/test/fixtures/sample.bnb.yaml',
+    )
+    const document = await vscode.workspace.openTextDocument(fixturePath)
+
+    const edits = await vscode.commands.executeCommand<vscode.TextEdit[]>(
+      'vscode.executeFormatDocumentProvider',
+      document.uri,
+      { insertSpaces: true, tabSize: 2 },
+    )
+
+    assert.ok(edits, 'a formatter should be registered for .bnb.yaml files')
+    assert.strictEqual(
+      vscode.workspace
+        .getConfiguration('editor', document.uri)
+        .get<string>('defaultFormatter'),
+      'daneweber.bnb-ext',
     )
   })
 
