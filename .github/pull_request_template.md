@@ -1,15 +1,15 @@
 ## Summary
 
-<!-- Briefly describe what this PR changes and why. -->
+<!-- Briefly describe what this PR changes and why. Add screenshots if applicable.  -->
 
-## Testing
+## Review
 
-<!-- Describe the tests you ran for these changes. -->
+<!-- Describe the steps and commands that a less-technical reviewer needs to take in order to inspect the affected behavior. -->
 
 ## Checklist
 
-- [ ] All tests pass.
-- [ ] All changes are covered by tests (new and/or updated tests where needed).
+- [ ] All changes are covered by automated tests (new and/or updated tests where needed).
 - [ ] All file line endings are LF (`\n`, Linux-style).
 - [ ] PR branch is rebased on `main`.
-- [ ] When merging this PR, use **Squash and merge** only.
+
+Reminder: When merging this PR, use **Squash and merge** only after ensuring it has been rebased.
