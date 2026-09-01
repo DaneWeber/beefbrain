@@ -2,5 +2,9 @@ packages:
   - 'packages/*'
 allowBuilds:
   esbuild: true
+  '@vscode/vsce-sign': true
+  keytar: true
 onlyBuiltDependencies:
   - esbuild
+  - '@vscode/vsce-sign'
+  - keytar

@@ -1,0 +1,101 @@
+{
+  "name": "bnb-ext",
+  "displayName": "BeefBrain",
+  "description": "Format, calculate, and validate BeefBrain (bnb) TTRPG character YAML files with bnb-core.",
+  "version": "0.1.0",
+  "private": true,
+  "publisher": "daneweber",
+  "license": "MIT",
+  "author": "DaneWeber",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DaneWeber/beefbrain.git",
+    "directory": "packages/bnb-ext"
+  },
+  "categories": [
+    "Formatters",
+    "Linters"
+  ],
+  "keywords": [
+    "ttrpg",
+    "dnd",
+    "character-sheet",
+    "yaml"
+  ],
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onLanguage:yaml"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "yaml",
+        "extensions": [
+          ".bnb.yaml",
+          ".bnb.yml"
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "bnb.formatDocument",
+        "title": "BeefBrain: Format and Calculate Character YAML"
+      }
+    ],
+    "configuration": {
+      "title": "BeefBrain",
+      "properties": {
+        "bnb.associateAllYaml": {
+          "type": "boolean",
+          "default": false,
+          "description": "Treat all .yaml/.yml files as BeefBrain character files. When disabled (default), only files ending in .bnb.yaml or .bnb.yml are treated as BeefBrain data."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsup-node",
+    "clean": "rimraf dist out",
+    "compile": "tsc",
+    "compile:test": "tsc -p tsconfig.test.json",
+    "test": "jest",
+    "test:e2e": "vscode-test",
+    "pretest:e2e": "pnpm run build && pnpm run compile:test",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --check",
+    "format:fix": "prettier . --write",
+    "package": "vsce package --no-dependencies",
+    "prepackage": "pnpm run build"
+  },
+  "dependencies": {
+    "bnb-core": "workspace:*",
+    "yaml": "^2.4.2"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@tsconfig/node20": "^20.1.4",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.12.12",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.0",
+    "@vscode/vsce": "^3.2.1",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-jest": "^27.9.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-unused-imports": "^3.2.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.2.5",
+    "rimraf": "^5.0.7",
+    "ts-jest": "^29.1.4",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5"
+  }
+}

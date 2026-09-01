@@ -1,0 +1,4 @@
+character:
+  name: Test Fixture
+  abilities:
+    strength: [16, str: 3]

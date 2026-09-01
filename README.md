@@ -175,23 +175,29 @@ SvelteKit web application for viewing and managing characters. Currently a funct
 
 ### 🔌 bnb-ext
 
-**Status**: ⚠️ Empty/Planned
+**Status**: 🚧 Scaffold — core formatting/validation implemented
 
-Currently not in monorepo. Intended for a VS Code extension.
+VS Code extension that brings bnb-core into the editor.
 
-**Vision**: VS Code extension for:
-- YAML validation with inline errors
-- Auto-completion for fields
-- Live calculation preview
-- Schema-aware editing
-- Format on save
+**Current Features**:
+- Format Document: recalculates derived fields and re-serializes with
+  bnb-core's compact YAML style
+- Diagnostics for YAML syntax errors (with real line/column ranges) and
+  bnb-core calculation errors
+- Files ending in `.bnb.yaml`/`.bnb.yml` are recognized automatically; an
+  opt-in setting (`bnb.associateAllYaml`) applies the same behavior to every
+  `.yaml`/`.yml` file
+
+**Dependencies**: `bnb-core`
+
+**Testing**: Jest unit tests for the vscode-independent core logic, plus an
+end-to-end smoke test via `@vscode/test-cli`/`@vscode/test-electron`
 
 **Next Steps**:
-1. Define minimum viable features
-2. Create extension scaffold
-3. Integrate bnb-core
-4. Implement basic validation
-5. Add language server protocol support
+1. Schema-aware auto-completion for fields
+2. Hover information explaining where a value/modifier is derived from
+3. Ctrl-click "go to definition" from a modifier to its source
+4. Publish to the VS Code Marketplace
 
 ## Testing Strategy
 
