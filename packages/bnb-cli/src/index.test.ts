@@ -1,11 +1,4 @@
-import {
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-  afterAll,
-} from '@jest/globals'
+import { describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest'
 import {
   readFileSync,
   writeFileSync,
@@ -64,7 +57,7 @@ describe('bnb-cli integration tests', () => {
     it('should show help with --help flag', () => {
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', '--help'],
+        ['dist/index.mjs', '--help'],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -76,7 +69,7 @@ describe('bnb-cli integration tests', () => {
     it('should error when no files specified', () => {
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', '--calc'],
+        ['dist/index.mjs', '--calc'],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -93,7 +86,7 @@ describe('bnb-cli integration tests', () => {
 
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', testFile],
+        ['dist/index.mjs', testFile],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -110,7 +103,7 @@ describe('bnb-cli integration tests', () => {
 
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', testFile],
+        ['dist/index.mjs', testFile],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -123,7 +116,7 @@ describe('bnb-cli integration tests', () => {
     it('should error when file does not exist', () => {
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', '/nonexistent/file.yaml'],
+        ['dist/index.mjs', '/nonexistent/file.yaml'],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -141,7 +134,7 @@ describe('bnb-cli integration tests', () => {
 
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', testFile, '--calc'],
+        ['dist/index.mjs', testFile, '--calc'],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -162,7 +155,7 @@ describe('bnb-cli integration tests', () => {
 
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', testFile, '--write'],
+        ['dist/index.mjs', testFile, '--write'],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -183,7 +176,7 @@ describe('bnb-cli integration tests', () => {
 
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', testFile, '--write'],
+        ['dist/index.mjs', testFile, '--write'],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -202,7 +195,7 @@ describe('bnb-cli integration tests', () => {
       // Try to write to an invalid path
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', '/root/invalid/path.yaml', '--write'],
+        ['dist/index.mjs', '/root/invalid/path.yaml', '--write'],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -222,7 +215,7 @@ describe('bnb-cli integration tests', () => {
 
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', file1, file2],
+        ['dist/index.mjs', file1, file2],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -242,7 +235,7 @@ describe('bnb-cli integration tests', () => {
 
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', validFile, invalidFile],
+        ['dist/index.mjs', validFile, invalidFile],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -260,7 +253,7 @@ describe('bnb-cli integration tests', () => {
 
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', testFile],
+        ['dist/index.mjs', testFile],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -277,7 +270,7 @@ describe('bnb-cli integration tests', () => {
 
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', testFile],
+        ['dist/index.mjs', testFile],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -297,7 +290,7 @@ describe('bnb-cli integration tests', () => {
 
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', testFile],
+        ['dist/index.mjs', testFile],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -312,7 +305,7 @@ describe('bnb-cli integration tests', () => {
 
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', testFile],
+        ['dist/index.mjs', testFile],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -324,7 +317,7 @@ describe('bnb-cli integration tests', () => {
 
   describe('help flag', () => {
     it('should show help when no arguments', () => {
-      const result = childProcess.spawnSync('node', ['dist/index.js'], {
+      const result = childProcess.spawnSync('node', ['dist/index.mjs'], {
         cwd: resolve(__dirname, '..'),
       })
 
@@ -340,7 +333,7 @@ describe('bnb-cli integration tests', () => {
 
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', testFile, '--calc', '--write'],
+        ['dist/index.mjs', testFile, '--calc', '--write'],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -359,7 +352,7 @@ describe('bnb-cli integration tests', () => {
     it('should show latex help', () => {
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', 'latex', '--help'],
+        ['dist/index.mjs', 'latex', '--help'],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -372,7 +365,7 @@ describe('bnb-cli integration tests', () => {
     it('should error when latex command has no input file', () => {
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', 'latex'],
+        ['dist/index.mjs', 'latex'],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -387,7 +380,7 @@ describe('bnb-cli integration tests', () => {
     it('should list available latex templates', () => {
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', 'latex', '--list-templates'],
+        ['dist/index.mjs', 'latex', '--list-templates'],
         {
           cwd: resolve(__dirname, '..'),
         },
@@ -404,7 +397,7 @@ describe('bnb-cli integration tests', () => {
 
       const result = childProcess.spawnSync(
         'node',
-        ['dist/index.js', 'latex', '--template', 'unknown-template', testFile],
+        ['dist/index.mjs', 'latex', '--template', 'unknown-template', testFile],
         {
           cwd: resolve(__dirname, '..'),
         },

@@ -1,4 +1,4 @@
-import { describe, it, expect, jest } from '@jest/globals'
+import { describe, it, expect, vi } from 'vitest'
 import { computeDiagnostics } from './diagnostics'
 
 describe('computeDiagnostics', () => {
@@ -21,35 +21,33 @@ describe('computeDiagnostics', () => {
     expect(diagnostics[0]?.range.startCol).toBeGreaterThan(0)
   })
 
-  it('does not attempt calculation when the YAML fails to parse', () => {
-    jest.resetModules()
-    jest.doMock('bnb-core', () => ({
-      updateCalculatedFields: jest.fn(() => {
+  it('does not attempt calculation when the YAML fails to parse', async () => {
+    vi.resetModules()
+    vi.doMock('bnb-core', () => ({
+      updateCalculatedFields: vi.fn(() => {
         throw new Error('should not be called')
       }),
     }))
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { computeDiagnostics: mockedCompute } = require('./diagnostics')
+    const { computeDiagnostics: mockedCompute } = await import('./diagnostics')
     const diagnostics = mockedCompute('character:\n  name: [unterminated\n')
 
     expect(diagnostics).toHaveLength(1)
     expect(diagnostics[0]?.message).not.toBe('should not be called')
 
-    jest.dontMock('bnb-core')
-    jest.resetModules()
+    vi.doUnmock('bnb-core')
+    vi.resetModules()
   })
 
-  it('surfaces bnb-core calculation errors as diagnostics', () => {
-    jest.resetModules()
-    jest.doMock('bnb-core', () => ({
+  it('surfaces bnb-core calculation errors as diagnostics', async () => {
+    vi.resetModules()
+    vi.doMock('bnb-core', () => ({
       updateCalculatedFields: () => {
         throw new Error('effect target not found')
       },
     }))
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { computeDiagnostics: mockedCompute } = require('./diagnostics')
+    const { computeDiagnostics: mockedCompute } = await import('./diagnostics')
     const diagnostics = mockedCompute('character:\n  name: Test\n')
 
     expect(diagnostics).toEqual([
@@ -60,7 +58,7 @@ describe('computeDiagnostics', () => {
       },
     ])
 
-    jest.dontMock('bnb-core')
-    jest.resetModules()
+    vi.doUnmock('bnb-core')
+    vi.resetModules()
   })
 })

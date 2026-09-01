@@ -1,16 +1,17 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import { createRequire } from 'node:module';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import type { BeefBrainData } from 'bnb-core';
 import { listTemplates, renderLatex, type LatexTemplateKey, type TemplateInfo } from 'bnb-latex';
 
 const require = createRequire(import.meta.url);
-const { validateBeefBrainData, updateCalculatedFields, dataToCompactYAML } = require('bnb-core') as {
-	validateBeefBrainData: (raw: string) => boolean;
-	updateCalculatedFields: (raw: string) => string;
-	dataToCompactYAML: (data: BeefBrainData) => string;
-};
+const { validateBeefBrainData, updateCalculatedFields, dataToCompactYAML } =
+	require('bnb-core') as {
+		validateBeefBrainData: (raw: string) => boolean;
+		updateCalculatedFields: (raw: string) => string;
+		dataToCompactYAML: (data: BeefBrainData) => string;
+	};
 
 const YAML_DIR = process.env.BNB_YAML_DIR
 	? process.env.BNB_YAML_DIR
@@ -44,13 +45,13 @@ export async function listCharacters(): Promise<CharacterSummary[]> {
 	const summaries: CharacterSummary[] = [];
 	for (const file of yamlFiles) {
 		const raw = await readFile(join(YAML_DIR, file), 'utf-8');
-		
+
 		// Validate using bnb-core
 		if (!validateBeefBrainData(raw)) {
 			console.warn(`Invalid character file: ${file}`);
 			continue;
 		}
-		
+
 		const data = yaml.load(raw) as CharacterData;
 		const char = data?.character;
 		if (!char) continue;
@@ -88,13 +89,13 @@ export async function loadAllCharacters(): Promise<{ slug: string; character: Ch
 	const results: { slug: string; character: CharacterData }[] = [];
 	for (const file of yamlFiles) {
 		const raw = await readFile(join(YAML_DIR, file), 'utf-8');
-		
+
 		// Validate using bnb-core
 		if (!validateBeefBrainData(raw)) {
 			console.warn(`Invalid character file: ${file}`);
 			continue;
 		}
-		
+
 		const data = yaml.load(raw) as CharacterData;
 		if (data?.character) {
 			results.push({ slug: basename(file, '.yaml'), character: data.character });
@@ -107,13 +108,13 @@ export async function loadCharacter(slug: string): Promise<CharacterData | null>
 	const filePath = join(YAML_DIR, `${slug}.yaml`);
 	try {
 		const raw = await readFile(filePath, 'utf-8');
-		
+
 		// Validate using bnb-core
 		if (!validateBeefBrainData(raw)) {
 			console.error(`Invalid character file: ${slug}.yaml`);
 			return null;
 		}
-		
+
 		return yaml.load(raw) as CharacterData;
 	} catch {
 		return null;
@@ -127,10 +128,10 @@ export async function loadCharacterWithValidation(slug: string): Promise<LoadedC
 	const filePath = join(YAML_DIR, `${slug}.yaml`);
 	try {
 		const raw = await readFile(filePath, 'utf-8');
-		
+
 		// Validate using bnb-core
 		const isValid = validateBeefBrainData(raw);
-		
+
 		if (!isValid) {
 			return {
 				data: yaml.load(raw) as BeefBrainData,
@@ -139,11 +140,11 @@ export async function loadCharacterWithValidation(slug: string): Promise<LoadedC
 				validationError: 'Invalid character data format'
 			};
 		}
-		
+
 		// Apply automatic calculations from bnb-core
 		const calculatedYaml = updateCalculatedFields(raw);
 		const data = yaml.load(calculatedYaml) as BeefBrainData;
-		
+
 		return {
 			data,
 			raw: calculatedYaml,
@@ -193,7 +194,12 @@ function applyItemEdits(
 		// Remove effects object if present, keep tags
 		if (tagsPos === 6 && item[5] && typeof item[5] === 'object' && !Array.isArray(item[5])) {
 			item.splice(5, 1);
-		} else if (tagsPos < 0 && item.length > 5 && typeof item[5] === 'object' && !Array.isArray(item[5])) {
+		} else if (
+			tagsPos < 0 &&
+			item.length > 5 &&
+			typeof item[5] === 'object' &&
+			!Array.isArray(item[5])
+		) {
 			item.splice(5, 1);
 		}
 	}

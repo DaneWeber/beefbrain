@@ -4,6 +4,8 @@ allowBuilds:
   esbuild: true
   '@vscode/vsce-sign': true
   keytar: true
+minimumReleaseAgeExclude:
+  - globals@17.12.0
 onlyBuiltDependencies:
   - esbuild
   - '@vscode/vsce-sign'

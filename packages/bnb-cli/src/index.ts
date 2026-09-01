@@ -49,6 +49,9 @@ function getPositionalArgs(
   const positional: string[] = []
   for (let i = 0; i < args.length; i += 1) {
     const item = args[i]
+    if (item === undefined) {
+      break
+    }
     if (item.startsWith('--')) {
       if (flagsWithValues.has(item)) {
         i += 1
@@ -176,8 +179,10 @@ async function runLatexCommand(rawArgs: string[]): Promise<void> {
 
     const result = renderLatex({
       yaml: yamlContent,
-      templateKey: templateKey as LatexTemplateKey | undefined,
-      templateContent,
+      ...(templateKey
+        ? { templateKey: templateKey as LatexTemplateKey }
+        : undefined),
+      ...(templateContent ? { templateContent } : undefined),
     })
 
     writeFileSync(resolve(outPath), result.latex, 'utf-8')

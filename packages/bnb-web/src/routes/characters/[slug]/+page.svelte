@@ -9,7 +9,7 @@
 
 	type ViewMode = 'streamlined' | 'detailed';
 	let viewMode: ViewMode = $state('streamlined');
-	let selectedLatexTemplate = $state(latexTemplates[0]?.key ?? 'dnd35-streamlined');
+	let selectedLatexTemplate = $state('dnd35-streamlined');
 	const latexDownloadHref = $derived(
 		`/characters/${data.slug}/latex?template=${encodeURIComponent(selectedLatexTemplate)}`
 	);
@@ -22,16 +22,10 @@
 <div class="page-controls no-print">
 	<a href="/" class="back-link">&larr; All Characters</a>
 	<div class="view-toggle">
-		<button
-			class:active={viewMode === 'streamlined'}
-			onclick={() => (viewMode = 'streamlined')}
-		>
+		<button class:active={viewMode === 'streamlined'} onclick={() => (viewMode = 'streamlined')}>
 			Play
 		</button>
-		<button
-			class:active={viewMode === 'detailed'}
-			onclick={() => (viewMode = 'detailed')}
-		>
+		<button class:active={viewMode === 'detailed'} onclick={() => (viewMode = 'detailed')}>
 			Detailed
 		</button>
 	</div>

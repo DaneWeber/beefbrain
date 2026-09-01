@@ -204,11 +204,9 @@ function propagateEquipmentToAbilities(
   hasChanges: boolean,
 ): boolean {
   const abilities = data.character?.abilities as
-    | Record<string, unknown>
-    | undefined
+    Record<string, unknown> | undefined
   const inventory = data.character?.inventory as
-    | Record<string, unknown>
-    | undefined
+    Record<string, unknown> | undefined
   if (!abilities || !inventory) return hasChanges
 
   // Collect ability bonuses from all equipped items
@@ -314,8 +312,7 @@ function readEquipmentStats(data: {
   }
 
   const inventory = data.character?.inventory as
-    | Record<string, unknown>
-    | undefined
+    Record<string, unknown> | undefined
   if (!inventory) return result
 
   // Find equipped items — look at _on list or default to "equipped"
@@ -371,8 +368,7 @@ function determineLoadCategory(data: {
   }
 
   const movement = data.character?.movement as
-    | Record<string, unknown>
-    | undefined
+    Record<string, unknown> | undefined
   if (!movement?.load || !movement?.capacity) return defaultEffects
 
   const loadArr = movement.load as unknown[]
@@ -615,8 +611,7 @@ function propagateToMeleeWeaponDetails(
   hasChanges: boolean,
 ): boolean {
   const attack = (data.character?.combat as Record<string, unknown>)?.attack as
-    | Record<string, unknown>
-    | undefined
+    Record<string, unknown> | undefined
   if (!attack?.melee) return hasChanges
 
   const melee = attack.melee as Record<string, unknown>
@@ -723,8 +718,7 @@ function propagateToRangedWeaponDetails(
   hasChanges: boolean,
 ): boolean {
   const attack = (data.character?.combat as Record<string, unknown>)?.attack as
-    | Record<string, unknown>
-    | undefined
+    Record<string, unknown> | undefined
   if (!attack?.ranged) return hasChanges
 
   const ranged = attack.ranged as Record<string, unknown>
@@ -1162,8 +1156,7 @@ function propagateToBab(
 ): boolean {
   const levels = data.character?.levels as Record<string, unknown> | undefined
   const attack = (data.character?.combat as Record<string, unknown>)?.attack as
-    | Record<string, unknown>
-    | undefined
+    Record<string, unknown> | undefined
   if (!levels || !attack?.bab || !Array.isArray(attack.bab)) return hasChanges
 
   const babArr = attack.bab as unknown[]
@@ -1214,8 +1207,7 @@ function propagateToBaseSaves(
 ): boolean {
   const levels = data.character?.levels as Record<string, unknown> | undefined
   const saves = (data.character?.combat as Record<string, unknown>)?.saves as
-    | Record<string, unknown>
-    | undefined
+    Record<string, unknown> | undefined
   if (!levels || !saves) return hasChanges
 
   const saveTypes: Array<{ name: string; saveKey: string }> = [
@@ -1319,11 +1311,9 @@ function propagateToInventoryWeight(
   hasChanges: boolean,
 ): boolean {
   const inventory = data.character?.inventory as
-    | Record<string, unknown>
-    | undefined
+    Record<string, unknown> | undefined
   const movement = data.character?.movement as
-    | Record<string, unknown>
-    | undefined
+    Record<string, unknown> | undefined
   if (!inventory || !movement?.load || !Array.isArray(movement.load))
     return hasChanges
 
@@ -1504,8 +1494,7 @@ function propagateToSpeed(
   hasChanges: boolean,
 ): boolean {
   const movement = data.character?.movement as
-    | Record<string, unknown>
-    | undefined
+    Record<string, unknown> | undefined
   if (!movement?.speed || !Array.isArray(movement.speed)) return hasChanges
 
   const speedArr = movement.speed as unknown[]
@@ -1675,8 +1664,6 @@ function calculateAbilityScores(
     if (Array.isArray(abilityArr)) {
       const [currentScore, modifierData, calculationDetails] = abilityArr
 
-      let totalScore = currentScore || 0
-
       if (calculationDetails && typeof calculationDetails === 'object') {
         const scoreType = getAbilityArrayType(schema, abilityName, 0)
 
@@ -1693,13 +1680,12 @@ function calculateAbilityScores(
             calculatedScore !== undefined &&
             calculatedScore !== currentScore
           ) {
-            totalScore = calculatedScore
-            abilityArr[0] = totalScore
+            abilityArr[0] = calculatedScore
             hasChanges = true
           }
         } else {
           if (typeof calculationDetails.base === 'number') {
-            totalScore = sumOfValues(calculationDetails)
+            const totalScore = sumOfValues(calculationDetails)
             if (currentScore !== totalScore) {
               abilityArr[0] = totalScore
               hasChanges = true

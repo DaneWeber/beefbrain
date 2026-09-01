@@ -1,4 +1,4 @@
-import { describe, expect, it } from '@jest/globals'
+import { describe, expect, it } from 'vitest'
 import { renderTemplate } from './renderTemplate'
 import { LatexGenerationError } from './errors'
 

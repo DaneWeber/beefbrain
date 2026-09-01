@@ -39,19 +39,23 @@ export function formatBreakdown(bd: Record<string, unknown>): string {
 			if (k === 'ranks' && Array.isArray(v) && v.length >= 2) {
 				const ranksTotal = v[0];
 				const ranksBreakdown = v[1];
-				
+
 				// If there's a breakdown, show it
-				if (ranksBreakdown && typeof ranksBreakdown === 'object' && !Array.isArray(ranksBreakdown)) {
+				if (
+					ranksBreakdown &&
+					typeof ranksBreakdown === 'object' &&
+					!Array.isArray(ranksBreakdown)
+				) {
 					const breakdownStr = Object.entries(ranksBreakdown)
 						.map(([cls, pts]) => `${formatKey(cls)}: ${pts}`)
 						.join(', ');
 					return `${formatKey(k)}: ${ranksTotal} (${breakdownStr})`;
 				}
-				
+
 				// Otherwise just show the total
 				return `${formatKey(k)}: ${ranksTotal}`;
 			}
-			
+
 			// Default formatting
 			return `${formatKey(k)}: ${v}`;
 		})

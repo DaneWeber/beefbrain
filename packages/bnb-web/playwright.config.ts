@@ -2,10 +2,7 @@ import { defineConfig } from '@playwright/test';
 import { resolve } from 'node:path';
 
 export default defineConfig({
-	reporter: [
-		['list'],
-		['html', { outputFolder: 'playwright-report', open: 'never' }]
-	],
+	reporter: [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]],
 	outputDir: 'test-results',
 	use: {
 		trace: 'on',

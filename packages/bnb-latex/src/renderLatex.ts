@@ -1,4 +1,4 @@
-import yaml from 'js-yaml'
+import * as yaml from 'js-yaml'
 import {
   updateCalculatedFields,
   validateBeefBrainData,
@@ -512,38 +512,32 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'abilities.strength.score': getArrayFirst(abilities.strength),
     'abilities.strength.mod': getFirstRecordValue(
       (abilities.strength as unknown[] | undefined)?.[1] as
-        | Record<string, unknown>
-        | undefined,
+        Record<string, unknown> | undefined,
     ),
     'abilities.dexterity.score': getArrayFirst(abilities.dexterity),
     'abilities.dexterity.mod': getFirstRecordValue(
       (abilities.dexterity as unknown[] | undefined)?.[1] as
-        | Record<string, unknown>
-        | undefined,
+        Record<string, unknown> | undefined,
     ),
     'abilities.constitution.score': getArrayFirst(abilities.constitution),
     'abilities.constitution.mod': getFirstRecordValue(
       (abilities.constitution as unknown[] | undefined)?.[1] as
-        | Record<string, unknown>
-        | undefined,
+        Record<string, unknown> | undefined,
     ),
     'abilities.intelligence.score': getArrayFirst(abilities.intelligence),
     'abilities.intelligence.mod': getFirstRecordValue(
       (abilities.intelligence as unknown[] | undefined)?.[1] as
-        | Record<string, unknown>
-        | undefined,
+        Record<string, unknown> | undefined,
     ),
     'abilities.wisdom.score': getArrayFirst(abilities.wisdom),
     'abilities.wisdom.mod': getFirstRecordValue(
       (abilities.wisdom as unknown[] | undefined)?.[1] as
-        | Record<string, unknown>
-        | undefined,
+        Record<string, unknown> | undefined,
     ),
     'abilities.charisma.score': getArrayFirst(abilities.charisma),
     'abilities.charisma.mod': getFirstRecordValue(
       (abilities.charisma as unknown[] | undefined)?.[1] as
-        | Record<string, unknown>
-        | undefined,
+        Record<string, unknown> | undefined,
     ),
 
     'combat.hp': getArrayFirst(hpContainer.hp),

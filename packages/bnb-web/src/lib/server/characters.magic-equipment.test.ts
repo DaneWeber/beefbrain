@@ -1,11 +1,12 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import yaml from 'js-yaml';
+import { fileURLToPath } from 'node:url';
+import * as yaml from 'js-yaml';
 import { moveCharacterMagicItem, saveCharacterMagicItem } from './characters';
 
 const BLACK_STAG_PATH = join(
-	import.meta.dirname,
+	fileURLToPath(new URL('.', import.meta.url)),
 	'../../../../../reference_material/beefy_boys_spreadsheets/yaml/andy-black-stag.yaml'
 );
 

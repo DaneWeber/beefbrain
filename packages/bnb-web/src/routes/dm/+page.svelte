@@ -75,7 +75,9 @@
 	function bestInColumn(values: number[]): Set<number> {
 		const max = Math.max(...values);
 		const indices = new Set<number>();
-		values.forEach((v, i) => { if (v === max) indices.add(i); });
+		values.forEach((v, i) => {
+			if (v === max) indices.add(i);
+		});
 		return indices;
 	}
 
@@ -119,7 +121,9 @@
 	});
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	function getSpellSections(sp: Record<string, any>): { key: string; section: Record<string, any> }[] {
+	function getSpellSections(
+		sp: Record<string, any>
+	): { key: string; section: Record<string, any> }[] {
 		if (sp['caster-class'] || sp['caster-level'] || sp['spells-per-day']) {
 			return [{ key: 'spells', section: sp }];
 		}
@@ -190,14 +194,23 @@
 							<td>{charPlayer(c)}</td>
 							<td>{c.description?.race ?? ''}</td>
 							<td class="num" class:best={overviewBests().hp.has(i)}>
-								{v(c.levels?.hp)}<span class="sub">/{parseSumValue(c.levels?.hp).breakdown['max-hp'] ?? v(c.levels?.hp)}</span>
+								{v(c.levels?.hp)}<span class="sub"
+									>/{parseSumValue(c.levels?.hp).breakdown['max-hp'] ?? v(c.levels?.hp)}</span
+								>
 							</td>
 							<td class="num" class:best={overviewBests().ac.has(i)}>{v(c.combat?.defense?.ac)}</td>
-							<td class="num" class:best={overviewBests().init.has(i)}>{m(c.combat?.initiative)}</td>
+							<td class="num" class:best={overviewBests().init.has(i)}>{m(c.combat?.initiative)}</td
+							>
 							<td class="num">{v(c.movement?.speed)}</td>
-							<td class="num" class:best={overviewBests().fort.has(i)}>{m(c.combat?.saves?.fortitude)}</td>
-							<td class="num" class:best={overviewBests().ref.has(i)}>{m(c.combat?.saves?.reflex)}</td>
-							<td class="num" class:best={overviewBests().will.has(i)}>{m(c.combat?.saves?.will)}</td>
+							<td class="num" class:best={overviewBests().fort.has(i)}
+								>{m(c.combat?.saves?.fortitude)}</td
+							>
+							<td class="num" class:best={overviewBests().ref.has(i)}
+								>{m(c.combat?.saves?.reflex)}</td
+							>
+							<td class="num" class:best={overviewBests().will.has(i)}
+								>{m(c.combat?.saves?.will)}</td
+							>
 							{#each ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'] as ab}
 								<td class="num">{v(c.abilities?.[ab])}</td>
 							{/each}
@@ -230,7 +243,7 @@
 							{#each chars as { character: c }, i}
 								{@const total = totals[i]}
 								{@const explicit = hasExplicitSkill(c, skillKey)}
-								<td class="num" class:best={best.has(i)} class:explicit={explicit} class:bare={!explicit}>
+								<td class="num" class:best={best.has(i)} class:explicit class:bare={!explicit}>
 									{formatMod(total)}
 								</td>
 							{/each}
@@ -273,7 +286,10 @@
 							<td class="num">{m(c.combat?.attack?.bab)}</td>
 							<td class="num">{m(c.combat?.attack?.grapple)}</td>
 							<td class="num">{m(c.combat?.initiative)}</td>
-							<td class="num">{v(c.levels?.hp)}/{parseSumValue(c.levels?.hp).breakdown['max-hp'] ?? v(c.levels?.hp)}</td>
+							<td class="num"
+								>{v(c.levels?.hp)}/{parseSumValue(c.levels?.hp).breakdown['max-hp'] ??
+									v(c.levels?.hp)}</td
+							>
 						</tr>
 					{/each}
 				</tbody>
@@ -284,7 +300,9 @@
 		{#each chars as { character: c }}
 			{@const melee = c.combat?.attack?.melee ?? {}}
 			{@const ranged = c.combat?.attack?.ranged ?? {}}
-			{@const weapons = [...Object.entries(melee), ...Object.entries(ranged)].filter(([k]) => !k.startsWith('_') && k !== 'full-attack')}
+			{@const weapons = [...Object.entries(melee), ...Object.entries(ranged)].filter(
+				([k]) => !k.startsWith('_') && k !== 'full-attack'
+			)}
 			{#if weapons.length > 0}
 				<h3>{charName(c)}</h3>
 				<div class="weapon-list">
@@ -304,7 +322,15 @@
 
 	<!-- === SOCIAL TAB === -->
 	{#if activeTab === 'social'}
-		{@const socialSkillKeys = ['bluff', 'diplomacy', 'disguise', 'gather-information', 'handle-animal', 'intimidate', 'sense-motive']}
+		{@const socialSkillKeys = [
+			'bluff',
+			'diplomacy',
+			'disguise',
+			'gather-information',
+			'handle-animal',
+			'intimidate',
+			'sense-motive'
+		]}
 		<div class="table-wrap">
 			<table class="skill-compare">
 				<thead>
@@ -324,7 +350,7 @@
 							{#each chars as { character: c }, i}
 								{@const total = totals[i]}
 								{@const explicit = hasExplicitSkill(c, skillKey)}
-								<td class="num" class:best={best.has(i)} class:explicit={explicit} class:bare={!explicit}>
+								<td class="num" class:best={best.has(i)} class:explicit class:bare={!explicit}>
 									{formatMod(total)}
 								</td>
 							{/each}
@@ -386,7 +412,9 @@
 							<td class="skill-label">{lang}</td>
 							{#each chars as { character: c }}
 								{@const knows = (c.special?.languages ?? []).map(String).includes(lang)}
-								<td class="num" class:knows>{#if knows}Yes{/if}</td>
+								<td class="num" class:knows
+									>{#if knows}Yes{/if}</td
+								>
 							{/each}
 						</tr>
 					{/each}
@@ -409,17 +437,28 @@
 						<div class="spell-meta">
 							{#if section['caster-level']}<span>CL {section['caster-level']}</span>{/if}
 							{#if section['spells-per-day']}
-								<span>Slots: {Object.entries(section['spells-per-day']).map(([k, v]) => `${k}:${v}`).join(' | ')}</span>
+								<span
+									>Slots: {Object.entries(section['spells-per-day'])
+										.map(([k, v]) => `${k}:${v}`)
+										.join(' | ')}</span
+								>
 							{/if}
 							{#if section['save-dc']}
-								<span>DC: {Object.entries(section['save-dc']).map(([k, v]) => `${k}:${v}`).join(' | ')}</span>
+								<span
+									>DC: {Object.entries(section['save-dc'])
+										.map(([k, v]) => `${k}:${v}`)
+										.join(' | ')}</span
+								>
 							{/if}
 						</div>
 						{#if section['spells-prepared']}
 							<div class="spell-list-block">
 								<strong>Prepared:</strong>
 								{#each Object.entries(section['spells-prepared']).sort(([a], [b]) => Number(a) - Number(b)) as [lv, spells]}
-									<div class="spell-lv-row"><span class="lv">{lv}:</span> {Array.isArray(spells) ? spells.join(', ') : spells}</div>
+									<div class="spell-lv-row">
+										<span class="lv">{lv}:</span>
+										{Array.isArray(spells) ? spells.join(', ') : spells}
+									</div>
 								{/each}
 							</div>
 						{/if}
@@ -427,7 +466,10 @@
 							<div class="spell-list-block">
 								<strong>Known:</strong>
 								{#each Object.entries(section['spells-known']).sort(([a], [b]) => Number(a) - Number(b)) as [lv, spells]}
-									<div class="spell-lv-row"><span class="lv">{lv}:</span> {Array.isArray(spells) ? spells.join(', ') : spells}</div>
+									<div class="spell-lv-row">
+										<span class="lv">{lv}:</span>
+										{Array.isArray(spells) ? spells.join(', ') : spells}
+									</div>
 								{/each}
 							</div>
 						{/if}
@@ -435,14 +477,18 @@
 							<div class="spell-list-block">
 								<strong>Spellbook:</strong>
 								{#each Object.entries(section.spellbook).sort(([a], [b]) => Number(a) - Number(b)) as [lv, spells]}
-									<div class="spell-lv-row"><span class="lv">{lv}:</span> {Array.isArray(spells) ? spells.join(', ') : spells}</div>
+									<div class="spell-lv-row">
+										<span class="lv">{lv}:</span>
+										{Array.isArray(spells) ? spells.join(', ') : spells}
+									</div>
 								{/each}
 							</div>
 						{/if}
 					{/each}
 					{#if Array.isArray(sp.ranger)}
 						<div class="spell-list-block">
-							<strong>Ranger:</strong> {sp.ranger.join(', ')}
+							<strong>Ranger:</strong>
+							{sp.ranger.join(', ')}
 						</div>
 					{/if}
 				</section>
@@ -524,7 +570,8 @@
 		font-size: 0.82rem;
 		white-space: nowrap;
 	}
-	th, td {
+	th,
+	td {
 		padding: 0.25rem 0.5rem;
 		text-align: left;
 		border-bottom: 1px solid #e0e0e0;

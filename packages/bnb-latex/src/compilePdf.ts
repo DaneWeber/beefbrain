@@ -78,11 +78,12 @@ function runCompiler(
     proc.on('error', (err) => {
       finished = true
       clearTimeout(timer)
-      if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
+      const errorCode = (err as NodeJS.ErrnoException).code
+      if (errorCode === 'ENOENT' || errorCode === 'EACCES') {
         reject(
           new LatexGenerationError(
             'PDF_COMPILER_MISSING',
-            `LaTeX compiler "${compilerCommand}" was not found in PATH.`,
+            `LaTeX compiler "${compilerCommand}" was not found or is not executable.`,
           ),
         )
         return

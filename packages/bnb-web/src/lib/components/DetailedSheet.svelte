@@ -3,7 +3,11 @@
 	import InventorySection from './InventorySection.svelte';
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let { character, slug = '', inventoryLocations = [] }: { character: Record<string, any>; slug?: string; inventoryLocations?: string[] } = $props();
+	let {
+		character,
+		slug = '',
+		inventoryLocations = []
+	}: { character: Record<string, any>; slug?: string; inventoryLocations?: string[] } = $props();
 	const desc = $derived(character.description ?? {});
 	const abilities = $derived(character.abilities ?? {});
 	const levels = $derived(character.levels ?? {});
@@ -112,7 +116,10 @@
 	function spellList(prepared: Record<string, unknown>): [string, string[]][] {
 		return Object.entries(prepared)
 			.sort(([a], [b]) => Number(a) - Number(b))
-			.map(([level, spells]) => [level, Array.isArray(spells) ? spells.map(String) : [String(spells)]]);
+			.map(([level, spells]) => [
+				level,
+				Array.isArray(spells) ? spells.map(String) : [String(spells)]
+			]);
 	}
 </script>
 
@@ -164,16 +171,19 @@
 					{@const hd = parseSumValue(levels.hd)}
 					<div class="stat-row">
 						<span class="label">HD</span>
-						<span>{hd.total}{#if Object.keys(hd.breakdown).length > 0}
+						<span
+							>{hd.total}{#if Object.keys(hd.breakdown).length > 0}
 								<span class="detail">({formatBreakdown(hd.breakdown)})</span>
-							{/if}</span>
+							{/if}</span
+						>
 					</div>
 				{/if}
 				{#if levels.hp}
 					{@const hp = parseSumValue(levels.hp)}
 					<div class="stat-row hp-row">
 						<span class="label">HP</span>
-						<span class="hp-value">{hp.total}
+						<span class="hp-value"
+							>{hp.total}
 							{#if hp.breakdown['max-hp']}
 								<span class="detail">/ {hp.breakdown['max-hp']} max</span>
 							{/if}
@@ -204,7 +214,9 @@
 								<td class="ability-name">{formatKey(name)}</td>
 								<td class="centered">{abilityScore(val)}</td>
 								<td class="centered mod">{abilityMod(val)}</td>
-								<td class="detail">{#if Object.keys(p.breakdown).length > 0}{formatBreakdown(p.breakdown)}{/if}</td>
+								<td class="detail"
+									>{#if Object.keys(p.breakdown).length > 0}{formatBreakdown(p.breakdown)}{/if}</td
+								>
 							</tr>
 						{/each}
 					</tbody>
@@ -218,7 +230,8 @@
 					{@const init = parseSumValue(combat.initiative)}
 					<div class="stat-row">
 						<span class="label">Initiative</span>
-						<span>{formatMod(Number(init.total))}
+						<span
+							>{formatMod(Number(init.total))}
 							<span class="detail">({formatBreakdown(init.breakdown)})</span>
 						</span>
 					</div>
@@ -231,7 +244,8 @@
 						{@const p = parseSumValue(val)}
 						<div class="stat-row">
 							<span class="label">{formatKey(save)}</span>
-							<span>{formatMod(Number(p.total))}
+							<span
+								>{formatMod(Number(p.total))}
 								<span class="detail">({formatBreakdown(p.breakdown)})</span>
 							</span>
 						</div>
@@ -245,7 +259,8 @@
 						{@const bab = parseSumValue(combat.attack.bab)}
 						<div class="stat-row">
 							<span class="label">BAB</span>
-							<span>{formatMod(Number(bab.total))}
+							<span
+								>{formatMod(Number(bab.total))}
 								<span class="detail">({formatBreakdown(bab.breakdown)})</span>
 							</span>
 						</div>
@@ -254,7 +269,8 @@
 						{@const grapple = parseSumValue(combat.attack.grapple)}
 						<div class="stat-row">
 							<span class="label">Grapple</span>
-							<span>{formatMod(Number(grapple.total))}
+							<span
+								>{formatMod(Number(grapple.total))}
 								<span class="detail">({formatBreakdown(grapple.breakdown)})</span>
 							</span>
 						</div>
@@ -262,7 +278,11 @@
 
 					<!-- Melee -->
 					{#if combat.attack.melee}
-						<h4>Melee {#if combat.attack.melee._}<span class="base-atk">{baseAttack(combat.attack.melee)}</span>{/if}</h4>
+						<h4>
+							Melee {#if combat.attack.melee._}<span class="base-atk"
+									>{baseAttack(combat.attack.melee)}</span
+								>{/if}
+						</h4>
 						{#each attackEntries(combat.attack.melee) as [name, val]}
 							{@const w = parseWeapon(val)}
 							<div class="weapon">
@@ -279,7 +299,11 @@
 
 					<!-- Ranged -->
 					{#if combat.attack.ranged}
-						<h4>Ranged {#if combat.attack.ranged._}<span class="base-atk">{baseAttack(combat.attack.ranged)}</span>{/if}</h4>
+						<h4>
+							Ranged {#if combat.attack.ranged._}<span class="base-atk"
+									>{baseAttack(combat.attack.ranged)}</span
+								>{/if}
+						</h4>
 						{#each attackEntries(combat.attack.ranged) as [name, val]}
 							{@const w = parseWeapon(val)}
 							<div class="weapon">
@@ -315,7 +339,8 @@
 						{@const p = parseSumValue(val)}
 						<div class="stat-row">
 							<span class="label">{formatKey(key)}</span>
-							<span>{p.total}
+							<span
+								>{p.total}
 								{#if Object.keys(p.breakdown).length > 0}
 									<span class="detail">({formatBreakdown(p.breakdown)})</span>
 								{/if}
@@ -346,14 +371,17 @@
 							<span class="label">Capacity</span>
 							<span>
 								{#each Object.entries(val as Record<string, unknown>) as [cap, amt], i}
-									{#if i > 0} / {/if}{formatKey(cap)}: {amt}
+									{#if i > 0}
+										/
+									{/if}{formatKey(cap)}: {amt}
 								{/each}
 							</span>
 						</div>
 					{:else}
 						<div class="stat-row">
 							<span class="label">{formatKey(key)}</span>
-							<span>{p.total}
+							<span
+								>{p.total}
 								{#if Object.keys(p.breakdown).length > 0}
 									<span class="detail">({formatBreakdown(p.breakdown)})</span>
 								{/if}
@@ -373,7 +401,8 @@
 					{@const pts = parseSumValue(skills._points)}
 					<div class="stat-row">
 						<span class="label">Skill Points</span>
-						<span>{pts.total}
+						<span
+							>{pts.total}
 							<span class="detail">({formatBreakdown(pts.breakdown)})</span>
 						</span>
 					</div>
@@ -410,7 +439,9 @@
 								<strong>{feat[0]}</strong>
 								{#if feat[1]}
 									<span class="detail">
-										({#if typeof feat[1] === 'object'}{Object.entries(feat[1]).map(([k, v]) => `${formatKey(k)}: ${v}`).join(', ')}{:else}{feat[1]}{/if})
+										({#if typeof feat[1] === 'object'}{Object.entries(feat[1])
+												.map(([k, v]) => `${formatKey(k)}: ${v}`)
+												.join(', ')}{:else}{feat[1]}{/if})
 									</span>
 								{/if}
 							</li>
@@ -487,25 +518,41 @@
 						{#if section.domains}
 							<div class="stat-row">
 								<span class="label">Domains</span>
-								<span>{Array.isArray(section.domains) ? section.domains.join(', ') : section.domains}</span>
+								<span
+									>{Array.isArray(section.domains)
+										? section.domains.join(', ')
+										: section.domains}</span
+								>
 							</div>
 						{/if}
 						{#if section.ranges}
 							<div class="stat-row">
 								<span class="label">Ranges</span>
-								<span>{Object.entries(section.ranges).map(([k, v]) => `${formatKey(k)}: ${v}`).join(', ')}</span>
+								<span
+									>{Object.entries(section.ranges)
+										.map(([k, v]) => `${formatKey(k)}: ${v}`)
+										.join(', ')}</span
+								>
 							</div>
 						{/if}
 						{#if section['spells-per-day']}
 							<div class="stat-row">
 								<span class="label">Spells/Day</span>
-								<span>{Object.entries(section['spells-per-day']).map(([k, v]) => `${k}: ${v}`).join(' | ')}</span>
+								<span
+									>{Object.entries(section['spells-per-day'])
+										.map(([k, v]) => `${k}: ${v}`)
+										.join(' | ')}</span
+								>
 							</div>
 						{/if}
 						{#if section['save-dc']}
 							<div class="stat-row">
 								<span class="label">Save DC</span>
-								<span>{Object.entries(section['save-dc']).map(([k, v]) => `${k}: ${v}`).join(' | ')}</span>
+								<span
+									>{Object.entries(section['save-dc'])
+										.map(([k, v]) => `${k}: ${v}`)
+										.join(' | ')}</span
+								>
 							</div>
 						{/if}
 						{#if section['spells-prepared']}
@@ -730,7 +777,6 @@
 		font-weight: 600;
 		color: #555;
 	}
-
 
 	/* Print */
 	@media print {

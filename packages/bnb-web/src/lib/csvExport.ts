@@ -55,10 +55,9 @@ export function inventoryToCSV(items: InventoryItem[]): string {
 	]);
 
 	// Combine headers and rows
-	const csvContent = [
-		headers.map(escapeCSV).join(','),
-		...rows.map((row) => row.join(','))
-	].join('\n');
+	const csvContent = [headers.map(escapeCSV).join(','), ...rows.map((row) => row.join(','))].join(
+		'\n'
+	);
 
 	return csvContent;
 }
