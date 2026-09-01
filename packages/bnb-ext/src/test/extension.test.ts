@@ -40,19 +40,36 @@ suite('bnb-ext extension', () => {
     )
     const document = await vscode.workspace.openTextDocument(fixturePath)
 
-    const edits = await vscode.commands.executeCommand<vscode.TextEdit[]>(
-      'vscode.executeFormatDocumentProvider',
+    const staleModifier = document.getText().indexOf('str: 3')
+    assert.notStrictEqual(staleModifier, -1)
+    const workspaceEdit = new vscode.WorkspaceEdit()
+    workspaceEdit.replace(
       document.uri,
-      { insertSpaces: true, tabSize: 2 },
+      new vscode.Range(
+        document.positionAt(staleModifier),
+        document.positionAt(staleModifier + 'str: 3'.length),
+      ),
+      'str: 0',
     )
+    await vscode.workspace.applyEdit(workspaceEdit)
 
-    assert.ok(edits, 'a formatter should be registered for .bnb.yaml files')
-    assert.strictEqual(
-      vscode.workspace
-        .getConfiguration('editor', document.uri)
-        .get<string>('defaultFormatter'),
-      'daneweber.bnb-ext',
-    )
+    try {
+      const edits = await vscode.commands.executeCommand<vscode.TextEdit[]>(
+        'vscode.executeFormatDocumentProvider',
+        document.uri,
+        { insertSpaces: true, tabSize: 2 },
+      )
+
+      assert.ok(edits?.length, 'the formatter should correct the stale modifier')
+      assert.strictEqual(
+        vscode.workspace
+          .getConfiguration('editor', document.uri)
+          .get<string>('defaultFormatter'),
+        'daneweber.bnb-ext',
+      )
+    } finally {
+      await vscode.commands.executeCommand('workbench.action.files.revert')
+    }
   })
 
   test('formats and calculates a .bnb.yaml document via the format command', async () => {
