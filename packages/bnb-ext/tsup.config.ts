@@ -1,4 +1,9 @@
+import { cp, rm, stat } from 'node:fs/promises'
+import { extname, resolve } from 'node:path'
 import { defineConfig } from 'tsup'
+
+const extensionDir = __dirname
+const schemaDir = resolve(extensionDir, 'schema')
 
 export default defineConfig({
   entry: ['src/extension.ts'],
@@ -18,4 +23,12 @@ export default defineConfig({
   // a .vsix — no node_modules ships. (A bare `/.*/` would also swallow the
   // `external: ['vscode']` above, so `vscode` must be excluded here too.)
   noExternal: [/^(?!vscode$).+/],
+  onSuccess: async () => {
+    await rm(schemaDir, { recursive: true, force: true })
+    await cp(resolve(extensionDir, '../bnb-core/schema'), schemaDir, {
+      recursive: true,
+      filter: async (source) =>
+        (await stat(source)).isDirectory() || extname(source) === '.json',
+    })
+  },
 })

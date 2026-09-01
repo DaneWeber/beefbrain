@@ -127,6 +127,7 @@ dist
 
 # Packaged VS Code extensions
 *.vsix
+packages/bnb-ext/schema/
 
 # yarn v3
 .pnp.*

@@ -58,7 +58,7 @@
   },
   "scripts": {
     "build": "tsup-node",
-    "clean": "rimraf dist out",
+    "clean": "rimraf dist out schema",
     "compile": "tsc",
     "compile:test": "tsc -p tsconfig.test.json",
     "test": "jest",
