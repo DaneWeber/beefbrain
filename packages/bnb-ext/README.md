@@ -61,6 +61,29 @@ To run the extension in a real VS Code window, open **this package folder**
 root — then press `F5` ("Run Extension"). This launches an Extension
 Development Host with `bnb-ext` loaded.
 
+### Installing it in your everyday VS Code
+
+The Extension Development Host is good for quick iteration, but it's a
+separate, temporary VS Code instance. To try `bnb-ext` in the VS Code you use
+day to day, package it as a `.vsix` and install that:
+
+```bash
+cd packages/bnb-ext
+pnpm run package   # builds, then runs `vsce package` -> bnb-ext-<version>.vsix
+code --install-extension bnb-ext-0.1.0.vsix
+```
+
+Reload the window (or restart VS Code) afterwards. To remove it again:
+
+```bash
+code --uninstall-extension daneweber.bnb-ext
+```
+
+Note that `pnpm run build` bundles `bnb-core`, `yaml`, and their own
+dependencies (e.g. `mathjs`) directly into `dist/extension.js` via
+`tsup`'s `noExternal` — a packaged `.vsix` ships no `node_modules`, so
+everything the extension needs at runtime must already be inlined there.
+
 ### Architecture
 
 Logic is split so most of it can be unit tested without the `vscode` module:

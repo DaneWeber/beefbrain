@@ -1,5 +1,7 @@
 .vscode/**
 .vscode-test/**
+node_modules/**
+coverage/**
 out/**
 src/**
 test-fixtures/**
