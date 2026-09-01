@@ -1,0 +1,14 @@
+{
+  "features": {
+    "ghcr.io/devcontainers-extra/features/pnpm:2": {
+      "version": "2.0.5",
+      "resolved": "ghcr.io/devcontainers-extra/features/pnpm@sha256:694c2b6182435c9e9c06f6071728b087c1181b38c18cecf0defe2ab8c11cddd6",
+      "integrity": "sha256:694c2b6182435c9e9c06f6071728b087c1181b38c18cecf0defe2ab8c11cddd6"
+    },
+    "ghcr.io/helpers4/devcontainer/pnpm-store:1": {
+      "version": "1.0.7",
+      "resolved": "ghcr.io/helpers4/devcontainer/pnpm-store@sha256:fca3484bd17e53cc295808598f4a4cd8e8719b86e6cb5893270ce1cdca4f503c",
+      "integrity": "sha256:fca3484bd17e53cc295808598f4a4cd8e8719b86e6cb5893270ce1cdca4f503c"
+    }
+  }
+}

@@ -84,6 +84,19 @@ dependencies (e.g. `mathjs`) directly into `dist/extension.js` via
 `tsup`'s `noExternal` — a packaged `.vsix` ships no `node_modules`, so
 everything the extension needs at runtime must already be inlined there.
 
+### Testing it in a controlled devcontainer
+
+Installing into your everyday VS Code works the same way inside a Dev
+Container as it does locally — a devcontainer is just a remote VS Code
+session. There's a second, named devcontainer config for exactly this:
+`.devcontainer/bnb-ext-test/devcontainer.json`. Open the repo, run **Dev
+Containers: Reopen in Container**, and pick **"bnb-ext (extension test)"**
+when prompted (instead of the repo's default config). Its
+`postCreateCommand` builds, packages, and installs `bnb-ext` automatically.
+After editing `bnb-ext`'s source, re-run
+`bash .devcontainer/bnb-ext-test/install-extension.sh` from an integrated
+terminal to refresh it without rebuilding the whole container.
+
 ### Architecture
 
 Logic is split so most of it can be unit tested without the `vscode` module:
