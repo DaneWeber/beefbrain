@@ -1,0 +1,58 @@
+name: bnb-ext Tests
+
+on:
+  pull_request:
+    paths:
+      - "packages/bnb-ext/**"
+      - "packages/bnb-core/**"
+      - "pnpm-lock.yaml"
+      - "package.json"
+      - ".github/workflows/bnb-ext-prs.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/bnb-ext/**"
+      - "packages/bnb-core/**"
+      - "pnpm-lock.yaml"
+      - "package.json"
+      - ".github/workflows/bnb-ext-prs.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build bnb-core (dependency)
+        run: pnpm --filter bnb-core build
+
+      - name: Build bnb-ext
+        run: pnpm --filter bnb-ext build
+
+      - name: Verify extension build artifact
+        run: test -f packages/bnb-ext/dist/extension.js
+
+      - name: Run bnb-ext unit tests
+        run: pnpm --filter bnb-ext test
+
+      - name: Run bnb-ext linting
+        run: pnpm --filter bnb-ext lint
+
+      - name: Run bnb-ext formatting check
+        run: pnpm --filter bnb-ext format
+
+      - name: Run bnb-ext end-to-end extension tests
+        run: xvfb-run -a pnpm --filter bnb-ext test:e2e
