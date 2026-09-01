@@ -13,6 +13,11 @@
     "ghcr.io/devcontainers-extra/features/pnpm:2": {},
     "ghcr.io/helpers4/devcontainer/pnpm-store:1": {}
   },
+  // This image's default container user is root, not the non-root "node"
+  // user (uid 1000) it also provides. Pin "node" explicitly so files this
+  // container creates in the bind-mounted repo (node_modules, dist/, the
+  // packaged .vsix) aren't left owned by root on the host.
+  "remoteUser": "node",
   // Builds, packages, and installs bnb-ext as a real VS Code extension.
   // Re-run manually after editing bnb-ext's source to pick up changes
   // without rebuilding the whole container:
