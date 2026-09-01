@@ -60,7 +60,10 @@ suite('bnb-ext extension', () => {
         { insertSpaces: true, tabSize: 2 },
       )
 
-      assert.ok(edits?.length, 'the formatter should correct the stale modifier')
+      assert.ok(
+        edits?.length,
+        'the formatter should correct the stale modifier',
+      )
       assert.strictEqual(
         vscode.workspace
           .getConfiguration('editor', document.uri)
