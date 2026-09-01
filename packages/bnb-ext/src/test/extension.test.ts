@@ -66,7 +66,7 @@ suite('bnb-ext extension', () => {
       )
       assert.strictEqual(
         vscode.workspace
-          .getConfiguration('editor', document.uri)
+          .getConfiguration('editor', document)
           .get<string>('defaultFormatter'),
         'daneweber.bnb-ext',
       )
