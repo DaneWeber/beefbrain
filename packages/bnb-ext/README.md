@@ -21,12 +21,10 @@ definition" for modifiers are planned follow-ups — see [Next Steps](#next-step
 By convention, BeefBrain character files use the compound extension
 **`.bnb.yaml`** (or `.bnb.yml`). This extension:
 
-1. Registers `.bnb.yaml`/`.bnb.yml` as additional file associations for
-   VS Code's built-in `yaml` language, so they get YAML syntax highlighting
-   out of the box (with or without another YAML extension installed) —
-   compound extensions like this work fine in VS Code's language
-   registration; `extensions` entries match on filename suffix, and the
-   longest/most specific match wins over a plain `.yaml` association.
+1. Registers `.bnb.yaml`/`.bnb.yml` as the dedicated `bnb-yaml` language,
+   with YAML syntax highlighting and BeefBrain as its default formatter.
+   This keeps the formatter scoped to BeefBrain files instead of changing
+   the default formatter for unrelated YAML.
 2. Only activates its own features (formatting, diagnostics) on files whose
    path ends in `.bnb.yaml`/`.bnb.yml`.
 
@@ -39,7 +37,8 @@ surprise you on unrelated YAML files in a workspace.
 
 - **BeefBrain: Format and Calculate Character YAML** (`bnb.formatDocument`) —
   also wired up as the document formatter, so "Format Document" and
-  format-on-save work for recognized files.
+  format-on-save work for recognized files. Enable `editor.formatOnSave` as
+  usual; no `editor.defaultFormatter` setting is needed for `bnb-yaml`.
 
 ## Settings
 
@@ -115,10 +114,10 @@ diagnostics (including real YAML error line/column ranges), and the
 
 **End-to-end tests** (`pnpm test:e2e`): uses `@vscode/test-cli` /
 `@vscode/test-electron` to launch a real (headless-capable) VS Code instance
-and verify the packaged extension activates, registers its command, and
-associates `.bnb.yaml` files with the `yaml` language. On Linux CI this needs
-a virtual display (see the GitHub Actions workflow, which runs it under
-`xvfb-run`).
+and verify the packaged extension activates, registers its command and
+formatter, and associates `.bnb.yaml` files with the `bnb-yaml` language. On
+Linux CI this needs a virtual display (see the GitHub Actions workflow, which
+runs it under `xvfb-run`).
 
 ## Next Steps
 

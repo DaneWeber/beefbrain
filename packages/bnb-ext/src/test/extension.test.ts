@@ -3,14 +3,14 @@ import * as path from 'path'
 import * as vscode from 'vscode'
 
 suite('bnb-ext extension', () => {
-  test('associates .bnb.yaml files with the yaml language', async () => {
+  test('associates .bnb.yaml files with the BeefBrain YAML language', async () => {
     const fixturePath = path.resolve(
       __dirname,
       '../../src/test/fixtures/sample.bnb.yaml',
     )
     const document = await vscode.workspace.openTextDocument(fixturePath)
 
-    assert.strictEqual(document.languageId, 'yaml')
+    assert.strictEqual(document.languageId, 'bnb-yaml')
   })
 
   test('activates and registers the format command', async () => {
@@ -31,6 +31,48 @@ suite('bnb-ext extension', () => {
       commands.includes('bnb.formatDocument'),
       'bnb.formatDocument command should be registered',
     )
+  })
+
+  test('registers as the document formatter for .bnb.yaml files', async () => {
+    const fixturePath = path.resolve(
+      __dirname,
+      '../../src/test/fixtures/sample.bnb.yaml',
+    )
+    const document = await vscode.workspace.openTextDocument(fixturePath)
+
+    const staleModifier = document.getText().indexOf('str: 3')
+    assert.notStrictEqual(staleModifier, -1)
+    const workspaceEdit = new vscode.WorkspaceEdit()
+    workspaceEdit.replace(
+      document.uri,
+      new vscode.Range(
+        document.positionAt(staleModifier),
+        document.positionAt(staleModifier + 'str: 3'.length),
+      ),
+      'str: 0',
+    )
+    await vscode.workspace.applyEdit(workspaceEdit)
+
+    try {
+      const edits = await vscode.commands.executeCommand<vscode.TextEdit[]>(
+        'vscode.executeFormatDocumentProvider',
+        document.uri,
+        { insertSpaces: true, tabSize: 2 },
+      )
+
+      assert.ok(
+        edits?.length,
+        'the formatter should correct the stale modifier',
+      )
+      assert.strictEqual(
+        vscode.workspace
+          .getConfiguration('editor', document)
+          .get<string>('defaultFormatter'),
+        'daneweber.bnb-ext',
+      )
+    } finally {
+      await vscode.commands.executeCommand('workbench.action.files.revert')
+    }
   })
 
   test('formats and calculates a .bnb.yaml document via the format command', async () => {

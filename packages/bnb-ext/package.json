@@ -27,18 +27,34 @@
   },
   "main": "./dist/extension.js",
   "activationEvents": [
+    "onLanguage:bnb-yaml",
     "onLanguage:yaml"
   ],
   "contributes": {
     "languages": [
       {
-        "id": "yaml",
+        "id": "bnb-yaml",
+        "aliases": [
+          "BeefBrain YAML"
+        ],
         "extensions": [
           ".bnb.yaml",
           ".bnb.yml"
         ]
       }
     ],
+    "grammars": [
+      {
+        "language": "bnb-yaml",
+        "scopeName": "source.bnb-yaml",
+        "path": "./syntaxes/bnb-yaml.tmLanguage.json"
+      }
+    ],
+    "configurationDefaults": {
+      "[bnb-yaml]": {
+        "editor.defaultFormatter": "daneweber.bnb-ext"
+      }
+    },
     "commands": [
       {
         "command": "bnb.formatDocument",
@@ -58,7 +74,7 @@
   },
   "scripts": {
     "build": "tsup-node",
-    "clean": "rimraf dist out",
+    "clean": "rimraf dist out schema",
     "compile": "tsc",
     "compile:test": "tsc -p tsconfig.test.json",
     "test": "jest",
