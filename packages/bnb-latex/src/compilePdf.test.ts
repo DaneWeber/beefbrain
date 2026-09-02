@@ -1,4 +1,4 @@
-import { describe, expect, it } from '@jest/globals'
+import { describe, expect, it } from 'vitest'
 import { compilePdf } from './compilePdf'
 import { LatexGenerationError } from './errors'
 
@@ -27,6 +27,6 @@ describe('compilePdf', () => {
         latex: '\\documentclass{article}\\begin{document}x\\end{document}',
         compilerCommand: 'pdflatex-command-that-does-not-exist',
       }),
-    ).rejects.toThrow(/was not found/i)
+    ).rejects.toThrow(/was not found|not executable/i)
   })
 })

@@ -1,15 +1,18 @@
-import { defineConfig } from 'tsup'
+import { defineConfig } from 'tsdown'
 
 export default defineConfig({
   entry: ['src/index.ts'],
-  format: ['cjs'],
+  format: ['esm'],
   dts: false,
   sourcemap: true,
   clean: true,
-  splitting: false,
   minify: false,
-  target: 'node18',
+  target: 'node24',
   platform: 'node',
+  deps: {
+    alwaysBundle: [/.*/],
+    onlyBundle: false,
+  },
   banner: {
     js: '#!/usr/bin/env node',
   },

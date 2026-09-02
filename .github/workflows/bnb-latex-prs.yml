@@ -29,13 +29,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+
       - name: Set up Node.js
         uses: actions/setup-node@v5
         with:
           node-version: "24"
-
-      - name: Install pnpm
-        run: npm install -g pnpm
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install
@@ -61,9 +64,9 @@ jobs:
       - name: Generate sample LaTeX and PDF files
         run: |
           mkdir -p artifacts/latex
-          node packages/bnb-cli/dist/index.js latex reference_material/beefy_boys_spreadsheets/yaml/andy-black-stag.yaml --template dnd35-streamlined --out artifacts/latex/andy-black-stag-streamlined.tex --pdf --pdf-out artifacts/latex/andy-black-stag-streamlined.pdf
-          node packages/bnb-cli/dist/index.js latex reference_material/beefy_boys_spreadsheets/yaml/ryan-landorf.yaml --template dnd35-detailed --out artifacts/latex/ryan-landorf-detailed.tex --pdf --pdf-out artifacts/latex/ryan-landorf-detailed.pdf
-          node packages/bnb-cli/dist/index.js latex reference_material/beefy_boys_spreadsheets/yaml/don-cade.yaml --template dnd35-spellcaster --out artifacts/latex/don-cade-spellcaster.tex --pdf --pdf-out artifacts/latex/don-cade-spellcaster.pdf
+          node packages/bnb-cli/dist/index.mjs latex reference_material/beefy_boys_spreadsheets/yaml/andy-black-stag.yaml --template dnd35-streamlined --out artifacts/latex/andy-black-stag-streamlined.tex --pdf --pdf-out artifacts/latex/andy-black-stag-streamlined.pdf
+          node packages/bnb-cli/dist/index.mjs latex reference_material/beefy_boys_spreadsheets/yaml/ryan-landorf.yaml --template dnd35-detailed --out artifacts/latex/ryan-landorf-detailed.tex --pdf --pdf-out artifacts/latex/ryan-landorf-detailed.pdf
+          node packages/bnb-cli/dist/index.mjs latex reference_material/beefy_boys_spreadsheets/yaml/don-cade.yaml --template dnd35-spellcaster --out artifacts/latex/don-cade-spellcaster.tex --pdf --pdf-out artifacts/latex/don-cade-spellcaster.pdf
           ls -lah artifacts/latex
 
       - name: Upload generated latex/pdf artifacts

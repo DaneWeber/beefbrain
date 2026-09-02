@@ -1,7 +1,5 @@
 export type LatexTemplateKey =
-  | 'dnd35-streamlined'
-  | 'dnd35-detailed'
-  | 'dnd35-spellcaster'
+  'dnd35-streamlined' | 'dnd35-detailed' | 'dnd35-spellcaster'
 
 export interface TemplateInfo {
   key: LatexTemplateKey

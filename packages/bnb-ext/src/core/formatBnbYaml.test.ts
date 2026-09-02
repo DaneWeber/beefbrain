@@ -1,4 +1,4 @@
-import { describe, it, expect, jest } from '@jest/globals'
+import { describe, it, expect, vi } from 'vitest'
 import { formatBnbYaml } from './formatBnbYaml'
 
 describe('formatBnbYaml', () => {
@@ -32,23 +32,21 @@ describe('formatBnbYaml', () => {
     expect(result.formatted).toContain('strength:')
   })
 
-  it('surfaces calculation errors from bnb-core instead of throwing', () => {
-    jest.resetModules()
-    jest.doMock('bnb-core', () => ({
+  it('surfaces calculation errors from bnb-core instead of throwing', async () => {
+    vi.resetModules()
+    vi.doMock('bnb-core', () => ({
       validateBeefBrainData: () => true,
       updateCalculatedFields: () => {
         throw new Error('boom')
       },
     }))
 
-    // Re-require after mocking so the mocked module is used.
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { formatBnbYaml: mockedFormat } = require('./formatBnbYaml')
+    const { formatBnbYaml: mockedFormat } = await import('./formatBnbYaml')
     const result = mockedFormat('character:\n  name: Test\n')
 
     expect(result.error).toBe('boom')
 
-    jest.dontMock('bnb-core')
-    jest.resetModules()
+    vi.doUnmock('bnb-core')
+    vi.resetModules()
   })
 })

@@ -193,7 +193,14 @@ export function extractAllInventoryItems(
 
 			// Parse each item at this location
 			for (let i = 0; i < locationItems.length; i++) {
-				const item = parseItem(locationItems[i] as unknown[], charName, location, i, dmMetadata, unmappedIdCounter);
+				const item = parseItem(
+					locationItems[i] as unknown[],
+					charName,
+					location,
+					i,
+					dmMetadata,
+					unmappedIdCounter
+				);
 				if (item) {
 					// If this was an unmapped item, decrement counter for next unmapped item
 					if (item.itemId < 0 && item.itemId === unmappedIdCounter) {
@@ -219,17 +226,25 @@ export function sortInventoryItems(
 
 	switch (sortBy) {
 		case 'pc':
-			sorted.sort((a, b) => a.pcName.localeCompare(b.pcName) || a.location.localeCompare(b.location));
+			sorted.sort(
+				(a, b) => a.pcName.localeCompare(b.pcName) || a.location.localeCompare(b.location)
+			);
 			break;
 		case 'location':
-			sorted.sort((a, b) => a.location.localeCompare(b.location) || a.pcName.localeCompare(b.pcName));
+			sorted.sort(
+				(a, b) => a.location.localeCompare(b.location) || a.pcName.localeCompare(b.pcName)
+			);
 			break;
 		case 'category':
-			sorted.sort((a, b) => a.category.localeCompare(b.category) || a.pcName.localeCompare(b.pcName));
+			sorted.sort(
+				(a, b) => a.category.localeCompare(b.category) || a.pcName.localeCompare(b.pcName)
+			);
 			break;
 		case 'value':
 			sorted.sort(
-				(a, b) => b.marketValue * b.quantity - (a.marketValue * a.quantity) || a.pcName.localeCompare(b.pcName)
+				(a, b) =>
+					b.marketValue * b.quantity - a.marketValue * a.quantity ||
+					a.pcName.localeCompare(b.pcName)
 			);
 			break;
 	}

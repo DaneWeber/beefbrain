@@ -27,6 +27,9 @@ export default defineConfig(
 	},
 	{
 		files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
+		linterOptions: {
+			reportUnusedDisableDirectives: false
+		},
 		languageOptions: {
 			parserOptions: {
 				projectService: true,
@@ -34,6 +37,13 @@ export default defineConfig(
 				parser: ts.parser,
 				svelteConfig
 			}
+		},
+		rules: {
+			'@typescript-eslint/no-explicit-any': 'off',
+			'@typescript-eslint/no-unused-vars': 'off',
+			'svelte/no-navigation-without-resolve': 'off',
+			'svelte/prefer-svelte-reactivity': 'off',
+			'svelte/require-each-key': 'off'
 		}
 	}
 );

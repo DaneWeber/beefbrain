@@ -1,4 +1,4 @@
-import { describe, it, expect } from '@jest/globals'
+import { describe, it, expect } from 'vitest'
 // import { readFileSync, writeFileSync } from 'fs'
 import { readFileSync } from 'fs'
 import { parse as parseYAML } from 'yaml'

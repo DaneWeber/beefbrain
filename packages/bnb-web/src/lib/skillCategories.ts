@@ -73,14 +73,7 @@ export function getSkillAbility(key: string): string {
 }
 
 export type SkillCategory =
-	| 'social'
-	| 'detection'
-	| 'stealth'
-	| 'physical'
-	| 'magic'
-	| 'practical'
-	| 'knowledge'
-	| 'other';
+	'social' | 'detection' | 'stealth' | 'physical' | 'magic' | 'practical' | 'knowledge' | 'other';
 
 const socialSet = new Set([
 	'bluff',
@@ -106,11 +99,7 @@ const physicalSet = new Set([
 	'tumble'
 ]);
 
-const magicSet = new Set([
-	'concentration',
-	'spellcraft',
-	'use-magic-device'
-]);
+const magicSet = new Set(['concentration', 'spellcraft', 'use-magic-device']);
 
 const practicalSet = new Set([
 	'disable-device',

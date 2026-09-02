@@ -1,5 +1,5 @@
-import { readFileSync } from 'fs'
-import { join } from 'path'
+import dnd35CharacterSchema from '../schema/dnd35/dnd35-character.json'
+import mnm3CharacterSchema from '../schema/mnm3/mnm3-character.json'
 
 /**
  * Schema type definitions
@@ -107,10 +107,9 @@ export interface Schema {
 
 const schemaCache: Record<string, Schema> = {}
 
-// Map schema names to their directory paths
-const SCHEMA_DIRS: Record<string, string> = {
-  'dnd35-character': 'dnd35',
-  'mnm3-character': 'mnm3',
+const SCHEMAS: Record<string, Schema> = {
+  'dnd35-character': dnd35CharacterSchema as Schema,
+  'mnm3-character': mnm3CharacterSchema as Schema,
 }
 
 /**
@@ -123,17 +122,14 @@ export function loadSchema(schemaName: string): Schema {
     return schemaCache[schemaName]
   }
 
-  const dir = SCHEMA_DIRS[schemaName]
-  if (!dir) {
+  const schema = SCHEMAS[schemaName]
+  if (!schema) {
     throw new Error(
       `Unknown schema "${schemaName}". Available schemas: ${Object.keys(
-        SCHEMA_DIRS,
+        SCHEMAS,
       ).join(', ')}`,
     )
   }
-  const schemaPath = join(__dirname, '..', 'schema', dir, `${schemaName}.json`)
-  const schemaContent = readFileSync(schemaPath, 'utf-8')
-  const schema = JSON.parse(schemaContent) as Schema
   schemaCache[schemaName] = schema
   return schema
 }

@@ -5,7 +5,7 @@
 
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type YAMLData = Record<string, any>;
@@ -149,5 +149,7 @@ export function findItemIdByLocation(key: string, metadata: DMMetadata): number 
  * Get all item IDs
  */
 export function getAllItemIds(metadata: DMMetadata): number[] {
-	return Object.values(metadata.itemMapping).filter((id, idx, arr) => arr.indexOf(id) === idx).sort((a, b) => a - b);
+	return Object.values(metadata.itemMapping)
+		.filter((id, idx, arr) => arr.indexOf(id) === idx)
+		.sort((a, b) => a - b);
 }

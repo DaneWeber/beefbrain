@@ -51,7 +51,7 @@ surprise you on unrelated YAML files in a workspace.
 ```bash
 cd packages/bnb-ext
 pnpm install
-pnpm build       # bundle src/extension.ts -> dist/extension.js via tsup
+pnpm build       # bundle src/extension.ts -> dist/extension.js via tsdown
 pnpm test        # unit tests (Jest) for the vscode-independent core logic
 ```
 
@@ -80,7 +80,7 @@ code --uninstall-extension daneweber.bnb-ext
 
 Note that `pnpm run build` bundles `bnb-core`, `yaml`, and their own
 dependencies (e.g. `mathjs`) directly into `dist/extension.js` via
-`tsup`'s `noExternal` — a packaged `.vsix` ships no `node_modules`, so
+`tsdown`'s `deps.alwaysBundle` — a packaged `.vsix` ships no `node_modules`, so
 everything the extension needs at runtime must already be inlined there.
 
 ### Testing it in a controlled devcontainer

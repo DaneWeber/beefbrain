@@ -5,6 +5,10 @@
   "description": "TTRPG character and creature calculator using human-readable data formats",
   "license": "MIT",
   "author": "DaneWeber",
+  "engines": {
+    "node": ">=24.10"
+  },
+  "packageManager": "pnpm@11.25.0",
   "pnpm": {
     "workspace-dir": "."
   },
@@ -26,8 +30,8 @@
   },
   "devDependencies": {
     "glob": "^13.0.6",
-    "js-yaml": "^4.1.1",
-    "yaml": "^2.8.2"
+    "js-yaml": "^5.4.1",
+    "yaml": "^2.9.0"
   },
   "keywords": [
     "typescript",

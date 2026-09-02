@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { describe, expect, it } from '@jest/globals'
+import { describe, expect, it } from 'vitest'
 import { renderLatex } from './renderLatex'
 import { LatexGenerationError } from './errors'
 

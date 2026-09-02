@@ -86,36 +86,32 @@
 		for (let i = 3; i < val.length; i++) {
 			if (Array.isArray(val[i])) tags.push(...val[i].map(String));
 		}
-		return { atk: formatMod(Number(val[0])), damage: String(val[1] ?? ''), crit: String(val[2] ?? ''), tags };
+		return {
+			atk: formatMod(Number(val[0])),
+			damage: String(val[1] ?? ''),
+			crit: String(val[2] ?? ''),
+			tags
+		};
 	}
 
 	// Extract senses from racial traits
 	const senses = $derived(
 		(special.racial ?? [])
 			.map(String)
-			.filter(
-				(t: string) =>
-					/darkvision|blinds|low-light|keen senses|tremorsense|scent/i.test(t)
-			)
+			.filter((t: string) => /darkvision|blinds|low-light|keen senses|tremorsense|scent/i.test(t))
 	);
 
 	const nonSenseRacial = $derived(
 		(special.racial ?? [])
 			.map(String)
-			.filter(
-				(t: string) =>
-					!/darkvision|blinds|low-light|keen senses|tremorsense|scent/i.test(t)
-			)
+			.filter((t: string) => !/darkvision|blinds|low-light|keen senses|tremorsense|scent/i.test(t))
 	);
 
 	// Extract immunities/resistances/DR from racial traits
 	const defenseTraits = $derived(
 		(special.racial ?? [])
 			.map(String)
-			.filter(
-				(t: string) =>
-					/immun|resist|DR |damage reduction|spell resistance/i.test(t)
-			)
+			.filter((t: string) => /immun|resist|DR |damage reduction|spell resistance/i.test(t))
 	);
 
 	const otherRacial = $derived(
@@ -166,8 +162,14 @@
 		return items.filter((item: unknown) => Array.isArray(item) && (item as unknown[]).length > 0);
 	}
 
-	function skillRows(entries: [string, unknown][]): { name: string; total: string; boosted: boolean }[] {
-		return entries.map(([k, v]) => ({ name: formatKey(k), total: mod(v), boosted: isBoosted(k, v) }));
+	function skillRows(
+		entries: [string, unknown][]
+	): { name: string; total: string; boosted: boolean }[] {
+		return entries.map(([k, v]) => ({
+			name: formatKey(k),
+			total: mod(v),
+			boosted: isBoosted(k, v)
+		}));
 	}
 
 	/** Collect inventory items tagged for a specific display section */
@@ -183,9 +185,10 @@
 			for (const item of inventoryItems(inventory, location)) {
 				const tags = Array.isArray(item[6]) ? item[6].map(String) : [];
 				if (tags.includes(section)) {
-					const props = (item[5] && typeof item[5] === 'object' && !Array.isArray(item[5]))
-						? item[5] as Record<string, unknown>
-						: {};
+					const props =
+						item[5] && typeof item[5] === 'object' && !Array.isArray(item[5])
+							? (item[5] as Record<string, unknown>)
+							: {};
 					results.push({
 						name: String(item[0] ?? ''),
 						qty: Number(item[1] ?? 1),
@@ -240,17 +243,32 @@
 				<div class="ac-block">
 					<span class="ac-label">Full AC</span>
 					<span class="ac-value">{ac.total}</span>
-					<span class="ac-sources">{Object.entries(ac.breakdown).filter(([k]) => k !== 'base').map(([k, v]) => `${formatKey(k)} ${formatMod(Number(v))}`).join(', ')}</span>
+					<span class="ac-sources"
+						>{Object.entries(ac.breakdown)
+							.filter(([k]) => k !== 'base')
+							.map(([k, v]) => `${formatKey(k)} ${formatMod(Number(v))}`)
+							.join(', ')}</span
+					>
 				</div>
 				<div class="ac-block">
 					<span class="ac-label">Touch AC</span>
 					<span class="ac-value">{touch.total}</span>
-					<span class="ac-sources">{Object.entries(touch.breakdown).filter(([k]) => k !== 'base').map(([k, v]) => `${formatKey(k)} ${formatMod(Number(v))}`).join(', ')}</span>
+					<span class="ac-sources"
+						>{Object.entries(touch.breakdown)
+							.filter(([k]) => k !== 'base')
+							.map(([k, v]) => `${formatKey(k)} ${formatMod(Number(v))}`)
+							.join(', ')}</span
+					>
 				</div>
 				<div class="ac-block">
 					<span class="ac-label">Flat-Footed AC</span>
 					<span class="ac-value">{ff.total}</span>
-					<span class="ac-sources">{Object.entries(ff.breakdown).filter(([k]) => k !== 'base').map(([k, v]) => `${formatKey(k)} ${formatMod(Number(v))}`).join(', ')}</span>
+					<span class="ac-sources"
+						>{Object.entries(ff.breakdown)
+							.filter(([k]) => k !== 'base')
+							.map(([k, v]) => `${formatKey(k)} ${formatMod(Number(v))}`)
+							.join(', ')}</span
+					>
 				</div>
 			</div>
 			<div class="saves-and-extras">
@@ -260,31 +278,51 @@
 						<div class="save-block">
 							<span class="save-label">{label}</span>
 							<span class="save-value">{formatMod(Number(p.total))}</span>
-							<span class="save-sources">{Object.entries(p.breakdown).map(([k, v]) => `${formatKey(k)} ${formatMod(Number(v))}`).join(', ')}</span>
+							<span class="save-sources"
+								>{Object.entries(p.breakdown)
+									.map(([k, v]) => `${formatKey(k)} ${formatMod(Number(v))}`)
+									.join(', ')}</span
+							>
 						</div>
 					{/each}
 				</div>
 				{#if combat.saves?.['will-vs-mental-acuity']}
 					<div class="inline-stat">
-						<span class="label">Will (Mental Acuity)</span> {mod(combat.saves['will-vs-mental-acuity'])}
-						<span class="tags">{parseSumValue(combat.saves['will-vs-mental-acuity']).breakdown['3/day'] ?? '3/day'}</span>
+						<span class="label">Will (Mental Acuity)</span>
+						{mod(combat.saves['will-vs-mental-acuity'])}
+						<span class="tags"
+							>{parseSumValue(combat.saves['will-vs-mental-acuity']).breakdown['3/day'] ??
+								'3/day'}</span
+						>
 					</div>
 				{/if}
 				{#if combat.defense?.['spell-resistance'] || defenseTraits.length > 0 || viewNotes['combat-defense'] || itemsForSection('combat-defense').length > 0}
 					<div class="chip-flow">
 						{#if combat.defense?.['spell-resistance']}
-							<span class="defense-trait-chip">Spell Resistance (SR) {combat.defense['spell-resistance']}</span>
+							<span class="defense-trait-chip"
+								>Spell Resistance (SR) {combat.defense['spell-resistance']}</span
+							>
 						{/if}
 						{#each defenseTraits as trait}
 							<span class="defense-trait-chip">{trait}</span>
 						{/each}
 						{#if viewNotes['combat-defense']}
-							{#each viewNotes['combat-defense'].split(';').map((s: string) => s.trim()).filter(Boolean) as note}
+							{#each viewNotes['combat-defense']
+								.split(';')
+								.map((s: string) => s.trim())
+								.filter(Boolean) as note}
 								<span class="view-note-chip">{note}</span>
 							{/each}
 						{/if}
 						{#each itemsForSection('combat-defense') as item}
-							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+							<span class="gear-chip"
+								>{item.name}{#if Object.keys(item.props).length > 0}
+									<span class="gear-detail"
+										>({Object.entries(item.props)
+											.map(([k, v]) => `${k}: ${v}`)
+											.join(', ')})</span
+									>{/if}</span
+							>
 						{/each}
 					</div>
 				{/if}
@@ -298,7 +336,11 @@
 			<div class="ability-chip">
 				<span class="ability-label">{name.slice(0, 3).toUpperCase()}</span>
 				<span class="ability-score">{val(v)}</span>
-				<span class="ability-mod">({#if Array.isArray(v) && v.length > 1 && typeof v[1] === 'object'}{formatMod(Object.values(v[1])[0] as number)}{/if})</span>
+				<span class="ability-mod"
+					>({#if Array.isArray(v) && v.length > 1 && typeof v[1] === 'object'}{formatMod(
+							Object.values(v[1])[0] as number
+						)}{/if})</span
+				>
 			</div>
 		{/each}
 	</div>
@@ -314,14 +356,17 @@
 					<h3>Offense</h3>
 					{#if combat.attack?.bab}
 						<div class="inline-stat">
-							<span class="label">BAB</span> {combat.attack['full-bab'] ?? iterativeAttacks(Number(val(combat.attack.bab)))}
+							<span class="label">BAB</span>
+							{combat.attack['full-bab'] ?? iterativeAttacks(Number(val(combat.attack.bab)))}
 							{#if combat.attack.grapple}
 								<span class="sep">|</span>
-								<span class="label">Grapple</span> {mod(combat.attack.grapple)}
+								<span class="label">Grapple</span>
+								{mod(combat.attack.grapple)}
 							{/if}
 							{#if combat.attack?.['sneak-attack'] || combat['sneak-attack']}
 								<span class="sep">|</span>
-								<span class="label">Sneak</span> {combat.attack?.['sneak-attack'] ?? combat['sneak-attack']}
+								<span class="label">Sneak</span>
+								{combat.attack?.['sneak-attack'] ?? combat['sneak-attack']}
 							{/if}
 						</div>
 					{/if}
@@ -358,7 +403,8 @@
 
 					{#if combat.attack?.['full-two-weapon-attack']}
 						<div class="inline-stat">
-							<span class="label">Full TWF</span> {combat.attack['full-two-weapon-attack']}
+							<span class="label">Full TWF</span>
+							{combat.attack['full-two-weapon-attack']}
 						</div>
 					{/if}
 
@@ -392,17 +438,26 @@
 					{#if viewNotes['combat-offense'] || itemsForSection('combat-offense').length > 0}
 						<div class="chip-flow">
 							{#if viewNotes['combat-offense']}
-								{#each viewNotes['combat-offense'].split(';').map((s: string) => s.trim()).filter(Boolean) as note}
+								{#each viewNotes['combat-offense']
+									.split(';')
+									.map((s: string) => s.trim())
+									.filter(Boolean) as note}
 									<span class="view-note-chip">{note}</span>
 								{/each}
 							{/if}
 							{#each itemsForSection('combat-offense') as item}
-								<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+								<span class="gear-chip"
+									>{item.name}{#if Object.keys(item.props).length > 0}
+										<span class="gear-detail"
+											>({Object.entries(item.props)
+												.map(([k, v]) => `${k}: ${v}`)
+												.join(', ')})</span
+										>{/if}</span
+								>
 							{/each}
 						</div>
 					{/if}
 				</div>
-
 			</section>
 		</div>
 
@@ -416,18 +471,30 @@
 				{/if}
 				<div class="skill-group">
 					{#each skillRows(categorized.detection) as s}
-						<span class="skill-chip" class:boosted={s.boosted}><span class="skill-name">{s.name}</span> {s.total}</span>
+						<span class="skill-chip" class:boosted={s.boosted}
+							><span class="skill-name">{s.name}</span> {s.total}</span
+						>
 					{/each}
 				</div>
 				{#if viewNotes.senses || itemsForSection('senses').length > 0}
 					<div class="chip-flow">
 						{#if viewNotes.senses}
-							{#each viewNotes.senses.split(';').map((s: string) => s.trim()).filter(Boolean) as note}
+							{#each viewNotes.senses
+								.split(';')
+								.map((s: string) => s.trim())
+								.filter(Boolean) as note}
 								<span class="view-note-chip">{note}</span>
 							{/each}
 						{/if}
 						{#each itemsForSection('senses') as item}
-							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+							<span class="gear-chip"
+								>{item.name}{#if Object.keys(item.props).length > 0}
+									<span class="gear-detail"
+										>({Object.entries(item.props)
+											.map(([k, v]) => `${k}: ${v}`)
+											.join(', ')})</span
+									>{/if}</span
+							>
 						{/each}
 					</div>
 				{/if}
@@ -439,42 +506,61 @@
 				<div class="inline-stat">
 					{#each Object.entries(movement).filter(([k]) => k !== 'capacity' && k !== 'load') as [key, v]}
 						{@const p = parseSumValue(v)}
-						<span class="label">{formatKey(key)}</span> {p.total}
-						{#if key !== Object.entries(movement).filter(([k]) => k !== 'capacity' && k !== 'load').at(-1)?.[0]}
+						<span class="label">{formatKey(key)}</span>
+						{p.total}
+						{#if key !== Object.entries(movement)
+								.filter(([k]) => k !== 'capacity' && k !== 'load')
+								.at(-1)?.[0]}
 							<span class="sep">|</span>
 						{/if}
 					{/each}
 				</div>
 				{#if movement.load}
 					<div class="inline-stat muted">
-						<span class="label">Load</span> {val(movement.load)}
+						<span class="label">Load</span>
+						{val(movement.load)}
 						{#if movement.capacity}
 							<span class="sep">|</span>
-							Lt {(movement.capacity as Record<string, unknown>).light} / Med {(movement.capacity as Record<string, unknown>).medium} / Hvy {(movement.capacity as Record<string, unknown>).heavy}
+							Lt {(movement.capacity as Record<string, unknown>).light} / Med {(
+								movement.capacity as Record<string, unknown>
+							).medium} / Hvy {(movement.capacity as Record<string, unknown>).heavy}
 						{/if}
 					</div>
 				{/if}
 				{#if combat.defense?.acp}
 					{#if val(combat.defense.acp) !== '0'}
 						<div class="inline-stat">
-							<span class="label">ACP</span> {val(combat.defense.acp)}
+							<span class="label">ACP</span>
+							{val(combat.defense.acp)}
 						</div>
 					{/if}
 				{/if}
 				<div class="skill-group">
 					{#each skillRows([...categorized.stealth, ...categorized.physical]) as s}
-						<span class="skill-chip" class:boosted={s.boosted}><span class="skill-name">{s.name}</span> {s.total}</span>
+						<span class="skill-chip" class:boosted={s.boosted}
+							><span class="skill-name">{s.name}</span> {s.total}</span
+						>
 					{/each}
 				</div>
 				{#if viewNotes.movement || itemsForSection('movement').length > 0}
 					<div class="chip-flow">
 						{#if viewNotes.movement}
-							{#each viewNotes.movement.split(';').map((s: string) => s.trim()).filter(Boolean) as note}
+							{#each viewNotes.movement
+								.split(';')
+								.map((s: string) => s.trim())
+								.filter(Boolean) as note}
 								<span class="view-note-chip">{note}</span>
 							{/each}
 						{/if}
 						{#each itemsForSection('movement') as item}
-							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+							<span class="gear-chip"
+								>{item.name}{#if Object.keys(item.props).length > 0}
+									<span class="gear-detail"
+										>({Object.entries(item.props)
+											.map(([k, v]) => `${k}: ${v}`)
+											.join(', ')})</span
+									>{/if}</span
+							>
 						{/each}
 					</div>
 				{/if}
@@ -485,23 +571,36 @@
 				<h2>Social</h2>
 				{#if special.languages}
 					<div class="inline-stat">
-						<span class="label">Languages</span> {special.languages.join(', ')}
+						<span class="label">Languages</span>
+						{special.languages.join(', ')}
 					</div>
 				{/if}
 				<div class="skill-group">
 					{#each skillRows(categorized.social) as s}
-						<span class="skill-chip" class:boosted={s.boosted}><span class="skill-name">{s.name}</span> {s.total}</span>
+						<span class="skill-chip" class:boosted={s.boosted}
+							><span class="skill-name">{s.name}</span> {s.total}</span
+						>
 					{/each}
 				</div>
 				{#if viewNotes.social || itemsForSection('social').length > 0}
 					<div class="chip-flow">
 						{#if viewNotes.social}
-							{#each viewNotes.social.split(';').map((s: string) => s.trim()).filter(Boolean) as note}
+							{#each viewNotes.social
+								.split(';')
+								.map((s: string) => s.trim())
+								.filter(Boolean) as note}
 								<span class="view-note-chip">{note}</span>
 							{/each}
 						{/if}
 						{#each itemsForSection('social') as item}
-							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+							<span class="gear-chip"
+								>{item.name}{#if Object.keys(item.props).length > 0}
+									<span class="gear-detail"
+										>({Object.entries(item.props)
+											.map(([k, v]) => `${k}: ${v}`)
+											.join(', ')})</span
+									>{/if}</span
+							>
 						{/each}
 					</div>
 				{/if}
@@ -512,18 +611,30 @@
 				<h2>Knowledge</h2>
 				<div class="skill-group">
 					{#each skillRows(categorized.knowledge) as s}
-						<span class="skill-chip" class:boosted={s.boosted}><span class="skill-name">{s.name}</span> {s.total}</span>
+						<span class="skill-chip" class:boosted={s.boosted}
+							><span class="skill-name">{s.name}</span> {s.total}</span
+						>
 					{/each}
 				</div>
 				{#if viewNotes.knowledge || itemsForSection('knowledge').length > 0}
 					<div class="chip-flow">
 						{#if viewNotes.knowledge}
-							{#each viewNotes.knowledge.split(';').map((s: string) => s.trim()).filter(Boolean) as note}
+							{#each viewNotes.knowledge
+								.split(';')
+								.map((s: string) => s.trim())
+								.filter(Boolean) as note}
 								<span class="view-note-chip">{note}</span>
 							{/each}
 						{/if}
 						{#each itemsForSection('knowledge') as item}
-							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+							<span class="gear-chip"
+								>{item.name}{#if Object.keys(item.props).length > 0}
+									<span class="gear-detail"
+										>({Object.entries(item.props)
+											.map(([k, v]) => `${k}: ${v}`)
+											.join(', ')})</span
+									>{/if}</span
+							>
 						{/each}
 					</div>
 				{/if}
@@ -534,18 +645,30 @@
 				<h2>Magical</h2>
 				<div class="skill-group">
 					{#each skillRows(categorized.magic) as s}
-						<span class="skill-chip" class:boosted={s.boosted}><span class="skill-name">{s.name}</span> {s.total}</span>
+						<span class="skill-chip" class:boosted={s.boosted}
+							><span class="skill-name">{s.name}</span> {s.total}</span
+						>
 					{/each}
 				</div>
 				{#if viewNotes.magical || itemsForSection('magical').length > 0}
 					<div class="chip-flow">
 						{#if viewNotes.magical}
-							{#each viewNotes.magical.split(';').map((s: string) => s.trim()).filter(Boolean) as note}
+							{#each viewNotes.magical
+								.split(';')
+								.map((s: string) => s.trim())
+								.filter(Boolean) as note}
 								<span class="view-note-chip">{note}</span>
 							{/each}
 						{/if}
 						{#each itemsForSection('magical') as item}
-							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+							<span class="gear-chip"
+								>{item.name}{#if Object.keys(item.props).length > 0}
+									<span class="gear-detail"
+										>({Object.entries(item.props)
+											.map(([k, v]) => `${k}: ${v}`)
+											.join(', ')})</span
+									>{/if}</span
+							>
 						{/each}
 					</div>
 				{/if}
@@ -556,18 +679,30 @@
 				<h2>Practical</h2>
 				<div class="skill-group">
 					{#each skillRows(categorized.practical) as s}
-						<span class="skill-chip" class:boosted={s.boosted}><span class="skill-name">{s.name}</span> {s.total}</span>
+						<span class="skill-chip" class:boosted={s.boosted}
+							><span class="skill-name">{s.name}</span> {s.total}</span
+						>
 					{/each}
 				</div>
 				{#if viewNotes.practical || itemsForSection('practical').length > 0}
 					<div class="chip-flow">
 						{#if viewNotes.practical}
-							{#each viewNotes.practical.split(';').map((s: string) => s.trim()).filter(Boolean) as note}
+							{#each viewNotes.practical
+								.split(';')
+								.map((s: string) => s.trim())
+								.filter(Boolean) as note}
 								<span class="view-note-chip">{note}</span>
 							{/each}
 						{/if}
 						{#each itemsForSection('practical') as item}
-							<span class="gear-chip">{item.name}{#if Object.keys(item.props).length > 0} <span class="gear-detail">({Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join(', ')})</span>{/if}</span>
+							<span class="gear-chip"
+								>{item.name}{#if Object.keys(item.props).length > 0}
+									<span class="gear-detail"
+										>({Object.entries(item.props)
+											.map(([k, v]) => `${k}: ${v}`)
+											.join(', ')})</span
+									>{/if}</span
+							>
 						{/each}
 					</div>
 				{/if}
@@ -592,7 +727,12 @@
 		<section class="full-width">
 			<h2>Magic</h2>
 			{#if viewNotes.magic}
-				<div class="chip-flow">{#each viewNotes.magic.split(';').map((s: string) => s.trim()).filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}</div>
+				<div class="chip-flow">
+					{#each viewNotes.magic
+						.split(';')
+						.map((s: string) => s.trim())
+						.filter(Boolean) as note}<span class="view-note-chip">{note}</span>{/each}
+				</div>
 			{/if}
 			{#each spellSections(spells) as { key, section }}
 				{#if spellSections(spells).length > 1}
@@ -606,10 +746,18 @@
 						<span><span class="label">Key</span> {formatKey(section['key-ability'])}</span>
 					{/if}
 					{#if section.domains}
-						<span><span class="label">Domains</span> {Array.isArray(section.domains) ? section.domains.join(', ') : section.domains}</span>
+						<span
+							><span class="label">Domains</span>
+							{Array.isArray(section.domains) ? section.domains.join(', ') : section.domains}</span
+						>
 					{/if}
 					{#if section.ranges}
-						<span><span class="label">Ranges</span> {Object.entries(section.ranges).map(([k, v]) => `${formatKey(k)}: ${v}`).join(', ')}</span>
+						<span
+							><span class="label">Ranges</span>
+							{Object.entries(section.ranges)
+								.map(([k, v]) => `${formatKey(k)}: ${v}`)
+								.join(', ')}</span
+						>
 					{/if}
 				</div>
 				{#if section['spells-per-day']}
@@ -663,14 +811,17 @@
 				{#each spells['special-spells'] as sp}
 					<div class="inline-stat">
 						<span class="label">{sp.spell}</span> Lv {sp.level}
-						{#if sp.source} <span class="tags">({sp.source})</span>{/if}
+						{#if sp.source}
+							<span class="tags">({sp.source})</span>{/if}
 					</div>
 				{/each}
 			{/if}
 			{#if categorized.magic.length > 0}
 				<div class="skill-group" style="margin-top: 0.5rem">
 					{#each skillRows(categorized.magic) as s}
-						<span class="skill-chip" class:boosted={s.boosted}><span class="skill-name">{s.name}</span> {s.total}</span>
+						<span class="skill-chip" class:boosted={s.boosted}
+							><span class="skill-name">{s.name}</span> {s.total}</span
+						>
 					{/each}
 				</div>
 			{/if}
@@ -718,7 +869,8 @@
 			<h2>Notes</h2>
 			{#each Object.entries(notes) as [key, v]}
 				<div class="inline-stat">
-					<span class="label">{formatKey(key)}</span> {v}
+					<span class="label">{formatKey(key)}</span>
+					{v}
 				</div>
 			{/each}
 		</section>
@@ -809,7 +961,6 @@
 		height: 1.4rem;
 		border-bottom: 2px solid #999;
 	}
-
 
 	/* === DEFENSE BLOCK === */
 	.defense-block {
@@ -926,7 +1077,6 @@
 		grid-template-columns: 1fr 1fr;
 		gap: 1rem;
 	}
-
 
 	/* === SECTIONS === */
 	section {

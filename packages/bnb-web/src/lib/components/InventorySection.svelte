@@ -4,7 +4,13 @@
 	import { invalidateAll } from '$app/navigation';
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let { inventory, compact = false, slug = '', editable = false, inventoryLocations = [] }: {
+	let {
+		inventory,
+		compact = false,
+		slug = '',
+		editable = false,
+		inventoryLocations = []
+	}: {
 		inventory: Record<string, any>;
 		compact?: boolean;
 		slug?: string;
@@ -41,22 +47,22 @@
 
 	// Map singular tag names to plural slot names
 	const slotNameMap: Record<string, string> = {
-		'arm': 'arms',
-		'arms': 'arms',
-		'body': 'body',
-		'face': 'face',
-		'feet': 'feet',
-		'foot': 'feet',
-		'hand': 'hands',
-		'hands': 'hands',
-		'head': 'head',
+		arm: 'arms',
+		arms: 'arms',
+		body: 'body',
+		face: 'face',
+		feet: 'feet',
+		foot: 'feet',
+		hand: 'hands',
+		hands: 'hands',
+		head: 'head',
 		'left-ring': 'left-ring',
 		'right-ring': 'right-ring',
-		'shoulder': 'shoulders',
-		'shoulders': 'shoulders',
-		'throat': 'throat',
-		'torso': 'torso',
-		'waist': 'waist'
+		shoulder: 'shoulders',
+		shoulders: 'shoulders',
+		throat: 'throat',
+		torso: 'torso',
+		waist: 'waist'
 	};
 
 	interface SlottedItem {
@@ -73,12 +79,15 @@
 	}
 
 	function makeSlottedItem(item: unknown[], location: string): SlottedItem {
-		const props = (item[5] && typeof item[5] === 'object' && !Array.isArray(item[5]))
-			? item[5] as Record<string, unknown>
-			: {};
+		const props =
+			item[5] && typeof item[5] === 'object' && !Array.isArray(item[5])
+				? (item[5] as Record<string, unknown>)
+				: {};
 		return {
 			name: String(item[0] ?? ''),
-			notes: Object.entries(props).map(([k, v]) => `${k}: ${v}`).join(', '),
+			notes: Object.entries(props)
+				.map(([k, v]) => `${k}: ${v}`)
+				.join(', '),
 			location,
 			orderIndex: Number(item[4] ?? 0),
 			props
@@ -88,12 +97,14 @@
 	// Extract items by body slot
 	const slottedItems = $derived(() => {
 		const slots: Record<string, SlotData> = {};
-		bodySlots.forEach(slot => slots[slot] = { items: [], hasConflict: false });
+		bodySlots.forEach((slot) => (slots[slot] = { items: [], hasConflict: false }));
 
 		for (const location of getLocations(inventory)) {
 			for (const item of inventoryItems(inventory, location)) {
 				// Tags are always the last item in the array
-				const tags = Array.isArray(item[item.length - 1]) ? (item[item.length - 1] as string[]).map(String) : [];
+				const tags = Array.isArray(item[item.length - 1])
+					? (item[item.length - 1] as string[]).map(String)
+					: [];
 
 				// Check for slot tags
 				for (const tag of tags) {
@@ -126,7 +137,9 @@
 		for (const location of getLocations(inventory)) {
 			for (const item of inventoryItems(inventory, location)) {
 				// Tags are always the last item in the array
-				const tags = Array.isArray(item[item.length - 1]) ? (item[item.length - 1] as string[]).map(String) : [];
+				const tags = Array.isArray(item[item.length - 1])
+					? (item[item.length - 1] as string[]).map(String)
+					: [];
 
 				if (tags.includes('other-slot')) {
 					items.push(makeSlottedItem(item, location));
@@ -145,7 +158,9 @@
 	function startEdit(item: SlottedItem) {
 		editingItem = { location: item.location, orderIndex: item.orderIndex };
 		editName = item.name;
-		editEffects = Object.entries(item.props).map(([k, v]) => `${k}: ${v}`).join('\n');
+		editEffects = Object.entries(item.props)
+			.map(([k, v]) => `${k}: ${v}`)
+			.join('\n');
 	}
 
 	function cancelEdit() {
@@ -157,7 +172,13 @@
 	}
 
 	function enhanceAndRefresh() {
-		return async ({ result, update }: { result: { type: string }; update: () => Promise<void> }) => {
+		return async ({
+			result,
+			update
+		}: {
+			result: { type: string };
+			update: () => Promise<void>;
+		}) => {
 			await update();
 			if (result.type === 'success') {
 				await invalidateAll();
@@ -178,7 +199,8 @@
 					{@const coins = inventory.money.coins}
 					{#if Array.isArray(coins) && coins[3]}
 						<span class="detail">
-							({#each Object.entries(coins[3]) as [denom, amt], i}{#if i > 0}, {/if}{denom}: {amt}{/each})
+							({#each Object.entries(coins[3]) as [denom, amt], i}{#if i > 0},
+								{/if}{denom}: {amt}{/each})
 						</span>
 					{/if}
 				{/if}
@@ -194,7 +216,11 @@
 				{@const slotData = slottedItems()[slot]}
 				<div class="slot-row">
 					<span class="slot-label">{formatKey(slot)}:</span>
-					<span class="slot-item" class:empty={slotData.items.length === 0} class:conflict={slotData.hasConflict}>
+					<span
+						class="slot-item"
+						class:empty={slotData.items.length === 0}
+						class:conflict={slotData.hasConflict}
+					>
 						{#if slotData.items.length > 0}
 							{#each slotData.items as item, i}
 								{#if i > 0}<span class="item-separator"> + </span>{/if}
@@ -208,7 +234,12 @@
 										<input type="hidden" name="location" value={item.location} />
 										<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
 										<input class="edit-name" name="name" bind:value={editName} />
-										<textarea class="edit-effects" name="effects" bind:value={editEffects} rows="3" placeholder="key: value (one per line)"></textarea>
+										<textarea
+											class="edit-effects"
+											name="effects"
+											bind:value={editEffects}
+											rows="3"
+											placeholder="key: value (one per line)"></textarea>
 										<div class="edit-actions">
 											<button type="submit" class="btn-save">Save</button>
 											<button type="button" class="btn-cancel" onclick={cancelEdit}>Cancel</button>
@@ -223,9 +254,10 @@
 										>
 											<input type="hidden" name="fromLocation" value={item.location} />
 											<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
-											<label class="move-label">Move to:
+											<label class="move-label"
+												>Move to:
 												<select name="toLocation" class="move-select">
-													{#each inventoryLocations.filter(l => l !== item.location) as loc}
+													{#each inventoryLocations.filter((l) => l !== item.location) as loc}
 														<option value={loc}>{formatKey(loc)}</option>
 													{/each}
 												</select>
@@ -240,7 +272,9 @@
 											<span class="item-notes">({item.notes})</span>
 										{/if}
 										{#if editable}
-											<button class="btn-edit" onclick={() => startEdit(item)} title="Edit item">✎</button>
+											<button class="btn-edit" onclick={() => startEdit(item)} title="Edit item"
+												>✎</button
+											>
 										{/if}
 									</span>
 								{/if}
@@ -268,7 +302,12 @@
 								<input type="hidden" name="location" value={item.location} />
 								<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
 								<input class="edit-name" name="name" bind:value={editName} />
-								<textarea class="edit-effects" name="effects" bind:value={editEffects} rows="3" placeholder="key: value (one per line)"></textarea>
+								<textarea
+									class="edit-effects"
+									name="effects"
+									bind:value={editEffects}
+									rows="3"
+									placeholder="key: value (one per line)"></textarea>
 								<div class="edit-actions">
 									<button type="submit" class="btn-save">Save</button>
 									<button type="button" class="btn-cancel" onclick={cancelEdit}>Cancel</button>
@@ -283,9 +322,10 @@
 								>
 									<input type="hidden" name="fromLocation" value={item.location} />
 									<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
-									<label class="move-label">Move to:
+									<label class="move-label"
+										>Move to:
 										<select name="toLocation" class="move-select">
-											{#each inventoryLocations.filter(l => l !== item.location) as loc}
+											{#each inventoryLocations.filter((l) => l !== item.location) as loc}
 												<option value={loc}>{formatKey(loc)}</option>
 											{/each}
 										</select>
@@ -300,7 +340,9 @@
 									<span class="item-notes">({item.notes})</span>
 								{/if}
 								{#if editable}
-									<button class="btn-edit" onclick={() => startEdit(item)} title="Edit item">✎</button>
+									<button class="btn-edit" onclick={() => startEdit(item)} title="Edit item"
+										>✎</button
+									>
 								{/if}
 							</div>
 						{/if}
@@ -311,56 +353,58 @@
 	</div>
 
 	<div class="inv-flow">
-	{#each getLocations(inventory) as location}
-		{@const items = inventoryItems(inventory, location)}
-		{#if items.length > 0}
-			<div class="inv-group">
-			<h3>{formatKey(location)}</h3>
-			<table>
-				<thead>
-					<tr>
-						<th>Item</th>
-						<th>Qty</th>
-						{#if !compact}
-							<th>Type</th>
-						{/if}
-						<th>Weight</th>
-						{#if !compact}
-							<th>Cost</th>
-							<th>Notes</th>
-						{/if}
-					</tr>
-				</thead>
-				<tbody>
-					{#each items as item}
-						<tr>
-							<td class="item-name">{item[0] ?? ''}</td>
-							<td class="centered">{item[1] ?? ''}</td>
-							{#if !compact}
-								<td>{item[2] ?? ''}</td>
-							{/if}
-							<td class="right">{item[3] ?? ''}</td>
-							{#if !compact}
-								<td class="right">{item[4] ?? ''}</td>
-								<td class="notes-cell">
-									{#if item[5] && typeof item[5] === 'object' && !Array.isArray(item[5])}
-										{Object.entries(item[5]).map(([k, v]) => `${k}: ${v}`).join(', ')}
+		{#each getLocations(inventory) as location}
+			{@const items = inventoryItems(inventory, location)}
+			{#if items.length > 0}
+				<div class="inv-group">
+					<h3>{formatKey(location)}</h3>
+					<table>
+						<thead>
+							<tr>
+								<th>Item</th>
+								<th>Qty</th>
+								{#if !compact}
+									<th>Type</th>
+								{/if}
+								<th>Weight</th>
+								{#if !compact}
+									<th>Cost</th>
+									<th>Notes</th>
+								{/if}
+							</tr>
+						</thead>
+						<tbody>
+							{#each items as item}
+								<tr>
+									<td class="item-name">{item[0] ?? ''}</td>
+									<td class="centered">{item[1] ?? ''}</td>
+									{#if !compact}
+										<td>{item[2] ?? ''}</td>
 									{/if}
-									{#if Array.isArray(item[6])}
-										{#if item[5] && typeof item[5] === 'object' && Object.keys(item[5]).length > 0}
-											|
-										{/if}
-										<span class="tags">{item[6].join(', ')}</span>
+									<td class="right">{item[3] ?? ''}</td>
+									{#if !compact}
+										<td class="right">{item[4] ?? ''}</td>
+										<td class="notes-cell">
+											{#if item[5] && typeof item[5] === 'object' && !Array.isArray(item[5])}
+												{Object.entries(item[5])
+													.map(([k, v]) => `${k}: ${v}`)
+													.join(', ')}
+											{/if}
+											{#if Array.isArray(item[6])}
+												{#if item[5] && typeof item[5] === 'object' && Object.keys(item[5]).length > 0}
+													|
+												{/if}
+												<span class="tags">{item[6].join(', ')}</span>
+											{/if}
+										</td>
 									{/if}
-								</td>
-							{/if}
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-			</div>
-		{/if}
-	{/each}
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+			{/if}
+		{/each}
 	</div>
 </section>
 
@@ -401,7 +445,7 @@
 		color: #777;
 		font-size: 0.8rem;
 	}
-	
+
 	/* Body Slots */
 	.body-slots {
 		margin: 0.75rem 0;
@@ -468,7 +512,7 @@
 	.empty-slot {
 		color: #ccc;
 	}
-	
+
 	/* Other (Slotless) Items */
 	.other-items {
 		margin-top: 0.75rem;
@@ -499,7 +543,7 @@
 		color: #777;
 		font-size: 0.75rem;
 	}
-	
+
 	table {
 		width: 100%;
 		border-collapse: collapse;

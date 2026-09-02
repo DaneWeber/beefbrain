@@ -16,7 +16,15 @@
 
 	let { items, summary }: Props = $props();
 
-	type SortField = 'itemId' | 'pcName' | 'location' | 'category' | 'description' | 'quantity' | 'weight' | 'marketValue';
+	type SortField =
+		| 'itemId'
+		| 'pcName'
+		| 'location'
+		| 'category'
+		| 'description'
+		| 'quantity'
+		| 'weight'
+		| 'marketValue';
 	type SortOrder = 'asc' | 'desc';
 
 	let sortField: SortField = $state('itemId');
@@ -224,13 +232,19 @@
 					<th onclick={() => handleSort('pcName')}>PC {getSortIndicator('pcName')}</th>
 					<th onclick={() => handleSort('location')}>Location {getSortIndicator('location')}</th>
 					<th onclick={() => handleSort('category')}>Category {getSortIndicator('category')}</th>
-					<th onclick={() => handleSort('description')}>Description {getSortIndicator('description')}</th>
+					<th onclick={() => handleSort('description')}
+						>Description {getSortIndicator('description')}</th
+					>
 					<th>True Description</th>
 					<th>Aura Strength</th>
 					<th>Aura Type</th>
 					<th>Origin</th>
-					<th onclick={() => handleSort('quantity')} class="numeric">Qty {getSortIndicator('quantity')}</th>
-					<th onclick={() => handleSort('weight')} class="numeric">Weight {getSortIndicator('weight')}</th>
+					<th onclick={() => handleSort('quantity')} class="numeric"
+						>Qty {getSortIndicator('quantity')}</th
+					>
+					<th onclick={() => handleSort('weight')} class="numeric"
+						>Weight {getSortIndicator('weight')}</th
+					>
 					<th onclick={() => handleSort('marketValue')} class="numeric">
 						Value {getSortIndicator('marketValue')}
 					</th>
