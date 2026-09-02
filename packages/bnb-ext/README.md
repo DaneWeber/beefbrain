@@ -2,7 +2,7 @@
 
 > VS Code extension for BeefBrain character YAML files
 
-**Status**: 🚧 Scaffold — core formatting/validation features implemented, editor integration polish (auto-completion, hover, go-to-definition) still to come.
+**Status**: 🚧 Alpha — core formatting/validation features implemented, editor integration polish (auto-completion, hover, go-to-definition) still to come.
 
 ## Overview
 
@@ -46,6 +46,29 @@ surprise you on unrelated YAML files in a workspace.
   files as BeefBrain data instead of requiring the `.bnb.yaml`/`.bnb.yml`
   naming convention.
 
+## Installing an alpha release
+
+Alpha builds are distributed as self-contained `.vsix` files on the
+[GitHub Releases page](https://github.com/DaneWeber/beefbrain/releases).
+You do not need to clone this repository or install Node.js:
+
+1. Download `bnb-ext-<version>.vsix` from the latest **bnb-ext** prerelease.
+2. In VS Code, open the Extensions view, select the `...` menu, choose
+   **Install from VSIX...**, and select the downloaded file.
+3. Reload VS Code when prompted, then open a character file whose name ends
+   in `.bnb.yaml` or `.bnb.yml`.
+
+You can also install it from a terminal:
+
+```bash
+code --install-extension /path/to/bnb-ext-<version>.vsix
+```
+
+Run **BeefBrain: Format and Calculate Character YAML** from the Command
+Palette, or use VS Code's normal **Format Document** command. Diagnostics are
+shown automatically while editing recognized files. Alpha releases do not
+update automatically; repeat these steps with a newer VSIX to upgrade.
+
 ## Development
 
 ```bash
@@ -79,9 +102,9 @@ code --uninstall-extension daneweber.bnb-ext
 ```
 
 Note that `pnpm run build` bundles `bnb-core`, `yaml`, and their own
-dependencies (e.g. `mathjs`) directly into `dist/extension.js` via
-`tsdown`'s `deps.alwaysBundle` — a packaged `.vsix` ships no `node_modules`, so
-everything the extension needs at runtime must already be inlined there.
+dependencies (e.g. `mathjs`) directly into `dist/extension.js` via esbuild.
+A packaged `.vsix` ships no `node_modules`, so everything the extension needs
+at runtime must already be inlined there.
 
 ### Testing it in a controlled devcontainer
 
