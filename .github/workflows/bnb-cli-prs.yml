@@ -27,13 +27,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+
       - name: Set up Node.js
         uses: actions/setup-node@v5
         with:
           node-version: "24"
-
-      - name: Install pnpm
-        run: npm install -g pnpm
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install
@@ -48,7 +51,7 @@ jobs:
         run: pnpm --filter bnb-cli build
 
       - name: Verify CLI build artifact
-        run: test -f packages/bnb-cli/dist/index.js
+        run: test -f packages/bnb-cli/dist/index.mjs
 
       - name: Run bnb-cli tests
         run: pnpm --filter bnb-cli test
