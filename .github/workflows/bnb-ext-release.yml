@@ -1,0 +1,77 @@
+name: Release bnb-ext alpha
+
+on:
+  push:
+    tags:
+      - "bnb-ext-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify tag matches package version
+        id: version
+        shell: bash
+        run: |
+          version=$(node -p "require('./packages/bnb-ext/package.json').version")
+          expected_tag="bnb-ext-v${version}"
+          if [[ "$GITHUB_REF_NAME" != "$expected_tag" ]]; then
+            echo "Tag $GITHUB_REF_NAME does not match package version $version (expected $expected_tag)." >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build bnb-core
+        run: pnpm --filter bnb-core build
+
+      - name: Build bnb-ext
+        run: pnpm --filter bnb-ext build
+
+      - name: Run bnb-ext tests
+        run: pnpm --filter bnb-ext test
+
+      - name: Run bnb-ext linting
+        run: pnpm --filter bnb-ext lint
+
+      - name: Run bnb-ext formatting check
+        run: pnpm --filter bnb-ext format
+
+      - name: Run bnb-ext end-to-end tests
+        run: xvfb-run -a pnpm --filter bnb-ext test:e2e
+
+      - name: Package VSIX
+        run: |
+          pnpm --filter bnb-ext exec vsce package \
+            --no-dependencies \
+            --out "bnb-ext-${{ steps.version.outputs.version }}.vsix"
+
+      - name: Create GitHub prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "packages/bnb-ext/bnb-ext-${{ steps.version.outputs.version }}.vsix" \
+            --prerelease \
+            --generate-notes \
+            --title "bnb-ext v${{ steps.version.outputs.version }} (alpha)" \
+            --verify-tag
