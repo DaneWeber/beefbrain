@@ -150,4 +150,35 @@ describe('Beef Brain Core Integration', () => {
       expect(sla._.save).toBe('cha')
     })
   })
+
+  describe('dnd35-paladin-divine-grace.yaml recalculate saves from a class feature', () => {
+    const input = readFileSync(
+      __dirname + '/examples/update/dnd35-paladin-divine-grace.yaml',
+      'utf8',
+    )
+    const expected = readFileSync(
+      __dirname + '/examples/final/dnd35-paladin-divine-grace.yaml',
+      'utf8',
+    )
+
+    it('should add the charisma bonus to all three saves in one pass', () => {
+      expect(parseYAML(updateCalculatedFields(input))).toEqual(
+        parseYAML(expected),
+      )
+    })
+    it('should produce otherwise identical updated output', () => {
+      expect(updateCalculatedFields(input)).toEqual(expected)
+    })
+    it('should track charisma if it changes, not freeze the bonus at authoring time', () => {
+      const boosted = input.replace(
+        'charisma: [16, cha: 3]',
+        'charisma: [18, cha: 4]',
+      )
+      const output = parseYAML(updateCalculatedFields(boosted))
+      expect(output.character.combat.saves.fortitude[1].cha).toBe(4)
+      expect(output.character.combat.saves.fortitude[0]).toBe(9)
+      expect(output.character.combat.saves.reflex[0]).toBe(5)
+      expect(output.character.combat.saves.will[0]).toBe(4)
+    })
+  })
 })
