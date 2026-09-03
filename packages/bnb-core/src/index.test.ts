@@ -573,6 +573,24 @@ character:
           expect(output.character.combat.attack.bab[1].fighter).toBe(5)
           expect(output.character.combat.attack.bab[0]).toBe(5)
         })
+        it('should correct a stale BAB total when class contributions are current', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [39, str: 14]
+  levels:
+    giant-hd: [19, {hp: [4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4]}, {hd: 8, bab: average, fort: good, ref: poor, will: poor}]
+  combat:
+    attack:
+      bab: [1, giant-hd: 14]
+      melee:
+        _: [26, {bab: 14, str: 14, size-huge: -2}]
+        greatsword: [26, 4d6+21, 19-20, _: 26, {str: 14, two-handed: 7}, {}, [greatsword]]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+
+          expect(output.character.combat.attack.bab[0]).toBe(14)
+        })
         it('should derive BAB from multiclass', () => {
           const yamlContent = `---
 character:

@@ -1199,8 +1199,12 @@ function propagateToBab(
     }
   }
 
-  if (changed) {
+  if (babArr[0] !== totalBab) {
     babArr[0] = totalBab
+    changed = true
+  }
+
+  if (changed) {
     hasChanges = true
   }
 
