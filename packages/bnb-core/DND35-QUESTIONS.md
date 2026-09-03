@@ -1,6 +1,6 @@
 # D&D 3.5e Implementation Questions
 
-All questions resolved as of 2026-03-16.
+All questions resolved as of 2026-09-03.
 
 ## Resolved
 
@@ -23,6 +23,8 @@ All questions resolved as of 2026-03-16.
 9. **Synergy bonuses**: Auto-calculate unconditional synergies. Conditional ones need a sub-value pattern TBD.
 
 10. **Equipment-derived stats**: Core feature. Read inventory to derive AC, ACP, weapon stats, magic item bonuses. Key use case: swap equipment, all stats cascade.
+
+11. **Spell-like abilities**: Separate top-level `character.spell-like-abilities`, keyed by source (race, template, item), not folded into `special.racial-traits`/`class-features` (which stay untyped free text) or `character.spells` (which is shaped for Vancian casters). Each source has an optional `_` default (`{cl, save}`) plus named abilities: `name: [frequency, dc: [total, {components}]]`. DC totals piggyback on the existing `cha`/`str`/etc. componentBindings + generic `[total, {mods}]` resum walk — no new calculation code needed.
 
 ## General Principle
 

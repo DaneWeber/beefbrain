@@ -1,0 +1,16 @@
+---
+character:
+  abilities:
+    strength: [10, str: 0]
+    dexterity: [10, dex: 0]
+    constitution: [10, con: 0]
+    intelligence: [10, int: 0]
+    wisdom: [10, wis: 0]
+    charisma: [22, cha: 6]
+  spell-like-abilities:
+    storm-giant:
+      _: {cl: 20, save: cha}
+      call-lightning: [1/day, dc: [15, {base: 13, cha: 2}]]
+      chain-lightning: [1/day, dc: [18, {base: 16, cha: 2}]]
+      control-weather: [2/day]
+      levitate: [2/day]

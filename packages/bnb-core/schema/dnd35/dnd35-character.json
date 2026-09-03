@@ -65,6 +65,11 @@
         "optional": true
       },
       {
+        "name": "spell-like-abilities",
+        "type": "SpellLikeAbilities",
+        "optional": true
+      },
+      {
         "name": "inventory",
         "type": "Inventory",
         "optional": true
@@ -669,6 +674,70 @@
         "type": "array",
         "optional": true,
         "description": "Effects: references to affected fields and modifiers"
+      }
+    }
+  },
+  "SpellLikeAbilities": {
+    "additionalChildren": {
+      "type": "SpellLikeAbilitySource",
+      "description": "Named source granting spell-like abilities (e.g., race, template, item)"
+    }
+  },
+  "SpellLikeAbilitySource": {
+    "children": [
+      {
+        "name": "_",
+        "type": "SpellLikeAbilityDefaults",
+        "optional": true,
+        "description": "Defaults for abilities from this source: caster level and save ability"
+      }
+    ],
+    "additionalChildren": {
+      "type": "SpellLikeAbility",
+      "description": "Individual spell-like ability granted by this source"
+    }
+  },
+  "SpellLikeAbilityDefaults": {
+    "type": "object",
+    "description": "{cl: N, save: ability-abbreviation}"
+  },
+  "SpellLikeAbility": {
+    "array": {
+      "0": {
+        "type": "string",
+        "description": "Frequency (e.g., at-will, 1/day, 3/day)"
+      },
+      "1": {
+        "type": "SpellLikeAbilityDetails",
+        "optional": true
+      }
+    }
+  },
+  "SpellLikeAbilityDetails": {
+    "children": [
+      {
+        "name": "dc",
+        "type": "SpellLikeAbilityDC",
+        "optional": true,
+        "description": "Save DC to resist this ability"
+      }
+    ]
+  },
+  "SpellLikeAbilityDC": {
+    "array": {
+      "0": {
+        "type": "number",
+        "description": "Total save DC",
+        "calculation": {
+          "formula": "sum(components)",
+          "variables": {
+            "components": "parent[1][]"
+          }
+        }
+      },
+      "1": {
+        "type": "object",
+        "description": "DC components: {base: N, cha: N, ...} — ability key matches the source's default save ability"
       }
     }
   },
