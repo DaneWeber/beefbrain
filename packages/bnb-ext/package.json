@@ -2,7 +2,7 @@
   "name": "bnb-ext",
   "displayName": "BeefBrain",
   "description": "Format, calculate, and validate BeefBrain (bnb) TTRPG character YAML files with bnb-core.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "publisher": "daneweber",
   "license": "MIT",
