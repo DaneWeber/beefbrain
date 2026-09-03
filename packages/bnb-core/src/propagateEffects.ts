@@ -314,6 +314,36 @@ function getFeatEffects(character: Record<string, unknown>): ParsedEffect[] {
   return effects
 }
 
+/**
+ * `special.feats` is the only key under `special` with a different (3-tuple,
+ * `[name, source, effects?]`) shape — every other key, including the fixed
+ * `class-features` key, is a `[name, effects?]` trait list.
+ */
+const NON_TRAIT_SPECIAL_KEYS = new Set(['feats'])
+
+/**
+ * Reads effects out of every trait list under `special` — the fixed
+ * `class-features` key (e.g. a paladin's Divine Grace) plus any
+ * grouped-by-source key (e.g. `special.elven`, `special.were-rat`,
+ * `special.storm-giant`) — each a list of `[name, effects?]` tuples, same
+ * effects shape as a feat's. Traits and class features are always active
+ * once granted, same as feats.
+ */
+function getTraitEffects(character: Record<string, unknown>): ParsedEffect[] {
+  const special = character.special
+  if (!isPlainObject(special)) return []
+
+  const effects: ParsedEffect[] = []
+  for (const [key, traits] of Object.entries(special)) {
+    if (NON_TRAIT_SPECIAL_KEYS.has(key) || !Array.isArray(traits)) continue
+    for (const traitArr of traits) {
+      if (!Array.isArray(traitArr) || traitArr.length < 2) continue
+      effects.push(...collectEffectEntries(traitArr[1]))
+    }
+  }
+  return effects
+}
+
 function getAllItemEffects(inventory: Record<string, unknown>): ParsedEffect[] {
   const effects: ParsedEffect[] = []
   for (const [key, value] of Object.entries(inventory)) {
@@ -433,12 +463,14 @@ export function propagateEffects(
     : {}
 
   const featEffects = getFeatEffects(character)
+  const traitEffects = getTraitEffects(character)
   const allItemEffects = getAllItemEffects(inventory)
   const activeItemEffects = getActiveItemEffects(inventory)
-  const activeEffects = [...featEffects, ...activeItemEffects]
+  const activeEffects = [...featEffects, ...traitEffects, ...activeItemEffects]
 
   const declaredByPath = collectBonusKeysByPath([
     ...featEffects,
+    ...traitEffects,
     ...allItemEffects,
   ])
   const activeByPath = collectBonusKeysByPath(activeEffects)

@@ -813,6 +813,129 @@ character:
           )
         })
       })
+      describe('grouped special-trait effects', () => {
+        it('should push a note-only trait effect from a grouped source into a skill', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [10, str: 0]
+  skills:
+    swim: [-2, {str: 0, acp: -2}]
+  special:
+    storm-giant:
+      - [Enhanced Swimming, [[skills.swim, "+8 for special actions/avoid hazards, can always take 10, swim 'run', ignore weight penalties"]]]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.skills.swim[1].note).toBe(
+            "+8 for special actions/avoid hazards, can always take 10, swim 'run', ignore weight penalties",
+          )
+          expect(output.character.skills.swim[0]).toBe(-2)
+        })
+        it('should merge a numeric trait bonus from a grouped source and resum it', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    dexterity: [14, dex: 2]
+  skills:
+    hide: [2, {dex: 2, acp: 0}]
+  special:
+    were-rat:
+      - [Rat Empathy, []]
+      - [Cunning, [[skills.hide, {were-rat: 4}]]]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.skills.hide[1]['were-rat']).toBe(4)
+          expect(output.character.skills.hide[0]).toBe(6)
+        })
+        it('should apply feats and multiple grouped trait sources independently', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [10, str: 0]
+  skills:
+    climb: [0, {str: 0, ranks: 0}]
+    swim: [0, {str: 0, ranks: 0}]
+  special:
+    feats:
+      - [Skill Focus (Climb), level: 1, [[skills.climb, {skill-focus-climb: 3}]]]
+    elven:
+      - [Keen Senses, []]
+    were-rat:
+      - [Climb Claws, [[skills.climb, {were-rat: 4}]]]
+      - [Swim Speed, [[skills.swim, {were-rat: 8}]]]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.skills.climb[1]['skill-focus-climb']).toBe(3)
+          expect(output.character.skills.climb[1]['were-rat']).toBe(4)
+          expect(output.character.skills.climb[0]).toBe(7)
+          expect(output.character.skills.swim[1]['were-rat']).toBe(8)
+          expect(output.character.skills.swim[0]).toBe(8)
+        })
+      })
+      describe('class-feature effects', () => {
+        it('should leave a name-only class feature (e.g. Turn Undead) untouched', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [10, str: 0]
+  special:
+    class-features:
+      - ["Turn Undead (4/day, 2d6+5, turning check 1d20+5)"]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.special['class-features']).toEqual([
+            ['Turn Undead (4/day, 2d6+5, turning check 1d20+5)'],
+          ])
+        })
+        it("should apply a paladin's Divine Grace to all three saves via the cha binding", () => {
+          const yamlContent = `---
+character:
+  abilities:
+    charisma: [16, cha: 3]
+  combat:
+    saves:
+      fortitude: [3, paladin: 3]
+      reflex: [0, paladin: 0]
+      will: [0, paladin: 0]
+  special:
+    class-features:
+      - [Divine Grace, [[combat.saves.fortitude, {cha: 0}], [combat.saves.reflex, {cha: 0}], [combat.saves.will, {cha: 0}]]]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.combat.saves.fortitude[1].cha).toBe(3)
+          expect(output.character.combat.saves.fortitude[0]).toBe(6)
+          expect(output.character.combat.saves.reflex[0]).toBe(3)
+          expect(output.character.combat.saves.will[0]).toBe(3)
+        })
+        it("should not let a fighter's bonus feat and a paladin's Divine Grace interfere", () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [16, str: 3]
+    charisma: [14, cha: 2]
+  combat:
+    attack:
+      melee:
+        _: [3, {bab: 0, str: 3}]
+    saves:
+      fortitude: [0, base: 0]
+  special:
+    feats:
+      - [Weapon Focus (Longsword), class: 1, [["combat.attack.melee._", {weapon-focus-longsword: 1}]]]
+    class-features:
+      - [Divine Grace, [[combat.saves.fortitude, {cha: 0}]]]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.combat.attack.melee._[1]).toEqual({
+            bab: 0,
+            str: 3,
+            'weapon-focus-longsword': 1,
+          })
+          expect(output.character.combat.attack.melee._[0]).toBe(4)
+          expect(output.character.combat.saves.fortitude[1].cha).toBe(2)
+          expect(output.character.combat.saves.fortitude[0]).toBe(2)
+        })
+      })
       describe('hit dice derivation', () => {
         it('should derive total HD and largest die from class entries', () => {
           const yamlContent = `---

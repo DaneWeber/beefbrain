@@ -647,17 +647,15 @@
       },
       {
         "name": "class-features",
-        "type": "array",
+        "type": "TraitList",
         "optional": true,
-        "description": "List of class features"
-      },
-      {
-        "name": "racial-traits",
-        "type": "array",
-        "optional": true,
-        "description": "List of racial traits"
+        "description": "Class features (e.g., a fighter's bonus feats are recorded under feats instead; a cleric's Turn Undead is a name-only entry; a paladin's Divine Grace carries an effects array targeting combat.saves.*)"
       }
-    ]
+    ],
+    "additionalChildren": {
+      "type": "TraitList",
+      "description": "Traits grouped by the source that grants them (a race, a template, a curse, etc. — e.g. elven, were-rat, storm-giant). Keeping each source under its own key lets it be added or removed as a unit (e.g. curing lycanthropy removes were-rat) without touching any other source's traits."
+    }
   },
   "FeatList": {
     "type": "array",
@@ -674,6 +672,20 @@
         "type": "array",
         "optional": true,
         "description": "Effects: references to affected fields and modifiers"
+      }
+    }
+  },
+  "TraitList": {
+    "type": "array",
+    "items": { "type": "Trait" }
+  },
+  "Trait": {
+    "array": {
+      "0": { "type": "string", "description": "Trait name" },
+      "1": {
+        "type": "array",
+        "optional": true,
+        "description": "Effects: references to affected fields and modifiers (same shape as a feat's effects)"
       }
     }
   },

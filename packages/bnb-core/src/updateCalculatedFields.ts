@@ -127,9 +127,21 @@ export function updateCalculatedFields(yamlContent: string): string {
     }
   }
 
-  // Step 7.5: Apply feat/item effect targets (see docs/bnb-core-item-feat-effects.md)
-  // before ACP/synergy/etc. resum things downstream.
+  // Step 7.5: Apply feat/item/class-feature effect targets (see
+  // docs/bnb-core-item-feat-effects.md) before ACP/synergy/etc. resum things
+  // downstream.
   hasChanges = propagateEffects(data, hasChanges)
+
+  // Step 7.6: Re-apply component bindings, since an effect may have just
+  // introduced (or reset) a binding-named key — e.g. a paladin's Divine
+  // Grace piggybacking a "cha" key onto combat.saves.* — that needs the
+  // same pass to converge to the live ability modifier, the same way a
+  // spell-like ability's DC piggybacks "cha" (see DND35-QUESTIONS.md #11-12).
+  if (schema.componentBindings) {
+    if (applyComponentBindings(data, schema.componentBindings)) {
+      hasChanges = true
+    }
+  }
 
   // Step 8: Specialized propagation that overrides bindings where needed
   // (e.g., dex capped by max-dex in AC, con*HD in max-hp, bonus spell slots)

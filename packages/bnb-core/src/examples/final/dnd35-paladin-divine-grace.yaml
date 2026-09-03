@@ -1,0 +1,44 @@
+---
+character:
+  description:
+    name: Seraphina the Human Paladin
+    race: Human
+    alignment: LG
+    size: M
+  abilities:
+    strength: [14, str: 2]
+    dexterity: [12, dex: 1]
+    constitution: [14, con: 2]
+    intelligence: [10, int: 0]
+    wisdom: [10, wis: 0]
+    charisma: [16, cha: 3]
+  levels:
+    xp: 0
+    hd: [2, 10]
+    hp: [18, {max-hp: 18, damage: 0}]
+    max-hp: [18, {con: 4, rolls: 14}]
+    paladin: [2, hp: [10, 4], {hd: 10, bab: good, fort: good, ref: poor, will: poor}]
+  combat:
+    initiative: [1, dex: 1]
+    saves:
+      fortitude: [8, {paladin: 3, con: 2, cha: 3}]
+      reflex: [4, {paladin: 0, dex: 1, cha: 3}]
+      will: [3, {paladin: 0, wis: 0, cha: 3}]
+    attack:
+      bab: [2, paladin: 2]
+      melee:
+        _: [4, {bab: 2, str: 2}]
+      ranged:
+        _: [3, {bab: 2, dex: 1}]
+      grapple: [4, {bab: 2, str: 2}]
+    defense:
+      ac: [11, {base: 10, dex: 1}]
+      touch-ac: [11, {base: 10, dex: 1}]
+      flat-footed-ac: [10, base: 10]
+  movement:
+    speed: [30, base: 30]
+  skills:
+    climb: [2, {str: 2, ranks: 0}]
+  special:
+    class-features:
+      - [Divine Grace, [[combat.saves.fortitude, cha: 0], [combat.saves.reflex, cha: 0], [combat.saves.will, cha: 0]]]
