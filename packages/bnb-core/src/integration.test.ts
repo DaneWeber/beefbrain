@@ -122,4 +122,32 @@ describe('Beef Brain Core Integration', () => {
       expect(c.skills.spellcraft[0]).toBe(10)
     })
   })
+
+  describe('dnd35-storm-giant-sla.yaml recalculate spell-like ability DCs', () => {
+    const input = readFileSync(
+      __dirname + '/examples/update/dnd35-storm-giant-sla.yaml',
+      'utf8',
+    )
+    const expected = readFileSync(
+      __dirname + '/examples/final/dnd35-storm-giant-sla.yaml',
+      'utf8',
+    )
+
+    it('should recalculate DC totals from the charisma modifier', () => {
+      expect(parseYAML(updateCalculatedFields(input))).toEqual(
+        parseYAML(expected),
+      )
+    })
+    it('should produce otherwise identical updated output', () => {
+      expect(updateCalculatedFields(input)).toEqual(expected)
+    })
+    it('should leave frequency-only abilities untouched', () => {
+      const output = parseYAML(updateCalculatedFields(input))
+      const sla = output.character['spell-like-abilities']['storm-giant']
+      expect(sla['control-weather']).toEqual(['2/day'])
+      expect(sla['levitate']).toEqual(['2/day'])
+      expect(sla._.cl).toBe(20)
+      expect(sla._.save).toBe('cha')
+    })
+  })
 })

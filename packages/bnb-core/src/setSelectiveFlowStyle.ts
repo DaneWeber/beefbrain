@@ -15,6 +15,7 @@ const flowStylePaths = [
   'character.movement.capacity',
   'character.skills.*',
   'character.special.feats.*',
+  'character.spell-like-abilities.*.*',
   'character.inventory._on',
   'character.inventory.*.*',
   'character.spells.*.casting',
