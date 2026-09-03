@@ -9,9 +9,6 @@
     "node": ">=24.10"
   },
   "packageManager": "pnpm@11.25.0",
-  "pnpm": {
-    "workspace-dir": "."
-  },
   "scripts": {
     "build": "pnpm -r --filter '!bnb-web' build",
     "build:all": "pnpm -r build",
