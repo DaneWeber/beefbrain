@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350 150" role="img" aria-labelledby="title desc">
+  <title id="title">BeefBrain logo</title>
+  <desc id="desc">A shield and scroll emblem beside a geometric bnb monogram, above the words Beef and Brains.</desc>
+  <defs>
+    <linearGradient id="logo-gradient" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#145A96"/>
+      <stop offset="1" stop-color="#1E9398"/>
+    </linearGradient>
+  </defs>
+  <g aria-label="Shield and scroll">
+    <path fill="url(#logo-gradient)" d="M58 8 99 22v31L94 72 80 89 58 102 36 89 22 72l-5-19V22Z"/>
+    <path fill="#FFFFFF" d="M35 29h31l13 13v39H35Z"/>
+    <path fill="#1E9398" d="M66 29v13h13ZM43 48h28v5H43Zm0 12h28v5H43Zm0 12h20v5H43Z"/>
+  </g>
+  <g fill="url(#logo-gradient)" fill-rule="evenodd" aria-label="bnb" transform="translate(121 16) scale(1.05 .82)">
+    <path d="M8 8h22v26h18l14 14v28L48 92H8Zm22 45v20h12l6-6v-8l-6-6Z"/>
+    <path d="M72 92V45l16-17h24l16 17v47h-23V53l-5-5h-4l-5 5v39Z"/>
+    <path d="M8 8h22v26h18l14 14v28L48 92H8Zm22 45v20h12l6-6v-8l-6-6Z" transform="translate(200) scale(-1 1)"/>
+  </g>
+  <text x="175" y="133" fill="url(#logo-gradient)" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="20" font-weight="800" letter-spacing="3" text-anchor="middle">BEEF &amp; BRAINS</text>
+</svg>
