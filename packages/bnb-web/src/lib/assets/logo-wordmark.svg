@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 240" role="img" aria-labelledby="title desc">
+  <title id="title">bnb</title>
+  <desc id="desc">The geometric Beef &amp; Brains wordmark in a blue-to-teal gradient.</desc>
+  <defs>
+    <linearGradient id="brand-gradient" x1="40" y1="210" x2="600" y2="28" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#123d82"/>
+      <stop offset="0.52" stop-color="#167ca1"/>
+      <stop offset="1" stop-color="#20beb2"/>
+    </linearGradient>
+  </defs>
+  <path
+    fill="url(#brand-gradient)"
+    fill-rule="evenodd"
+    d="M35 18h40v62l48-30 68 43v90l-68 43-88-55V18Zm88 72-48 30v29l48 30 29-18v-46l-29-18ZM222 58h40v22l48-30 68 43v113h-40v-91l-28-18-48 30v79h-40V58Zm187-40h40v62l48-30 68 43v90l-68 43-88-55V18Zm88 72-48 30v29l48 30 29-18v-46l-29-18Z"
+  />
+</svg>

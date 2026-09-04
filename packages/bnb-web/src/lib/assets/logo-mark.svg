@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title">
-  <title id="title">Beef &amp; Brains</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Beef &amp; Brains shield mark</title>
+  <desc id="desc">A scroll inside a blue-to-teal shield.</desc>
   <defs>
     <linearGradient id="brand-gradient" x1="38" y1="220" x2="218" y2="36" gradientUnits="userSpaceOnUse">
       <stop stop-color="#123d82"/>
