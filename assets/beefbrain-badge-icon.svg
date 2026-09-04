@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-labelledby="title desc">
+  <title id="title">BeefBrain shield and scroll badge</title>
+  <desc id="desc">A blue-to-teal shield containing a white scroll.</desc>
+  <defs>
+    <linearGradient id="icon-gradient" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#145A96"/>
+      <stop offset="1" stop-color="#1E9398"/>
+    </linearGradient>
+  </defs>
+  <g aria-label="Shield and scroll">
+    <path fill="url(#icon-gradient)" d="M50 3 92 18v32l-5 20-15 17-22 11-22-11-15-17-5-20V18Z"/>
+    <path fill="#FFFFFF" d="M27 25h36l13 13v38H27Z"/>
+    <path fill="#1E9398" d="M63 25v13h13ZM37 46h29v6H37Zm0 12h29v6H37Zm0 12h21v6H37Z"/>
+  </g>
+</svg>
