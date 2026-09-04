@@ -10,3 +10,8 @@ onlyBuiltDependencies:
   - esbuild
   - '@vscode/vsce-sign'
   - keytar
+overrides:
+  cookie: ^0.7.0
+  diff: ^8.0.3
+  serialize-javascript: ^7.0.5
+  ws: ^8.21.0

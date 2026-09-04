@@ -35,7 +35,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier . --check",
     "format:fix": "prettier . --write",
-    "prepublishOnly": "npm run clean && npm run build",
+    "prepublishOnly": "pnpm run clean && pnpm run build",
     "commit": "cz",
     "commitlint": "commitlint --edit",
     "release": "semantic-release"
