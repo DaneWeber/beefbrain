@@ -1,6 +1,7 @@
 import { error, fail } from '@sveltejs/kit';
 import {
 	loadCharacter,
+	getSkillPointWarning,
 	saveCharacterMagicItem,
 	moveCharacterMagicItem,
 	getInventoryLocations,
@@ -15,6 +16,7 @@ export async function load({ params }) {
 	const locations = await getInventoryLocations(params.slug);
 	return {
 		character: data.character,
+		skillPointWarning: getSkillPointWarning(data),
 		slug: params.slug,
 		inventoryLocations: locations,
 		latexTemplates: getLatexTemplateOptions()
@@ -50,7 +52,11 @@ export const actions = {
 		}
 
 		const data = await loadCharacter(params.slug);
-		return { success: true, character: data?.character };
+		return {
+			success: true,
+			character: data?.character,
+			skillPointWarning: getSkillPointWarning(data)
+		};
 	},
 
 	moveItem: async ({ request, params }) => {
@@ -71,6 +77,11 @@ export const actions = {
 
 		const data = await loadCharacter(params.slug);
 		const locations = await getInventoryLocations(params.slug);
-		return { success: true, character: data?.character, inventoryLocations: locations };
+		return {
+			success: true,
+			character: data?.character,
+			inventoryLocations: locations,
+			skillPointWarning: getSkillPointWarning(data)
+		};
 	}
 };

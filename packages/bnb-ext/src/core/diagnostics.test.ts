@@ -42,6 +42,7 @@ describe('computeDiagnostics', () => {
   it('surfaces bnb-core calculation errors as diagnostics', async () => {
     vi.resetModules()
     vi.doMock('bnb-core', () => ({
+      formatSkillPointMismatch: vi.fn(),
       getSkillPointMismatch: vi.fn(() => undefined),
       updateCalculatedFields: () => {
         throw new Error('effect target not found')

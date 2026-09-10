@@ -27,6 +27,7 @@ export { updateCalculatedFields }
 export { dataToCompactYAML } from './dataToCompactYAML'
 export { EffectTargetError }
 export {
+  formatSkillPointMismatch,
   getSkillPointMismatch,
   type SkillPointMismatch,
 } from './skillPoints'

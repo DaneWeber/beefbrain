@@ -32,6 +32,18 @@ async function openDetailedSheetFor(page: Page) {
 	await expect(firstEditButton).toBeVisible({ timeout: 15_000 });
 }
 
+test('shows a warning when skill point totals do not match', async ({ page }) => {
+	test.setTimeout(90_000);
+	const yaml = await readFile(testYamlPath, 'utf-8');
+	await writeFile(testYamlPath, yaml.replace(/_points: \[\d+/, '_points: [999'), 'utf-8');
+
+	await page.goto(`/characters/${slug}`);
+
+	const warning = page.getByRole('status');
+	await expect(warning).toContainText('Skill points:');
+	await expect(warning).toContainText('do not match available skill points (999)');
+});
+
 test('equipping a stronger giant belt recalculates combat, skills, and carrying capacity', async ({
 	page
 }) => {

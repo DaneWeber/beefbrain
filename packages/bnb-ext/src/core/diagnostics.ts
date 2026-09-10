@@ -1,5 +1,9 @@
 import { LineCounter, parseDocument } from 'yaml'
-import { getSkillPointMismatch, updateCalculatedFields } from 'bnb-core'
+import {
+  formatSkillPointMismatch,
+  getSkillPointMismatch,
+  updateCalculatedFields,
+} from 'bnb-core'
 
 export type BnbDiagnosticSeverity = 'error' | 'warning'
 
@@ -88,7 +92,7 @@ export function computeDiagnostics(content: string): BnbDiagnostic[] {
       : UNKNOWN_RANGE
 
     diagnostics.push({
-      message: `Distributed skill ranks (${mismatch.distributed}) do not match available skill points (${mismatch.available}).`,
+      message: formatSkillPointMismatch(mismatch),
       severity: 'warning',
       range,
     })

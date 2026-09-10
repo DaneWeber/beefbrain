@@ -2,8 +2,9 @@
 	import StreamlinedSheet from '$lib/components/StreamlinedSheet.svelte';
 	import DetailedSheet from '$lib/components/DetailedSheet.svelte';
 
-	let { data } = $props();
+	let { data, form } = $props();
 	const character = $derived(data.character);
+	const skillPointWarning = $derived(form?.skillPointWarning ?? data.skillPointWarning);
 	const name = $derived(character?.description?.name ?? 'Character');
 	const latexTemplates = $derived(data.latexTemplates ?? []);
 
@@ -39,6 +40,13 @@
 	</div>
 	<button class="print-btn" onclick={() => window.print()}>Print</button>
 </div>
+
+{#if skillPointWarning}
+	<div class="skill-point-warning no-print" role="status">
+		<strong>Skill points:</strong>
+		{skillPointWarning}
+	</div>
+{/if}
 
 {#if viewMode === 'streamlined'}
 	<StreamlinedSheet {character} />
@@ -120,6 +128,15 @@
 	}
 	.print-btn:hover {
 		background: #555;
+	}
+	.skill-point-warning {
+		max-width: 1100px;
+		margin: 0 auto 1rem;
+		padding: 0.75rem 1rem;
+		border: 1px solid #d6a000;
+		border-radius: 4px;
+		background: #fff8dc;
+		color: #5f4700;
 	}
 
 	@media print {

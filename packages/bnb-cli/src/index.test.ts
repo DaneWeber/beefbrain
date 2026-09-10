@@ -22,6 +22,16 @@ const INVALID_YAML = `---
 character: abilities: strength: [15, str: 2]
 `
 
+const SKILL_POINT_MISMATCH_YAML = `---
+character:
+  abilities:
+    wisdom: [14, wis: 2]
+  skills:
+    _points: [6, {ranger: 6}]
+    listen: [5, {wis: 2, ranks: 3}]
+    spot: [4, {wis: 2, ranks: 2}]
+`
+
 const TEMP_DIR = resolve(tmpdir(), `bnb-cli-tests-${process.pid}-${Date.now()}`)
 
 describe('bnb-cli integration tests', () => {
@@ -145,6 +155,25 @@ describe('bnb-cli integration tests', () => {
       expect(output).toContain('character')
       // Calculations should update the values
       expect(output).toMatch(/\d+/)
+    })
+
+    it('warns when distributed skill ranks do not match available points', () => {
+      const testFile = resolve(TEMP_DIR, 'skill-point-mismatch.yaml')
+      writeFileSync(testFile, SKILL_POINT_MISMATCH_YAML)
+
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.mjs', testFile, '--calc'],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
+
+      expect(result.status).toBe(0)
+      expect(result.stderr.toString()).toContain(
+        'Warning: Distributed skill ranks (5) do not match available skill points (6).',
+      )
+      expect(result.stdout.toString()).toContain('_points')
     })
   })
 
