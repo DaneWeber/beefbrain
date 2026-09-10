@@ -78,6 +78,7 @@ export function updateCalculatedFields(yamlContent: string): string {
   const character = data.character as Character
 
   if (!data.character?.abilities) {
+    hasChanges = propagateToSkillTotals(data, hasChanges)
     if (hasChanges) return dataToCompactYAML(data)
     return yamlContent
   }
@@ -159,6 +160,7 @@ export function updateCalculatedFields(yamlContent: string): string {
   hasChanges = propagateToRangedWeaponDetails(data, hasChanges)
   hasChanges = propagateToInventoryWeight(data, hasChanges)
   hasChanges = propagateToSynergy(data, hasChanges)
+  hasChanges = propagateToSkillTotals(data, hasChanges)
   hasChanges = propagateToSpeed(
     data,
     equipStats,
@@ -571,6 +573,39 @@ export function sumValues(obj: Record<string, unknown>): number {
 }
 
 // --- Propagation functions ---
+
+/**
+ * Recalculate every skill total even when none of its propagated components
+ * changed. This keeps direct edits to ranks and miscellaneous bonuses live.
+ */
+function propagateToSkillTotals(
+  data: { character?: Record<string, unknown> },
+  hasChanges: boolean,
+): boolean {
+  const skills = data.character?.skills as Record<string, unknown> | undefined
+  if (!skills) return hasChanges
+
+  for (const [skillName, skill] of Object.entries(skills)) {
+    if (skillName.startsWith('_') || !Array.isArray(skill) || skill.length < 2)
+      continue
+
+    const components = skill[1]
+    if (
+      !components ||
+      typeof components !== 'object' ||
+      Array.isArray(components)
+    )
+      continue
+
+    const total = sumValues(components as Record<string, unknown>)
+    if (skill[0] !== total) {
+      skill[0] = total
+      hasChanges = true
+    }
+  }
+
+  return hasChanges
+}
 
 // Skills that take double ACP (swim in D&D 3.5e)
 // TODO: move to schema as a conditional component or skill property

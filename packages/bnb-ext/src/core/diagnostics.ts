@@ -1,5 +1,5 @@
-import { parseDocument } from 'yaml'
-import { updateCalculatedFields } from 'bnb-core'
+import { LineCounter, parseDocument } from 'yaml'
+import { getSkillPointMismatch, updateCalculatedFields } from 'bnb-core'
 
 export type BnbDiagnosticSeverity = 'error' | 'warning'
 
@@ -47,7 +47,8 @@ function rangeFromLinePos(linePos: [LinePos, LinePos?]): BnbDiagnosticRange {
  * the `vscode` module.
  */
 export function computeDiagnostics(content: string): BnbDiagnostic[] {
-  const doc = parseDocument(content)
+  const lineCounter = new LineCounter()
+  const doc = parseDocument(content, { lineCounter })
   const diagnostics: BnbDiagnostic[] = []
 
   for (const error of doc.errors) {
@@ -70,6 +71,27 @@ export function computeDiagnostics(content: string): BnbDiagnostic[] {
   // Calculation only makes sense once the YAML itself parses.
   if (doc.errors.length > 0) {
     return diagnostics
+  }
+
+  const mismatch = getSkillPointMismatch(doc.toJS())
+  if (mismatch) {
+    const pointNode = doc.getIn(
+      ['character', 'skills', mismatch.fieldName],
+      true,
+    ) as { range?: [number, number, number?] } | undefined
+    const nodeRange = pointNode?.range
+    const range = nodeRange
+      ? rangeFromLinePos([
+          lineCounter.linePos(nodeRange[0]),
+          lineCounter.linePos(nodeRange[1]),
+        ])
+      : UNKNOWN_RANGE
+
+    diagnostics.push({
+      message: `Distributed skill ranks (${mismatch.distributed}) do not match available skill points (${mismatch.available}).`,
+      severity: 'warning',
+      range,
+    })
   }
 
   try {

@@ -26,3 +26,7 @@ export { validateBeefBrainData }
 export { updateCalculatedFields }
 export { dataToCompactYAML } from './dataToCompactYAML'
 export { EffectTargetError }
+export {
+  getSkillPointMismatch,
+  type SkillPointMismatch,
+} from './skillPoints'
