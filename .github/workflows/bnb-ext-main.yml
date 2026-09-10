@@ -1,0 +1,52 @@
+name: Build bnb-ext from main
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build bnb-core
+        run: pnpm --filter bnb-core build
+
+      - name: Build bnb-ext
+        run: pnpm --filter bnb-ext build
+
+      - name: Package VSIX
+        shell: bash
+        run: |
+          version=$(node -p "require('./packages/bnb-ext/package.json').version")
+          mkdir -p artifacts
+          pnpm --filter bnb-ext exec vsce package \
+            --no-dependencies \
+            --out "$GITHUB_WORKSPACE/artifacts/bnb-ext-${version}-${GITHUB_SHA::7}.vsix"
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bnb-ext-main-${{ github.sha }}
+          path: artifacts/*.vsix
+          if-no-files-found: error
