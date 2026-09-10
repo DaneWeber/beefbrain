@@ -131,6 +131,23 @@ character:
           expect(output.character.skills.jump[0]).toBe(13)
           expect(output.character.skills.swim[0]).toBe(-1)
         })
+        it('should recalculate a skill total after ranks are edited directly', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    wisdom: [14, wis: 2]
+  skills:
+    _points: [60, {ranger: 42, human: 10, first-level: 18, int-skills: -10}]
+    spot: [6, {wis: 2, ranks: 5}]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+
+          expect(output.character.skills.spot).toEqual([
+            7,
+            { wis: 2, ranks: 5 },
+          ])
+          expect(output.character.skills._points[0]).toBe(60)
+        })
         it('should apply 0.5x str to off-hand weapon damage', () => {
           const yamlContent = `---
 character:

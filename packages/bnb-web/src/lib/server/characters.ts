@@ -6,12 +6,25 @@ import type { BeefBrainData } from 'bnb-core';
 import { listTemplates, renderLatex, type LatexTemplateKey, type TemplateInfo } from 'bnb-latex';
 
 const require = createRequire(import.meta.url);
-const { validateBeefBrainData, updateCalculatedFields, dataToCompactYAML } =
-	require('bnb-core') as {
-		validateBeefBrainData: (raw: string) => boolean;
-		updateCalculatedFields: (raw: string) => string;
-		dataToCompactYAML: (data: BeefBrainData) => string;
-	};
+const {
+	validateBeefBrainData,
+	updateCalculatedFields,
+	dataToCompactYAML,
+	getSkillPointMismatch,
+	formatSkillPointMismatch
+} = require('bnb-core') as {
+	validateBeefBrainData: (raw: string) => boolean;
+	updateCalculatedFields: (raw: string) => string;
+	dataToCompactYAML: (data: BeefBrainData) => string;
+	getSkillPointMismatch: (
+		data: unknown
+	) => { fieldName: '_points'; available: number; distributed: number } | undefined;
+	formatSkillPointMismatch: (mismatch: {
+		fieldName: '_points';
+		available: number;
+		distributed: number;
+	}) => string;
+};
 
 const YAML_DIR = process.env.BNB_YAML_DIR
 	? process.env.BNB_YAML_DIR
@@ -30,6 +43,11 @@ export interface CharacterSummary {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type CharacterData = Record<string, any>;
+
+export function getSkillPointWarning(data: unknown): string | undefined {
+	const mismatch = getSkillPointMismatch(data);
+	return mismatch ? formatSkillPointMismatch(mismatch) : undefined;
+}
 
 export interface LoadedCharacter {
 	data: BeefBrainData;

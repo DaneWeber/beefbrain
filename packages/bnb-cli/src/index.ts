@@ -2,7 +2,13 @@ import { readFileSync, writeFileSync } from 'fs'
 import { basename, extname, resolve } from 'path'
 import { compilePdf, listTemplates, renderLatex } from 'bnb-latex'
 import type { LatexTemplateKey } from 'bnb-latex'
-import { validateBeefBrainData, updateCalculatedFields } from 'bnb-core'
+import {
+  formatSkillPointMismatch,
+  getSkillPointMismatch,
+  validateBeefBrainData,
+  updateCalculatedFields,
+} from 'bnb-core'
+import { parse as parseYAML } from 'yaml'
 
 function printUsage(): void {
   console.log(`Usage: bnb <file.yaml> [options]
@@ -249,6 +255,12 @@ async function main(): Promise<void> {
     if (doCalc) {
       try {
         output = updateCalculatedFields(content)
+        const mismatch = getSkillPointMismatch(parseYAML(output))
+        if (mismatch) {
+          console.warn(
+            `Warning: ${formatSkillPointMismatch(mismatch)} File: "${file}".`,
+          )
+        }
       } catch (err) {
         console.error(
           `Error calculating fields for "${file}": ${(err as Error).message}`,

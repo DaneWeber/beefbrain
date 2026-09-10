@@ -29,7 +29,8 @@
   "license": "MIT",
   "dependencies": {
     "bnb-core": "workspace:*",
-    "bnb-latex": "workspace:*"
+    "bnb-latex": "workspace:*",
+    "yaml": "^2.9.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

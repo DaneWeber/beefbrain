@@ -587,10 +587,16 @@
   "Skills": {
     "children": [
       {
+        "name": "_points",
+        "type": "SkillRanks",
+        "optional": true,
+        "description": "Total available skill points and how they were gained"
+      },
+      {
         "name": "_ranks",
         "type": "SkillRanks",
         "optional": true,
-        "description": "Total available skill ranks and how they were spent"
+        "description": "Legacy total available skill ranks and how they were spent"
       }
     ],
     "additionalChildren": {
