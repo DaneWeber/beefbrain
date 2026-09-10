@@ -54,7 +54,7 @@ character:
   movement:
     speed: [20, {base: 30, medium-load: -10}]
     run: [120, base: x4]
-    load: [93.8 lbs, {equipped: 35 lbs, pack: 58.8 lbs}]
+    load: [92.9 lbs, {equipped: 34.1 lbs, pack: 58.8 lbs}]
     capacity: {light: 50 lbs, medium: 100 lbs, heavy: 150 lbs, lift: 300 lbs, drag: 750 lbs}
   skills:
     _points: [60, {ranger: 42, human: 10, first-level: 18, int-skills: -10}]
@@ -62,7 +62,7 @@ character:
     climb: [2, {str: 1, ranks: 1}]
     craft-arrowmaking: [1, {int: -1, ranks: 2}]
     handle-animal: [4, {cha: 0, ranks: 4}]
-    heal: [3, {wis: 2, ranks: 2}]
+    heal: [4, {wis: 2, ranks: 2}]
     hide: [7, {dex: 3, ranks: 4}]
     jump: [2, {str: 1, ranks: 1}]
     knowledge-dungeoneering: [4, {int: -1, ranks: 5}]
@@ -91,9 +91,6 @@ character:
       - "Wild Empathy: 1d20+7"
       - Animal Companion
       - Woodland Stride
-    spells:
-      per-day: {1st: 2, note: base 1 + 1 WIS bonus}
-      prepared: [Surefoot, Lightfoot]
     racial:
       - +1 skill point per level
       - +1 feat at 1st level
@@ -104,6 +101,17 @@ character:
       - Shields (except tower shields)
     languages:
       - Common
+  spells:
+    ranger:
+      caster-level: 3
+      key-ability: wisdom
+      spells-per-day:
+        "1": [2, {ranger: 1, wis-extra-spell: 1}]
+      save-dc:
+        _: [12, {base: 10, wis: 2}]
+        1: [13, {_: 12, lvl-1: 1}]
+      spells-prepared:
+        "1": [Surefoot, {cast: Lightfoot}]
   inventory:
     _on: [equipped, pack]
     money:
@@ -114,10 +122,11 @@ character:
       - [+1 Composite Shortbow, 1, weapon, 3 lbs, 2400 gp, {damage: 1d6, crit: x3, enhancement: 1}, [ranged]]
       - [Dagger, 1, weapon, 1 lb, 2 gp, {damage: 1d4, crit: 19-20/x2}]
       - [Throwing Axe, 1, weapon, 2 lbs, 8 gp, {damage: 1d6, crit: x2, range: 10ft}]
-      - [Arrows, 20, ammo, 0.15 lbs, 0.05 gp]
-      - [Arrows Cold Iron, 20, ammo, 0.15 lbs, 0.1 gp]
-      - [Arrows Silvered, 20, ammo, 0.15 lbs, 2.05 gp]
+      - [Arrows, 19, ammo, 0.15 lbs, 0.05 gp]
+      - [Arrows Cold Iron, 17, ammo, 0.15 lbs, 0.1 gp]
+      - [Arrows Silvered, 17, ammo, 0.15 lbs, 2.05 gp]
       - [Traveler's Outfit, 1, clothing, 5 lbs, 2 gp]
+      - [Wand of Cure Light Wounds (50 charges), 1, magic-wand, 0.1 lbs, 750 gp]
     pack:
       - [Cold Weather Outfit, 1, clothing, 7 lbs, 8 gp]
       - [Backpack, 1, container, 2 lbs, 2 gp]

@@ -1,0 +1,82 @@
+---
+character:
+  description:
+    name: Voidan
+    race: Storm Giant
+    alignment: CG
+    size: H
+    sex: M
+    height: 22' 0"
+    weight: 20,000 lbs
+    eyes: Indigo
+    hair: Black
+    complexion: Violet
+  abilities:
+    strength: [39, str: 14]
+    dexterity: [14, dex: 2]
+    constitution: [23, con: 6]
+    intelligence: [16, int: 3]
+    wisdom: [20, wis: 5]
+    charisma: [15, cha: 2]
+  levels:
+    xp: 0
+    hd: [19, d8: 19]
+    hp: [199, {max-hp: 199, damage: 0}]
+    max-hp: [199, {con: 114, rolls: 85}]
+    giant-hd: [19, hp: [4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4], {hd: 8, bab: average, fort: good, ref: poor, will: poor}]
+  combat:
+    initiative: [2, dex: 2]
+    saves:
+      fortitude: [17, {giant-hd: 11, con: 6}]
+      reflex: [8, {giant-hd: 6, dex: 2}]
+      will: [13, {giant-hd: 6, wis: 5, iron-will: 2}]
+    attack:
+      bab: [14, giant-hd: 14]
+      melee:
+        _: [26, {bab: 14, str: 14, size-huge: -2}]
+        greatsword: [26, 4d6+21, 19-20, _: 26, {str: 14, two-handed: 7}, {}, [greatsword]]
+      ranged:
+        _: [14, {bab: 14, dex: 2, size-huge: -2}]
+      grapple: [36, {bab: 14, str: 14, size-huge: 8}]
+    defense:
+      ac: [27, {base: 10, dex: 2, size-huge: -2, natural: 12, breastplate: 5}]
+      touch-ac: [10, {base: 10, dex: 2, size-huge: -2}]
+      flat-footed-ac: [25, {base: 10, size-huge: -2, natural: 12, breastplate: 5}]
+      acp: [-4, breastplate: -4]
+      max-dex: [3, breastplate: 4]
+  spell-like-abilities:
+    storm-giant:
+      _: {cl: 20, save: cha}
+      call-lightning: [1/day, dc: [15, {base: 13, cha: 2}]]
+      chain-lightning: [1/day, dc: [18, {base: 16, cha: 2}]]
+      control-weather: [2/day]
+      levitate: [2/day]
+  special:
+    qualities:
+      - Freedom of Movement (Su)
+      - Immunity to Electricity
+      - Low-Light Vision
+      - Rock Catching (Ex)
+      - Water Breathing (Ex)
+    feats:
+      - Awesome Blow
+      - Cleave
+      - Combat Reflexes
+      - Improved Bull Rush
+      - Improved Sunder
+      - Iron Will
+      - Power Attack
+    storm-giant:
+      - [Enhanced Swimming, [[skills.swim, "+8 for special actions/avoid hazards, can always take 10, swim 'run', ignore weight penalties"]]]
+  skills:
+    climb: [20, {str: 14, ranks: 6}]
+    concentration: [26, {con: 6, ranks: 20}]
+    diplomacy: [4, {cha: 2, synergy-sense-motive: 2}]
+    intimidate: [12, {cha: 2, ranks: 10}]
+    jump: [24, {str: 14, ranks: 10}]
+    listen: [15, {wis: 5, ranks: 10}]
+    performm-sing: [15, {wis: 5, ranks: 10}]
+    profession-fisherman: [15, {wis: 5, ranks: 10}]
+    sense-motive: [15, {wis: 5, ranks: 10}]
+    spot: [25, {wis: 5, ranks: 20}]
+    swim: [18, {str: 14, ranks: 4}, ["+8 for special actions/avoid hazards, can always take 10, swim 'run', ignore weight penalties"]]
