@@ -4,9 +4,7 @@ export interface SkillPointMismatch {
   distributed: number
 }
 
-export function formatSkillPointMismatch(
-  mismatch: SkillPointMismatch,
-): string {
+export function formatSkillPointMismatch(mismatch: SkillPointMismatch): string {
   return `Distributed skill ranks (${mismatch.distributed}) do not match available skill points (${mismatch.available}).`
 }
 
@@ -14,7 +12,11 @@ function getRanks(skill: unknown): number | undefined {
   if (!Array.isArray(skill) || skill.length < 2) return undefined
 
   const components = skill[1]
-  if (!components || typeof components !== 'object' || Array.isArray(components))
+  if (
+    !components ||
+    typeof components !== 'object' ||
+    Array.isArray(components)
+  )
     return undefined
 
   const ranks = (components as Record<string, unknown>).ranks
