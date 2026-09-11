@@ -10,7 +10,13 @@
     "ghcr.io/devcontainers/features/github-cli:1": {},
 		"ghcr.io/helpers4/devcontainer/pnpm-store:1": {}
 	},
-	"postCreateCommand": "sudo chown -R node:node /home/node/.claude && sudo apt-get update && sudo apt-get install -y texlive-latex-base texlive-latex-recommended texlive-fonts-recommended",
+	// The claude-code feature installs as root during the image build, leaving
+	// /usr/local/share/npm-global/lib/node_modules/@anthropic-ai root-owned while
+	// the container runs as "node" -- Claude Code's background self-update then
+	// fails with "no_permissions" and silently goes stale. Hand the package dir to
+	// node so updates between rebuilds work. Guarded with || true so a future
+	// feature that installs elsewhere can't fail container creation.
+	"postCreateCommand": "sudo chown -R node:node /home/node/.claude && sudo apt-get update && sudo apt-get install -y texlive-latex-base texlive-latex-recommended texlive-fonts-recommended && (sudo chown -R node:npm /usr/local/share/npm-global/lib/node_modules/@anthropic-ai || true)",
 	// This image's default container user is actually root (verify with
 	// `docker inspect <image> --format '{{.Config.User}}'`). Pin the non-root
 	// "node" user (uid 1000) explicitly so files created in the bind-mounted
