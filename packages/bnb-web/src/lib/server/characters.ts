@@ -4,6 +4,7 @@ import { createRequire } from 'node:module';
 import * as yaml from 'js-yaml';
 import type { BeefBrainData } from 'bnb-core';
 import { listTemplates, renderLatex, type LatexTemplateKey, type TemplateInfo } from 'bnb-latex';
+import { assertSafeSlug, getPartiesDir, isSafeSlug, partyDir } from './parties';
 
 const require = createRequire(import.meta.url);
 const {
@@ -26,32 +27,8 @@ const {
 	}) => string;
 };
 
-const DEFAULT_PARTIES_DIR = join(import.meta.dirname, '../../../../../data/parties');
-
-/**
- * Root directory holding one subdirectory per party. Read lazily so tests can
- * point BNB_PARTIES_DIR at a fixture directory after this module is imported.
- */
-function getPartiesDir(): string {
-	return process.env.BNB_PARTIES_DIR ?? DEFAULT_PARTIES_DIR;
-}
-
 const LATEX_TEMPLATES = listTemplates();
 const LATEX_TEMPLATE_KEYS = new Set(LATEX_TEMPLATES.map((template) => template.key));
-
-/** Party and character slugs come from URLs, so keep them to plain path-safe names. */
-const SLUG_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
-
-function assertSafeSlug(kind: 'party' | 'character', value: string): string {
-	if (!SLUG_PATTERN.test(value) || value.includes('..')) {
-		throw new Error(`Invalid ${kind} slug "${value}"`);
-	}
-	return value;
-}
-
-function partyDir(party: string): string {
-	return join(getPartiesDir(), assertSafeSlug('party', party));
-}
 
 const YAML_EXTENSIONS = ['.bnb.yaml', '.bnb.yml', '.yaml', '.yml'];
 
@@ -118,7 +95,7 @@ export async function listParties(): Promise<PartySummary[]> {
 
 	const parties: PartySummary[] = [];
 	for (const entry of entries) {
-		if (!entry.isDirectory() || !SLUG_PATTERN.test(entry.name)) continue;
+		if (!entry.isDirectory() || !isSafeSlug(entry.name)) continue;
 		const files = await listCharacterFiles(entry.name);
 		parties.push({
 			slug: entry.name,
@@ -131,7 +108,7 @@ export async function listParties(): Promise<PartySummary[]> {
 }
 
 export async function getParty(party: string): Promise<PartySummary | null> {
-	if (!SLUG_PATTERN.test(party) || party.includes('..')) return null;
+	if (!isSafeSlug(party)) return null;
 
 	try {
 		if (!(await stat(partyDir(party))).isDirectory()) return null;

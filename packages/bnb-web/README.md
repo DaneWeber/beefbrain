@@ -83,6 +83,8 @@ Characters are read from one directory per party:
 ```
 data/parties/
 ├── beefy-boys/
+│   ├── dm/
+│   │   └── item-metadata.yaml
 │   └── runa-frostwhisper.bnb.yaml
 └── brainy-boys/
     └── voidan.bnb.yaml
@@ -91,6 +93,16 @@ data/parties/
 Each directory name is the party slug (`/parties/beefy-boys`), and each file name minus its
 `.bnb.yaml` / `.yaml` extension is the character slug. Set `BNB_PARTIES_DIR` to read parties from
 somewhere else (the test suites use this to point at fixtures).
+
+### DM metadata
+
+`dm/item-metadata.yaml` holds the DM-only enrichment for a party's inventory (true descriptions,
+market values, auras, origins, notes). Characters reference it by the numeric item ID stored in
+each inventory row, and those IDs are only unique **within** a party — so each party keeps its own
+file and never sees another party's notes. A party without one simply has no enrichment.
+
+Regenerate IDs for parties that have no file yet with `pnpm init-items`; it skips parties that
+already have metadata unless you pass `--force`, because the DM's edits cannot be recovered.
 
 ### Project Structure
 

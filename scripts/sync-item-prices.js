@@ -9,12 +9,15 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const YAML_DIR = join(__dirname, '../reference_material/beefy_boys_spreadsheets/yaml');
-const METADATA_PATH = join(__dirname, '../reference_material/dm-only/item-metadata.yaml');
+const METADATA_PATH = join(
+	__dirname,
+	'../data/parties/beefy-boys/dm/item-metadata.yaml'
+);
 
 /**
  * Parses "X gp" or "X.Y gp" strings into a number.

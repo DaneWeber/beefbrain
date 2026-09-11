@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { copyFile, mkdir, mkdtemp, rm } from 'node:fs/promises';
+import { copyFile, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -19,6 +19,13 @@ describe('party discovery', () => {
 		await mkdir(join(partiesRoot, 'beefy-boys'), { recursive: true });
 		await copyFile(VOIDAN_YAML, join(partiesRoot, 'brainy-boys', 'voidan.bnb.yaml'));
 		await copyFile(RUNA_YAML, join(partiesRoot, 'beefy-boys', 'runa-frostwhisper.bnb.yaml'));
+		// DM metadata lives in a subdirectory so it is never mistaken for a character.
+		await mkdir(join(partiesRoot, 'beefy-boys', 'dm'), { recursive: true });
+		await writeFile(
+			join(partiesRoot, 'beefy-boys', 'dm', 'item-metadata.yaml'),
+			'nextId: 1\nitems: {}\nitemMapping: {}\n',
+			'utf-8'
+		);
 
 		previousPartiesDir = process.env.BNB_PARTIES_DIR;
 		process.env.BNB_PARTIES_DIR = partiesRoot;
@@ -55,6 +62,14 @@ describe('party discovery', () => {
 
 		const loaded = await loadCharacter('brainy-boys', 'voidan');
 		expect(loaded?.character?.description?.name).toBe('Voidan');
+	});
+
+	it('does not count the dm metadata directory as a character', async () => {
+		const parties = await listParties();
+		expect(parties.find((party) => party.slug === 'beefy-boys')?.characterCount).toBe(1);
+		expect((await listCharacters('beefy-boys')).map((character) => character.slug)).toEqual([
+			'runa-frostwhisper'
+		]);
 	});
 
 	it('does not resolve a character from another party', async () => {

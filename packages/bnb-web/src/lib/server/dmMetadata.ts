@@ -1,19 +1,24 @@
 /**
  * DM-only metadata management for inventory items
  * Tracks unique item IDs, descriptions, values, auras, and notes
+ *
+ * Metadata is scoped per party: item IDs live in each character's YAML and are
+ * only unique within a party, so two parties would otherwise read each other's
+ * notes for any ID they happen to share.
  */
 
-import { readFile, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 import * as yaml from 'js-yaml';
+import { partyDir } from './parties';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type YAMLData = Record<string, any>;
 
-const DM_METADATA_PATH = join(
-	import.meta.dirname,
-	'../../../../../reference_material/dm-only/item-metadata.yaml'
-);
+/** DM metadata sits beside the party's character files, in its own subdirectory. */
+export function dmMetadataPath(party: string): string {
+	return join(partyDir(party), 'dm', 'item-metadata.yaml');
+}
 
 /**
  * Item metadata stored per unique ID
@@ -36,12 +41,20 @@ export interface DMMetadata {
 	itemMapping: Record<string, number>; // "pcName/location/index" -> itemId
 }
 
+/** Metadata for a party with nothing recorded yet. */
+function emptyMetadata(): DMMetadata {
+	return { nextId: 1, items: {}, itemMapping: {} };
+}
+
 /**
- * Load DM metadata from file
+ * Load one party's DM metadata, or empty metadata when the party has none.
  */
-export async function loadDMMetadata(): Promise<DMMetadata> {
+export async function loadDMMetadata(party: string): Promise<DMMetadata> {
+	// Resolved outside the try so an invalid party slug raises instead of being
+	// reported as "this party has no metadata".
+	const filePath = dmMetadataPath(party);
 	try {
-		const raw = await readFile(DM_METADATA_PATH, 'utf-8');
+		const raw = await readFile(filePath, 'utf-8');
 		const data = yaml.load(raw) as YAMLData;
 		return {
 			nextId: data.nextId ?? 1,
@@ -49,25 +62,23 @@ export async function loadDMMetadata(): Promise<DMMetadata> {
 			itemMapping: data.itemMapping ?? {}
 		};
 	} catch {
-		// Return empty metadata if file doesn't exist
-		return {
-			nextId: 1,
-			items: {},
-			itemMapping: {}
-		};
+		// Return empty metadata if the party has no file (or an unreadable one)
+		return emptyMetadata();
 	}
 }
 
 /**
- * Save DM metadata to file
+ * Save one party's DM metadata, creating its directory on first write.
  */
-export async function saveDMMetadata(metadata: DMMetadata): Promise<void> {
+export async function saveDMMetadata(party: string, metadata: DMMetadata): Promise<void> {
+	const filePath = dmMetadataPath(party);
 	const yamlContent = yaml.dump({
 		nextId: metadata.nextId,
 		items: metadata.items,
 		itemMapping: metadata.itemMapping
 	});
-	await writeFile(DM_METADATA_PATH, yamlContent, 'utf-8');
+	await mkdir(dirname(filePath), { recursive: true });
+	await writeFile(filePath, yamlContent, 'utf-8');
 }
 
 /**

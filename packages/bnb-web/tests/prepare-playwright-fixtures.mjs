@@ -19,3 +19,11 @@ await copyFile(
 	resolve(partiesDir, 'brainy-boys', 'voidan.bnb.yaml'),
 	resolve(targetDir, 'brainy-boys', 'voidan.bnb.yaml')
 );
+
+// DM metadata is party-scoped too, so the DM view reads it from the fixture
+// party rather than from the real data directory.
+await mkdir(resolve(targetDir, 'beefy-boys', 'dm'), { recursive: true });
+await copyFile(
+	resolve(partiesDir, 'beefy-boys', 'dm', 'item-metadata.yaml'),
+	resolve(targetDir, 'beefy-boys', 'dm', 'item-metadata.yaml')
+);
