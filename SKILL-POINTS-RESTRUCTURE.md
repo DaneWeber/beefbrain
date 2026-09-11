@@ -1,5 +1,8 @@
 # Skill Points Restructure - Summary
 
+> Historical record. This migration is complete; `scripts/restructure-skill-points.js` has since
+> been removed, and the character files it names now live in `data/parties/beefy-boys/`.
+
 ## Overview
 Restructured the skill points tracking in character YAML files to follow a more consistent pattern used elsewhere in the codebase.
 

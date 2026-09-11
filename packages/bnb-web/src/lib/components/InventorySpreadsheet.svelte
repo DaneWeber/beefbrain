@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { downloadInventoryCSV } from '$lib/csvExport';
-	import type { InventoryItem } from '$lib/inventory';
+	import {
+		formatMissingItemIdWarning,
+		getMissingItemIds,
+		type InventoryItem
+	} from '$lib/inventory';
 
 	interface Props {
 		items: InventoryItem[];
@@ -33,6 +37,8 @@
 	let filterPC = $state('');
 	let filterLocation = $state('');
 	let searchText = $state('');
+
+	const missingItemIds = $derived(getMissingItemIds(items));
 
 	// Get unique values for filters
 	const categories = $derived(Array.from(new Set(items.map((i) => i.category))).sort());
@@ -145,6 +151,13 @@
 </script>
 
 <div class="inventory-grid">
+	{#if missingItemIds}
+		<div class="missing-id-warning" role="status">
+			<strong>Missing item IDs:</strong>
+			{formatMissingItemIdWarning(missingItemIds)}
+		</div>
+	{/if}
+
 	<div class="summary-panel">
 		<h3>Inventory Summary</h3>
 		{#if summary}
@@ -255,7 +268,13 @@
 			<tbody>
 				{#each sortedItems as item (item.itemId)}
 					<tr class:magic={item.tags.includes('magic')}>
-						<td class="id-cell">{item.itemId}</td>
+						<td class="id-cell">
+							{#if item.itemId > 0}
+								{item.itemId}
+							{:else}
+								<span class="no-id" title="No unique ID assigned">&mdash;</span>
+							{/if}
+						</td>
 						<td class="pc-cell">{item.pcName}</td>
 						<td class="location-cell">{item.location}</td>
 						<td class="category-cell">{item.category}</td>
@@ -287,6 +306,17 @@
 </div>
 
 <style>
+	.missing-id-warning {
+		background: #fff4e5;
+		border: 1px solid #f0b37e;
+		border-radius: 4px;
+		padding: 0.6rem 0.8rem;
+		color: #7a4b12;
+	}
+	.no-id {
+		color: #999;
+	}
+
 	.inventory-grid {
 		display: flex;
 		flex-direction: column;

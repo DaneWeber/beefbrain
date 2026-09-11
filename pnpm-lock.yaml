@@ -14,15 +14,9 @@ importers:
 
   .:
     devDependencies:
-      glob:
-        specifier: ^13.0.6
-        version: 13.0.6
       js-yaml:
         specifier: ^5.4.1
         version: 5.4.1
-      yaml:
-        specifier: ^2.9.0
-        version: 2.9.0
 
   packages/bnb-cli:
     dependencies:

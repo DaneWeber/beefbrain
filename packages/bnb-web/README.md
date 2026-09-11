@@ -99,12 +99,13 @@ somewhere else (the test suites use this to point at fixtures).
 ### DM metadata
 
 `dm/item-metadata.yaml` holds the DM-only enrichment for a party's inventory (true descriptions,
-market values, auras, origins, notes). Characters reference it by the numeric item ID stored in
-each inventory row, and those IDs are only unique **within** a party — so each party keeps its own
-file and never sees another party's notes. A party without one simply has no enrichment.
+market values, auras, origins, notes). Characters reference it by the numeric item ID in position 4
+of each inventory row, and those IDs are only unique **within** a party — so each party keeps its
+own file and never sees another party's notes. A party without one simply has no enrichment.
 
-Regenerate IDs for parties that have no file yet with `pnpm init-items`; it skips parties that
-already have metadata unless you pass `--force`, because the DM's edits cannot be recovered.
+Rows that hold something other than an ID there (an unconverted `4200 gp` price, say) cannot be
+linked to metadata. The DM inventory view shows a dash instead of an ID for those rows and warns
+which characters they belong to, so the gap is visible rather than silent.
 
 ### Project Structure
 

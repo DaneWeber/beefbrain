@@ -25,7 +25,7 @@ test('switches parties from the nav switcher', async ({ page }) => {
 	}).toPass();
 
 	await expect(page.getByRole('heading', { level: 1 })).toHaveText('Beefy Boys');
-	await expect(page.locator('.card h2')).toHaveText(['Landorf']);
+	await expect(page.locator('.card h2')).toHaveText(['Runa Frostwhisper', 'Landorf']);
 	await expect(page.getByRole('link', { name: 'DM View' })).toHaveAttribute(
 		'href',
 		'/parties/beefy-boys/dm'

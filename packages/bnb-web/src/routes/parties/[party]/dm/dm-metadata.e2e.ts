@@ -26,6 +26,32 @@ test('enriches the DM inventory from the party-scoped metadata file', async ({ p
 	await expect(row.locator('td.numeric').nth(2)).toHaveText('18335');
 });
 
+test('warns about items that have no unique ID', async ({ page }) => {
+	await openInventoryTab(page, 'beefy-boys');
+
+	// Runa's inventory rows still carry prices where the ID belongs.
+	const warning = page.getByRole('status').filter({ hasText: 'Missing item IDs:' });
+	await expect(warning).toContainText('no unique ID');
+	await expect(warning).toContainText('Runa Frostwhisper');
+
+	// Those rows render a dash rather than a negative placeholder ID.
+	const runaRow = page.locator('.inventory-table tbody tr', {
+		has: page.locator('.pc-cell', { hasText: 'Runa Frostwhisper' })
+	});
+	await expect(runaRow.first().locator('.id-cell .no-id')).toHaveText('—');
+	await expect(page.locator('.inventory-table .id-cell', { hasText: '-1' })).toHaveCount(0);
+});
+
+test('keeps the warning when the view is filtered', async ({ page }) => {
+	await openInventoryTab(page, 'beefy-boys');
+
+	// The warning describes the party's data, so narrowing the view to rows that
+	// all have IDs must not imply the problem is gone.
+	await page.locator('.filter-select').first().selectOption('Landorf');
+
+	await expect(page.getByRole('status').filter({ hasText: 'Missing item IDs:' })).toBeVisible();
+});
+
 test('does not apply one party metadata to another', async ({ page }) => {
 	await openInventoryTab(page, 'brainy-boys');
 
@@ -33,4 +59,7 @@ test('does not apply one party metadata to another', async ({ page }) => {
 	// Beefy Boys even though both would share item IDs.
 	await expect(page.locator('.inventory-table tbody tr')).toHaveCount(0);
 	await expect(page.getByText('Bastard Sword +2 Giant-Bane')).toHaveCount(0);
+
+	// No items at all means nothing to warn about.
+	await expect(page.getByRole('status').filter({ hasText: 'Missing item IDs:' })).toHaveCount(0);
 });

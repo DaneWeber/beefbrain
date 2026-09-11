@@ -10,11 +10,11 @@ await rm(targetDir, { recursive: true, force: true });
 await mkdir(resolve(targetDir, 'beefy-boys'), { recursive: true });
 await mkdir(resolve(targetDir, 'brainy-boys'), { recursive: true });
 
-// One character per party keeps the switcher assertions deterministic.
-await copyFile(
-	resolve(partiesDir, 'beefy-boys', 'ryan-landorf.bnb.yaml'),
-	resolve(targetDir, 'beefy-boys', 'ryan-landorf.bnb.yaml')
-);
+// Landorf's items carry unique IDs and Runa's still carry prices, so the DM
+// view exercises both the metadata lookup and the missing-ID warning.
+for (const file of ['ryan-landorf.bnb.yaml', 'runa-frostwhisper.bnb.yaml']) {
+	await copyFile(resolve(partiesDir, 'beefy-boys', file), resolve(targetDir, 'beefy-boys', file));
+}
 await copyFile(
 	resolve(partiesDir, 'brainy-boys', 'voidan.bnb.yaml'),
 	resolve(targetDir, 'brainy-boys', 'voidan.bnb.yaml')
