@@ -123,6 +123,85 @@ describe('Beef Brain Core Integration', () => {
     })
   })
 
+  describe('multiclass spellcaster: dnd35-gnome-paladin-sorcerer-wizard-20', () => {
+    const input = readFileSync(
+      __dirname +
+        '/examples/update/dnd35-gnome-paladin-sorcerer-wizard-20.yaml',
+      'utf8',
+    )
+    const outputYaml = updateCalculatedFields(input)
+    const character = parseYAML(outputYaml).character
+
+    it('derives bonus slots independently for all three casting classes', () => {
+      expect(character.spells.paladin.slots[1]).toEqual([
+        2,
+        { paladin: 1, wis: 1 },
+      ])
+      expect(character.spells.paladin.slots[2]).toEqual([
+        1,
+        { paladin: 0, wis: 1 },
+      ])
+
+      expect(character.spells.sorcerer.slots[1]).toEqual([
+        8,
+        { sorcerer: 6, cha: 2 },
+      ])
+      expect(character.spells.sorcerer.slots[2]).toEqual([
+        6,
+        { sorcerer: 5, cha: 1 },
+      ])
+      expect(character.spells.sorcerer.slots[3]).toEqual([
+        4,
+        { sorcerer: 3, cha: 1 },
+      ])
+
+      expect(character.spells.wizard.slots[1]).toEqual([
+        4,
+        { wizard: 3, int: 1 },
+      ])
+      expect(character.spells.wizard.slots[2]).toEqual([
+        3,
+        { wizard: 3, int: 0 },
+      ])
+      expect(character.spells.wizard.slots[3]).toEqual([
+        2,
+        { wizard: 2, int: 0 },
+      ])
+    })
+
+    it('preserves casting modes, usage, cast markers, and conditional DC rules', () => {
+      expect(character.abilities.charisma[0]).toBe(20)
+      expect(character.abilities.intelligence[0]).toBe(13)
+      expect(character.levels.paladin[0]).toBe(8)
+      expect(character.levels.sorcerer[0]).toBe(6)
+      expect(character.levels.wizard[0]).toBe(6)
+      expect(character.spells.paladin['caster-level']).toBe(4)
+      expect(character.spells.paladin.casting).toEqual(['prepared', 'wis'])
+      expect(character.spells.sorcerer.casting).toEqual(['spontaneous', 'cha'])
+      expect(character.spells.wizard.casting).toEqual(['prepared', 'int'])
+      expect(character.spells.sorcerer.used).toEqual({
+        0: 1,
+        1: 2,
+        2: 1,
+        3: 0,
+      })
+      expect(character.spells.wizard.prepared[3][1]).toEqual({
+        cast: 'fireball',
+      })
+      expect(character.spells._['dc-modifiers']).toEqual([
+        [1, 'gnome', { school: 'illusion' }],
+        [1, 'spell-focus', { school: 'evocation' }],
+      ])
+    })
+
+    it('keeps the calculated YAML compact enough for human editing', () => {
+      expect(outputYaml).toContain('"1": [8, {sorcerer: 6, cha: 2}]')
+      expect(outputYaml).toContain('"3": [dispel magic, cast: fireball]')
+      expect(outputYaml).toContain('- [1, spell-focus, school: evocation]')
+      expect(outputYaml).toContain('used: {"0": 1, "1": 2, "2": 1, "3": 0}')
+    })
+  })
+
   describe('dnd35-storm-giant-sla.yaml recalculate spell-like ability DCs', () => {
     const input = readFileSync(
       __dirname + '/examples/update/dnd35-storm-giant-sla.yaml',

@@ -23,6 +23,8 @@ const flowStylePaths = [
   'character.spells.*.slots.*',
   'character.spells.*.prepared.*',
   'character.spells.*.known.*',
+  'character.spells.*.used',
+  'character.spells._.dc-modifiers.*',
   'character.spells.*.spells-per-day',
   'character.spells.*.save-dc',
   'character.spells.*.spells-prepared.*',
