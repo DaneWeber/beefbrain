@@ -1,5 +1,5 @@
 /**
- * Strip curly braces from single-key maps anywhere in flow-style YAML text,
+ * Strip curly braces from single-key maps inside flow-style YAML sequences,
  * e.g. [14, {str: 2}] => [14, str: 2] and [1/day, {dc: [19, {base: 13, cha: 6}]}]
  * => [1/day, dc: [19, {base: 13, cha: 6}]], while leaving multi-key maps
  * (and empty maps) untouched.
@@ -68,7 +68,12 @@ export function stripSingleKeyBraces(text: string): string {
     if (ch === '}' || ch === ']') {
       const frame = stack.pop()
       if (frame && ch === '}' && frame.type === '{') {
-        if (frame.topLevelCommas === 0 && frame.hasTopLevelColon) {
+        const parent = stack[stack.length - 1]
+        if (
+          parent?.type === '[' &&
+          frame.topLevelCommas === 0 &&
+          frame.hasTopLevelColon
+        ) {
           removeStarts.add(frame.start)
           removeEnds.add(i)
         }
