@@ -6,17 +6,13 @@
 	"image": "mcr.microsoft.com/devcontainers/typescript-node:5-24-trixie",
 	"features": {
 		"ghcr.io/devcontainers-extra/features/pnpm:2": {},
-    "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {},
+		"ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {},
 		"ghcr.io/helpers4/devcontainer/pnpm-store:1": {}
 	},
-	// The claude-code feature installs as root during the image build, leaving
-	// /usr/local/share/npm-global/lib/node_modules/@anthropic-ai root-owned while
-	// the container runs as "node" -- Claude Code's background self-update then
-	// fails with "no_permissions" and silently goes stale. Hand the package dir to
-	// node so updates between rebuilds work. Guarded with || true so a future
-	// feature that installs elsewhere can't fail container creation.
-	"postCreateCommand": "sudo chown -R node:node /home/node/.claude && sudo apt-get update && sudo apt-get install -y texlive-latex-base texlive-latex-recommended texlive-fonts-recommended && (sudo chown -R node:npm /usr/local/share/npm-global/lib/node_modules/@anthropic-ai || true)",
+	// Installs pdflatex, plus Playwright's chromium and its shared libraries
+	// (without which the bnb-web e2e suite can't run after a rebuild).
+	"postCreateCommand": "bash .devcontainer/post-create.sh",
 	// This image's default container user is actually root (verify with
 	// `docker inspect <image> --format '{{.Config.User}}'`). Pin the non-root
 	// "node" user (uid 1000) explicitly so files created in the bind-mounted
@@ -24,28 +20,32 @@
 	// (pnpm install, etc.) run against the same files outside a container
 	// afterwards.
 	"remoteUser": "node",
-
 	// Keep Claude Code's login and initial setup across container rebuilds.
 	// CLAUDE_CONFIG_DIR gathers .claude.json (onboarding flags, per-project trust)
 	// into the same directory as .credentials.json, and that directory is a named
 	// Docker volume, so "Rebuild Container" leaves it untouched. Only the pointer
 	// to the volume is committed here -- no credentials.
+	//
+	// The second volume does the same for Playwright's browser builds. Purely a
+	// speed optimization -- post-create.sh would re-download them otherwise, and
+	// they're ~650MB.
 	"mounts": [
-		"source=beefbrain-claude-config,target=/home/node/.claude,type=volume"
+		"source=beefbrain-claude-config,target=/home/node/.claude,type=volume",
+		"source=beefbrain-playwright-browsers,target=/home/node/.cache/ms-playwright,type=volume"
 	],
 	"remoteEnv": {
-		"CLAUDE_CONFIG_DIR": "/home/node/.claude"
+		"CLAUDE_CONFIG_DIR": "/home/node/.claude",
+		// Already Playwright's default location, but naming it explicitly keeps
+		// the volume above and post-create.sh's chown pointed at one path.
+		"PLAYWRIGHT_BROWSERS_PATH": "/home/node/.cache/ms-playwright"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				// Test explorer for the bnb-web e2e suite, with "Show browser"
+				// and pick-locator. Reads the repo's playwright.config.ts.
+				"ms-playwright.playwright"
+			]
+		}
 	}
-
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "yarn install",
-
-	// Configure tool-specific properties.
-	// "customizations": {},
 }

@@ -258,6 +258,44 @@ node dist/index.js path/to/character.yaml
 pnpm dev  # Starts at http://localhost:5173 (accessible from host)
 ```
 
+### End-to-end tests in the DevContainer
+
+The bnb-web e2e suite (Playwright + chromium) runs in the DevContainer with no
+extra setup. `.devcontainer/post-create.sh` installs the browser and its shared
+libraries on container create -- neither survives a rebuild, so it runs every
+time. The browsers themselves live in a named Docker volume, so a rebuild
+re-uses the ~650MB rather than re-downloading it.
+
+```bash
+pnpm --filter bnb-web test:e2e            # headless (the default)
+pnpm --filter bnb-web test:e2e:headed     # watch it in a real browser window
+pnpm --filter bnb-web test:e2e:debug      # step through with the Inspector
+pnpm --filter bnb-web test:e2e:ui         # time-travel debugger
+pnpm --filter bnb-web test:e2e:install    # retry, if post-create's install failed
+```
+
+Each of those builds `bnb-core` and `bnb-latex` first, so you're never debugging
+against a stale `dist/`.
+
+The headed, `--debug`, and `--ui` variants open a real window and so need an X
+server. Under VS Code you get one for free: the Dev Containers extension
+forwards the host's display into the container when the host has one (Windows +
+WSLg, macOS + XQuartz). `echo $DISPLAY` -- if it's set, they'll just work.
+
+That forwarding is VS Code-specific, so it isn't there under the `devcontainer`
+CLI, Codespaces, or a plain `docker run`. Headless still works everywhere, and
+`playwright test --ui-host=0.0.0.0 --ui-port=9324` serves UI mode over a
+forwarded port instead of a window if you ever need it.
+
+The VS Code Playwright extension is installed by the DevContainer too, which
+adds a test explorer with "Show browser" and pick-locator.
+
+> **If tests start failing with "Target page, context or browser has been
+> closed" or renderer crashes**, the likely cause is Docker's default 64MB
+> `/dev/shm`, which a heavily parallel Chromium can exhaust. Add
+> `"runArgs": ["--shm-size=1g"]` to `.devcontainer/devcontainer.json` and
+> rebuild. The current suite doesn't need it.
+
 ### WSL LaTeX prerequisite for PDF generation
 
 `pnpm install` installs Node dependencies only. PDF generation requires a system
