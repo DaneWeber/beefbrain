@@ -14,7 +14,8 @@ A SvelteKit web application for viewing and managing TTRPG characters stored in 
 
 ### ✅ Implemented
 
-- **Character List**: Browse all available characters
+- **Parties**: Characters live in `data/parties/<party>/`; the home page lists parties and a nav switcher moves between them
+- **Character List**: Browse the characters in the selected party
 - **Character Sheets**:
   - Streamlined view (combat-focused)
   - Detailed view (complete stats)
@@ -75,15 +76,35 @@ pnpm dev
 
 Dev server runs at `http://localhost:5173` (accessible from host machine in dev container)
 
+### Character data
+
+Characters are read from one directory per party:
+
+```
+data/parties/
+├── beefy-boys/
+│   └── runa-frostwhisper.bnb.yaml
+└── brainy-boys/
+    └── voidan.bnb.yaml
+```
+
+Each directory name is the party slug (`/parties/beefy-boys`), and each file name minus its
+`.bnb.yaml` / `.yaml` extension is the character slug. Set `BNB_PARTIES_DIR` to read parties from
+somewhere else (the test suites use this to point at fixtures).
+
 ### Project Structure
 
 ```
 src/
 ├── routes/
-│   ├── +page.svelte              # Character list
-│   ├── characters/
-│   │   └── [slug]/+page.svelte   # Individual character
-│   ├── dm/                       # DM-only pages
+│   ├── +layout.svelte            # Nav + party switcher
+│   ├── +page.svelte              # Party list
+│   ├── parties/
+│   │   └── [party]/
+│   │       ├── +page.svelte          # Character list for one party
+│   │       ├── characters/
+│   │       │   └── [slug]/+page.svelte   # Individual character
+│   │       └── dm/                       # DM-only pages
 │   └── demo/                     # Test pages
 ├── lib/
 │   ├── components/               # Reusable components

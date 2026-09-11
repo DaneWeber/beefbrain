@@ -3,30 +3,40 @@
 </script>
 
 <svelte:head>
-	<title>Beefbrain - Character Sheets</title>
+	<title>Beefbrain - Parties</title>
 </svelte:head>
 
-<div class="character-list">
-	<h1>Character Sheets</h1>
-	<div class="cards">
-		{#each data.characters as char}
-			<a href="/characters/{char.slug}" class="card">
-				<h2>{char.name}</h2>
-				<p class="player">Player: {char.player}</p>
-				<p class="race">{char.race}</p>
-				<p class="classes">{char.classes}</p>
-			</a>
-		{/each}
-	</div>
+<div class="party-list">
+	<h1>Parties</h1>
+	{#if data.parties.length === 0}
+		<p class="empty">
+			No parties found. Add character files under <code>data/parties/&lt;party&gt;/</code>.
+		</p>
+	{:else}
+		<div class="cards">
+			{#each data.parties as party (party.slug)}
+				<a href="/parties/{party.slug}" class="card">
+					<h2>{party.name}</h2>
+					<p class="count">
+						{party.characterCount}
+						{party.characterCount === 1 ? 'character' : 'characters'}
+					</p>
+				</a>
+			{/each}
+		</div>
+	{/if}
 </div>
 
 <style>
-	.character-list {
+	.party-list {
 		max-width: 900px;
 		margin: 0 auto;
 	}
 	h1 {
 		margin-bottom: 1.5rem;
+	}
+	.empty {
+		color: #555;
 	}
 	.cards {
 		display: grid;
@@ -49,13 +59,9 @@
 		margin: 0 0 0.5rem;
 		font-size: 1.3rem;
 	}
-	.card p {
-		margin: 0.2rem 0;
+	.card .count {
+		margin: 0;
 		font-size: 0.9rem;
 		color: #555;
-	}
-	.card .classes {
-		font-weight: 600;
-		color: #333;
 	}
 </style>

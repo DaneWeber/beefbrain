@@ -1,5 +1,5 @@
-import { readdir, readFile, writeFile } from 'node:fs/promises';
-import { join, basename } from 'node:path';
+import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { createRequire } from 'node:module';
 import * as yaml from 'js-yaml';
 import type { BeefBrainData } from 'bnb-core';
@@ -26,12 +26,78 @@ const {
 	}) => string;
 };
 
-const YAML_DIR = process.env.BNB_YAML_DIR
-	? process.env.BNB_YAML_DIR
-	: join(import.meta.dirname, '../../../../../reference_material/beefy_boys_spreadsheets/yaml');
+const DEFAULT_PARTIES_DIR = join(import.meta.dirname, '../../../../../data/parties');
+
+/**
+ * Root directory holding one subdirectory per party. Read lazily so tests can
+ * point BNB_PARTIES_DIR at a fixture directory after this module is imported.
+ */
+function getPartiesDir(): string {
+	return process.env.BNB_PARTIES_DIR ?? DEFAULT_PARTIES_DIR;
+}
 
 const LATEX_TEMPLATES = listTemplates();
 const LATEX_TEMPLATE_KEYS = new Set(LATEX_TEMPLATES.map((template) => template.key));
+
+/** Party and character slugs come from URLs, so keep them to plain path-safe names. */
+const SLUG_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+
+function assertSafeSlug(kind: 'party' | 'character', value: string): string {
+	if (!SLUG_PATTERN.test(value) || value.includes('..')) {
+		throw new Error(`Invalid ${kind} slug "${value}"`);
+	}
+	return value;
+}
+
+function partyDir(party: string): string {
+	return join(getPartiesDir(), assertSafeSlug('party', party));
+}
+
+const YAML_EXTENSIONS = ['.bnb.yaml', '.bnb.yml', '.yaml', '.yml'];
+
+/** Strip a recognised YAML extension, so `voidan.bnb.yaml` has the slug `voidan`. */
+function toCharacterSlug(file: string): string | null {
+	const ext = YAML_EXTENSIONS.find((candidate) => file.toLowerCase().endsWith(candidate));
+	return ext ? file.slice(0, -ext.length) : null;
+}
+
+interface CharacterFile {
+	slug: string;
+	file: string;
+}
+
+async function listCharacterFiles(party: string): Promise<CharacterFile[]> {
+	let entries: string[];
+	try {
+		entries = await readdir(partyDir(party));
+	} catch {
+		return [];
+	}
+
+	return entries
+		.map((file) => {
+			const slug = toCharacterSlug(file);
+			return slug ? { slug, file } : null;
+		})
+		.filter((entry): entry is CharacterFile => entry !== null)
+		.sort((a, b) => a.slug.localeCompare(b.slug));
+}
+
+/** Resolve a character slug to its file on disk, whatever YAML extension it uses. */
+async function characterPath(party: string, slug: string): Promise<string> {
+	assertSafeSlug('character', slug);
+	const match = (await listCharacterFiles(party)).find((entry) => entry.slug === slug);
+	if (!match) {
+		throw new Error(`Character "${slug}" not found in party "${party}"`);
+	}
+	return join(partyDir(party), match.file);
+}
+
+export interface PartySummary {
+	slug: string;
+	name: string;
+	characterCount: number;
+}
 
 export interface CharacterSummary {
 	slug: string;
@@ -39,6 +105,42 @@ export interface CharacterSummary {
 	player: string;
 	race: string;
 	classes: string;
+}
+
+/** Every subdirectory of the parties root is a party. */
+export async function listParties(): Promise<PartySummary[]> {
+	let entries;
+	try {
+		entries = await readdir(getPartiesDir(), { withFileTypes: true });
+	} catch {
+		return [];
+	}
+
+	const parties: PartySummary[] = [];
+	for (const entry of entries) {
+		if (!entry.isDirectory() || !SLUG_PATTERN.test(entry.name)) continue;
+		const files = await listCharacterFiles(entry.name);
+		parties.push({
+			slug: entry.name,
+			name: formatKey(entry.name),
+			characterCount: files.length
+		});
+	}
+
+	return parties.sort((a, b) => a.slug.localeCompare(b.slug));
+}
+
+export async function getParty(party: string): Promise<PartySummary | null> {
+	if (!SLUG_PATTERN.test(party) || party.includes('..')) return null;
+
+	try {
+		if (!(await stat(partyDir(party))).isDirectory()) return null;
+	} catch {
+		return null;
+	}
+
+	const files = await listCharacterFiles(party);
+	return { slug: party, name: formatKey(party), characterCount: files.length };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -56,17 +158,14 @@ export interface LoadedCharacter {
 	validationError?: string;
 }
 
-export async function listCharacters(): Promise<CharacterSummary[]> {
-	const files = await readdir(YAML_DIR);
-	const yamlFiles = files.filter((f) => f.endsWith('.yaml') || f.endsWith('.yml')).sort();
-
+export async function listCharacters(party: string): Promise<CharacterSummary[]> {
 	const summaries: CharacterSummary[] = [];
-	for (const file of yamlFiles) {
-		const raw = await readFile(join(YAML_DIR, file), 'utf-8');
+	for (const { slug, file } of await listCharacterFiles(party)) {
+		const raw = await readFile(join(partyDir(party), file), 'utf-8');
 
 		// Validate using bnb-core
 		if (!validateBeefBrainData(raw)) {
-			console.warn(`Invalid character file: ${file}`);
+			console.warn(`Invalid character file: ${party}/${file}`);
 			continue;
 		}
 
@@ -89,7 +188,7 @@ export async function listCharacters(): Promise<CharacterSummary[]> {
 			.join(' / ');
 
 		summaries.push({
-			slug: basename(file, '.yaml'),
+			slug,
 			name: desc.name ?? 'Unknown',
 			player: desc.player ?? 'Unknown',
 			race: desc.race ?? 'Unknown',
@@ -100,36 +199,34 @@ export async function listCharacters(): Promise<CharacterSummary[]> {
 	return summaries;
 }
 
-export async function loadAllCharacters(): Promise<{ slug: string; character: CharacterData }[]> {
-	const files = await readdir(YAML_DIR);
-	const yamlFiles = files.filter((f) => f.endsWith('.yaml') || f.endsWith('.yml')).sort();
-
+export async function loadAllCharacters(
+	party: string
+): Promise<{ slug: string; character: CharacterData }[]> {
 	const results: { slug: string; character: CharacterData }[] = [];
-	for (const file of yamlFiles) {
-		const raw = await readFile(join(YAML_DIR, file), 'utf-8');
+	for (const { slug, file } of await listCharacterFiles(party)) {
+		const raw = await readFile(join(partyDir(party), file), 'utf-8');
 
 		// Validate using bnb-core
 		if (!validateBeefBrainData(raw)) {
-			console.warn(`Invalid character file: ${file}`);
+			console.warn(`Invalid character file: ${party}/${file}`);
 			continue;
 		}
 
 		const data = yaml.load(raw) as CharacterData;
 		if (data?.character) {
-			results.push({ slug: basename(file, '.yaml'), character: data.character });
+			results.push({ slug, character: data.character });
 		}
 	}
 	return results;
 }
 
-export async function loadCharacter(slug: string): Promise<CharacterData | null> {
-	const filePath = join(YAML_DIR, `${slug}.yaml`);
+export async function loadCharacter(party: string, slug: string): Promise<CharacterData | null> {
 	try {
-		const raw = await readFile(filePath, 'utf-8');
+		const raw = await readFile(await characterPath(party, slug), 'utf-8');
 
 		// Validate using bnb-core
 		if (!validateBeefBrainData(raw)) {
-			console.error(`Invalid character file: ${slug}.yaml`);
+			console.error(`Invalid character file: ${party}/${slug}`);
 			return null;
 		}
 
@@ -142,10 +239,12 @@ export async function loadCharacter(slug: string): Promise<CharacterData | null>
 /**
  * Load character with validation info and automatic calculations
  */
-export async function loadCharacterWithValidation(slug: string): Promise<LoadedCharacter | null> {
-	const filePath = join(YAML_DIR, `${slug}.yaml`);
+export async function loadCharacterWithValidation(
+	party: string,
+	slug: string
+): Promise<LoadedCharacter | null> {
 	try {
-		const raw = await readFile(filePath, 'utf-8');
+		const raw = await readFile(await characterPath(party, slug), 'utf-8');
 
 		// Validate using bnb-core
 		const isValid = validateBeefBrainData(raw);
@@ -243,13 +342,14 @@ async function saveAndRecalculate(filePath: string, data: BeefBrainData): Promis
  * then recalculate all derived fields.
  */
 export async function saveCharacterMagicItem(
+	party: string,
 	slug: string,
 	location: string,
 	itemOrderIndex: number,
 	newName: string,
 	newEffects: Record<string, string>
 ): Promise<void> {
-	const filePath = join(YAML_DIR, `${slug}.yaml`);
+	const filePath = await characterPath(party, slug);
 	const raw = await readFile(filePath, 'utf-8');
 	const data = yaml.load(raw) as BeefBrainData;
 
@@ -273,12 +373,13 @@ export async function saveCharacterMagicItem(
  * Recalculates derived fields after the move so equipped bonuses update.
  */
 export async function moveCharacterMagicItem(
+	party: string,
 	slug: string,
 	fromLocation: string,
 	toLocation: string,
 	itemOrderIndex: number
 ): Promise<void> {
-	const filePath = join(YAML_DIR, `${slug}.yaml`);
+	const filePath = await characterPath(party, slug);
 	const raw = await readFile(filePath, 'utf-8');
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const data = yaml.load(raw) as any;
@@ -305,9 +406,8 @@ export async function moveCharacterMagicItem(
 /**
  * Return all inventory location keys for a character (excluding _ prefixed and money).
  */
-export async function getInventoryLocations(slug: string): Promise<string[]> {
-	const filePath = join(YAML_DIR, `${slug}.yaml`);
-	const raw = await readFile(filePath, 'utf-8');
+export async function getInventoryLocations(party: string, slug: string): Promise<string[]> {
+	const raw = await readFile(await characterPath(party, slug), 'utf-8');
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const data = yaml.load(raw) as any;
 	const inv = data?.character?.inventory ?? {};
@@ -319,6 +419,7 @@ export function getLatexTemplateOptions(): TemplateInfo[] {
 }
 
 export async function generateCharacterLatex(
+	party: string,
 	slug: string,
 	templateKey: string
 ): Promise<{ latex: string; templateKey: LatexTemplateKey }> {
@@ -326,8 +427,7 @@ export async function generateCharacterLatex(
 		throw new Error(`Unknown LaTeX template "${templateKey}"`);
 	}
 
-	const filePath = join(YAML_DIR, `${slug}.yaml`);
-	const raw = await readFile(filePath, 'utf-8');
+	const raw = await readFile(await characterPath(party, slug), 'utf-8');
 	const rendered = renderLatex({
 		yaml: raw,
 		templateKey: templateKey as LatexTemplateKey

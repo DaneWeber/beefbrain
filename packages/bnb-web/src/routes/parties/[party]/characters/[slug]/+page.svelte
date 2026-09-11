@@ -12,7 +12,7 @@
 	let viewMode: ViewMode = $state('streamlined');
 	let selectedLatexTemplate = $state('dnd35-streamlined');
 	const latexDownloadHref = $derived(
-		`/characters/${data.slug}/latex?template=${encodeURIComponent(selectedLatexTemplate)}`
+		`/parties/${data.party.slug}/characters/${data.slug}/latex?template=${encodeURIComponent(selectedLatexTemplate)}`
 	);
 </script>
 
@@ -21,7 +21,7 @@
 </svelte:head>
 
 <div class="page-controls no-print">
-	<a href="/" class="back-link">&larr; All Characters</a>
+	<a href="/parties/{data.party.slug}" class="back-link">&larr; {data.party.name}</a>
 	<div class="view-toggle">
 		<button class:active={viewMode === 'streamlined'} onclick={() => (viewMode = 'streamlined')}>
 			Play

@@ -9,7 +9,7 @@ export async function GET({ params, url }) {
 	const templateKey = url.searchParams.get('template') ?? 'dnd35-streamlined';
 
 	try {
-		const rendered = await generateCharacterLatex(params.slug, templateKey);
+		const rendered = await generateCharacterLatex(params.party, params.slug, templateKey);
 		const safeSlug = toSafeFilePart(params.slug);
 		const fileName = `${safeSlug}-${rendered.templateKey}.tex`;
 

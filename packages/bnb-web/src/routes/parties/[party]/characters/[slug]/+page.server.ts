@@ -9,11 +9,11 @@ import {
 } from '$lib/server/characters';
 
 export async function load({ params }) {
-	const data = await loadCharacter(params.slug);
+	const data = await loadCharacter(params.party, params.slug);
 	if (!data) {
 		error(404, 'Character not found');
 	}
-	const locations = await getInventoryLocations(params.slug);
+	const locations = await getInventoryLocations(params.party, params.slug);
 	return {
 		character: data.character,
 		skillPointWarning: getSkillPointWarning(data),
@@ -46,12 +46,19 @@ export const actions = {
 		}
 
 		try {
-			await saveCharacterMagicItem(params.slug, location, itemOrderIndex, newName.trim(), effects);
+			await saveCharacterMagicItem(
+				params.party,
+				params.slug,
+				location,
+				itemOrderIndex,
+				newName.trim(),
+				effects
+			);
 		} catch (err) {
 			return fail(500, { error: String(err) });
 		}
 
-		const data = await loadCharacter(params.slug);
+		const data = await loadCharacter(params.party, params.slug);
 		return {
 			success: true,
 			character: data?.character,
@@ -70,13 +77,19 @@ export const actions = {
 		}
 
 		try {
-			await moveCharacterMagicItem(params.slug, fromLocation, toLocation, itemOrderIndex);
+			await moveCharacterMagicItem(
+				params.party,
+				params.slug,
+				fromLocation,
+				toLocation,
+				itemOrderIndex
+			);
 		} catch (err) {
 			return fail(500, { error: String(err) });
 		}
 
-		const data = await loadCharacter(params.slug);
-		const locations = await getInventoryLocations(params.slug);
+		const data = await loadCharacter(params.party, params.slug);
+		const locations = await getInventoryLocations(params.party, params.slug);
 		return {
 			success: true,
 			character: data?.character,
