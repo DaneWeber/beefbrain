@@ -14,16 +14,18 @@ character:
     charisma: [20, cha: 5, base: 20]
   levels:
     xp: 190000
-    hd: [20, 10]
-    paladin: [8, {hd: 10, bab: good, fort: good, ref: poor, will: poor}]
-    sorcerer: [6, {hd: 4, bab: poor, fort: poor, ref: poor, will: good}]
-    wizard: [6, {hd: 4, bab: poor, fort: poor, ref: poor, will: good}]
+    hd: [20, {d10: 8, d4: 12}]
+    hp: [119, {max-hp: 126, damage: -7}]
+    max-hp: [126, {con: 40, rolls: 86}]
+    paladin: [8, {hp: [2, 3, 4, 5, 6, 7, 8, 9]}, {hd: d10, bab: good, fort: good, ref: poor, will: poor}]
+    sorcerer: [6, {hp: [6, 5, 4, 3, 2, 1]}, {hd: d4, bab: poor, fort: poor, ref: poor, will: good}]
+    wizard: [6, {hp: [1, 2, 3, 4, 5, 6]}, {hd: d4, bab: poor, fort: poor, ref: poor, will: good}]
   special:
     feats:
-      - [Spell Focus (Evocation), {level: 3}]
+      - [Spell Focus (Evocation), {level: 3}, [[spells._.dc-modifiers, [1, spell-focus, {school: evocation}]]]]
     gnome:
       - Low-Light Vision
-      - [+1 illusion spell DC]
+      - [Illusion Affinity, [[spells._.dc-modifiers, [1, gnome, {school: illusion}]]]]
   spell-like-abilities:
     gnome:
       _: {cl: 1, save: cha}
@@ -33,26 +35,24 @@ character:
       prestidigitation: [1/day]
   spells:
     _:
-      dc-modifiers:
-        - [1, gnome, {school: illusion}]
-        - [1, spell-focus, {school: evocation}]
+      dc-modifiers: []
     paladin:
-      casting: [prepared, wis]
+      casting: [divine, prepared, wis]
       caster-level: 4
       slots:
-        1: [1, {paladin: 1, wis: 0}]
-        2: [0, {paladin: 0, wis: 0}]
+        1: [2, {paladin: 1, wis-slot: 1}]
+        2: [1, {paladin: 0, wis-slot: 1}]
       prepared:
         1: [bless weapon, {cast: protection from evil}]
         2: [bulls strength]
     sorcerer:
-      casting: [spontaneous, cha]
+      casting: [arcane, spontaneous, cha]
       caster-level: 6
       slots:
         0: [6, sorcerer: 6]
-        1: [6, {sorcerer: 6, cha: 0}]
-        2: [5, {sorcerer: 5, cha: 0}]
-        3: [3, {sorcerer: 3, cha: 0}]
+        1: [8, {sorcerer: 6, cha-slot: 2}]
+        2: [6, {sorcerer: 5, cha-slot: 1}]
+        3: [4, {sorcerer: 3, cha-slot: 1}]
       used: {0: 1, 1: 2, 2: 1, 3: 0}
       known:
         0: [dancing lights, detect magic, ghost sound, prestidigitation, ray of frost, read magic, resistance]
@@ -60,20 +60,31 @@ character:
         2: [invisibility, scorching ray]
         3: [fireball]
     wizard:
-      casting: [prepared, int]
+      casting: [arcane, prepared, int]
       caster-level: 6
       slots:
         0: [4, wizard: 4]
-        1: [3, {wizard: 3, int: 0}]
-        2: [3, {wizard: 3, int: 0}]
-        3: [2, {wizard: 2, int: 0}]
+        1: [4, {wizard: 3, int-slot: 1}]
+        2: [3, {wizard: 3, int-slot: 0}]
+        3: [2, {wizard: 2, int-slot: 0}]
       prepared:
         0: [detect magic, mage hand, {cast: message}, open-close]
         1: [grease, magic missile, shield, {cast: silent image}]
         2: [invisibility, mirror image, scorching ray]
         3: [dispel magic, {cast: fireball}]
       spellbook:
-        0: [acid splash, arcane mark, dancing lights, daze, detect magic, detect poison, disrupt undead, flare, ghost sound, light, mage hand, mending, message, open-close, prestidigitation, ray of frost, read magic, resistance, touch of fatigue]
-        1: [burning hands, color spray, grease, magic missile, shield, silent image]
-        2: [glitterdust, invisibility, mirror image, scorching ray]
-        3: [dispel magic, fireball, haste, major image]
+        main:
+          _pages: 45
+          0: [acid splash, arcane mark, dancing lights, daze, detect magic, detect poison, disrupt undead, flare, ghost sound, light, mage hand, mending, message, open-close, prestidigitation, ray of frost, read magic, resistance, touch of fatigue]
+          1: [burning hands, color spray, grease, magic missile, shield, silent image]
+          2: [glitterdust, invisibility, mirror image, scorching ray]
+          3: [dispel magic, fireball, haste, major image]
+        backup:
+          _pages: 12
+          2: [glitterdust, invisibility, scorching ray]
+          3: [dispel magic, fireball]
+        other-one:
+          _pages: 14
+          1: [burning hands, color spray, grease, magic missile, shield, silent image]
+          2: [mirror image]
+          3: [haste, major image]

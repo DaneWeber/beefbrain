@@ -17,6 +17,7 @@ type EffectBonus = Record<string, number | string>
 interface ParsedEffect {
   path: string
   bonus?: EffectBonus
+  append?: unknown[]
   note?: string
 }
 
@@ -40,6 +41,9 @@ function parseEffect(raw: unknown): ParsedEffect | null {
   if (isPlainObject(raw[idx])) {
     bonus = raw[idx] as EffectBonus
     idx++
+  } else if (Array.isArray(raw[idx])) {
+    const append = raw[idx] as unknown[]
+    return { path, append }
   } else if (typeof raw[idx] === 'string') {
     note = raw[idx]
     idx++
@@ -194,6 +198,20 @@ function applyWithoutBracket(
   effect: ParsedEffect,
 ): boolean {
   const existing = parent[key]
+
+  if (effect.append) {
+    if (!Array.isArray(existing)) {
+      throw new EffectTargetError(
+        `Effect target "${path}" does not resolve to a list.`,
+      )
+    }
+    const serialized = JSON.stringify(effect.append)
+    if (existing.some((entry) => JSON.stringify(entry) === serialized)) {
+      return false
+    }
+    existing.push(JSON.parse(serialized) as unknown[])
+    return true
+  }
 
   if (effect.bonus) {
     const tuple = getModsTuple(existing)

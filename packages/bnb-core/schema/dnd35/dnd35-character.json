@@ -188,8 +188,8 @@
     "array": {
       "0": { "type": "number", "description": "Total number of hit dice" },
       "1": {
-        "type": "number",
-        "description": "Largest hit die size (e.g., 10 for d10)"
+        "type": "object",
+        "description": "Hit dice grouped by die size (e.g., {d10: 8, d4: 12})"
       }
     }
   },
@@ -228,12 +228,16 @@
         "type": "number",
         "description": "Number of levels in this class"
       },
-      "1": { "type": "ClassLevelDetails" }
+      "1": {
+        "type": "object",
+        "description": "Character-specific class data such as {hp: [rolls_per_level]}"
+      },
+      "2": { "type": "ClassLevelDetails" }
     }
   },
   "ClassLevelDetails": {
     "type": "object",
-    "description": "Class-specific info: {hd: die_size, hp: [rolls_per_level]}"
+    "description": "Class rules: {hd: die_name, bab: progression, fort: progression, ref: progression, will: progression}"
   },
   "Combat": {
     "children": [
