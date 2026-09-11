@@ -7,6 +7,7 @@
 	"features": {
 		"ghcr.io/devcontainers-extra/features/pnpm:2": {},
     "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
 		"ghcr.io/helpers4/devcontainer/pnpm-store:1": {}
 	},
 	"postCreateCommand": "sudo chown -R node:node /home/node/.claude && sudo apt-get update && sudo apt-get install -y texlive-latex-base texlive-latex-recommended texlive-fonts-recommended",
