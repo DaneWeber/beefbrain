@@ -85,7 +85,9 @@ data/parties/
 ├── beefy-boys/
 │   ├── dm/
 │   │   └── item-metadata.yaml
-│   └── runa-frostwhisper.bnb.yaml
+│   ├── andy-black-stag.bnb.yaml
+│   ├── ryan-landorf.bnb.yaml
+│   └── ...
 └── brainy-boys/
     └── voidan.bnb.yaml
 ```

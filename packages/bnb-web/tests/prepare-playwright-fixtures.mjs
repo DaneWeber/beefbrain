@@ -2,7 +2,6 @@ import { mkdir, copyFile, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const repoRoot = resolve(import.meta.dirname, '..', '..', '..');
-const legacyYamlDir = resolve(repoRoot, 'reference_material', 'beefy_boys_spreadsheets', 'yaml');
 const partiesDir = resolve(repoRoot, 'data', 'parties');
 const targetDir = resolve(import.meta.dirname, '..', '.playwright-data', 'parties');
 
@@ -11,9 +10,10 @@ await rm(targetDir, { recursive: true, force: true });
 await mkdir(resolve(targetDir, 'beefy-boys'), { recursive: true });
 await mkdir(resolve(targetDir, 'brainy-boys'), { recursive: true });
 
+// One character per party keeps the switcher assertions deterministic.
 await copyFile(
-	resolve(legacyYamlDir, 'ryan-landorf.yaml'),
-	resolve(targetDir, 'beefy-boys', 'ryan-landorf.yaml')
+	resolve(partiesDir, 'beefy-boys', 'ryan-landorf.bnb.yaml'),
+	resolve(targetDir, 'beefy-boys', 'ryan-landorf.bnb.yaml')
 );
 await copyFile(
 	resolve(partiesDir, 'brainy-boys', 'voidan.bnb.yaml'),

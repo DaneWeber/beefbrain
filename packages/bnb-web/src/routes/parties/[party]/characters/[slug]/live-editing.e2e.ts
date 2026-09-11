@@ -4,12 +4,8 @@ import { resolve } from 'node:path';
 
 const party = 'beefy-boys';
 const slug = 'ryan-landorf';
-const sourceYamlPath = resolve(
-	process.cwd(),
-	'../../reference_material/beefy_boys_spreadsheets/yaml',
-	`${slug}.yaml`
-);
-const testYamlPath = resolve(process.cwd(), '.playwright-data/parties', party, `${slug}.yaml`);
+const sourceYamlPath = resolve(process.cwd(), '../../data/parties', party, `${slug}.bnb.yaml`);
+const testYamlPath = resolve(process.cwd(), '.playwright-data/parties', party, `${slug}.bnb.yaml`);
 
 test.beforeEach(async () => {
 	const baseline = await readFile(sourceYamlPath, 'utf-8');

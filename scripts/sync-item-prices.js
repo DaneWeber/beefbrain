@@ -13,7 +13,7 @@ import * as yaml from 'js-yaml';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const YAML_DIR = join(__dirname, '../reference_material/beefy_boys_spreadsheets/yaml');
+const YAML_DIR = join(__dirname, '../data/parties/beefy-boys');
 const METADATA_PATH = join(
 	__dirname,
 	'../data/parties/beefy-boys/dm/item-metadata.yaml'

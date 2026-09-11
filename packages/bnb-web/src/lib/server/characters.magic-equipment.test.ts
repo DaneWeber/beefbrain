@@ -8,7 +8,7 @@ import { moveCharacterMagicItem, saveCharacterMagicItem } from './characters';
 
 const SOURCE_YAML = join(
 	fileURLToPath(new URL('.', import.meta.url)),
-	'../../../../../reference_material/beefy_boys_spreadsheets/yaml/andy-black-stag.yaml'
+	'../../../../../data/parties/beefy-boys/andy-black-stag.bnb.yaml'
 );
 
 const PARTY = 'test-party';
