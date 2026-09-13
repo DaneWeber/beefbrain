@@ -28,6 +28,13 @@ describe('stripSingleKeyBraces', () => {
     ).toBe('[1/day, dc: [19, {base: 13, cha: 6}]]')
   })
 
+  it('preserves the braces of a flow map used as a block mapping value', () => {
+    const input = 'spells-per-day: {"1": [2, {ranger: 1}]}'
+    expect(stripSingleKeyBraces(input)).toBe(
+      'spells-per-day: {"1": [2, ranger: 1]}',
+    )
+  })
+
   it('does not treat an unquoted apostrophe/quote mid-scalar as opening a string', () => {
     const input = 'height: 6\' 0"\nweight: 200 lbs'
     expect(stripSingleKeyBraces(input)).toBe(input)

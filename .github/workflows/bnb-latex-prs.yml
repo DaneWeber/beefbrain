@@ -6,7 +6,8 @@ on:
       - "packages/bnb-latex/**"
       - "packages/bnb-cli/**"
       - "packages/bnb-core/**"
-      - "reference_material/beefy_boys_spreadsheets/yaml/**"
+      - "data/**/*.bnb.yaml"
+      - "data/**/*.bnb.yml"
       - "pnpm-lock.yaml"
       - "package.json"
       - ".github/workflows/bnb-latex-prs.yml"
@@ -17,7 +18,8 @@ on:
       - "packages/bnb-latex/**"
       - "packages/bnb-cli/**"
       - "packages/bnb-core/**"
-      - "reference_material/beefy_boys_spreadsheets/yaml/**"
+      - "data/**/*.bnb.yaml"
+      - "data/**/*.bnb.yml"
       - "pnpm-lock.yaml"
       - "package.json"
       - ".github/workflows/bnb-latex-prs.yml"
@@ -61,17 +63,25 @@ jobs:
       - name: Run bnb-latex formatting check
         run: pnpm --filter bnb-latex format
 
-      - name: Generate sample LaTeX and PDF files
+      - name: Generate character sheet LaTeX and PDF files
         run: |
           mkdir -p artifacts/latex
-          node packages/bnb-cli/dist/index.mjs latex reference_material/beefy_boys_spreadsheets/yaml/andy-black-stag.yaml --template dnd35-streamlined --out artifacts/latex/andy-black-stag-streamlined.tex --pdf --pdf-out artifacts/latex/andy-black-stag-streamlined.pdf
-          node packages/bnb-cli/dist/index.mjs latex reference_material/beefy_boys_spreadsheets/yaml/ryan-landorf.yaml --template dnd35-detailed --out artifacts/latex/ryan-landorf-detailed.tex --pdf --pdf-out artifacts/latex/ryan-landorf-detailed.pdf
-          node packages/bnb-cli/dist/index.mjs latex reference_material/beefy_boys_spreadsheets/yaml/don-cade.yaml --template dnd35-spellcaster --out artifacts/latex/don-cade-spellcaster.tex --pdf --pdf-out artifacts/latex/don-cade-spellcaster.pdf
+          while IFS= read -r -d '' character; do
+            relative_path="${character#data/}"
+            output_base="artifacts/latex/${relative_path%.bnb.yaml}"
+            output_base="${output_base%.bnb.yml}"
+            mkdir -p "$(dirname "$output_base")"
+            node packages/bnb-cli/dist/index.mjs latex "$character" \
+              --template dnd35-streamlined \
+              --out "${output_base}.tex" \
+              --pdf \
+              --pdf-out "${output_base}.pdf"
+          done < <(find data -type f \( -name '*.bnb.yaml' -o -name '*.bnb.yml' \) -print0 | sort -z)
           ls -lah artifacts/latex
 
-      - name: Upload generated latex/pdf artifacts
+      - name: Upload generated character sheets
         uses: actions/upload-artifact@v4
         with:
-          name: bnb-latex-samples
+          name: bnb-latex-character-sheets
           path: artifacts/latex
           if-no-files-found: error
