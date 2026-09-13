@@ -376,5 +376,5 @@ export function getAbilityArrayType(
   const positionKey = String(position)
   const element = typeDef.array[positionKey]
 
-  return element?.type
+  return element?.type ?? element?.oneOf?.[0]
 }

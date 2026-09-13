@@ -18,7 +18,8 @@ export interface SchemaCalculation {
 
 export interface SchemaArrayElement {
   name?: string
-  type: string
+  type?: string
+  oneOf?: string[]
   optional?: boolean
   description?: string
   calculation?: SchemaCalculation
@@ -26,22 +27,25 @@ export interface SchemaArrayElement {
 
 export interface SchemaTypeDefinition {
   type?: string
+  oneOf?: string[]
   validValues?: (string | SchemaValidValue)[]
   calculation?: SchemaCalculation
   array?: Record<string, SchemaArrayElement>
   children?: Array<{
     name: string
-    type: string
+    type?: string
+    oneOf?: string[]
     optional?: boolean
     min?: number
     max?: number
     description?: string
   }>
   additionalChildren?: {
-    type: string
+    type?: string
+    oneOf?: string[]
     description?: string
   }
-  items?: { type: string }
+  items?: { type?: string; oneOf?: string[] }
   description?: string
 }
 

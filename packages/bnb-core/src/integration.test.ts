@@ -2,7 +2,11 @@ import { describe, it, expect } from 'vitest'
 // import { readFileSync, writeFileSync } from 'fs'
 import { readFileSync } from 'fs'
 import { parse as parseYAML } from 'yaml'
-import { updateCalculatedFields } from './index'
+import {
+  getSpellSaveDc,
+  getSpellcastingIssues,
+  updateCalculatedFields,
+} from './index'
 
 describe('Beef Brain Core Integration', () => {
   describe('keep file unchanged when updated', () => {
@@ -234,6 +238,45 @@ describe('Beef Brain Core Integration', () => {
       expect(updated.levels.hd).toEqual([20, { d10: 8, d4: 12 }])
       expect(updated.levels['max-hp']).toEqual([126, { con: 40, rolls: 86 }])
       expect(updated.levels.hp).toEqual([119, { 'max-hp': 126, damage: -7 }])
+    })
+
+    it('derives conditional save DCs for each casting class', () => {
+      expect(
+        getSpellSaveDc(character, 'sorcerer', 3, {
+          name: 'fireball',
+          school: 'evocation',
+          descriptors: ['fire'],
+        }).total,
+      ).toBe(19)
+      expect(
+        getSpellSaveDc(character, 'sorcerer', 1, {
+          name: 'silent image',
+          school: 'illusion',
+        }).total,
+      ).toBe(17)
+      expect(
+        getSpellSaveDc(character, 'wizard', 3, {
+          name: 'fireball',
+          school: 'evocation',
+          descriptors: ['fire'],
+        }).total,
+      ).toBe(15)
+      expect(
+        getSpellSaveDc(character, 'wizard', 3, {
+          name: 'major image',
+          school: 'illusion',
+        }).total,
+      ).toBe(15)
+      expect(
+        getSpellSaveDc(character, 'paladin', 1, {
+          name: 'bless weapon',
+          school: 'transmutation',
+        }).total,
+      ).toBe(13)
+    })
+
+    it('has valid prepared and used slot counts', () => {
+      expect(getSpellcastingIssues(character)).toEqual([])
     })
 
     it('keeps the calculated YAML compact enough for human editing', () => {

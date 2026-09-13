@@ -45,6 +45,8 @@ import {
   validateBeefBrainData,
   updateCalculatedFields,
   dataToCompactYAML,
+  getSpellSaveDc,
+  getSpellcastingIssues,
 } from 'bnb-core'
 
 // Validate a YAML string
@@ -66,6 +68,23 @@ console.log(updated) // YAML with all calculated fields
 // Format to compact YAML
 const data = { character: { name: 'Gimli' } }
 const formatted = dataToCompactYAML(data)
+
+// Derive a spell's save DC from its caster and metadata
+const spellcaster = {
+  abilities: { intelligence: [18, { int: 4 }] },
+  spells: {
+    _: { 'dc-modifiers': [[1, 'spell-focus', { school: 'evocation' }]] },
+    wizard: { casting: ['arcane', 'prepared', 'int'] },
+  },
+}
+const fireballDc = getSpellSaveDc(spellcaster, 'wizard', 3, {
+  name: 'fireball',
+  school: 'evocation',
+  descriptors: ['fire'],
+})
+
+// Report prepared/used slot overages without mutating the character
+const spellcastingIssues = getSpellcastingIssues(spellcaster)
 ```
 
 ## API Reference
@@ -81,6 +100,16 @@ Calculates all derived fields and returns formatted YAML.
 ### `dataToCompactYAML(data: BeefBrainData): string`
 
 Converts JavaScript object to compact YAML format.
+
+### `getSpellSaveDc(character, caster, spellLevel, metadata): SpellSaveDcResult`
+
+Derives a D&D 3.5e spell save DC from the caster's casting ability and matching
+conditional modifiers such as Spell Focus or a gnome's illusion affinity.
+
+### `getSpellcastingIssues(character): SpellcastingIssue[]`
+
+Reports prepared-spell and used-slot counts that exceed the corresponding
+slots. It does not alter player-authored spell choices or usage.
 
 ## Testing
 

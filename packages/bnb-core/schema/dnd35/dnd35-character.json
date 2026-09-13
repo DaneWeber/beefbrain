@@ -70,6 +70,11 @@
         "optional": true
       },
       {
+        "name": "spells",
+        "type": "Spellcasting",
+        "optional": true
+      },
+      {
         "name": "inventory",
         "type": "Inventory",
         "optional": true
@@ -188,10 +193,14 @@
     "array": {
       "0": { "type": "number", "description": "Total number of hit dice" },
       "1": {
-        "type": "object",
+        "oneOf": ["number", "HitDiceBySize"],
         "description": "Hit dice grouped by die size (e.g., {d10: 8, d4: 12})"
       }
     }
+  },
+  "HitDiceBySize": {
+    "type": "object",
+    "description": "Hit dice grouped by die size, such as {d10: 8, d4: 12}"
   },
   "HitPoints": {
     "array": {
@@ -229,11 +238,15 @@
         "description": "Number of levels in this class"
       },
       "1": {
-        "type": "object",
+        "oneOf": ["ClassLevelDetails", "ClassLevelCharacterData"],
         "description": "Character-specific class data such as {hp: [rolls_per_level]}"
       },
-      "2": { "type": "ClassLevelDetails" }
+      "2": { "type": "ClassLevelDetails", "optional": true }
     }
+  },
+  "ClassLevelCharacterData": {
+    "type": "object",
+    "description": "Character-specific class data such as {hp: [rolls_per_level]}"
   },
   "ClassLevelDetails": {
     "type": "object",
@@ -761,6 +774,101 @@
         "type": "object",
         "description": "DC components: {base: N, cha: N, ...} — ability key matches the source's default save ability"
       }
+    }
+  },
+  "Spellcasting": {
+    "children": [
+      {
+        "name": "_",
+        "type": "SpellcastingDefaults",
+        "optional": true
+      }
+    ],
+    "additionalChildren": {
+      "type": "SpellcastingClass",
+      "description": "Spellcasting data for one class"
+    }
+  },
+  "SpellcastingDefaults": {
+    "children": [
+      {
+        "name": "dc-modifiers",
+        "type": "SpellDcModifierList",
+        "optional": true
+      }
+    ]
+  },
+  "SpellDcModifierList": {
+    "type": "array",
+    "items": { "type": "SpellDcModifier" }
+  },
+  "SpellDcModifier": {
+    "array": {
+      "0": { "type": "number", "description": "DC adjustment" },
+      "1": { "type": "string", "description": "Modifier source" },
+      "2": { "type": "SpellDcCondition", "description": "Matching condition" }
+    }
+  },
+  "SpellDcCondition": {
+    "type": "object",
+    "description": "Spell metadata match, such as {school: evocation}, {descriptor: fire}, or {spell: fireball}"
+  },
+  "SpellcastingClass": {
+    "children": [
+      { "name": "casting", "type": "CastingProfile" },
+      { "name": "caster-level", "type": "number", "optional": true },
+      { "name": "slots", "type": "SpellSlots", "optional": true },
+      { "name": "prepared", "type": "SpellsByLevel", "optional": true },
+      { "name": "known", "type": "SpellsByLevel", "optional": true },
+      { "name": "used", "type": "SpellUsage", "optional": true },
+      { "name": "spellbook", "type": "Spellbooks", "optional": true }
+    ]
+  },
+  "CastingProfile": {
+    "type": "array",
+    "description": "Canonical [tradition, mode, ability] or legacy [mode, ability]"
+  },
+  "SpellSlots": {
+    "additionalChildren": {
+      "type": "SpellSlot",
+      "description": "Slots for one spell level"
+    }
+  },
+  "SpellSlot": {
+    "array": {
+      "0": { "type": "number", "description": "Total slots" },
+      "1": { "type": "object", "description": "Named slot components" }
+    }
+  },
+  "SpellsByLevel": {
+    "additionalChildren": {
+      "type": "SpellList",
+      "description": "Spells at one spell level"
+    }
+  },
+  "SpellList": {
+    "type": "array",
+    "items": { "oneOf": ["string", "SpellState"] }
+  },
+  "SpellState": {
+    "type": "object",
+    "description": "A stateful spell entry, such as {cast: fireball}"
+  },
+  "SpellUsage": {
+    "type": "object",
+    "description": "Used spontaneous slots keyed by spell level"
+  },
+  "Spellbooks": {
+    "additionalChildren": {
+      "type": "Spellbook",
+      "description": "Arbitrarily named spellbook"
+    }
+  },
+  "Spellbook": {
+    "children": [{ "name": "_pages", "type": "number", "optional": true }],
+    "additionalChildren": {
+      "type": "SpellList",
+      "description": "Spells at one spell level"
     }
   },
   "Inventory": {

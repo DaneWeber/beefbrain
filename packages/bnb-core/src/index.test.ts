@@ -849,6 +849,80 @@ character:
         })
       })
       describe('grouped special-trait effects', () => {
+        it('should reconcile source-owned list effects and preserve manual entries', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    intelligence: [13, int: 1]
+  special:
+    feats:
+      - [Spell Focus (Evocation), level: 3, [[spells._.dc-modifiers, [1, spell-focus, {school: evocation}]]]]
+    gnome:
+      - [Illusion Affinity, [[spells._.dc-modifiers, [1, gnome, {school: illusion}]]]]
+  spells:
+    _:
+      dc-modifiers:
+        - [2, spell-focus, {school: evocation}]
+        - [4, stale-source, {school: necromancy}]
+        - [1, manual, {spell: custom-spell}]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.spells._['dc-modifiers']).toEqual([
+            [1, 'manual', { spell: 'custom-spell' }],
+            [1, 'spell-focus', { school: 'evocation' }],
+            [1, 'gnome', { school: 'illusion' }],
+          ])
+        })
+        it('should make source-owned list effects idempotent', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    intelligence: [13, int: 1]
+  special:
+    feats:
+      - [Spell Focus (Evocation), level: 3, [[spells._.dc-modifiers, [1, spell-focus, {school: evocation}]]]]
+  spells:
+    _:
+      dc-modifiers: []
+`
+          const once = updateCalculatedFields(yamlContent)
+          expect(updateCalculatedFields(once)).toBe(once)
+        })
+        it('should remove an inactive item-owned list effect', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    intelligence: [13, int: 1]
+  inventory:
+    pack:
+      - [evocation focus, 1, wondrous, 0 lbs, 1000 gp, {}, [], [[spells._.dc-modifiers, [1, item-focus, {school: evocation}]]]]
+  spells:
+    _:
+      dc-modifiers:
+        - [1, item-focus, {school: evocation}]
+        - [1, manual, {spell: custom-spell}]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.spells._['dc-modifiers']).toEqual([
+            [1, 'manual', { spell: 'custom-spell' }],
+          ])
+        })
+        it('should reject a list effect whose target is not a list', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    intelligence: [13, int: 1]
+  special:
+    feats:
+      - [Spell Focus (Evocation), level: 3, [[spells._.dc-modifiers, [1, spell-focus, {school: evocation}]]]]
+  spells:
+    _:
+      dc-modifiers: invalid
+`
+          expect(() => updateCalculatedFields(yamlContent)).toThrow(
+            EffectTargetError,
+          )
+        })
         it('should push a note-only trait effect from a grouped source into a skill', () => {
           const yamlContent = `---
 character:

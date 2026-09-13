@@ -21,6 +21,9 @@ interface ParsedEffect {
   note?: string
 }
 
+const MANAGED_LIST_TARGETS = new Set(['spells._.dc-modifiers'])
+const MANUAL_LIST_SOURCE = 'manual'
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value)
 }
@@ -191,6 +194,90 @@ function applyNoteOnly(
   return mergeIntoMods(tuple.mods, undefined, note)
 }
 
+function cloneListEntry(entry: unknown[]): unknown[] {
+  return JSON.parse(JSON.stringify(entry)) as unknown[]
+}
+
+function listEntrySource(entry: unknown): string | null {
+  return Array.isArray(entry) && typeof entry[1] === 'string' ? entry[1] : null
+}
+
+function appendEffectsByPath(
+  effects: ParsedEffect[],
+): Map<string, unknown[][]> {
+  const byPath = new Map<string, unknown[][]>()
+  for (const effect of effects) {
+    if (!effect.append) continue
+    const entries = byPath.get(effect.path) ?? []
+    if (
+      !entries.some(
+        (entry) => JSON.stringify(entry) === JSON.stringify(effect.append),
+      )
+    ) {
+      entries.push(effect.append)
+    }
+    byPath.set(effect.path, entries)
+  }
+  return byPath
+}
+
+/**
+ * List-valued effect targets are derived snapshots. Entries with source
+ * "manual" (and non-tuple entries) are preserved; all other entries are
+ * reconciled to the currently active effects. This makes equip/unequip,
+ * feature removal, changed values, and repeated recalculation deterministic.
+ */
+function reconcileListEffects(
+  character: Record<string, unknown>,
+  allEffects: ParsedEffect[],
+  activeEffects: ParsedEffect[],
+): boolean {
+  const declaredByPath = appendEffectsByPath(allEffects)
+  const activeByPath = appendEffectsByPath(activeEffects)
+  const paths = new Set([...MANAGED_LIST_TARGETS, ...declaredByPath.keys()])
+  let changed = false
+
+  for (const path of paths) {
+    const { segments, bracketIndex } = parseTargetPath(path)
+    if (bracketIndex !== undefined) {
+      throw new EffectTargetError(
+        `List effect target "${path}" cannot select an array channel.`,
+      )
+    }
+    const resolved = resolveParent(character, segments)
+    if (!resolved) {
+      if ((activeByPath.get(path)?.length ?? 0) > 0) {
+        throw new EffectTargetError(
+          `Effect target "${path}" does not resolve to a known location.`,
+        )
+      }
+      continue
+    }
+
+    const { parent, key } = resolved
+    const existing = parent[key]
+    if (existing !== undefined && !Array.isArray(existing)) {
+      throw new EffectTargetError(
+        `Effect target "${path}" does not resolve to a list.`,
+      )
+    }
+
+    const existingEntries: unknown[] = Array.isArray(existing) ? existing : []
+    const preserved = existingEntries.filter((entry) => {
+      const source = listEntrySource(entry)
+      return source === null || source === MANUAL_LIST_SOURCE
+    })
+    const active = (activeByPath.get(path) ?? []).map(cloneListEntry)
+    const next = [...preserved, ...active]
+    if (JSON.stringify(existingEntries) !== JSON.stringify(next)) {
+      parent[key] = next
+      changed = true
+    }
+  }
+
+  return changed
+}
+
 function applyWithoutBracket(
   parent: Record<string, unknown>,
   key: string,
@@ -199,20 +286,6 @@ function applyWithoutBracket(
 ): boolean {
   const existing = parent[key]
 
-  if (effect.append) {
-    if (!Array.isArray(existing)) {
-      throw new EffectTargetError(
-        `Effect target "${path}" does not resolve to a list.`,
-      )
-    }
-    const serialized = JSON.stringify(effect.append)
-    if (existing.some((entry) => JSON.stringify(entry) === serialized)) {
-      return false
-    }
-    existing.push(JSON.parse(serialized) as unknown[])
-    return true
-  }
-
   if (effect.bonus) {
     const tuple = getModsTuple(existing)
     if (!tuple) {
@@ -220,6 +293,7 @@ function applyWithoutBracket(
         `Effect target "${path}" does not resolve to a [total, {components}] value.`,
       )
     }
+
     const modsChanged = mergeIntoMods(tuple.mods, effect.bonus, effect.note)
     if (!modsChanged) return false
     parent[key] = [sumValues(tuple.mods), tuple.mods]
@@ -485,18 +559,20 @@ export function propagateEffects(
   const allItemEffects = getAllItemEffects(inventory)
   const activeItemEffects = getActiveItemEffects(inventory)
   const activeEffects = [...featEffects, ...traitEffects, ...activeItemEffects]
+  const allEffects = [...featEffects, ...traitEffects, ...allItemEffects]
 
-  const declaredByPath = collectBonusKeysByPath([
-    ...featEffects,
-    ...traitEffects,
-    ...allItemEffects,
-  ])
+  const declaredByPath = collectBonusKeysByPath(allEffects)
   const activeByPath = collectBonusKeysByPath(activeEffects)
   if (removeInactiveBonusKeys(character, declaredByPath, activeByPath)) {
     hasChanges = true
   }
 
+  if (reconcileListEffects(character, allEffects, activeEffects)) {
+    hasChanges = true
+  }
+
   for (const effect of activeEffects) {
+    if (effect.append) continue
     if (applyEffect(character, effect)) {
       hasChanges = true
     }

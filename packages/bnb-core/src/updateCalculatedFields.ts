@@ -5,6 +5,7 @@ import { loadSchema } from './schemaLoader'
 import { calculateFieldValue, getAbilityArrayType } from './calculationEngine'
 import { applyComponentBindings } from './genericEngine'
 import { propagateEffects } from './propagateEffects'
+import { bonusSpellSlots, parseCastingProfile } from './spellcasting'
 // BAB and save progression formulas (used by class entries in character YAML)
 function calculateBab(progression: string, level: number): number {
   switch (progression) {
@@ -1638,16 +1639,6 @@ function propagateToSpeed(
 }
 
 /**
- * D&D 3.5e bonus spell slots formula:
- * For spell level N (1+), bonus = floor((mod - N) / 4) + 1 if mod >= N, else 0.
- * Level 0 spells never get bonus slots.
- */
-function bonusSpellSlots(abilityMod: number, spellLevel: number): number {
-  if (spellLevel <= 0 || abilityMod < spellLevel) return 0
-  return Math.floor((abilityMod - spellLevel) / 4) + 1
-}
-
-/**
  * Propagate casting stat modifier to spell slot calculations.
  * Each class under spells has: casting: [tradition, type, stat] (legacy:
  * [type, stat]), slots: {level: [total, {class: N, stat-slot: N, ...}]}
@@ -1671,10 +1662,9 @@ function propagateToSpellSlots(
 
     // The casting ability is last in both [type, stat] and
     // [tradition, type, stat], e.g. [arcane, prepared, int].
-    const casting = spellBlock.casting as unknown[]
-    if (!Array.isArray(casting) || casting.length < 2) continue
-    const castingStat = casting[casting.length - 1]
-    if (typeof castingStat !== 'string') continue
+    const casting = parseCastingProfile(spellBlock.casting)
+    if (!casting) continue
+    const castingStat = casting.ability
     const statMod = abilityMods[castingStat]
     if (statMod === undefined) continue
 
