@@ -129,6 +129,7 @@ describe('Beef Brain Core Integration', () => {
         '/examples/update/dnd35-gnome-paladin-sorcerer-wizard-20.yaml',
       'utf8',
     )
+    const inputCharacter = parseYAML(input).character
     const outputYaml = updateCalculatedFields(input)
     const character = parseYAML(outputYaml).character
 
@@ -207,6 +208,9 @@ describe('Beef Brain Core Integration', () => {
         [1, 'spell-focus', { school: 'evocation' }],
         [1, 'gnome', { school: 'illusion' }],
       ])
+      expect(character.spells._['dc-modifiers']).toEqual(
+        inputCharacter.spells._['dc-modifiers'],
+      )
       expect(character.spells.wizard.spellbook.main._pages).toBe(45)
       expect(character.spells.wizard.spellbook.backup[3]).toEqual([
         'dispel magic',

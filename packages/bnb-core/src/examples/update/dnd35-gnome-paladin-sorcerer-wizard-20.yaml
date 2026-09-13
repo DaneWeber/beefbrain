@@ -35,7 +35,9 @@ character:
       prestidigitation: [1/day]
   spells:
     _:
-      dc-modifiers: []
+      dc-modifiers:
+        - [1, spell-focus, {school: evocation}]
+        - [1, gnome, {school: illusion}]
     paladin:
       casting: [divine, prepared, wis]
       caster-level: 4
