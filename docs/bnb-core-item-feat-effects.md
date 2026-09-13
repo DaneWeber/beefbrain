@@ -29,6 +29,7 @@ hand-edit character sheets without learning a schema. An effect is a plain array
 ```
 [targetPath]
 [targetPath, bonusDict]
+[targetPath, listEntry]
 [targetPath, noteString]
 [targetPath, bonusDict, noteString]
 ```
@@ -48,6 +49,11 @@ hand-edit character sheets without learning a schema. An effect is a plain array
   (`"Blind Fight: reroll concealment misses"`), not a terse slug. Used on its own (no `bonusDict`)
   when a feat/item has a real rules effect that isn't a simple numeric bonus. The engine figures out
   where it goes from the target's shape — see `applyNoteOnly` below — no bracket needed.
+- **`listEntry`** (array, optional) — one source-owned entry for a managed list target. Currently
+  `spells._.dc-modifiers` is managed this way. Its second tuple value identifies the source:
+  `[1, spell-focus, {school: evocation}]`. Each calculation pass reconciles managed entries to the
+  active feat/trait/equipped-item effects. Entries whose source is `manual`, and non-tuple entries,
+  are preserved.
 
 A feat is `[name, source, effects?]`. An item is `[name, qty, category, weight, price, props?, tags?,
 effects?]` — effects is the item tuple's new (optional) 8th element, after tags. A class feature or
@@ -175,6 +181,22 @@ disambiguate, so the target's own shape says where the note goes (`applyNoteOnly
 This means the exact same `combat.attack.melee._` path takes a bonus at element 1 (no bracket) but
 takes a note at element 2 (also no bracket) — the presence of `bonusDict` vs `noteString` on the
 effect itself, not a bracket, decides which.
+
+**Managed list effects** require an array target and do not accept a bracket. Unlike numeric bonus
+maps, their source is part of the appended tuple, so the engine can replace stale values and remove
+entries whose source is no longer active. Use `manual` as the source for a list entry that must not
+be managed by effects:
+
+```yaml
+spells:
+  _:
+    dc-modifiers:
+      - [1, spell-focus, {school: evocation}]
+      - [2, manual, {spell: custom-spell}]
+special:
+  feats:
+    - [Spell Focus (Evocation), {level: 3}, [[spells._.dc-modifiers, [1, spell-focus, {school: evocation}]]]]
+```
 
 ### Why damage and critical channels are deferred
 

@@ -23,11 +23,14 @@ const flowStylePaths = [
   'character.spells.*.slots.*',
   'character.spells.*.prepared.*',
   'character.spells.*.known.*',
+  'character.spells.*.used',
+  'character.spells._.dc-modifiers.*',
   'character.spells.*.spells-per-day',
   'character.spells.*.save-dc',
   'character.spells.*.spells-prepared.*',
   'character.spells.*.spells-known.*',
   'character.spells.*.spellbook.*',
+  'character.spells.*.spellbook.*.*',
   'character.templates.*.effects.abilities.*',
   'character.templates.*.effects.levels.*',
   'character.templates.*.effects.combat.initiative',
@@ -47,7 +50,10 @@ export function setSelectiveFlowStyle(node: unknown, path: string[] = []) {
       patternParts.every((part, i) => part === '*' || part === pathParts[i])
     ) {
       if (node instanceof YAMLSeq || node instanceof YAMLMap) {
-        node.flow = true
+        const isNamedSpellbook =
+          pattern === 'character.spells.*.spellbook.*' &&
+          node instanceof YAMLMap
+        if (!isNamedSpellbook) node.flow = true
       }
       break
     }

@@ -2,7 +2,11 @@ import { describe, it, expect } from 'vitest'
 // import { readFileSync, writeFileSync } from 'fs'
 import { readFileSync } from 'fs'
 import { parse as parseYAML } from 'yaml'
-import { updateCalculatedFields } from './index'
+import {
+  getSpellSaveDc,
+  getSpellcastingIssues,
+  updateCalculatedFields,
+} from './index'
 
 describe('Beef Brain Core Integration', () => {
   describe('keep file unchanged when updated', () => {
@@ -120,6 +124,171 @@ describe('Beef Brain Core Integration', () => {
       // Synergy
       expect(c.skills.spellcraft[1]['synergy-knowledge-arcana']).toBe(2)
       expect(c.skills.spellcraft[0]).toBe(10)
+    })
+  })
+
+  describe('multiclass spellcaster: dnd35-gnome-paladin-sorcerer-wizard-20', () => {
+    const input = readFileSync(
+      __dirname +
+        '/examples/update/dnd35-gnome-paladin-sorcerer-wizard-20.yaml',
+      'utf8',
+    )
+    const inputCharacter = parseYAML(input).character
+    const outputYaml = updateCalculatedFields(input)
+    const character = parseYAML(outputYaml).character
+
+    it('derives bonus slots independently for all three casting classes', () => {
+      expect(character.spells.paladin.slots[1]).toEqual([
+        2,
+        { paladin: 1, 'wis-slot': 1 },
+      ])
+      expect(character.spells.paladin.slots[2]).toEqual([
+        1,
+        { paladin: 0, 'wis-slot': 1 },
+      ])
+
+      expect(character.spells.sorcerer.slots[1]).toEqual([
+        8,
+        { sorcerer: 6, 'cha-slot': 2 },
+      ])
+      expect(character.spells.sorcerer.slots[2]).toEqual([
+        6,
+        { sorcerer: 5, 'cha-slot': 1 },
+      ])
+      expect(character.spells.sorcerer.slots[3]).toEqual([
+        4,
+        { sorcerer: 3, 'cha-slot': 1 },
+      ])
+
+      expect(character.spells.wizard.slots[1]).toEqual([
+        4,
+        { wizard: 3, 'int-slot': 1 },
+      ])
+      expect(character.spells.wizard.slots[2]).toEqual([
+        3,
+        { wizard: 3, 'int-slot': 0 },
+      ])
+      expect(character.spells.wizard.slots[3]).toEqual([
+        2,
+        { wizard: 2, 'int-slot': 0 },
+      ])
+    })
+
+    it('preserves casting modes, usage, cast markers, and conditional DC rules', () => {
+      expect(character.abilities.charisma[0]).toBe(20)
+      expect(character.abilities.intelligence[0]).toBe(13)
+      expect(character.levels.paladin[0]).toBe(8)
+      expect(character.levels.sorcerer[0]).toBe(6)
+      expect(character.levels.wizard[0]).toBe(6)
+      expect(character.levels.hd).toEqual([20, { d10: 8, d4: 12 }])
+      expect(character.levels['max-hp']).toEqual([126, { con: 40, rolls: 86 }])
+      expect(character.levels.hp).toEqual([119, { 'max-hp': 126, damage: -7 }])
+      expect(character.spells.paladin['caster-level']).toBe(4)
+      expect(character.spells.paladin.casting).toEqual([
+        'divine',
+        'prepared',
+        'wis',
+      ])
+      expect(character.spells.sorcerer.casting).toEqual([
+        'arcane',
+        'spontaneous',
+        'cha',
+      ])
+      expect(character.spells.wizard.casting).toEqual([
+        'arcane',
+        'prepared',
+        'int',
+      ])
+      expect(character.spells.sorcerer.used).toEqual({
+        0: 1,
+        1: 2,
+        2: 1,
+        3: 0,
+      })
+      expect(character.spells.wizard.prepared[3][1]).toEqual({
+        cast: 'fireball',
+      })
+      expect(character.spells._['dc-modifiers']).toEqual([
+        [1, 'spell-focus', { school: 'evocation' }],
+        [1, 'gnome', { school: 'illusion' }],
+      ])
+      expect(character.spells._['dc-modifiers']).toEqual(
+        inputCharacter.spells._['dc-modifiers'],
+      )
+      expect(character.spells.wizard.spellbook.main._pages).toBe(45)
+      expect(character.spells.wizard.spellbook.backup[3]).toEqual([
+        'dispel magic',
+        'fireball',
+      ])
+    })
+
+    it('recalculates grouped hit dice and hit points from class entries', () => {
+      const staleInput = input
+        .replace('hd: [20, {d10: 8, d4: 12}]', 'hd: [1, {d6: 1}]')
+        .replace(
+          'hp: [119, {max-hp: 126, damage: -7}]',
+          'hp: [0, {max-hp: 0, damage: -7}]',
+        )
+        .replace(
+          'max-hp: [126, {con: 40, rolls: 86}]',
+          'max-hp: [0, {con: 0, rolls: 0}]',
+        )
+      const updated = parseYAML(updateCalculatedFields(staleInput)).character
+
+      expect(updated.levels.hd).toEqual([20, { d10: 8, d4: 12 }])
+      expect(updated.levels['max-hp']).toEqual([126, { con: 40, rolls: 86 }])
+      expect(updated.levels.hp).toEqual([119, { 'max-hp': 126, damage: -7 }])
+    })
+
+    it('derives conditional save DCs for each casting class', () => {
+      expect(
+        getSpellSaveDc(character, 'sorcerer', 3, {
+          name: 'fireball',
+          school: 'evocation',
+          descriptors: ['fire'],
+        }).total,
+      ).toBe(19)
+      expect(
+        getSpellSaveDc(character, 'sorcerer', 1, {
+          name: 'silent image',
+          school: 'illusion',
+        }).total,
+      ).toBe(17)
+      expect(
+        getSpellSaveDc(character, 'wizard', 3, {
+          name: 'fireball',
+          school: 'evocation',
+          descriptors: ['fire'],
+        }).total,
+      ).toBe(15)
+      expect(
+        getSpellSaveDc(character, 'wizard', 3, {
+          name: 'major image',
+          school: 'illusion',
+        }).total,
+      ).toBe(15)
+      expect(
+        getSpellSaveDc(character, 'paladin', 1, {
+          name: 'bless weapon',
+          school: 'transmutation',
+        }).total,
+      ).toBe(13)
+    })
+
+    it('has valid prepared and used slot counts', () => {
+      expect(getSpellcastingIssues(character)).toEqual([])
+    })
+
+    it('keeps the calculated YAML compact enough for human editing', () => {
+      expect(outputYaml).toContain('"1": [8, {sorcerer: 6, cha-slot: 2}]')
+      expect(outputYaml).toContain('"3": [dispel magic, cast: fireball]')
+      expect(outputYaml).toContain(
+        'dc-modifiers:\n        - [1, spell-focus, school: evocation]',
+      )
+      expect(outputYaml).toContain('used: {"0": 1, "1": 2, "2": 1, "3": 0}')
+      expect(outputYaml).toContain('main:')
+      expect(outputYaml).toContain('_pages: 45')
+      expect(outputYaml).not.toMatch(/[&*]a\d/)
     })
   })
 

@@ -5,6 +5,7 @@ import { loadSchema } from './schemaLoader'
 import { calculateFieldValue, getAbilityArrayType } from './calculationEngine'
 import { applyComponentBindings } from './genericEngine'
 import { propagateEffects } from './propagateEffects'
+import { bonusSpellSlots, parseCastingProfile } from './spellcasting'
 // BAB and save progression formulas (used by class entries in character YAML)
 function calculateBab(progression: string, level: number): number {
   switch (progression) {
@@ -1304,8 +1305,9 @@ function propagateToBaseSaves(
 }
 
 /**
- * Derive total hit dice from class entries
- * Updates levels.hd: [totalHD, largestDie]
+ * Derive total hit dice from class entries.
+ * Updates either the legacy [totalHD, largestDie] form or the grouped
+ * [totalHD, {d10: N, d4: N}] form.
  */
 function propagateToHitDice(
   data: { character?: Record<string, unknown> },
@@ -1319,6 +1321,7 @@ function propagateToHitDice(
 
   let totalHd = 0
   let largestDie = 0
+  const diceBySize: Record<string, number> = {}
 
   for (const [key, value] of Object.entries(levels)) {
     if (LEVELS_RESERVED_KEYS.includes(key)) continue
@@ -1327,10 +1330,16 @@ function propagateToHitDice(
     if (!entry) continue
     totalHd += entry.level
 
-    if (entry.classDef && typeof entry.classDef.hd === 'number') {
-      if (entry.classDef.hd > largestDie) {
-        largestDie = entry.classDef.hd
-      }
+    const rawHitDie = entry.classDef?.hd
+    const dieSize =
+      typeof rawHitDie === 'number'
+        ? rawHitDie
+        : typeof rawHitDie === 'string'
+          ? Number(rawHitDie.replace(/^d/i, ''))
+          : NaN
+    if (Number.isInteger(dieSize) && dieSize > 0) {
+      largestDie = Math.max(largestDie, dieSize)
+      diceBySize[`d${dieSize}`] = (diceBySize[`d${dieSize}`] ?? 0) + entry.level
     }
   }
 
@@ -1347,6 +1356,14 @@ function propagateToHitDice(
     hdArr[1] !== largestDie
   ) {
     hdArr[1] = largestDie
+    hasChanges = true
+  } else if (
+    hdArr[1] &&
+    typeof hdArr[1] === 'object' &&
+    !Array.isArray(hdArr[1]) &&
+    JSON.stringify(hdArr[1]) !== JSON.stringify(diceBySize)
+  ) {
+    hdArr[1] = diceBySize
     hasChanges = true
   }
 
@@ -1622,18 +1639,9 @@ function propagateToSpeed(
 }
 
 /**
- * D&D 3.5e bonus spell slots formula:
- * For spell level N (1+), bonus = floor((mod - N) / 4) + 1 if mod >= N, else 0.
- * Level 0 spells never get bonus slots.
- */
-function bonusSpellSlots(abilityMod: number, spellLevel: number): number {
-  if (spellLevel <= 0 || abilityMod < spellLevel) return 0
-  return Math.floor((abilityMod - spellLevel) / 4) + 1
-}
-
-/**
  * Propagate casting stat modifier to spell slot calculations.
- * Each class under spells has: casting: [type, stat], slots: {level: [total, {class: N, stat: N, ...}]}
+ * Each class under spells has: casting: [tradition, type, stat] (legacy:
+ * [type, stat]), slots: {level: [total, {class: N, stat-slot: N, ...}]}
  */
 function propagateToSpellSlots(
   data: { character?: Record<string, unknown> },
@@ -1652,10 +1660,11 @@ function propagateToSpellSlots(
       continue
     const spellBlock = classSpells as Record<string, unknown>
 
-    // Read casting info: [type, stat] e.g. [prepared, int]
-    const casting = spellBlock.casting as unknown[]
-    if (!Array.isArray(casting) || casting.length < 2) continue
-    const castingStat = casting[1] as string
+    // The casting ability is last in both [type, stat] and
+    // [tradition, type, stat], e.g. [arcane, prepared, int].
+    const casting = parseCastingProfile(spellBlock.casting)
+    if (!casting) continue
+    const castingStat = casting.ability
     const statMod = abilityMods[castingStat]
     if (statMod === undefined) continue
 
@@ -1676,9 +1685,17 @@ function propagateToSpellSlots(
       // Calculate bonus slots for this spell level
       const bonus = bonusSpellSlots(statMod, spellLevel)
 
-      // Update the casting stat key in the modifiers
-      if (castingStat in modsObj && modsObj[castingStat] !== bonus) {
-        modsObj[castingStat] = bonus
+      // Prefer an explicit slot key so the generic ability binding does not
+      // replace a calculated slot count with the raw ability modifier.
+      const slotKey = `${castingStat}-slot`
+      const bonusKey =
+        slotKey in modsObj
+          ? slotKey
+          : castingStat in modsObj
+            ? castingStat
+            : undefined
+      if (bonusKey && modsObj[bonusKey] !== bonus) {
+        modsObj[bonusKey] = bonus
         slotArr[0] = sumValues(modsObj)
         hasChanges = true
       }

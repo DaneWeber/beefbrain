@@ -48,6 +48,7 @@ export type Character = {
   abilities: Abilities
   skills?: Record<string, [number, Record<string, number>]>
   combat?: Record<string, unknown>
+  spells?: Record<string, unknown>
 }
 
 /**

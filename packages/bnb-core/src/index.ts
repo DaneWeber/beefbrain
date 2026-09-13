@@ -27,6 +27,27 @@ export { updateCalculatedFields }
 export { dataToCompactYAML } from './dataToCompactYAML'
 export { EffectTargetError }
 export {
+  bonusSpellSlots,
+  getSpellSaveDc,
+  getSpellcastingIssues,
+  matchesSpellDcCondition,
+  parseCastingProfile,
+  SpellcastingDataError,
+} from './spellcasting'
+export type {
+  AppliedSpellDcModifier,
+  CastingAbility,
+  CastingProfile,
+  SpellDcCondition,
+  SpellDcModifier,
+  SpellMetadata,
+  SpellSaveDcResult,
+  SpellcastingIssue,
+  SpellcastingIssueCode,
+  SpellcastingMode,
+  SpellcastingTradition,
+} from './spellcasting'
+export {
   formatSkillPointMismatch,
   getSkillPointMismatch,
   type SkillPointMismatch,
