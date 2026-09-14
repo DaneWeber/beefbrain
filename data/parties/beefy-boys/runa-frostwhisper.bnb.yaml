@@ -106,7 +106,7 @@ character:
       casting: [divine, prepared, wis]
       caster-level: 3
       slots:
-        "1": [2, {ranger: 1, wis-spell: 1}]
+        "1": [2, {ranger: 1, wis-slot: 1}]
       prepared:
         "1": [Surefoot, cast: Lightfoot]
   inventory:
