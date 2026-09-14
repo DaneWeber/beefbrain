@@ -87,9 +87,9 @@ Development Host with `bnb-ext` loaded.
 
 The Extension Development Host is good for quick iteration, but it's a
 separate, temporary VS Code instance, and it doesn't exercise the packaged
-`.vsix`. The repo's DevContainer installs the dev build for you: its
-`postCreateCommand` builds `bnb-ext`, packages it, and installs it into the
-container's VS Code, so a fresh container already has it active.
+`.vsix`. The repo's DevContainer launches a background setup from
+`postCreateCommand` to build, package, and install `bnb-ext`. A fresh container
+may report ready before installation finishes; reload the window after it completes.
 
 After editing `bnb-ext`'s source, refresh the installed copy from an
 integrated terminal — no container rebuild needed:
