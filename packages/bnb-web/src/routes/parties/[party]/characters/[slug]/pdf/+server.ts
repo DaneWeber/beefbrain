@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { LatexGenerationError } from 'bnb-latex';
+import { DEFAULT_TEMPLATE_KEY, LatexGenerationError } from 'bnb-latex';
 import { generateCharacterPdf } from '$lib/server/characters';
 
 /** How the compiler failed, in terms a browser and a user can both act on. */
@@ -7,8 +7,7 @@ const COMPILE_ERROR_RESPONSES: Record<string, { status: number; message: string 
 	PDF_COMPILER_MISSING: {
 		status: 503,
 		message:
-			'No LaTeX compiler on the server. Install pdflatex (e.g. "sudo apt install ' +
-			'texlive-latex-base") and try again, or download the LaTeX instead.'
+			'No LuaLaTeX compiler on the server. Install texlive-luatex and try again, or download the LaTeX instead.'
 	},
 	PDF_TIMEOUT: {
 		status: 504,
@@ -16,7 +15,7 @@ const COMPILE_ERROR_RESPONSES: Record<string, { status: number; message: string 
 	},
 	PDF_COMPILE_FAILED: {
 		status: 500,
-		message: 'pdflatex could not compile this character sheet. See the server log for its output.'
+		message: 'LuaLaTeX could not compile this character sheet. See the server log for its output.'
 	},
 	INPUT_TOO_LARGE: {
 		status: 413,
@@ -25,7 +24,7 @@ const COMPILE_ERROR_RESPONSES: Record<string, { status: number; message: string 
 };
 
 export async function GET({ params, url }) {
-	const templateKey = url.searchParams.get('template') ?? 'dnd35-streamlined';
+	const templateKey = url.searchParams.get('template') ?? DEFAULT_TEMPLATE_KEY;
 
 	try {
 		const { pdf, fileName } = await generateCharacterPdf(params.party, params.slug, templateKey);

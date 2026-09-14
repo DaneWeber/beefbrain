@@ -11,20 +11,24 @@ FROM mcr.microsoft.com/devcontainers/typescript-node:${VARIANT}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# pdflatex, for bnb-latex / bnb-cli --pdf.
-#
-# texlive-latex-base is the entire requirement. The dnd35 templates load
-# exactly two packages, geometry and array, and both ship in texlive-latex-base;
-# everything else they use (tabular, \rule, \fontsize, the cm/lmodern fonts) is
-# plain LaTeX out of texlive-base, which comes in as a dependency. Confirm that
-# after changing a template by compiling it with `pdflatex -recorder` and
-# running the resulting .fls INPUT paths through `dpkg -S`.
-#
-# texlive-latex-recommended and texlive-fonts-recommended were installed here
-# historically; nothing in the repo reads a file from either one, and they cost
-# ~14MB of download and ~41MB on disk.
+# LuaLaTeX and Atkinson Hyperlegible Next, for bnb-latex / bnb-cli --pdf.
+ARG ATKINSON_FONT_COMMIT=7925f50f649b3813257faf2f4c0b381011f434f1
 RUN apt-get update \
-	&& apt-get install -y --no-install-recommends texlive-latex-base \
+	&& apt-get install -y --no-install-recommends \
+		curl \
+		fontconfig \
+		texlive-latex-base \
+		texlive-latex-recommended \
+		texlive-luatex \
+	&& install -d /usr/local/share/fonts/atkinson-hyperlegible-next \
+	&& curl --fail --location --silent --show-error \
+		"https://raw.githubusercontent.com/googlefonts/atkinson-hyperlegible-next/${ATKINSON_FONT_COMMIT}/fonts/variable/AtkinsonHyperlegibleNext%5Bwght%5D.ttf" \
+		--output "/usr/local/share/fonts/atkinson-hyperlegible-next/AtkinsonHyperlegibleNext[wght].ttf" \
+	&& curl --fail --location --silent --show-error \
+		"https://raw.githubusercontent.com/googlefonts/atkinson-hyperlegible-next/${ATKINSON_FONT_COMMIT}/fonts/variable/AtkinsonHyperlegibleNext-Italic%5Bwght%5D.ttf" \
+		--output "/usr/local/share/fonts/atkinson-hyperlegible-next/AtkinsonHyperlegibleNext-Italic[wght].ttf" \
+	&& fc-cache --force \
+	&& luaotfload-tool --update \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Playwright's chromium needs two separate things:

@@ -1,8 +1,9 @@
 import { error } from '@sveltejs/kit';
+import { DEFAULT_TEMPLATE_KEY } from 'bnb-latex';
 import { characterSheetBaseName, generateCharacterLatex } from '$lib/server/characters';
 
 export async function GET({ params, url }) {
-	const templateKey = url.searchParams.get('template') ?? 'dnd35-streamlined';
+	const templateKey = url.searchParams.get('template') ?? DEFAULT_TEMPLATE_KEY;
 
 	try {
 		const rendered = await generateCharacterLatex(params.party, params.slug, templateKey);

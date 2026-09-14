@@ -27,13 +27,15 @@ selected template with safe token substitution.
 
 ## PDF prerequisite
 
-`compilePdf` requires `pdflatex` on your system `PATH`.
+`compilePdf` requires `lualatex` on your system `PATH`. The Detailed template
+also requires Atkinson Hyperlegible Next to be installed as a system font.
 
 For WSL (Ubuntu):
 
 ```bash
 sudo apt update
-sudo apt install -y texlive-latex-base
+sudo apt install -y fontconfig texlive-latex-base texlive-latex-recommended texlive-luatex
+sudo bash scripts/install-atkinson-hyperlegible-next.sh
 ```
 
 From repo root, you can verify with:
@@ -49,7 +51,7 @@ import { renderLatex } from 'bnb-latex'
 
 const result = renderLatex({
   yaml: characterYaml,
-  templateKey: 'dnd35-streamlined',
+  templateKey: 'dnd35-detailed',
 })
 
 console.log(result.latex)

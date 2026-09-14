@@ -26,7 +26,7 @@ function printLatexUsage(): void {
   console.log(`Usage: bnb latex <file.yaml> [options]
 
 Options:
-  --template <key>         Built-in template key (default: dnd35-streamlined)
+  --template <key>         Built-in template key (default: dnd35-detailed)
   --template-file <path>   Custom .tex template file
   --out <path>             Output .tex path (default: <file>.tex)
   --pdf                    Compile PDF in addition to .tex output

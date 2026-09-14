@@ -126,7 +126,7 @@ export async function compilePdf(
   }
 
   const timeoutMs = input.timeoutMs ?? DEFAULT_TIMEOUT_MS
-  const compilerCommand = input.compilerCommand ?? 'pdflatex'
+  const compilerCommand = input.compilerCommand ?? 'lualatex'
   const outputBaseName = ensureSafeOutputBaseName(
     input.outputBaseName ?? 'character-sheet',
   )

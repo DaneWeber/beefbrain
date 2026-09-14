@@ -355,11 +355,12 @@ container still works, and `pnpm ext:install` is the retry.
 ### WSL LaTeX prerequisite for PDF generation
 
 `pnpm install` installs Node dependencies only. PDF generation requires a system
-LaTeX compiler (`pdflatex`).
+LaTeX compiler (`lualatex`) and the Atkinson Hyperlegible Next system font.
 
 ```bash
 sudo apt update
-sudo apt install -y texlive-latex-base
+sudo apt install -y fontconfig texlive-latex-base texlive-latex-recommended texlive-luatex
+sudo bash scripts/install-atkinson-hyperlegible-next.sh
 pnpm doctor:latex
 ```
 
