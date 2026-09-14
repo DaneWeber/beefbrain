@@ -17,6 +17,16 @@ sudo chown -R node:node /home/node/.claude
 sudo mkdir -p "$BROWSERS_PATH"
 sudo chown -R node:node "$BROWSERS_PATH"
 
+# Same problem, different owner: the claude-code devcontainer feature installs
+# into npm's global prefix as root, so Claude Code's own updater can't replace
+# the package. Background updates fail with "no_permissions" and the CLI goes
+# stale without ever saying so. Group stays "npm" to match the rest of the
+# prefix (it's setgid).
+CLAUDE_CODE_PKG="$(npm -g config get prefix)/lib/node_modules/@anthropic-ai"
+if [ -d "$CLAUDE_CODE_PKG" ]; then
+	sudo chown -R node:npm "$CLAUDE_CODE_PKG"
+fi
+
 # pdflatex, for bnb-latex / bnb-cli --pdf.
 sudo apt-get update
 sudo apt-get install -y \
