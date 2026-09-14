@@ -34,7 +34,6 @@ jobs:
       - name: node and pnpm setup
         uses: pnpm/setup@v2
         with:
-          version: 11
           runtime: node@24
           cache: true
 
