@@ -60,3 +60,19 @@ if ! CI=true pnpm --filter bnb-web exec playwright install --with-deps chromium;
 	echo "this succeeds. Retry with:" >&2
 	echo "    pnpm --filter bnb-web run test:e2e:install" >&2
 fi
+
+# Build, package, and install bnb-ext so the container comes up with the dev
+# build of the extension already active. Refresh it after editing bnb-ext's
+# source with `pnpm ext:install`.
+#
+# Non-fatal for the same reason as the browser install above: a container whose
+# extension build failed is still a perfectly good container for everything
+# else, and the retry is one command. CI=true for the same reason as above too:
+# no TTY here, so pnpm must not reach a prompt.
+if ! CI=true pnpm run ext:install; then
+	echo >&2
+	echo "warning: 'pnpm ext:install' failed (see above)." >&2
+	echo "The container is usable, but the dev build of bnb-ext isn't installed." >&2
+	echo "Retry from an integrated terminal with:" >&2
+	echo "    pnpm ext:install" >&2
+fi

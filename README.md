@@ -296,6 +296,23 @@ adds a test explorer with "Show browser" and pick-locator.
 > `"runArgs": ["--shm-size=1g"]` to `.devcontainer/devcontainer.json` and
 > rebuild. The current suite doesn't need it.
 
+### The bnb-ext dev build in the DevContainer
+
+`.devcontainer/post-create.sh` also builds `bnb-ext`, packages it as a `.vsix`,
+and installs it into the container's VS Code, so the container comes up running
+the dev build of the extension rather than a published one. That makes the
+DevContainer the disposable sandbox for exercising `bnb-ext` the way a user
+receives it -- the Extension Development Host (`F5`) is still the faster loop
+for iterating, but it never exercises the packaged `.vsix`.
+
+```bash
+pnpm ext:install    # rebuild, repackage, reinstall after editing bnb-ext
+```
+
+Reload the window (**Developer: Reload Window**) afterwards to activate the new
+build. Failures during container create are non-fatal -- everything else in the
+container still works, and `pnpm ext:install` is the retry.
+
 ### WSL LaTeX prerequisite for PDF generation
 
 `pnpm install` installs Node dependencies only. PDF generation requires a system
