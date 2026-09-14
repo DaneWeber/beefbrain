@@ -2,29 +2,29 @@
 character:
   description:
     name: Black Stag
-    player: Andy
+    player: Andy O
     race: Orc
     alignment: CG
     size: M
     sex: M
     age: 23 years
-    height: 5' 7"
-    weight: 155 lbs
+    height: 6'
+    weight: 290 lbs
   abilities:
-    strength: [20, str: 5, {base: 16, gloves-enhancement: 4}]
-    dexterity: [22, dex: 6, {base: 18, gloves-enhancement: 2, racial: 2}]
+    strength: [20, str: 5, {base: 12, belt-enhancement: 4, orc: 4}]
+    dexterity: [22, dex: 6, {base: 18, gloves-enhancement: 2, hd: 2}]
     constitution: [15, con: 2]
     intelligence: [12, int: 1]
-    wisdom: [18, wis: 4, {base: 17, enhancement: 1}]
+    wisdom: [18, wis: 4, {base: 17, hd: 1}]
     charisma: [11, cha: 0]
   levels:
-    xp: 81284
-    hd: [13, 6d8 + 3d10 + 4d6]
-    hp: [63, {max-hp: 89, damage: -26}]
-    max-hp: [89, {con: 26, rolls: 63}]
-    ranger: [6, hp: [null], {hd: 8, bab: good, fort: good, ref: good, will: poor}]
-    fighter: [3, hp: [null], {hd: 10, bab: good, fort: good, ref: poor, will: poor}]
-    rogue: [4, hp: [null], {hd: 6, bab: average, fort: poor, ref: good, will: poor}]
+    xp: 91417
+    hd: [14, {d8: 6, d10: 4, d6: 4}]
+    hp: [97, {max-hp: 97, damage: 0}]
+    max-hp: [97, {con: 28, rolls: 69}]
+    ranger: [6, hp: [8, 5, 5, 5, 5, 5], {hd: d8, bab: good, fort: good, ref: good, will: poor}]
+    fighter: [4, hp: [5, 5, 5, 6], {hd: d10, bab: good, fort: good, ref: poor, will: poor}]
+    rogue: [4, hp: [5, 5, 2, 3], {hd: d6, bab: average, fort: poor, ref: good, will: poor}]
   combat:
     initiative: [6, dex: 6]
     saves:
