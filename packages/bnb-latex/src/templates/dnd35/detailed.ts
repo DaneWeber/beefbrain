@@ -118,7 +118,7 @@ Will & {{saves.will}} & {{saves.will.breakdown}} \\
 \begin{sheetblock}{Skills}
 \begin{tabular}{K}
 \hline
-Skill & Final & Pre-ACP & \normalsize Sources \\
+\normalsize Skill & Bonus & w/o AC Penalty & Sources \\
 \hline
 \end{tabular}
 \end{sheetblock}
