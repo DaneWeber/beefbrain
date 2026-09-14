@@ -11,9 +11,48 @@
 	type ViewMode = 'streamlined' | 'detailed';
 	let viewMode: ViewMode = $state('streamlined');
 	let selectedLatexTemplate = $state('dnd35-streamlined');
+	const sheetExportBase = $derived(`/parties/${data.party.slug}/characters/${data.slug}`);
 	const latexDownloadHref = $derived(
-		`/characters/${data.slug}/latex?template=${encodeURIComponent(selectedLatexTemplate)}`
+		`${sheetExportBase}/latex?template=${encodeURIComponent(selectedLatexTemplate)}`
 	);
+
+	let pdfPending = $state(false);
+	let pdfError: string | null = $state(null);
+
+	// Fetched rather than linked so a slow or failed pdflatex run reports itself
+	// here instead of replacing the sheet with an error page.
+	async function downloadPdf() {
+		pdfPending = true;
+		pdfError = null;
+		try {
+			const href = `${sheetExportBase}/pdf?template=${encodeURIComponent(selectedLatexTemplate)}`;
+			const response = await fetch(href);
+			if (!response.ok) {
+				const body = await response.json().catch(() => null);
+				throw new Error(body?.message ?? `PDF generation failed (${response.status})`);
+			}
+
+			const blob = await response.blob();
+			const fileName =
+				response.headers.get('content-disposition')?.match(/filename="([^"]+)"/)?.[1] ??
+				`${data.slug}-${selectedLatexTemplate}.pdf`;
+
+			const objectUrl = URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = objectUrl;
+			link.download = fileName;
+			document.body.appendChild(link);
+			link.click();
+			link.remove();
+			// Chromium cancels the download if the object URL is revoked in the same
+			// tick as the click, so let it start first.
+			setTimeout(() => URL.revokeObjectURL(objectUrl), 10_000);
+		} catch (err) {
+			pdfError = err instanceof Error ? err.message : String(err);
+		} finally {
+			pdfPending = false;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -21,7 +60,7 @@
 </svelte:head>
 
 <div class="page-controls no-print">
-	<a href="/" class="back-link">&larr; All Characters</a>
+	<a href="/parties/{data.party.slug}" class="back-link">&larr; {data.party.name}</a>
 	<div class="view-toggle">
 		<button class:active={viewMode === 'streamlined'} onclick={() => (viewMode = 'streamlined')}>
 			Play
@@ -37,9 +76,19 @@
 			{/each}
 		</select>
 		<a class="latex-link" href={latexDownloadHref}>Download LaTeX</a>
+		<button class="latex-link pdf-btn" onclick={downloadPdf} disabled={pdfPending}>
+			{pdfPending ? 'Generating PDF...' : 'Download PDF'}
+		</button>
 	</div>
 	<button class="print-btn" onclick={() => window.print()}>Print</button>
 </div>
+
+{#if pdfError}
+	<div class="pdf-error no-print" role="alert">
+		<strong>PDF:</strong>
+		{pdfError}
+	</div>
+{/if}
 
 {#if skillPointWarning}
 	<div class="skill-point-warning no-print" role="status">
@@ -115,6 +164,25 @@
 	}
 	.latex-link:hover {
 		background: #3e7a3e;
+	}
+	.pdf-btn {
+		border: none;
+		cursor: pointer;
+		font-family: inherit;
+	}
+	.pdf-btn:disabled {
+		background: #7a8a7a;
+		cursor: progress;
+	}
+	.pdf-error {
+		max-width: 1100px;
+		margin: 0 auto 1rem;
+		padding: 0.5rem 0.75rem;
+		border: 1px solid #c88;
+		border-radius: 4px;
+		background: #fdf0f0;
+		color: #722;
+		font-size: 0.85rem;
 	}
 	.print-btn {
 		margin-left: auto;

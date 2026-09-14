@@ -14,7 +14,8 @@ A SvelteKit web application for viewing and managing TTRPG characters stored in 
 
 ### ✅ Implemented
 
-- **Character List**: Browse all available characters
+- **Parties**: Characters live in `data/parties/<party>/`; the home page lists parties and a nav switcher moves between them
+- **Character List**: Browse the characters in the selected party
 - **Character Sheets**:
   - Streamlined view (combat-focused)
   - Detailed view (complete stats)
@@ -75,15 +76,50 @@ pnpm dev
 
 Dev server runs at `http://localhost:5173` (accessible from host machine in dev container)
 
+### Character data
+
+Characters are read from one directory per party:
+
+```
+data/parties/
+├── beefy-boys/
+│   ├── dm/
+│   │   └── item-metadata.yaml
+│   ├── andy-black-stag.bnb.yaml
+│   ├── ryan-landorf.bnb.yaml
+│   └── ...
+└── brainy-boys/
+    └── voidan.bnb.yaml
+```
+
+Each directory name is the party slug (`/parties/beefy-boys`), and each file name minus its
+`.bnb.yaml` / `.yaml` extension is the character slug. Set `BNB_PARTIES_DIR` to read parties from
+somewhere else (the test suites use this to point at fixtures).
+
+### DM metadata
+
+`dm/item-metadata.yaml` holds the DM-only enrichment for a party's inventory (true descriptions,
+market values, auras, origins, notes). Characters reference it by the numeric item ID in position 4
+of each inventory row, and those IDs are only unique **within** a party — so each party keeps its
+own file and never sees another party's notes. A party without one simply has no enrichment.
+
+Rows that hold something other than an ID there (an unconverted `4200 gp` price, say) cannot be
+linked to metadata. The DM inventory view shows a dash instead of an ID for those rows and warns
+which characters they belong to, so the gap is visible rather than silent.
+
 ### Project Structure
 
 ```
 src/
 ├── routes/
-│   ├── +page.svelte              # Character list
-│   ├── characters/
-│   │   └── [slug]/+page.svelte   # Individual character
-│   ├── dm/                       # DM-only pages
+│   ├── +layout.svelte            # Nav + party switcher
+│   ├── +page.svelte              # Party list
+│   ├── parties/
+│   │   └── [party]/
+│   │       ├── +page.svelte          # Character list for one party
+│   │       ├── characters/
+│   │       │   └── [slug]/+page.svelte   # Individual character
+│   │       └── dm/                       # DM-only pages
 │   └── demo/                     # Test pages
 ├── lib/
 │   ├── components/               # Reusable components

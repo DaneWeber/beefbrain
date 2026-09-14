@@ -150,7 +150,7 @@
 
 <div class="dm-view">
 	<div class="dm-header no-print">
-		<a href="/" class="back-link">&larr; Characters</a>
+		<a href="/parties/{data.party.slug}" class="back-link">&larr; {data.party.name}</a>
 		<h1>DM View</h1>
 		<button class="print-btn" onclick={() => window.print()}>Print</button>
 	</div>
@@ -190,7 +190,9 @@
 				<tbody>
 					{#each chars as { character: c, slug }, i}
 						<tr>
-							<td class="name-cell"><a href="/characters/{slug}">{charName(c)}</a></td>
+							<td class="name-cell"
+								><a href="/parties/{data.party.slug}/characters/{slug}">{charName(c)}</a></td
+							>
 							<td>{charPlayer(c)}</td>
 							<td>{c.description?.race ?? ''}</td>
 							<td class="num" class:best={overviewBests().hp.has(i)}>
@@ -276,7 +278,9 @@
 				<tbody>
 					{#each chars as { character: c, slug }}
 						<tr>
-							<td class="name-cell"><a href="/characters/{slug}">{charName(c)}</a></td>
+							<td class="name-cell"
+								><a href="/parties/{data.party.slug}/characters/{slug}">{charName(c)}</a></td
+							>
 							<td class="num">{v(c.combat?.defense?.ac)}</td>
 							<td class="num">{v(c.combat?.defense?.['touch-ac'])}</td>
 							<td class="num">{v(c.combat?.defense?.['flat-footed-ac'])}</td>

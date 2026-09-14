@@ -107,9 +107,17 @@ Add a server-side generation flow for downloadable `.tex` files:
   - bundled templates
   - explicit uploaded content (size limited), if enabled
 
-### Future Extension
+### PDF Endpoint
 
-Add optional server-side PDF generation endpoint after the TeX flow is stable.
+Implemented alongside the TeX flow:
+
+- Route: `GET /parties/[party]/characters/[slug]/pdf?template=<key>`
+- Renders the LaTeX, then compiles it with `compilePdf` (local `pdflatex`)
+- Output: `application/pdf` attachment
+- Compiler failures map to HTTP status codes (missing compiler 503, timeout 504,
+  compile error 500) with the full compiler log kept in the server log only.
+  The page fetches this endpoint rather than linking to it, so a failure reports
+  itself on the sheet instead of navigating away.
 
 ## Security Requirements
 

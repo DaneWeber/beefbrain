@@ -21,14 +21,11 @@
     "lint:fix": "pnpm -r lint:fix",
     "format": "pnpm --filter bnb-core --filter bnb-cli format:fix",
     "format:check": "pnpm --filter bnb-core --filter bnb-cli format",
-    "init-items": "node scripts/init-item-metadata.js",
     "dev": "pnpm --filter bnb-web dev",
     "doctor:latex": "node scripts/doctor-latex.js"
   },
   "devDependencies": {
-    "glob": "^13.0.6",
-    "js-yaml": "^5.4.1",
-    "yaml": "^2.9.0"
+    "js-yaml": "^5.4.1"
   },
   "keywords": [
     "typescript",

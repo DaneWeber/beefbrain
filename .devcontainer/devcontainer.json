@@ -42,9 +42,8 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				// Test explorer for the bnb-web e2e suite, with "Show browser"
-				// and pick-locator. Reads the repo's playwright.config.ts.
-				"ms-playwright.playwright"
+				"ms-playwright.playwright",
+				"svelte.svelte-vscode"
 			]
 		}
 	}

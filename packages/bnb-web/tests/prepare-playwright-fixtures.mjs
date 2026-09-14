@@ -1,10 +1,29 @@
-import { mkdir, copyFile } from 'node:fs/promises';
+import { mkdir, copyFile, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const repoRoot = resolve(import.meta.dirname, '..', '..', '..');
-const sourceDir = resolve(repoRoot, 'reference_material', 'beefy_boys_spreadsheets', 'yaml');
-const targetDir = resolve(import.meta.dirname, '..', '.playwright-data', 'yaml');
-const slug = 'ryan-landorf';
+const partiesDir = resolve(repoRoot, 'data', 'parties');
+const targetDir = resolve(import.meta.dirname, '..', '.playwright-data', 'parties');
 
-await mkdir(targetDir, { recursive: true });
-await copyFile(resolve(sourceDir, `${slug}.yaml`), resolve(targetDir, `${slug}.yaml`));
+// Two parties, so the party switcher has something to switch between.
+await rm(targetDir, { recursive: true, force: true });
+await mkdir(resolve(targetDir, 'beefy-boys'), { recursive: true });
+await mkdir(resolve(targetDir, 'brainy-boys'), { recursive: true });
+
+// Landorf's items carry unique IDs and Runa's still carry prices, so the DM
+// view exercises both the metadata lookup and the missing-ID warning.
+for (const file of ['ryan-landorf.bnb.yaml', 'runa-frostwhisper.bnb.yaml']) {
+	await copyFile(resolve(partiesDir, 'beefy-boys', file), resolve(targetDir, 'beefy-boys', file));
+}
+await copyFile(
+	resolve(partiesDir, 'brainy-boys', 'voidan.bnb.yaml'),
+	resolve(targetDir, 'brainy-boys', 'voidan.bnb.yaml')
+);
+
+// DM metadata is party-scoped too, so the DM view reads it from the fixture
+// party rather than from the real data directory.
+await mkdir(resolve(targetDir, 'beefy-boys', 'dm'), { recursive: true });
+await copyFile(
+	resolve(partiesDir, 'beefy-boys', 'dm', 'item-metadata.yaml'),
+	resolve(targetDir, 'beefy-boys', 'dm', 'item-metadata.yaml')
+);

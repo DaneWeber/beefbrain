@@ -2,13 +2,10 @@ import { expect, test, type Page } from '@playwright/test';
 import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
+const party = 'beefy-boys';
 const slug = 'ryan-landorf';
-const sourceYamlPath = resolve(
-	process.cwd(),
-	'../../reference_material/beefy_boys_spreadsheets/yaml',
-	`${slug}.yaml`
-);
-const testYamlPath = resolve(process.cwd(), '.playwright-data/yaml', `${slug}.yaml`);
+const sourceYamlPath = resolve(process.cwd(), '../../data/parties', party, `${slug}.bnb.yaml`);
+const testYamlPath = resolve(process.cwd(), '.playwright-data/parties', party, `${slug}.bnb.yaml`);
 
 test.beforeEach(async () => {
 	const baseline = await readFile(sourceYamlPath, 'utf-8');
@@ -16,7 +13,7 @@ test.beforeEach(async () => {
 });
 
 async function openDetailedSheetFor(page: Page) {
-	await page.goto(`/characters/${slug}`);
+	await page.goto(`/parties/${party}/characters/${slug}`);
 	const detailedButton = page.getByRole('button', { name: 'Detailed' });
 	const firstEditButton = page.locator('.slot-row .btn-edit').first();
 
@@ -37,7 +34,7 @@ test('shows a warning when skill point totals do not match', async ({ page }) =>
 	const yaml = await readFile(testYamlPath, 'utf-8');
 	await writeFile(testYamlPath, yaml.replace(/_points: \[\d+/, '_points: [999'), 'utf-8');
 
-	await page.goto(`/characters/${slug}`);
+	await page.goto(`/parties/${party}/characters/${slug}`);
 
 	const warning = page.getByRole('status');
 	await expect(warning).toContainText('Skill points:');

@@ -14,7 +14,7 @@ export default defineConfig({
 		port: 4173,
 		timeout: 300 * 1000,
 		env: {
-			BNB_YAML_DIR: resolve(import.meta.dirname, '.playwright-data/yaml')
+			BNB_PARTIES_DIR: resolve(import.meta.dirname, '.playwright-data/parties')
 		}
 	},
 	testMatch: '**/*.e2e.{ts,js}'

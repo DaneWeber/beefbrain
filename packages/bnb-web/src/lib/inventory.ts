@@ -216,6 +216,39 @@ export function extractAllInventoryItems(
 }
 
 /**
+ * Items whose YAML row has no numeric ID in position 4. They are given negative
+ * placeholder IDs so the table can key them, but nothing can be linked to them
+ * in the party's DM metadata until they are assigned real IDs.
+ */
+export interface MissingItemIds {
+	count: number;
+	byCharacter: { pcName: string; count: number }[];
+}
+
+export function getMissingItemIds(items: InventoryItem[]): MissingItemIds | undefined {
+	const counts = new Map<string, number>();
+	for (const item of items) {
+		if (item.itemId > 0) continue;
+		counts.set(item.pcName, (counts.get(item.pcName) ?? 0) + 1);
+	}
+
+	if (counts.size === 0) return undefined;
+
+	return {
+		count: [...counts.values()].reduce((sum, count) => sum + count, 0),
+		byCharacter: [...counts]
+			.map(([pcName, count]) => ({ pcName, count }))
+			.sort((a, b) => b.count - a.count || a.pcName.localeCompare(b.pcName))
+	};
+}
+
+export function formatMissingItemIdWarning(missing: MissingItemIds): string {
+	const owners = missing.byCharacter.map(({ pcName, count }) => `${pcName} (${count})`).join(', ');
+	const items = missing.count === 1 ? '1 item has' : `${missing.count} items have`;
+	return `${items} no unique ID, so DM metadata cannot be attached: ${owners}.`;
+}
+
+/**
  * Sort and filter inventory items
  */
 export function sortInventoryItems(

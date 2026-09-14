@@ -1,14 +1,18 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { readFile, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import * as yaml from 'js-yaml';
 import { moveCharacterMagicItem, saveCharacterMagicItem } from './characters';
 
-const BLACK_STAG_PATH = join(
+const SOURCE_YAML = join(
 	fileURLToPath(new URL('.', import.meta.url)),
-	'../../../../../reference_material/beefy_boys_spreadsheets/yaml/andy-black-stag.yaml'
+	'../../../../../data/parties/beefy-boys/andy-black-stag.bnb.yaml'
 );
+
+const PARTY = 'test-party';
+const SLUG = 'andy-black-stag';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function loadCharacter(raw: string): any {
@@ -16,22 +20,36 @@ function loadCharacter(raw: string): any {
 }
 
 describe.sequential('magic equipment editing persistence', () => {
-	let originalYaml = '';
+	let partiesRoot = '';
+	let characterPath = '';
+	let previousPartiesDir: string | undefined;
 
 	beforeAll(async () => {
-		originalYaml = await readFile(BLACK_STAG_PATH, 'utf-8');
+		// Edit a throwaway copy so the repository's YAML is never rewritten.
+		partiesRoot = await mkdtemp(join(tmpdir(), 'bnb-web-parties-'));
+		await mkdir(join(partiesRoot, PARTY), { recursive: true });
+		characterPath = join(partiesRoot, PARTY, `${SLUG}.yaml`);
+		await copyFile(SOURCE_YAML, characterPath);
+
+		previousPartiesDir = process.env.BNB_PARTIES_DIR;
+		process.env.BNB_PARTIES_DIR = partiesRoot;
 	});
 
 	afterAll(async () => {
-		await writeFile(BLACK_STAG_PATH, originalYaml, 'utf-8');
+		if (previousPartiesDir === undefined) {
+			delete process.env.BNB_PARTIES_DIR;
+		} else {
+			process.env.BNB_PARTIES_DIR = previousPartiesDir;
+		}
+		await rm(partiesRoot, { recursive: true, force: true });
 	});
 
 	it('persists magic-item effect edits and recalculates abilities', async () => {
-		await saveCharacterMagicItem('andy-black-stag', 'equipped', 34, "Belt of Giant's Strength +6", {
+		await saveCharacterMagicItem(PARTY, SLUG, 'equipped', 34, "Belt of Giant's Strength +6", {
 			'str-enhancement': '6'
 		});
 
-		const updatedRaw = await readFile(BLACK_STAG_PATH, 'utf-8');
+		const updatedRaw = await readFile(characterPath, 'utf-8');
 		const updated = loadCharacter(updatedRaw);
 		const equipped = updated.character.inventory.equipped as unknown[][];
 		const belt = equipped.find((item) => Array.isArray(item) && item[4] === 34);
@@ -44,9 +62,9 @@ describe.sequential('magic equipment editing persistence', () => {
 	});
 
 	it('persists moving a magic item between locations and recalculates', async () => {
-		await moveCharacterMagicItem('andy-black-stag', 'equipped', 'pack', 34);
+		await moveCharacterMagicItem(PARTY, SLUG, 'equipped', 'pack', 34);
 
-		const updatedRaw = await readFile(BLACK_STAG_PATH, 'utf-8');
+		const updatedRaw = await readFile(characterPath, 'utf-8');
 		const updated = loadCharacter(updatedRaw);
 		const equipped = updated.character.inventory.equipped as unknown[][];
 		const pack = updated.character.inventory.pack as unknown[][];
