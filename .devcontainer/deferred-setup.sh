@@ -34,6 +34,12 @@ echo "=== $(date -Is) deferred setup starting ==="
 # build bnb-core into packages/bnb-core/dist, so a `pnpm build` started by hand
 # in the first minute of a session can race it; re-run either one if the result
 # looks stale.
+echo "--- pnpm install"
+if ! CI=true pnpm install --frozen-lockfile; then
+	echo "error: dependency installation failed; deferred setup cannot continue." >&2
+	exit 1
+fi
+
 echo "--- pnpm ext:install"
 if ! CI=true pnpm run ext:install; then
 	failed+=("pnpm ext:install")
