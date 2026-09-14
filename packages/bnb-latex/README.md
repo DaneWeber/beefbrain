@@ -33,7 +33,7 @@ For WSL (Ubuntu):
 
 ```bash
 sudo apt update
-sudo apt install -y texlive-latex-base
+sudo apt install -y texlive-latex-base texlive-latex-recommended texlive-fonts-recommended
 ```
 
 From repo root, you can verify with:

@@ -7,8 +7,8 @@ const COMPILE_ERROR_RESPONSES: Record<string, { status: number; message: string 
 	PDF_COMPILER_MISSING: {
 		status: 503,
 		message:
-			'No LaTeX compiler on the server. Install pdflatex (e.g. "sudo apt install ' +
-			'texlive-latex-base") and try again, or download the LaTeX instead.'
+			'No LaTeX compiler on the server. Install pdflatex (e.g. "sudo apt install texlive-latex-base ' +
+			'texlive-latex-recommended texlive-fonts-recommended") and try again, or download the LaTeX instead.'
 	},
 	PDF_TIMEOUT: {
 		status: 504,
