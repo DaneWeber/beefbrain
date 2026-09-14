@@ -72,7 +72,7 @@ jobs:
             output_base="${output_base%.bnb.yml}"
             mkdir -p "$(dirname "$output_base")"
             node packages/bnb-cli/dist/index.mjs latex "$character" \
-              --template dnd35-streamlined \
+              --template dnd35-detailed \
               --out "${output_base}.tex" \
               --pdf \
               --pdf-out "${output_base}.pdf"
