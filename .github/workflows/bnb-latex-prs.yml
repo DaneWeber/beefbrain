@@ -29,26 +29,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+      - name: node and pnpm setup
+        uses: pnpm/setup@v2
         with:
-          version: 11.25.0
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: "24"
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install
+          runtime: node@24
+          cache: true
 
       - name: Install LaTeX compiler
         run: |
           sudo apt-get update
-          sudo apt-get install -y texlive-latex-base texlive-latex-recommended texlive-fonts-recommended
+          sudo apt-get install -y --no-install-recommends texlive-latex-base
           pdflatex --version
 
       - name: Build dependencies and bnb-latex
@@ -72,7 +64,7 @@ jobs:
             output_base="${output_base%.bnb.yml}"
             mkdir -p "$(dirname "$output_base")"
             node packages/bnb-cli/dist/index.mjs latex "$character" \
-              --template dnd35-streamlined \
+              --template dnd35-detailed \
               --out "${output_base}.tex" \
               --pdf \
               --pdf-out "${output_base}.pdf"
@@ -80,7 +72,7 @@ jobs:
           ls -lah artifacts/latex
 
       - name: Upload generated character sheets
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: bnb-latex-character-sheets
           path: artifacts/latex

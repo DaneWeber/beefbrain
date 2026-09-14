@@ -22,6 +22,7 @@
     "format": "pnpm --filter bnb-core --filter bnb-cli format:fix",
     "format:check": "pnpm --filter bnb-core --filter bnb-cli format",
     "dev": "pnpm --filter bnb-web dev",
+    "ext:install": "bash scripts/install-bnb-ext.sh",
     "doctor:latex": "node scripts/doctor-latex.js"
   },
   "devDependencies": {

@@ -137,12 +137,26 @@ src/
 
 ## Testing
 
-### Unit Tests (Vitest)
+### Unit Tests (Vitest, node environment)
 
 ```bash
-pnpm test:unit        # Run once
-pnpm test:unit:watch  # Watch mode (via vitest directly)
+pnpm test:unit        # Run once — no browser required
+pnpm test:dev         # Watch mode
 ```
+
+Matches `src/**/*.{test,spec}.{js,ts}` and runs the `server` Vitest project. This is
+what the root `pnpm test` runs on every PR, so it stays browser-free and fast.
+
+### Component Tests (Vitest browser mode, Chromium)
+
+```bash
+pnpm test:e2e:install # One-time: playwright install --with-deps chromium
+pnpm test:browser     # Run once
+```
+
+Matches `src/**/*.svelte.{test,spec}.{js,ts}` and runs the `client` Vitest project,
+which renders components in a real headless Chromium via the Playwright provider.
+Kept out of `test:unit` so it only runs where a browser is installed.
 
 Example tests exist in `src/lib/vitest-examples/`
 
@@ -151,8 +165,11 @@ Example tests exist in `src/lib/vitest-examples/`
 ### E2E Tests (Playwright)
 
 ```bash
-pnpm test:e2e         # Run all e2e tests
+pnpm test:e2e         # Component tests + all e2e tests
 ```
+
+Matches `**/*.e2e.{ts,js}`. Because this step already requires Chromium, it runs
+`test:browser` first, then the Playwright suite.
 
 Basic Playwright setup exists. Example test in `src/routes/demo/playwright/`
 
@@ -161,8 +178,11 @@ Basic Playwright setup exists. Example test in `src/routes/demo/playwright/`
 ### Run All Tests
 
 ```bash
-pnpm test  # Runs unit tests + e2e tests
+pnpm test:all  # Unit tests + component tests + e2e tests
 ```
+
+Note that `pnpm test` (and the root `pnpm test`) runs only the browser-free unit
+tests.
 
 ## Building
 
