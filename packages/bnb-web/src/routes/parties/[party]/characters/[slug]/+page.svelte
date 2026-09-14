@@ -9,8 +9,8 @@
 	const latexTemplates = $derived(data.latexTemplates ?? []);
 
 	type ViewMode = 'streamlined' | 'detailed';
-	let viewMode: ViewMode = $state('streamlined');
-	let selectedLatexTemplate = $state('dnd35-streamlined');
+	let viewMode: ViewMode = $state('detailed');
+	let selectedLatexTemplate = $state(data.defaultLatexTemplate);
 	const sheetExportBase = $derived(`/parties/${data.party.slug}/characters/${data.slug}`);
 	const latexDownloadHref = $derived(
 		`${sheetExportBase}/latex?template=${encodeURIComponent(selectedLatexTemplate)}`
@@ -19,7 +19,7 @@
 	let pdfPending = $state(false);
 	let pdfError: string | null = $state(null);
 
-	// Fetched rather than linked so a slow or failed pdflatex run reports itself
+	// Fetched rather than linked so a slow or failed LuaLaTeX run reports itself
 	// here instead of replacing the sheet with an error page.
 	async function downloadPdf() {
 		pdfPending = true;

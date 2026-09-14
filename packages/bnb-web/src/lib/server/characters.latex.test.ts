@@ -11,9 +11,9 @@ import {
 	getLatexTemplateOptions
 } from './characters';
 
-/** The PDF path needs a real pdflatex; CI runners without TeX skip those cases. */
-const hasPdflatex = (() => {
-	const probe = spawnSync('pdflatex', ['--version'], { stdio: 'ignore' });
+/** The PDF path needs a real LuaLaTeX; CI runners without TeX skip those cases. */
+const hasLualatex = (() => {
+	const probe = spawnSync('lualatex', ['--version'], { stdio: 'ignore' });
 	return !probe.error && probe.status === 0;
 })();
 
@@ -78,10 +78,10 @@ describe('character latex generation', () => {
 		);
 	});
 
-	it.runIf(hasPdflatex)('compiles a PDF for a known character', { timeout: 30_000 }, async () => {
-		const generated = await generateCharacterPdf(PARTY, SLUG, 'dnd35-streamlined');
-		expect(generated.templateKey).toBe('dnd35-streamlined');
-		expect(generated.fileName).toBe('andy-black-stag-dnd35-streamlined.pdf');
+	it.runIf(hasLualatex)('compiles a PDF for a known character', { timeout: 30_000 }, async () => {
+		const generated = await generateCharacterPdf(PARTY, SLUG, 'dnd35-detailed');
+		expect(generated.templateKey).toBe('dnd35-detailed');
+		expect(generated.fileName).toBe('andy-black-stag-dnd35-detailed.pdf');
 		expect(generated.pdf.subarray(0, 5).toString('utf-8')).toBe('%PDF-');
 	});
 });

@@ -25,7 +25,7 @@ describe('compilePdf', () => {
     await expect(
       compilePdf({
         latex: '\\documentclass{article}\\begin{document}x\\end{document}',
-        compilerCommand: 'pdflatex-command-that-does-not-exist',
+        compilerCommand: 'lualatex-command-that-does-not-exist',
       }),
     ).rejects.toThrow(/was not found|not executable/i)
   })

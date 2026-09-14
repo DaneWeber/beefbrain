@@ -427,13 +427,13 @@ export function toSafeFilePart(value: string): string {
 	return value.replace(/[^A-Za-z0-9._-]/g, '-');
 }
 
-/** Base name shared by the .tex and .pdf downloads, e.g. `andy-black-stag-dnd35-streamlined`. */
+/** Base name shared by the .tex and .pdf downloads, e.g. `andy-black-stag-dnd35-detailed`. */
 export function characterSheetBaseName(slug: string, templateKey: LatexTemplateKey): string {
 	return `${toSafeFilePart(slug)}-${templateKey}`;
 }
 
 /**
- * Render the character's LaTeX and compile it to a PDF with the local `pdflatex`.
+ * Render the character's LaTeX and compile it to a PDF with the local `lualatex`.
  * Throws a `LatexGenerationError` from bnb-latex when the compiler is missing,
  * times out, or rejects the document.
  */

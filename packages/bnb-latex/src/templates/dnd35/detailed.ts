@@ -1,6 +1,8 @@
 export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \usepackage[landscape, margin=0.25in]{geometry}
 \usepackage{array}
+\usepackage{fontspec}
+\setmainfont{Atkinson Hyperlegible Next}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
 \newcolumntype{C}[1]{>{\footnotesize\raggedright\arraybackslash}p{#1}}

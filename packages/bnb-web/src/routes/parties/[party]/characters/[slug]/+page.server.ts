@@ -1,4 +1,5 @@
 import { error, fail } from '@sveltejs/kit';
+import { DEFAULT_TEMPLATE_KEY } from 'bnb-latex';
 import {
 	loadCharacter,
 	getSkillPointWarning,
@@ -19,7 +20,8 @@ export async function load({ params }) {
 		skillPointWarning: getSkillPointWarning(data),
 		slug: params.slug,
 		inventoryLocations: locations,
-		latexTemplates: getLatexTemplateOptions()
+		latexTemplates: getLatexTemplateOptions(),
+		defaultLatexTemplate: DEFAULT_TEMPLATE_KEY
 	};
 }
 

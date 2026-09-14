@@ -10,6 +10,7 @@ on:
       - "data/**/*.bnb.yml"
       - "pnpm-lock.yaml"
       - "package.json"
+      - "scripts/install-atkinson-hyperlegible-next.sh"
       - ".github/workflows/bnb-latex-prs.yml"
   push:
     branches:
@@ -22,6 +23,7 @@ on:
       - "data/**/*.bnb.yml"
       - "pnpm-lock.yaml"
       - "package.json"
+      - "scripts/install-atkinson-hyperlegible-next.sh"
       - ".github/workflows/bnb-latex-prs.yml"
 
 jobs:
@@ -40,8 +42,9 @@ jobs:
       - name: Install LaTeX compiler
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends texlive-latex-base
-          pdflatex --version
+          sudo apt-get install -y --no-install-recommends fontconfig texlive-latex-base texlive-latex-recommended texlive-luatex
+          sudo bash scripts/install-atkinson-hyperlegible-next.sh
+          lualatex --version
 
       - name: Build dependencies and bnb-latex
         run: pnpm --filter bnb-core --filter bnb-latex --filter bnb-cli build

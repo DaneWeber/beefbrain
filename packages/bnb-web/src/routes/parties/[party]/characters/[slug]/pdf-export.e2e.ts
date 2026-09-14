@@ -9,19 +9,20 @@ const pdfRoute = '**/characters/*/pdf?*';
  * hydrates, and only the view toggle shows when that has happened.
  */
 async function waitForHydration(page: Page) {
+	const play = page.getByRole('button', { name: 'Play' });
 	const detailed = page.getByRole('button', { name: 'Detailed' });
 	await expect(async () => {
-		await detailed.click();
-		await expect(detailed).toHaveClass(/active/);
+		await play.click();
+		await expect(play).toHaveClass(/active/);
 	}).toPass({ timeout: 30_000 });
-	await page.getByRole('button', { name: 'Play' }).click();
+	await detailed.click();
 }
 
 test('downloads a compiled PDF for the selected template', async ({ page }) => {
 	test.setTimeout(60_000);
 
 	// The CI runner has no TeX install, so the compiled bytes are stubbed here;
-	// the real pdflatex run is covered by the characters.latex unit tests.
+	// the real LuaLaTeX run is covered by the characters.latex unit tests.
 	await page.route(pdfRoute, (route) =>
 		route.fulfill({
 			status: 200,
@@ -34,7 +35,8 @@ test('downloads a compiled PDF for the selected template', async ({ page }) => {
 	await page.goto(`/parties/${party}/characters/${slug}`);
 	await waitForHydration(page);
 
-	await page.locator('.latex-export select').selectOption('dnd35-detailed');
+	await expect(page.getByRole('button', { name: 'Detailed' })).toHaveClass(/active/);
+	await expect(page.locator('.latex-export select')).toHaveValue('dnd35-detailed');
 
 	const [request, download] = await Promise.all([
 		page.waitForRequest(pdfRoute),

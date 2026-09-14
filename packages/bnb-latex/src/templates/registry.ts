@@ -9,14 +9,6 @@ interface TemplateRecord {
 }
 
 const TEMPLATE_REGISTRY: Record<LatexTemplateKey, TemplateRecord> = {
-  'dnd35-streamlined': {
-    info: {
-      key: 'dnd35-streamlined',
-      name: 'D&D 3.5 Streamlined',
-      description: 'Play-session focused sheet with core stats and abilities.',
-    },
-    template: DND35_STREAMLINED_TEMPLATE,
-  },
   'dnd35-detailed': {
     info: {
       key: 'dnd35-detailed',
@@ -24,6 +16,14 @@ const TEMPLATE_REGISTRY: Record<LatexTemplateKey, TemplateRecord> = {
       description: 'Expanded combat summary with saves and movement details.',
     },
     template: DND35_DETAILED_TEMPLATE,
+  },
+  'dnd35-streamlined': {
+    info: {
+      key: 'dnd35-streamlined',
+      name: 'D&D 3.5 Streamlined',
+      description: 'Play-session focused sheet with core stats and abilities.',
+    },
+    template: DND35_STREAMLINED_TEMPLATE,
   },
   'dnd35-spellcaster': {
     info: {
@@ -35,7 +35,7 @@ const TEMPLATE_REGISTRY: Record<LatexTemplateKey, TemplateRecord> = {
   },
 }
 
-export const DEFAULT_TEMPLATE_KEY: LatexTemplateKey = 'dnd35-streamlined'
+export const DEFAULT_TEMPLATE_KEY: LatexTemplateKey = 'dnd35-detailed'
 
 export function listTemplates(): TemplateInfo[] {
   return Object.values(TEMPLATE_REGISTRY).map((record) => record.info)
