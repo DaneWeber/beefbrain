@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { DEFAULT_TEMPLATE_KEY } from 'bnb-latex';
 	import StreamlinedSheet from '$lib/components/StreamlinedSheet.svelte';
 	import DetailedSheet from '$lib/components/DetailedSheet.svelte';
 
@@ -11,7 +10,7 @@
 
 	type ViewMode = 'streamlined' | 'detailed';
 	let viewMode: ViewMode = $state('detailed');
-	let selectedLatexTemplate = $state(DEFAULT_TEMPLATE_KEY);
+	let selectedLatexTemplate = $state('dnd35-detailed');
 	const sheetExportBase = $derived(`/parties/${data.party.slug}/characters/${data.slug}`);
 	const latexDownloadHref = $derived(
 		`${sheetExportBase}/latex?template=${encodeURIComponent(selectedLatexTemplate)}`
