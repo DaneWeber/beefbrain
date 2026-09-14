@@ -3,7 +3,19 @@ import { copyFile, mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { generateCharacterLatex, getLatexTemplateOptions } from './characters';
+import { spawnSync } from 'node:child_process';
+import {
+	characterSheetBaseName,
+	generateCharacterLatex,
+	generateCharacterPdf,
+	getLatexTemplateOptions
+} from './characters';
+
+/** The PDF path needs a real pdflatex; CI runners without TeX skip those cases. */
+const hasPdflatex = (() => {
+	const probe = spawnSync('pdflatex', ['--version'], { stdio: 'ignore' });
+	return !probe.error && probe.status === 0;
+})();
 
 const SOURCE_YAML = join(
 	fileURLToPath(new URL('.', import.meta.url)),
@@ -52,5 +64,24 @@ describe('character latex generation', () => {
 		await expect(generateCharacterLatex(PARTY, SLUG, 'not-a-template')).rejects.toThrow(
 			/Unknown LaTeX template/
 		);
+	});
+
+	it('builds a download base name from the slug and template', () => {
+		expect(characterSheetBaseName('andy black/stag', 'dnd35-streamlined')).toBe(
+			'andy-black-stag-dnd35-streamlined'
+		);
+	});
+
+	it('rejects unknown template keys for PDFs too', async () => {
+		await expect(generateCharacterPdf(PARTY, SLUG, 'not-a-template')).rejects.toThrow(
+			/Unknown LaTeX template/
+		);
+	});
+
+	it.runIf(hasPdflatex)('compiles a PDF for a known character', { timeout: 30_000 }, async () => {
+		const generated = await generateCharacterPdf(PARTY, SLUG, 'dnd35-streamlined');
+		expect(generated.templateKey).toBe('dnd35-streamlined');
+		expect(generated.fileName).toBe('andy-black-stag-dnd35-streamlined.pdf');
+		expect(generated.pdf.subarray(0, 5).toString('utf-8')).toBe('%PDF-');
 	});
 });

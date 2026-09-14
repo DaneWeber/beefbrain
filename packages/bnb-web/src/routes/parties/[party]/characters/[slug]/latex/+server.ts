@@ -1,17 +1,12 @@
 import { error } from '@sveltejs/kit';
-import { generateCharacterLatex } from '$lib/server/characters';
-
-function toSafeFilePart(value: string): string {
-	return value.replace(/[^A-Za-z0-9._-]/g, '-');
-}
+import { characterSheetBaseName, generateCharacterLatex } from '$lib/server/characters';
 
 export async function GET({ params, url }) {
 	const templateKey = url.searchParams.get('template') ?? 'dnd35-streamlined';
 
 	try {
 		const rendered = await generateCharacterLatex(params.party, params.slug, templateKey);
-		const safeSlug = toSafeFilePart(params.slug);
-		const fileName = `${safeSlug}-${rendered.templateKey}.tex`;
+		const fileName = `${characterSheetBaseName(params.slug, rendered.templateKey)}.tex`;
 
 		return new Response(rendered.latex, {
 			headers: {

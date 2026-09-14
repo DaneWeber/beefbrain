@@ -3,7 +3,13 @@ import { join } from 'node:path';
 import { createRequire } from 'node:module';
 import * as yaml from 'js-yaml';
 import type { BeefBrainData } from 'bnb-core';
-import { listTemplates, renderLatex, type LatexTemplateKey, type TemplateInfo } from 'bnb-latex';
+import {
+	compilePdf,
+	listTemplates,
+	renderLatex,
+	type LatexTemplateKey,
+	type TemplateInfo
+} from 'bnb-latex';
 import { assertSafeSlug, getPartiesDir, isSafeSlug, partyDir } from './parties';
 
 const require = createRequire(import.meta.url);
@@ -413,5 +419,38 @@ export async function generateCharacterLatex(
 	return {
 		latex: rendered.latex,
 		templateKey: rendered.template.key
+	};
+}
+
+/** Strip anything that can't safely sit in a filename or Content-Disposition header. */
+export function toSafeFilePart(value: string): string {
+	return value.replace(/[^A-Za-z0-9._-]/g, '-');
+}
+
+/** Base name shared by the .tex and .pdf downloads, e.g. `andy-black-stag-dnd35-streamlined`. */
+export function characterSheetBaseName(slug: string, templateKey: LatexTemplateKey): string {
+	return `${toSafeFilePart(slug)}-${templateKey}`;
+}
+
+/**
+ * Render the character's LaTeX and compile it to a PDF with the local `pdflatex`.
+ * Throws a `LatexGenerationError` from bnb-latex when the compiler is missing,
+ * times out, or rejects the document.
+ */
+export async function generateCharacterPdf(
+	party: string,
+	slug: string,
+	templateKey: string
+): Promise<{ pdf: Buffer; fileName: string; templateKey: LatexTemplateKey }> {
+	const rendered = await generateCharacterLatex(party, slug, templateKey);
+	const compiled = await compilePdf({
+		latex: rendered.latex,
+		outputBaseName: characterSheetBaseName(slug, rendered.templateKey)
+	});
+
+	return {
+		pdf: compiled.pdfBuffer,
+		fileName: compiled.pdfFileName,
+		templateKey: rendered.templateKey
 	};
 }
