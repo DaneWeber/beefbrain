@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
 {
-	"name": "Node.js & TypeScript",
+	"name": "Full DevContainer",
 	// A Dockerfile rather than "image" so that the system packages this repo
 	// needs (texlive, Playwright's shared libraries) sit in cached image layers.
 	// They used to be apt-get calls in postCreateCommand, which is not cached
