@@ -17,6 +17,8 @@
   ],
   "scripts": {
     "build": "tsdown",
+    "build:watch": "tsdown --watch --no-clean",
+    "dev": "pnpm run build:watch",
     "clean": "rimraf dist",
     "compile": "tsc --noEmit",
     "test": "vitest run",
