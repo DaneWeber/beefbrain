@@ -16,39 +16,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+      - name: node and pnpm setup
+        uses: pnpm/setup@v2
         with:
-          version: 11.25.0
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: "24"
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install
+          runtime: node@24
+          cache: true
 
       - name: Build all packages
         run: pnpm build
 
       - name: Run all tests
-        run: pnpm --filter bnb-core --filter bnb-cli test
+        run: pnpm test
 
       - name: Generate coverage
-        run: pnpm --filter bnb-core test:coverage
+        run: pnpm test:coverage
 
       - name: Run linting
-        run: pnpm --filter bnb-core --filter bnb-cli lint
+        run: pnpm lint
 
       - name: Check formatting
-        run: pnpm --filter bnb-core --filter bnb-cli format
+        run: pnpm format
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           files: ./packages/bnb-core/coverage/lcov.info
-          fail_ci_if_error: false
