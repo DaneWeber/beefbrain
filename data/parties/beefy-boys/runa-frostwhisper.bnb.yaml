@@ -103,15 +103,12 @@ character:
       - Common
   spells:
     ranger:
+      casting: [divine, prepared, wis]
       caster-level: 3
-      key-ability: wisdom
-      spells-per-day:
-        "1": [2, {ranger: 1, wis-extra-spell: 1}]
-      save-dc:
-        _: [12, {base: 10, wis: 2}]
-        1: [13, {_: 12, lvl-1: 1}]
-      spells-prepared:
-        "1": [Surefoot, {cast: Lightfoot}]
+      slots:
+        "1": [2, {ranger: 1, wis-spell: 1}]
+      prepared:
+        "1": [Surefoot, cast: Lightfoot]
   inventory:
     _on: [equipped, pack]
     money:
