@@ -83,41 +83,44 @@ To run the extension in a real VS Code window, open **this package folder**
 root — then press `F5` ("Run Extension"). This launches an Extension
 Development Host with `bnb-ext` loaded.
 
-### Installing it in your everyday VS Code
+### Running the dev build as a real installed extension
 
 The Extension Development Host is good for quick iteration, but it's a
-separate, temporary VS Code instance. To try `bnb-ext` in the VS Code you use
-day to day, package it as a `.vsix` and install that:
+separate, temporary VS Code instance, and it doesn't exercise the packaged
+`.vsix`. The repo's DevContainer installs the dev build for you: its
+`postCreateCommand` builds `bnb-ext`, packages it, and installs it into the
+container's VS Code, so a fresh container already has it active.
+
+After editing `bnb-ext`'s source, refresh the installed copy from an
+integrated terminal — no container rebuild needed:
 
 ```bash
-cd packages/bnb-ext
-pnpm run package   # builds, then runs `vsce package` -> bnb-ext-<version>.vsix
-code --install-extension bnb-ext-0.1.0.vsix
+pnpm ext:install   # build -> vsce package -> install the .vsix
 ```
 
-Reload the window (or restart VS Code) afterwards. To remove it again:
+Then reload the window (**Developer: Reload Window**) to pick up the new
+build. To remove it again:
 
 ```bash
 code --uninstall-extension daneweber.bnb-ext
 ```
 
+Because the DevContainer is a disposable, remote VS Code session, this is
+also the controlled environment for testing the extension the way a user
+would receive it — installing it in the VS Code you use day to day works
+identically, just without the throwaway sandbox:
+
+```bash
+cd packages/bnb-ext
+pnpm run package   # builds, then runs `vsce package` -> bnb-ext-<version>.vsix
+code --install-extension bnb-ext-<version>.vsix
+```
+
 Note that `pnpm run build` bundles `bnb-core`, `yaml`, and their own
 dependencies (e.g. `mathjs`) directly into `dist/extension.js` via esbuild.
 A packaged `.vsix` ships no `node_modules`, so everything the extension needs
-at runtime must already be inlined there.
-
-### Testing it in a controlled devcontainer
-
-Installing into your everyday VS Code works the same way inside a Dev
-Container as it does locally — a devcontainer is just a remote VS Code
-session. There's a second, named devcontainer config for exactly this:
-`.devcontainer/bnb-ext-test/devcontainer.json`. Open the repo, run **Dev
-Containers: Reopen in Container**, and pick **"bnb-ext (extension test)"**
-when prompted (instead of the repo's default config). Its
-`postCreateCommand` builds, packages, and installs `bnb-ext` automatically.
-After editing `bnb-ext`'s source, re-run
-`bash .devcontainer/bnb-ext-test/install-extension.sh` from an integrated
-terminal to refresh it without rebuilding the whole container.
+at runtime must already be inlined there. That's why `pnpm ext:install`
+builds `bnb-core` first.
 
 ### Architecture
 

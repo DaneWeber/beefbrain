@@ -10,8 +10,11 @@
 		"ghcr.io/devcontainers/features/github-cli:1": {},
 		"ghcr.io/helpers4/devcontainer/pnpm-store:1": {}
 	},
-	// Installs pdflatex, plus Playwright's chromium and its shared libraries
-	// (without which the bnb-web e2e suite can't run after a rebuild).
+	// Installs pdflatex; Playwright's chromium and its shared libraries (without
+	// which the bnb-web e2e suite can't run after a rebuild); and a dev build of
+	// the bnb-ext VS Code extension, packaged from this repo's source and
+	// installed into this container's VS Code. Refresh that build after editing
+	// bnb-ext with `pnpm ext:install` -- no container rebuild needed.
 	"postCreateCommand": "bash .devcontainer/post-create.sh",
 	// This image's default container user is actually root (verify with
 	// `docker inspect <image> --format '{{.Config.User}}'`). Pin the non-root
