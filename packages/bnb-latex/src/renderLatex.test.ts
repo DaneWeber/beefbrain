@@ -16,9 +16,7 @@ describe('renderLatex', () => {
     expect(result.latex).toContain(
       'D\\&D 3.5 Primary Character Sheet (Detailed Draft)',
     )
-    expect(result.latex).toContain(
-      '\\setmainfont{Atkinson Hyperlegible Next}',
-    )
+    expect(result.latex).toContain('\\setmainfont{Atkinson Hyperlegible Next}')
     expect(result.latex).toContain('Landorf the Human Fighter')
     expect(result.latex).toContain('fighter 1')
     expect(result.latex).toContain('Inventory Sheet (Detailed Draft)')
