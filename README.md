@@ -258,57 +258,20 @@ node dist/index.js path/to/character.yaml
 pnpm dev  # Starts at http://localhost:5173 (accessible from host)
 ```
 
-### How the DevContainer build is split
-
-Rebuilds used to spend minutes re-running `apt-get install` for TeX Live and
-Chromium's libraries, because that lived in `postCreateCommand` -- which is
-never cached and runs in full on every "Rebuild Container". The work is now
-split across four places by how well each one caches:
-
-| Where | What | Cost on rebuild |
-| --- | --- | --- |
-| `.devcontainer/Dockerfile` | `texlive-latex-base`, Chromium's shared libraries | none -- Docker reuses the layers |
-| devcontainer `features` | pnpm, Claude Code, gh, pnpm-store | none -- also cached layers |
-| `.devcontainer/post-create.sh` | `chown` of the named-volume mounts | ~a second |
-| `.devcontainer/deferred-setup.sh` | Chromium download, `pnpm ext:install` | off the critical path -- runs detached |
-
-So a rebuild reaches a usable workspace as soon as the volume ownership is
-fixed. The last row keeps running in the background; follow it with
-
-```bash
-tail -f /tmp/devcontainer-deferred-setup.log
-```
-
-Nothing in that log is needed for editing, `pnpm test`, `pnpm build`, or
-`bnb-cli` -- only the e2e suite and the dev build of `bnb-ext`.
-
-Two things to know when changing it:
-
-- **Editing the `Dockerfile` costs a real rebuild.** That's the trade: the
-  expensive path moved from "every rebuild" to "only when the system deps
-  change". Use **Rebuild Container**, not **Rebuild Without Cache**, unless you
-  actually want the layers thrown away.
-- **The Playwright pin in the `Dockerfile` and `packages/bnb-web/package.json`
-  have to move together.** The `Dockerfile` installs the shared libraries for a
-  pinned `playwright-core`; if that drifts far from the version bnb-web
-  resolves, `deferred-setup.sh` quietly picks up the difference via apt on each
-  create instead, and rebuilds get slow again.
-
 ### End-to-end tests in the DevContainer
 
 The bnb-web e2e suite (Playwright + chromium) runs in the DevContainer with no
-extra setup. Chromium's shared libraries are baked into the image by
-`.devcontainer/Dockerfile`, and the browser build itself lives in a named Docker
-volume, so a rebuild re-uses the ~650MB rather than re-downloading it.
-`.devcontainer/deferred-setup.sh` re-checks both in the background after a
-rebuild, which is a no-op once the volume is warm.
+extra setup. `.devcontainer/post-create.sh` installs the browser and its shared
+libraries on container create -- neither survives a rebuild, so it runs every
+time. The browsers themselves live in a named Docker volume, so a rebuild
+re-uses the ~650MB rather than re-downloading it.
 
 ```bash
 pnpm --filter bnb-web test:e2e            # headless (the default)
 pnpm --filter bnb-web test:e2e:headed     # watch it in a real browser window
 pnpm --filter bnb-web test:e2e:debug      # step through with the Inspector
 pnpm --filter bnb-web test:e2e:ui         # time-travel debugger
-pnpm --filter bnb-web test:e2e:install    # retry, if deferred setup's install failed
+pnpm --filter bnb-web test:e2e:install    # retry, if post-create's install failed
 ```
 
 Each of those builds `bnb-core` and `bnb-latex` first, so you're never debugging
@@ -333,25 +296,6 @@ adds a test explorer with "Show browser" and pick-locator.
 > `"runArgs": ["--shm-size=1g"]` to `.devcontainer/devcontainer.json` and
 > rebuild. The current suite doesn't need it.
 
-### The bnb-ext dev build in the DevContainer
-
-`.devcontainer/deferred-setup.sh` also builds `bnb-ext`, packages it as a
-`.vsix`, and installs it into the container's VS Code, so the container comes up
-running the dev build of the extension rather than a published one. That runs in
-the background after a rebuild, so give it a minute (and reload the window) if
-the extension isn't active the instant the container opens. That makes the
-DevContainer the disposable sandbox for exercising `bnb-ext` the way a user
-receives it -- the Extension Development Host (`F5`) is still the faster loop
-for iterating, but it never exercises the packaged `.vsix`.
-
-```bash
-pnpm ext:install    # rebuild, repackage, reinstall after editing bnb-ext
-```
-
-Reload the window (**Developer: Reload Window**) afterwards to activate the new
-build. Failures during container create are non-fatal -- everything else in the
-container still works, and `pnpm ext:install` is the retry.
-
 ### WSL LaTeX prerequisite for PDF generation
 
 `pnpm install` installs Node dependencies only. PDF generation requires a system
@@ -359,7 +303,7 @@ LaTeX compiler (`pdflatex`).
 
 ```bash
 sudo apt update
-sudo apt install -y texlive-latex-base
+sudo apt install -y texlive-latex-base texlive-latex-recommended texlive-fonts-recommended
 pnpm doctor:latex
 ```
 

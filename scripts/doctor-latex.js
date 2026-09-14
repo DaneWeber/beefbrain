@@ -10,9 +10,10 @@ const result = spawnSync('pdflatex', ['--version'], {
 if (result.error || result.status !== 0) {
   console.error('LaTeX compiler check failed: "pdflatex" is not available in PATH.')
   console.error('Install a LaTeX distribution before using bnb PDF generation.')
-  console.error('WSL (Ubuntu/Debian) example -- texlive-latex-base is the whole')
-  console.error('requirement; the templates only load geometry and array:')
-  console.error('  sudo apt install -y texlive-latex-base')
+  console.error('WSL (Ubuntu) example:')
+  console.error(
+    '  sudo apt install -y texlive-latex-base texlive-latex-recommended texlive-fonts-recommended',
+  )
   process.exit(1)
 }
 
