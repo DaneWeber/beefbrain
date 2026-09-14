@@ -249,10 +249,14 @@ function isNonZeroComponent(value: unknown): boolean {
 }
 
 /**
- * Builds one raw LaTeX table row per skill (alphabetical): name, final bonus
+ * Builds one `\skillrow` call per skill (alphabetical): name, final bonus
  * (post-ACP), pre-ACP bonus, and only the non-zero named sources of the
- * bonus. Cell text is escaped individually; the `&`/`\\` structure is left
- * raw for a {{{...}}} template token.
+ * bonus. Cell text is escaped individually; the macro call itself is left raw
+ * for a {{{...}}} template token.
+ *
+ * A macro rather than a bare `&`-separated row because the detailed sheet
+ * gives each skill its own one-row tabular, so a long skills list can break
+ * across columns and pages. Templates using this field define `\skillrow`.
  */
 function buildSkillsTableRows(skills: Record<string, unknown>): string {
   return Object.entries(skills)
@@ -275,7 +279,7 @@ function buildSkillsTableRows(skills: Record<string, unknown>): string {
 
       const name = escapeLatexText(formatTitleKey(skillName))
       const sourcesCell = escapeLatexText(sources)
-      return `${name} & ${formatSigned(total)} & ${formatSigned(preAcp)} & ${sourcesCell} \\\\`
+      return `\\skillrow{${name}}{${formatSigned(total)}}{${formatSigned(preAcp)}}{${sourcesCell}}`
     })
     .join('\n')
 }

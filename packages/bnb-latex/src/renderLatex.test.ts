@@ -68,13 +68,13 @@ describe('renderLatex', () => {
     it('splits a double-ACP skill into final and pre-ACP bonus', () => {
       const latex = renderSkillsTable(VALID_YAML)
       // swim: [-6, {str: 2, acp: -8}] -> final -6, pre-ACP -6 - (-8) = +2
-      expect(latex).toContain('Swim & -6 & +2 & Str +2 \\\\')
+      expect(latex).toContain('\\skillrow{Swim}{-6}{+2}{Str +2}')
     })
 
     it('omits acp and zero-valued components from the source list', () => {
       const latex = renderSkillsTable(VALID_YAML)
       // appraise: [2, {int: 0, ranks: 2}] -> Int is zero, so only Ranks shows
-      expect(latex).toContain('Appraise & +2 & +2 & Ranks +2 \\\\')
+      expect(latex).toContain('\\skillrow{Appraise}{+2}{+2}{Ranks +2}')
     })
 
     it('shows a non-zero item-effect bonus as a named source', () => {
@@ -90,7 +90,7 @@ character:
 `
       const latex = renderSkillsTable(yaml)
       expect(latex).toContain(
-        'Use Magic Device & +19 & +19 & Cha +1, Ranks +13, Magic Ring +5 \\\\',
+        '\\skillrow{Use Magic Device}{+19}{+19}{Cha +1, Ranks +13, Magic Ring +5}',
       )
     })
   })
