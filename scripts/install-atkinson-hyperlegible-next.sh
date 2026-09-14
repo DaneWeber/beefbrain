@@ -2,7 +2,7 @@
 set -euo pipefail
 
 readonly FONT_COMMIT="7925f50f649b3813257faf2f4c0b381011f434f1"
-readonly FONT_BASE_URL="https://raw.githubusercontent.com/google/fonts/${FONT_COMMIT}/ofl/atkinsonhyperlegiblenext"
+readonly FONT_BASE_URL="https://raw.githubusercontent.com/googlefonts/atkinson-hyperlegible-next/${FONT_COMMIT}/fonts/variable"
 readonly FONT_DIR="/usr/local/share/fonts/atkinson-hyperlegible-next"
 
 install -d "$FONT_DIR"
