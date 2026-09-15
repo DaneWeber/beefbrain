@@ -77,6 +77,23 @@ describe('renderLatex', () => {
       expect(latex).toContain('\\skillrow{Appraise}{+2}{+2}{Ranks +2}')
     })
 
+    it('lists ranks without the class breakdown behind them', () => {
+      // The table shows one level of sources: "Ranks +15", not the wizard
+      // levels that bought those ranks.
+      const yaml = `---
+character:
+  abilities:
+    intelligence: [20, int: 5]
+  skills:
+    spellcraft: [22, {int: 5, ranks: [15, wizard: 15], knowledge-arcana-synergy: 2}]
+`
+      const latex = renderSkillsTable(yaml)
+      expect(latex).toContain(
+        '\\skillrow{Spellcraft}{+22}{+22}{Int +5, Ranks +15, Knowledge Arcana Synergy +2}',
+      )
+      expect(latex).not.toContain('Wizard')
+    })
+
     it('renders a .nan total and component as an em-dash', () => {
       // A trained-only skill with no ranks: the character cannot attempt the
       // roll at all, which is not the same as a +0 bonus.
