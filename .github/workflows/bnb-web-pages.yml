@@ -13,7 +13,6 @@ on:
       - "package.json"
       - ".github/workflows/bnb-web-pages.yml"
   pull_request:
-    types: [opened, reopened, synchronize, closed]
     paths:
       - "data/**"
       - "packages/bnb-web/**"
@@ -24,16 +23,16 @@ on:
       - ".github/workflows/bnb-web-pages.yml"
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
-  group: bnb-web-github-pages
+  group: ${{ github.event_name == 'push' && 'github-pages' || format('bnb-web-pages-pr-{0}', github.event.number) }}
   cancel-in-progress: false
 
 jobs:
-  production:
-    if: github.event_name == 'push'
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -52,6 +51,10 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Configure GitHub Pages
+        if: github.event_name == 'push'
+        uses: actions/configure-pages@v5
 
       - name: Build static site
         env:
@@ -62,55 +65,31 @@ jobs:
           pnpm --filter bnb-core --filter bnb-latex build
           pnpm --filter bnb-web build
 
-      - name: Deploy production site
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Upload Pages artifact
+        if: github.event_name == 'push'
+        uses: actions/upload-pages-artifact@v4
         with:
-          branch: gh-pages
-          folder: packages/bnb-web/build
-          clean-exclude: pr-preview
-          force: false
+          path: packages/bnb-web/build
 
-  preview:
-    if: >-
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.head.repo.full_name == github.repository
+      - name: Upload PR review artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bnb-web-pages-pr-${{ github.event.number }}
+          path: packages/bnb-web/build
+          retention-days: 14
+
+  deploy:
+    if: github.event_name == 'push'
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Set up pnpm
-        if: github.event.action != 'closed'
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11.25.0
-
-      - name: Set up Node.js
-        if: github.event.action != 'closed'
-        uses: actions/setup-node@v5
-        with:
-          node-version: "24"
-          cache: pnpm
-
-      - name: Install dependencies
-        if: github.event.action != 'closed'
-        run: pnpm install --frozen-lockfile
-
-      - name: Build PR preview
-        if: github.event.action != 'closed'
-        env:
-          BASE_PATH: /beefbrain/pr-preview/pr-${{ github.event.number }}
-          BNB_READ_ONLY: "true"
-          GITHUB_PAGES: "true"
-        run: |
-          pnpm --filter bnb-core --filter bnb-latex build
-          pnpm --filter bnb-web build
-
-      - name: Deploy or remove PR preview
-        uses: rossjrw/pr-preview-action@v1
-        with:
-          source-dir: packages/bnb-web/build
-          preview-branch: gh-pages
-          umbrella-dir: pr-preview
-          action: auto
-          wait-for-pages-deployment: true
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

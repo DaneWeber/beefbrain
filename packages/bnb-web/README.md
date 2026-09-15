@@ -200,21 +200,18 @@ build still uses the Node adapter; Pages uses the static adapter:
 GITHUB_PAGES=true BNB_READ_ONLY=true BASE_PATH=/beefbrain pnpm --filter bnb-web build
 ```
 
-`.github/workflows/bnb-web-pages.yml` publishes `main` to the root of the `gh-pages` branch and
-same-repository pull requests to `/pr-preview/pr-<number>/`. Preview links are posted on the pull
-request and removed when it closes.
-
-Repository setup required:
-
-1. In **Settings -> Pages**, choose **Deploy from a branch**, then select `gh-pages` and `/(root)`.
-2. In **Settings -> Actions -> General**, allow workflows to use read and write permissions if an
-   organization policy prevents the workflow's declared `contents: write` permission.
+`.github/workflows/bnb-web-pages.yml` uses GitHub's official Pages artifact actions to publish
+`main`. Pull requests run the same static build and retain it as a downloadable workflow artifact
+for 14 days.
 
 GitHub Pages cannot run the Node endpoints. Pages builds are therefore read-only: browsing, view
 switching, DM tables, CSV export, and printing work, while inventory persistence and server-generated
-LaTeX/PDF downloads remain available only from the Node deployment. For security, GitHub does not
-grant write permissions to workflows from forked pull requests, so this workflow creates previews
-only for branches in this repository.
+LaTeX/PDF downloads remain available only from the Node deployment.
+
+GitHub's official `actions/deploy-pages` action has a PR-preview input, but GitHub currently marks it
+private alpha and unavailable to the public. Consequently, Actions-based Pages publishing cannot
+provide simultaneous live environments for individual PRs yet. Enabling live ephemeral URLs later
+will require GitHub to release that feature or using a separate preview hosting service.
 
 ## Current Architecture Issues
 
