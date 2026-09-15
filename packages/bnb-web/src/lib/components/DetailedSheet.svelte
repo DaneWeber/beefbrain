@@ -6,8 +6,14 @@
 	let {
 		character,
 		slug = '',
-		inventoryLocations = []
-	}: { character: Record<string, any>; slug?: string; inventoryLocations?: string[] } = $props();
+		inventoryLocations = [],
+		editable = true
+	}: {
+		character: Record<string, any>;
+		slug?: string;
+		inventoryLocations?: string[];
+		editable?: boolean;
+	} = $props();
 	const desc = $derived(character.description ?? {});
 	const abilities = $derived(character.abilities ?? {});
 	const levels = $derived(character.levels ?? {});
@@ -599,7 +605,7 @@
 	</div>
 
 	<!-- INVENTORY (full width) -->
-	<InventorySection {inventory} {slug} {inventoryLocations} editable />
+	<InventorySection {inventory} {slug} {inventoryLocations} {editable} />
 
 	<!-- NOTES -->
 	{#if Object.keys(notes).length > 0}

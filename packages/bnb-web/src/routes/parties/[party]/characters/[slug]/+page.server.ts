@@ -1,4 +1,5 @@
 import { error, fail } from '@sveltejs/kit';
+import type { Actions } from './$types';
 import {
 	loadCharacter,
 	getSkillPointWarning,
@@ -19,30 +20,30 @@ export async function load({ params }) {
 		skillPointWarning: getSkillPointWarning(data),
 		slug: params.slug,
 		inventoryLocations: locations,
-		latexTemplates: getLatexTemplateOptions()
+		latexTemplates: getLatexTemplateOptions(),
+		readOnly: process.env.BNB_READ_ONLY === 'true'
 	};
 }
 
-export const actions = {
+const nodeActions: Actions = {
 	updateMagicItem: async ({ request, params }) => {
 		const form = await request.formData();
-		const location = form.get('location') as string;
+		const location = String(form.get('location') ?? '');
 		const itemOrderIndex = Number(form.get('itemOrderIndex'));
-		const newName = (form.get('name') as string | null) ?? '';
-		const effectsRaw = (form.get('effects') as string | null) ?? '';
+		const newName = String(form.get('name') ?? '');
+		const effectsRaw = String(form.get('effects') ?? '');
 
 		if (!location || !Number.isFinite(itemOrderIndex)) {
 			return fail(400, { error: 'Invalid form data' });
 		}
 
-		// Parse effects from "key: value\nkey2: value2" format
 		const effects: Record<string, string> = {};
 		for (const line of effectsRaw.split('\n')) {
-			const colonIdx = line.indexOf(':');
-			if (colonIdx === -1) continue;
-			const k = line.slice(0, colonIdx).trim();
-			const v = line.slice(colonIdx + 1).trim();
-			if (k) effects[k] = v;
+			const colonIndex = line.indexOf(':');
+			if (colonIndex === -1) continue;
+			const key = line.slice(0, colonIndex).trim();
+			const value = line.slice(colonIndex + 1).trim();
+			if (key) effects[key] = value;
 		}
 
 		try {
@@ -54,8 +55,8 @@ export const actions = {
 				newName.trim(),
 				effects
 			);
-		} catch (err) {
-			return fail(500, { error: String(err) });
+		} catch (error) {
+			return fail(500, { error: String(error) });
 		}
 
 		const data = await loadCharacter(params.party, params.slug);
@@ -68,8 +69,8 @@ export const actions = {
 
 	moveItem: async ({ request, params }) => {
 		const form = await request.formData();
-		const fromLocation = form.get('fromLocation') as string;
-		const toLocation = form.get('toLocation') as string;
+		const fromLocation = String(form.get('fromLocation') ?? '');
+		const toLocation = String(form.get('toLocation') ?? '');
 		const itemOrderIndex = Number(form.get('itemOrderIndex'));
 
 		if (!fromLocation || !toLocation || !Number.isFinite(itemOrderIndex)) {
@@ -84,8 +85,8 @@ export const actions = {
 				toLocation,
 				itemOrderIndex
 			);
-		} catch (err) {
-			return fail(500, { error: String(err) });
+		} catch (error) {
+			return fail(500, { error: String(error) });
 		}
 
 		const data = await loadCharacter(params.party, params.slug);
@@ -98,3 +99,6 @@ export const actions = {
 		};
 	}
 };
+
+export const actions: Actions | undefined =
+	process.env.GITHUB_PAGES === 'true' ? undefined : nodeActions;

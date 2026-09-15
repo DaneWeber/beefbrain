@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { formatKey, parseSumValue, formatMod } from '$lib/format';
 	import { getSkillAbility } from '$lib/skillCategories';
 	import InventorySpreadsheet from '$lib/components/InventorySpreadsheet.svelte';
@@ -150,7 +151,7 @@
 
 <div class="dm-view">
 	<div class="dm-header no-print">
-		<a href="/parties/{data.party.slug}" class="back-link">&larr; {data.party.name}</a>
+		<a href="{base}/parties/{data.party.slug}" class="back-link">&larr; {data.party.name}</a>
 		<h1>DM View</h1>
 		<button class="print-btn" onclick={() => window.print()}>Print</button>
 	</div>
@@ -191,7 +192,7 @@
 					{#each chars as { character: c, slug }, i}
 						<tr>
 							<td class="name-cell"
-								><a href="/parties/{data.party.slug}/characters/{slug}">{charName(c)}</a></td
+								><a href="{base}/parties/{data.party.slug}/characters/{slug}">{charName(c)}</a></td
 							>
 							<td>{charPlayer(c)}</td>
 							<td>{c.description?.race ?? ''}</td>
@@ -279,7 +280,7 @@
 					{#each chars as { character: c, slug }}
 						<tr>
 							<td class="name-cell"
-								><a href="/parties/{data.party.slug}/characters/{slug}">{charName(c)}</a></td
+								><a href="{base}/parties/{data.party.slug}/characters/{slug}">{charName(c)}</a></td
 							>
 							<td class="num">{v(c.combat?.defense?.ac)}</td>
 							<td class="num">{v(c.combat?.defense?.['touch-ac'])}</td>
