@@ -1,3 +1,15 @@
+/**
+ * Shown where the YAML carries `.nan` (e.g. a trained-only skill with
+ * `no-training: .nan`): the character cannot attempt the roll at all, which is
+ * different from having a +0 bonus.
+ */
+export const NOT_APPLICABLE = '\u2014';
+
+/** True for the number NaN, or the "NaN" string a NaN total stringifies to. */
+function isNotApplicable(val: unknown): boolean {
+	return (typeof val === 'number' && Number.isNaN(val)) || val === 'NaN';
+}
+
 /** Format a hyphenated key to Title Case, preserving +N modifiers */
 export function formatKey(key: string): string {
 	return key
@@ -30,6 +42,11 @@ export function parseSumValue(val: unknown): { total: string; breakdown: Record<
 	return { total, breakdown };
 }
 
+/** A single breakdown component, as text. */
+function formatComponentValue(val: unknown): string {
+	return isNotApplicable(val) ? NOT_APPLICABLE : String(val);
+}
+
 /** Format a breakdown object as a compact string like "str: 6, ranks: 13, acp: -4" */
 export function formatBreakdown(bd: Record<string, unknown>): string {
 	return Object.entries(bd)
@@ -47,23 +64,24 @@ export function formatBreakdown(bd: Record<string, unknown>): string {
 					!Array.isArray(ranksBreakdown)
 				) {
 					const breakdownStr = Object.entries(ranksBreakdown)
-						.map(([cls, pts]) => `${formatKey(cls)}: ${pts}`)
+						.map(([cls, pts]) => `${formatKey(cls)}: ${formatComponentValue(pts)}`)
 						.join(', ');
-					return `${formatKey(k)}: ${ranksTotal} (${breakdownStr})`;
+					return `${formatKey(k)}: ${formatComponentValue(ranksTotal)} (${breakdownStr})`;
 				}
 
 				// Otherwise just show the total
-				return `${formatKey(k)}: ${ranksTotal}`;
+				return `${formatKey(k)}: ${formatComponentValue(ranksTotal)}`;
 			}
 
 			// Default formatting
-			return `${formatKey(k)}: ${v}`;
+			return `${formatKey(k)}: ${formatComponentValue(v)}`;
 		})
 		.join(', ');
 }
 
 /** Format a modifier value with explicit +/- sign */
 export function formatMod(val: number | string): string {
+	if (isNotApplicable(val)) return NOT_APPLICABLE;
 	const n = Number(val);
 	if (isNaN(n)) return String(val);
 	return n >= 0 ? `+${n}` : String(n);
