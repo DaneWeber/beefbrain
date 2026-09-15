@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { formatKey } from '$lib/format';
+	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
-	import { base } from '$app/paths';
-	import { page } from '$app/state';
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let {
@@ -173,26 +172,23 @@
 		return editingItem?.location === item.location && editingItem?.orderIndex === item.orderIndex;
 	}
 
-	async function submitInventory(event: SubmitEvent) {
-		event.preventDefault();
-		submitError = null;
-		const form = event.currentTarget as HTMLFormElement;
-		const response = await fetch(form.action, {
-			method: 'POST',
-			body: new FormData(form)
-		});
-		const result = await response.json().catch(() => null);
-		if (!response.ok) {
-			submitError = result?.error ?? `Inventory update failed (${response.status})`;
-			return;
-		}
-		await invalidateAll();
-		cancelEdit();
+	function enhanceAndRefresh() {
+		return async ({
+			result,
+			update
+		}: {
+			result: { type: string; data?: { error?: string } };
+			update: () => Promise<void>;
+		}) => {
+			await update();
+			if (result.type === 'success') {
+				await invalidateAll();
+				cancelEdit();
+			} else {
+				submitError = result.data?.error ?? 'Inventory update failed';
+			}
+		};
 	}
-
-	const inventoryAction = $derived(
-		`${base}/parties/${page.params.party}/characters/${slug}/inventory`
-	);
 </script>
 
 <section class="inventory-section" class:compact>
@@ -237,11 +233,10 @@
 								{#if editable && isEditing(item)}
 									<form
 										method="POST"
-										action={inventoryAction}
+										action="?/updateMagicItem"
 										class="edit-form"
-										onsubmit={submitInventory}
+										use:enhance={enhanceAndRefresh}
 									>
-										<input type="hidden" name="action" value="updateMagicItem" />
 										<input type="hidden" name="location" value={item.location} />
 										<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
 										<input class="edit-name" name="name" bind:value={editName} />
@@ -259,11 +254,10 @@
 									{#if inventoryLocations.length > 1}
 										<form
 											method="POST"
-											action={inventoryAction}
+											action="?/moveItem"
 											class="move-form"
-											onsubmit={submitInventory}
+											use:enhance={enhanceAndRefresh}
 										>
-											<input type="hidden" name="action" value="moveItem" />
 											<input type="hidden" name="fromLocation" value={item.location} />
 											<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
 											<label class="move-label"
@@ -307,11 +301,10 @@
 						{#if editable && isEditing(item)}
 							<form
 								method="POST"
-								action={inventoryAction}
+								action="?/updateMagicItem"
 								class="edit-form"
-								onsubmit={submitInventory}
+								use:enhance={enhanceAndRefresh}
 							>
-								<input type="hidden" name="action" value="updateMagicItem" />
 								<input type="hidden" name="location" value={item.location} />
 								<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
 								<input class="edit-name" name="name" bind:value={editName} />
@@ -329,11 +322,10 @@
 							{#if inventoryLocations.length > 1}
 								<form
 									method="POST"
-									action={inventoryAction}
+									action="?/moveItem"
 									class="move-form"
-									onsubmit={submitInventory}
+									use:enhance={enhanceAndRefresh}
 								>
-									<input type="hidden" name="action" value="moveItem" />
 									<input type="hidden" name="fromLocation" value={item.location} />
 									<input type="hidden" name="itemOrderIndex" value={item.orderIndex} />
 									<label class="move-label"
