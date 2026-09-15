@@ -284,7 +284,10 @@ function buildSkillsTableRows(skills: Record<string, unknown>): string {
             !key.startsWith('_') && key !== 'acp' && isNonZeroComponent(value),
         ),
       )
-        .map(([key, value]) => formatSkillComponent(key, value, true))
+        // Rank sources (which class bought the ranks) are a level deeper than
+        // this table shows: the sheet lists "Ranks +15", not the wizard levels
+        // behind it.
+        .map(([key, value]) => formatSkillComponent(key, value, false))
         .join(', ')
 
       const name = escapeLatexText(formatTitleKey(skillName))

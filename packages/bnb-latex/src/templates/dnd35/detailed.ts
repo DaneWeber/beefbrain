@@ -7,9 +7,31 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
 \newcolumntype{C}[1]{>{\footnotesize\raggedright\arraybackslash}p{#1}}
-% Shared skills column spec: the header, every row, and the closing rule are
-% separate tabulars, so they only line up as one table if they agree on this.
-\newcolumntype{K}{|L{0.27\linewidth}|R{0.11\linewidth}|R{0.13\linewidth}|C{0.38\linewidth}|}
+
+% Body type size. Sources in the skills table are reference material consulted
+% rarely, so they set at half the body's size AND half its leading: two source
+% lines then occupy exactly one skill line.
+\newlength{\bodysize}      \setlength{\bodysize}{12pt}
+\newlength{\bodyleading}   \setlength{\bodyleading}{14pt}
+\newlength{\sourcesize}    \setlength{\sourcesize}{0.5\bodysize}
+\newlength{\sourceleading} \setlength{\sourceleading}{0.5\bodyleading}
+\newcolumntype{V}[1]{>{\fontsize{\sourcesize}{\sourceleading}\selectfont\raggedright\arraybackslash}p{#1}}
+
+% Skills column widths, in one place because the header, every row, and the
+% closing rule are separate tabulars that only line up as one table if they
+% agree. Measured against the widest content at these sizes, in a 370.4pt
+% column: \wskill (148.2pt) clears the longest skill name, "Knowledge
+% Dungeoneering" at 142.9pt, so no name wraps. \wbonus (40.8pt) clears the
+% widest header word, "Penalty" at 38.8pt. \wsource takes the rest, which wraps
+% the longest source list to the two 6pt lines that fit one 12pt skill row.
+% The four widths plus 26pt of rules and \tabcolsep must stay under \linewidth.
+\newcommand{\wskill}{0.400\linewidth}
+\newcommand{\wbonus}{0.110\linewidth}
+\newcommand{\wsource}{0.309\linewidth}
+% K for the rows, H for the header: same widths, but the header keeps body size
+% rather than shrinking to source size.
+\newcolumntype{K}{|L{\wskill}|R{\wbonus}|R{\wbonus}|V{\wsource}|}
+\newcolumntype{H}{|L{\wskill}|R{\wbonus}|R{\wbonus}|L{\wsource}|}
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{0.8}
 \setlength{\parskip}{2pt}
@@ -20,9 +42,16 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 % \nointerlineskip plus a zero \parskip (set by \skillstable) butts the boxes
 % together so they still read as a continuous grid, while the zero-length
 % \parskip glue between them stays a legal break point.
+% Holds every skill row to exactly one body line. \arraystretch{0.8} would
+% otherwise compress a row to 11.2pt, which is less than the 14pt two 6pt
+% source lines need, so a two-line source list would push its own row taller
+% than its neighbours. With the strut the rows stay uniform and two source
+% lines fit exactly one skill line, which is the point of the half-size source
+% font.
+\newcommand{\skillstrut}{\rule[-0.3\bodyleading]{0pt}{\bodyleading}}
 \newcommand{\skillrow}[4]{%
   \par\nointerlineskip
-  \noindent\begin{tabular}{K}#1 & #2 & #3 & #4 \\\end{tabular}%
+  \noindent\begin{tabular}{K}\skillstrut #1 & #2 & #3 & #4 \\\end{tabular}%
 }
 % A closing \hline needs a row above it, and a row-less tabular renders
 % nothing, so the bottom rule is drawn at the table's own measured width.
@@ -39,7 +68,7 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
   {\endminipage\par}
 
 \begin{document}
-\fontsize{14}{16}\selectfont
+\fontsize{\bodysize}{\bodyleading}\selectfont
 \section*{D\&D 3.5 Primary Character Sheet (Detailed Draft)}
 
 \begin{multicols*}{2}
@@ -116,9 +145,9 @@ Will & {{saves.will}} & {{saves.will.breakdown}} \\
 \columnbreak
 
 \begin{sheetblock}{Skills}
-\begin{tabular}{K}
+\begin{tabular}{H}
 \hline
-\normalsize Skill & Bonus & w/o AC Penalty & Sources \\
+Skill & Bonus & w/o AC Penalty & Sources \\
 \hline
 \end{tabular}
 \end{sheetblock}
