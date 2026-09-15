@@ -16,6 +16,11 @@ import type {
 const DEFAULT_MAX_YAML_BYTES = 256 * 1024
 const DEFAULT_MAX_TEMPLATE_BYTES = 256 * 1024
 
+// `.nan` in the YAML (e.g. `handle-animal: [.nan, {no-training: .nan}]`) means
+// the character cannot attempt the roll at all, which is different from a +0
+// bonus. Both the total and the component render as an em-dash.
+const NOT_APPLICABLE = '\u2014'
+
 const COMPONENT_LABELS: Record<string, string> = {
   str: 'Str',
   dex: 'Dex',
@@ -113,6 +118,9 @@ function formatTitleKey(key: string): string {
 }
 
 function formatSigned(value: unknown): string {
+  if (typeof value === 'number' && Number.isNaN(value)) {
+    return NOT_APPLICABLE
+  }
   const numeric = Number(value)
   if (Number.isFinite(numeric)) {
     return numeric >= 0 ? `+${numeric}` : String(numeric)
@@ -249,17 +257,23 @@ function isNonZeroComponent(value: unknown): boolean {
 }
 
 /**
- * Builds one raw LaTeX table row per skill (alphabetical): name, final bonus
+ * Builds one `\skillrow` call per skill (alphabetical): name, final bonus
  * (post-ACP), pre-ACP bonus, and only the non-zero named sources of the
- * bonus. Cell text is escaped individually; the `&`/`\\` structure is left
- * raw for a {{{...}}} template token.
+ * bonus. Cell text is escaped individually; the macro call itself is left raw
+ * for a {{{...}}} template token.
+ *
+ * A macro rather than a bare `&`-separated row because the detailed sheet
+ * gives each skill its own one-row tabular, so a long skills list can break
+ * across columns and pages. Templates using this field define `\skillrow`.
  */
 function buildSkillsTableRows(skills: Record<string, unknown>): string {
   return Object.entries(skills)
     .filter(([key]) => !key.startsWith('_'))
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([skillName, skillValue]) => {
-      const total = Number(getArrayFirst(skillValue)) || 0
+      // No `|| 0` fallback: a NaN total has to survive to formatSigned so it
+      // renders as an em-dash rather than a bonus the character does not have.
+      const total = Number(getArrayFirst(skillValue))
       const breakdown = extractBreakdown(skillValue)
       const acp = breakdown.acp
       const preAcp = total - (typeof acp === 'number' ? acp : 0)
@@ -270,12 +284,15 @@ function buildSkillsTableRows(skills: Record<string, unknown>): string {
             !key.startsWith('_') && key !== 'acp' && isNonZeroComponent(value),
         ),
       )
-        .map(([key, value]) => formatSkillComponent(key, value, true))
+        // Rank sources (which class bought the ranks) are a level deeper than
+        // this table shows: the sheet lists "Ranks +15", not the wizard levels
+        // behind it.
+        .map(([key, value]) => formatSkillComponent(key, value, false))
         .join(', ')
 
       const name = escapeLatexText(formatTitleKey(skillName))
       const sourcesCell = escapeLatexText(sources)
-      return `${name} & ${formatSigned(total)} & ${formatSigned(preAcp)} & ${sourcesCell} \\\\`
+      return `\\skillrow{${name}}{${formatSigned(total)}}{${formatSigned(preAcp)}}{${sourcesCell}}`
     })
     .join('\n')
 }

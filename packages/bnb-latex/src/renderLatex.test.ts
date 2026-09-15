@@ -68,13 +68,58 @@ describe('renderLatex', () => {
     it('splits a double-ACP skill into final and pre-ACP bonus', () => {
       const latex = renderSkillsTable(VALID_YAML)
       // swim: [-6, {str: 2, acp: -8}] -> final -6, pre-ACP -6 - (-8) = +2
-      expect(latex).toContain('Swim & -6 & +2 & Str +2 \\\\')
+      expect(latex).toContain('\\skillrow{Swim}{-6}{+2}{Str +2}')
     })
 
     it('omits acp and zero-valued components from the source list', () => {
       const latex = renderSkillsTable(VALID_YAML)
       // appraise: [2, {int: 0, ranks: 2}] -> Int is zero, so only Ranks shows
-      expect(latex).toContain('Appraise & +2 & +2 & Ranks +2 \\\\')
+      expect(latex).toContain('\\skillrow{Appraise}{+2}{+2}{Ranks +2}')
+    })
+
+    it('lists ranks without the class breakdown behind them', () => {
+      // The table shows one level of sources: "Ranks +15", not the wizard
+      // levels that bought those ranks.
+      const yaml = `---
+character:
+  abilities:
+    intelligence: [20, int: 5]
+  skills:
+    spellcraft: [22, {int: 5, ranks: [15, wizard: 15], knowledge-arcana-synergy: 2}]
+`
+      const latex = renderSkillsTable(yaml)
+      expect(latex).toContain(
+        '\\skillrow{Spellcraft}{+22}{+22}{Int +5, Ranks +15, Knowledge Arcana Synergy +2}',
+      )
+      expect(latex).not.toContain('Wizard')
+    })
+
+    it('renders a .nan total and component as an em-dash', () => {
+      // A trained-only skill with no ranks: the character cannot attempt the
+      // roll at all, which is not the same as a +0 bonus.
+      const yaml = `---
+character:
+  abilities:
+    charisma: [6, cha: -2]
+  skills:
+    handle-animal: [.nan, {cha: -2, no-training: .nan}]
+`
+      const latex = renderSkillsTable(yaml)
+      expect(latex).toContain(
+        '\\skillrow{Handle Animal}{\u2014}{\u2014}{Cha -2, No Training \u2014}',
+      )
+      expect(latex).not.toContain('NaN')
+    })
+
+    it('still shows a real zero bonus as +0', () => {
+      const yaml = `---
+character:
+  abilities:
+    strength: [10, str: 0]
+  skills:
+    climb: [0, str: 0]
+`
+      expect(renderSkillsTable(yaml)).toContain('\\skillrow{Climb}{+0}{+0}{}')
     })
 
     it('shows a non-zero item-effect bonus as a named source', () => {
@@ -90,7 +135,7 @@ character:
 `
       const latex = renderSkillsTable(yaml)
       expect(latex).toContain(
-        'Use Magic Device & +19 & +19 & Cha +1, Ranks +13, Magic Ring +5 \\\\',
+        '\\skillrow{Use Magic Device}{+19}{+19}{Cha +1, Ranks +13, Magic Ring +5}',
       )
     })
   })

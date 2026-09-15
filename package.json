@@ -21,7 +21,7 @@
     "lint:fix": "pnpm -r lint:fix",
     "format": "pnpm --filter bnb-core --filter bnb-cli format:fix",
     "format:check": "pnpm --filter bnb-core --filter bnb-cli format",
-    "dev": "pnpm --filter bnb-web dev",
+    "dev": "pnpm --filter bnb-core --filter bnb-latex build && pnpm --parallel --filter bnb-core --filter bnb-latex --filter bnb-web run dev",
     "ext:install": "bash scripts/install-bnb-ext.sh",
     "doctor:latex": "node scripts/doctor-latex.js"
   },
