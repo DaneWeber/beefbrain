@@ -16,6 +16,11 @@ import type {
 const DEFAULT_MAX_YAML_BYTES = 256 * 1024
 const DEFAULT_MAX_TEMPLATE_BYTES = 256 * 1024
 
+// `.nan` in the YAML (e.g. `handle-animal: [.nan, {no-training: .nan}]`) means
+// the character cannot attempt the roll at all, which is different from a +0
+// bonus. Both the total and the component render as an em-dash.
+const NOT_APPLICABLE = '\u2014'
+
 const COMPONENT_LABELS: Record<string, string> = {
   str: 'Str',
   dex: 'Dex',
@@ -113,6 +118,9 @@ function formatTitleKey(key: string): string {
 }
 
 function formatSigned(value: unknown): string {
+  if (typeof value === 'number' && Number.isNaN(value)) {
+    return NOT_APPLICABLE
+  }
   const numeric = Number(value)
   if (Number.isFinite(numeric)) {
     return numeric >= 0 ? `+${numeric}` : String(numeric)
@@ -263,7 +271,9 @@ function buildSkillsTableRows(skills: Record<string, unknown>): string {
     .filter(([key]) => !key.startsWith('_'))
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([skillName, skillValue]) => {
-      const total = Number(getArrayFirst(skillValue)) || 0
+      // No `|| 0` fallback: a NaN total has to survive to formatSigned so it
+      // renders as an em-dash rather than a bonus the character does not have.
+      const total = Number(getArrayFirst(skillValue))
       const breakdown = extractBreakdown(skillValue)
       const acp = breakdown.acp
       const preAcp = total - (typeof acp === 'number' ? acp : 0)

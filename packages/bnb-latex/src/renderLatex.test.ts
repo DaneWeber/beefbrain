@@ -77,6 +77,34 @@ describe('renderLatex', () => {
       expect(latex).toContain('\\skillrow{Appraise}{+2}{+2}{Ranks +2}')
     })
 
+    it('renders a .nan total and component as an em-dash', () => {
+      // A trained-only skill with no ranks: the character cannot attempt the
+      // roll at all, which is not the same as a +0 bonus.
+      const yaml = `---
+character:
+  abilities:
+    charisma: [6, cha: -2]
+  skills:
+    handle-animal: [.nan, {cha: -2, no-training: .nan}]
+`
+      const latex = renderSkillsTable(yaml)
+      expect(latex).toContain(
+        '\\skillrow{Handle Animal}{\u2014}{\u2014}{Cha -2, No Training \u2014}',
+      )
+      expect(latex).not.toContain('NaN')
+    })
+
+    it('still shows a real zero bonus as +0', () => {
+      const yaml = `---
+character:
+  abilities:
+    strength: [10, str: 0]
+  skills:
+    climb: [0, str: 0]
+`
+      expect(renderSkillsTable(yaml)).toContain('\\skillrow{Climb}{+0}{+0}{}')
+    })
+
     it('shows a non-zero item-effect bonus as a named source', () => {
       const yaml = `---
 character:
