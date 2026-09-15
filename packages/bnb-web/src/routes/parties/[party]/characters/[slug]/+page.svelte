@@ -1,17 +1,20 @@
 <script lang="ts">
 	import StreamlinedSheet from '$lib/components/StreamlinedSheet.svelte';
 	import DetailedSheet from '$lib/components/DetailedSheet.svelte';
+	import { base } from '$app/paths';
 
-	let { data, form } = $props();
+	let { data } = $props();
 	const character = $derived(data.character);
-	const skillPointWarning = $derived(form?.skillPointWarning ?? data.skillPointWarning);
+	const skillPointWarning = $derived(data.skillPointWarning);
 	const name = $derived(character?.description?.name ?? 'Character');
 	const latexTemplates = $derived(data.latexTemplates ?? []);
 
 	type ViewMode = 'streamlined' | 'detailed';
 	let viewMode: ViewMode = $state('detailed');
 	let selectedLatexTemplate = $state('dnd35-detailed');
-	const sheetExportBase = $derived(`/parties/${data.party.slug}/characters/${data.slug}`);
+	const sheetExportBase = $derived(
+		`${base}/parties/${data.party.slug}/characters/${data.slug}`
+	);
 	const latexDownloadHref = $derived(
 		`${sheetExportBase}/latex?template=${encodeURIComponent(selectedLatexTemplate)}`
 	);
@@ -60,7 +63,7 @@
 </svelte:head>
 
 <div class="page-controls no-print">
-	<a href="/parties/{data.party.slug}" class="back-link">&larr; {data.party.name}</a>
+	<a href="{base}/parties/{data.party.slug}" class="back-link">&larr; {data.party.name}</a>
 	<div class="view-toggle">
 		<button class:active={viewMode === 'streamlined'} onclick={() => (viewMode = 'streamlined')}>
 			Play
@@ -69,17 +72,19 @@
 			Detailed
 		</button>
 	</div>
-	<div class="latex-export">
-		<select bind:value={selectedLatexTemplate}>
-			{#each latexTemplates as template}
-				<option value={template.key}>{template.name}</option>
-			{/each}
-		</select>
-		<a class="latex-link" href={latexDownloadHref}>Download LaTeX</a>
-		<button class="latex-link pdf-btn" onclick={downloadPdf} disabled={pdfPending}>
-			{pdfPending ? 'Generating PDF...' : 'Download PDF'}
-		</button>
-	</div>
+	{#if !data.readOnly}
+		<div class="latex-export">
+			<select bind:value={selectedLatexTemplate}>
+				{#each latexTemplates as template}
+					<option value={template.key}>{template.name}</option>
+				{/each}
+			</select>
+			<a class="latex-link" href={latexDownloadHref}>Download LaTeX</a>
+			<button class="latex-link pdf-btn" onclick={downloadPdf} disabled={pdfPending}>
+				{pdfPending ? 'Generating PDF...' : 'Download PDF'}
+			</button>
+		</div>
+	{/if}
 	<button class="print-btn" onclick={() => window.print()}>Print</button>
 </div>
 
@@ -100,7 +105,12 @@
 {#if viewMode === 'streamlined'}
 	<StreamlinedSheet {character} />
 {:else}
-	<DetailedSheet {character} slug={data.slug} inventoryLocations={data.inventoryLocations} />
+	<DetailedSheet
+		{character}
+		slug={data.slug}
+		inventoryLocations={data.inventoryLocations}
+		editable={!data.readOnly}
+	/>
 {/if}
 
 <style>

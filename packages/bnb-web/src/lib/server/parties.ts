@@ -8,7 +8,7 @@
 
 import { join } from 'node:path';
 
-const DEFAULT_PARTIES_DIR = join(import.meta.dirname, '../../../../../data/parties');
+const DEFAULT_PARTIES_DIR = join(process.cwd(), '../../data/parties');
 
 /**
  * Root directory holding one subdirectory per party. Read lazily so tests can

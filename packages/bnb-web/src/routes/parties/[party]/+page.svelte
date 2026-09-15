@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { base } from '$app/paths';
+
 	let { data } = $props();
 </script>
 
@@ -7,11 +9,11 @@
 </svelte:head>
 
 <div class="character-list">
-	<a href="/" class="back-link">&larr; All Parties</a>
+	<a href="{base}/" class="back-link">&larr; All Parties</a>
 	<h1>{data.party.name}</h1>
 	<div class="cards">
 		{#each data.characters as char}
-			<a href="/parties/{data.party.slug}/characters/{char.slug}" class="card">
+			<a href="{base}/parties/{data.party.slug}/characters/{char.slug}" class="card">
 				<h2>{char.name}</h2>
 				<p class="player">Player: {char.player}</p>
 				<p class="race">{char.race}</p>

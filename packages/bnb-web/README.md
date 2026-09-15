@@ -191,6 +191,31 @@ pnpm build       # Build for production
 pnpm preview     # Preview production build
 ```
 
+## GitHub Pages
+
+The app has a Pages build mode that prerenders the repository's `data/parties` content. The normal
+build still uses the Node adapter; Pages uses the static adapter:
+
+```bash
+GITHUB_PAGES=true BNB_READ_ONLY=true BASE_PATH=/beefbrain pnpm --filter bnb-web build
+```
+
+`.github/workflows/bnb-web-pages.yml` publishes `main` to the root of the `gh-pages` branch and
+same-repository pull requests to `/pr-preview/pr-<number>/`. Preview links are posted on the pull
+request and removed when it closes.
+
+Repository setup required:
+
+1. In **Settings -> Pages**, choose **Deploy from a branch**, then select `gh-pages` and `/(root)`.
+2. In **Settings -> Actions -> General**, allow workflows to use read and write permissions if an
+   organization policy prevents the workflow's declared `contents: write` permission.
+
+GitHub Pages cannot run the Node endpoints. Pages builds are therefore read-only: browsing, view
+switching, DM tables, CSV export, and printing work, while inventory persistence and server-generated
+LaTeX/PDF downloads remain available only from the Node deployment. For security, GitHub does not
+grant write permissions to workflows from forked pull requests, so this workflow creates previews
+only for branches in this repository.
+
 ## Current Architecture Issues
 
 ### 🚨 Critical: Not Using bnb-core

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import favicon from '$lib/assets/favicon.svg';
 	import { goto } from '$app/navigation';
+	import { base } from '$app/paths';
 	import { page } from '$app/state';
 
 	let { data, children } = $props();
@@ -10,7 +11,7 @@
 	function switchParty(event: Event) {
 		const slug = (event.currentTarget as HTMLSelectElement).value;
 		// Character slugs differ between parties, so land on the party index.
-		goto(slug ? `/parties/${slug}` : '/');
+		goto(slug ? `${base}/parties/${slug}` : `${base}/`);
 	}
 </script>
 
@@ -19,7 +20,7 @@
 </svelte:head>
 
 <nav class="no-print">
-	<a href="/" class="nav-brand">Beefbrain</a>
+	<a href="{base}/" class="nav-brand">Beefbrain</a>
 
 	{#if data.parties.length > 0}
 		<label class="party-switcher">
@@ -34,9 +35,15 @@
 	{/if}
 
 	{#if currentParty}
-		<a href="/parties/{currentParty}/dm" class="nav-link">DM View</a>
+		<a href="{base}/parties/{currentParty}/dm" class="nav-link">DM View</a>
 	{/if}
 </nav>
+
+{#if data.readOnly}
+	<div class="preview-banner no-print">
+		GitHub Pages preview: repository data is read-only, and server-generated exports are disabled.
+	</div>
+{/if}
 
 <main>
 	{@render children()}
@@ -98,6 +105,16 @@
 	}
 	main {
 		padding: 0 1.5rem 2rem;
+	}
+	.preview-banner {
+		margin: -0.75rem auto 1.25rem;
+		max-width: 1100px;
+		padding: 0.65rem 1rem;
+		border: 1px solid #d9a400;
+		border-radius: 4px;
+		background: #fff8d6;
+		color: #594400;
+		font-size: 0.9rem;
 	}
 	@media print {
 		nav {

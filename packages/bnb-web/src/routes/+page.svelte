@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { base } from '$app/paths';
+
 	let { data } = $props();
 </script>
 
@@ -15,7 +17,7 @@
 	{:else}
 		<div class="cards">
 			{#each data.parties as party (party.slug)}
-				<a href="/parties/{party.slug}" class="card">
+				<a href="{base}/parties/{party.slug}" class="card">
 					<h2>{party.name}</h2>
 					<p class="count">
 						{party.characterCount}
