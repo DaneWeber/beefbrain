@@ -69,7 +69,6 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 
 \begin{document}
 \fontsize{\bodysize}{\bodyleading}\selectfont
-\section*{D\&D 3.5 Primary Character Sheet (Detailed Draft)}
 
 \begin{multicols*}{2}
 \raggedcolumns
@@ -147,7 +146,7 @@ Will & {{saves.will}} & {{saves.will.breakdown}} \\
 \begin{sheetblock}{Skills}
 \begin{tabular}{H}
 \hline
-Skill & Bonus & w/o AC Penalty & Sources \\
+Skills & Bonus & w/o AC Penalty & Sources \\
 \hline
 \end{tabular}
 \end{sheetblock}
