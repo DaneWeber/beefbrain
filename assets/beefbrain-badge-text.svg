@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" role="img" aria-labelledby="title desc">
+  <title id="title">BeefBrain bnb badge</title>
+  <desc id="desc">A bold geometric bnb monogram.</desc>
+  <defs>
+    <linearGradient id="badge-gradient" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#145A96"/>
+      <stop offset="1" stop-color="#1E9398"/>
+    </linearGradient>
+  </defs>
+  <g fill="url(#badge-gradient)" fill-rule="evenodd" aria-label="bnb">
+    <path d="M8 8h22v26h18l14 14v28L48 92H8Zm22 45v20h12l6-6v-8l-6-6Z"/>
+    <path d="M72 92V45l16-17h24l16 17v47h-23V53l-5-5h-4l-5 5v39Z"/>
+    <path d="M8 8h22v26h18l14 14v28L48 92H8Zm22 45v20h12l6-6v-8l-6-6Z" transform="translate(200) scale(-1 1)"/>
+  </g>
+</svg>
