@@ -1,21 +1,78 @@
 export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \usepackage[landscape, margin=0.25in]{geometry}
 \usepackage{array}
+\usepackage{multicol}
 \usepackage{fontspec}
 \setmainfont{Atkinson Hyperlegible Next}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
 \newcolumntype{C}[1]{>{\footnotesize\raggedright\arraybackslash}p{#1}}
+
+% Body type size. Sources in the skills table are reference material consulted
+% rarely, so they set at half the body's size AND half its leading: two source
+% lines then occupy exactly one skill line.
+\newlength{\bodysize}      \setlength{\bodysize}{12pt}
+\newlength{\bodyleading}   \setlength{\bodyleading}{14pt}
+\newlength{\sourcesize}    \setlength{\sourcesize}{0.5\bodysize}
+\newlength{\sourceleading} \setlength{\sourceleading}{0.5\bodyleading}
+\newcolumntype{V}[1]{>{\fontsize{\sourcesize}{\sourceleading}\selectfont\raggedright\arraybackslash}p{#1}}
+
+% Skills column widths, in one place because the header, every row, and the
+% closing rule are separate tabulars that only line up as one table if they
+% agree. Measured against the widest content at these sizes, in a 370.4pt
+% column: \wskill (148.2pt) clears the longest skill name, "Knowledge
+% Dungeoneering" at 142.9pt, so no name wraps. \wbonus (40.8pt) clears the
+% widest header word, "Penalty" at 38.8pt. \wsource takes the rest, which wraps
+% the longest source list to the two 6pt lines that fit one 12pt skill row.
+% The four widths plus 26pt of rules and \tabcolsep must stay under \linewidth.
+\newcommand{\wskill}{0.400\linewidth}
+\newcommand{\wbonus}{0.110\linewidth}
+\newcommand{\wsource}{0.309\linewidth}
+% K for the rows, H for the header: same widths, but the header keeps body size
+% rather than shrinking to source size.
+\newcolumntype{K}{|L{\wskill}|R{\wbonus}|R{\wbonus}|V{\wsource}|}
+\newcolumntype{H}{|L{\wskill}|R{\wbonus}|R{\wbonus}|L{\wsource}|}
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{0.8}
 \setlength{\parskip}{2pt}
-\begin{document}
-\fontsize{14}{16}\selectfont
-\section*{D\&D 3.5 Primary Character Sheet (Detailed Draft)}
+\setlength{\columnsep}{18pt}
 
-\noindent
-\begin{minipage}[t]{0.47\linewidth}
-\noindent\textbf{Character Description}\\[1pt]
+% One skill per one-row tabular. A single tabular is one unbreakable box, so a
+% long skills list could not flow to the next column or page; this stack can.
+% \nointerlineskip plus a zero \parskip (set by \skillstable) butts the boxes
+% together so they still read as a continuous grid, while the zero-length
+% \parskip glue between them stays a legal break point.
+% Holds every skill row to exactly one body line. \arraystretch{0.8} would
+% otherwise compress a row to 11.2pt, which is less than the 14pt two 6pt
+% source lines need, so a two-line source list would push its own row taller
+% than its neighbours. With the strut the rows stay uniform and two source
+% lines fit exactly one skill line, which is the point of the half-size source
+% font.
+\newcommand{\skillstrut}{\rule[-0.3\bodyleading]{0pt}{\bodyleading}}
+\newcommand{\skillrow}[4]{%
+  \par\nointerlineskip
+  \noindent\begin{tabular}{K}\skillstrut #1 & #2 & #3 & #4 \\\end{tabular}%
+}
+% A closing \hline needs a row above it, and a row-less tabular renders
+% nothing, so the bottom rule is drawn at the table's own measured width.
+\newsavebox{\skillrulebox}
+\newcommand{\skillrule}{%
+  \sbox{\skillrulebox}{\begin{tabular}{K}\\\end{tabular}}%
+  \par\nointerlineskip\noindent\rule{\wd\skillrulebox}{\arrayrulewidth}}
+\newenvironment{skillstable}{\par\setlength{\parskip}{0pt}}{\skillrule\par}
+% Each labelled block is a single box, so a column break can land between two
+% blocks but never between a label and the table it names. \\* is not enough
+% here: multicol splits with \vsplit, which broke at the label anyway.
+\newenvironment{sheetblock}[1]{%
+  \par\noindent\minipage{\linewidth}\noindent\textbf{#1}\\[1pt]}%
+  {\endminipage\par}
+
+\begin{document}
+\fontsize{\bodysize}{\bodyleading}\selectfont
+
+\begin{multicols*}{2}
+\raggedcolumns
+\begin{sheetblock}{Character Description}
 \begin{tabular}{|L{0.19\linewidth}|L{0.26\linewidth}|L{0.19\linewidth}|L{0.26\linewidth}|}
 \hline
 Name & {{character.name}} & Player & {{character.player}} \\
@@ -27,8 +84,9 @@ Weight & {{character.weight}} & Eyes & {{character.eyes}} \\
 Hair & {{character.hair}} & Build & {{character.build}} \\
 \hline
 \end{tabular}
+\end{sheetblock}
 
-\noindent\textbf{Abilities}\\[1pt]
+\begin{sheetblock}{Abilities}
 \begin{tabular}{|L{0.32\linewidth}|R{0.29\linewidth}|R{0.29\linewidth}|}
 \hline
 Ability & Score & Mod \\
@@ -41,8 +99,9 @@ WIS & {{abilities.wisdom.score}} & {{abilities.wisdom.mod}} \\
 CHA & {{abilities.charisma.score}} & {{abilities.charisma.mod}} \\
 \hline
 \end{tabular}
+\end{sheetblock}
 
-\noindent\textbf{Combat Snapshot}\\[1pt]
+\begin{sheetblock}{Combat Snapshot}
 \begin{tabular}{|L{0.20\linewidth}|R{0.11\linewidth}|C{0.58\linewidth}|}
 \hline
 Field & Final & \normalsize Components \\
@@ -56,11 +115,12 @@ Initiative & {{combat.initiative}} & {{combat.initiative.breakdown}} \\
 Speed & {{movement.speed}} & {{movement.speed.breakdown}} \\
 \hline
 \end{tabular}
+\end{sheetblock}
 
 \footnotesize\textbf{Defense Special:} {{combat.defenseSpecial}} \\
 \textbf{Run:} {{movement.run}} \quad \textbf{Max Dex:} {{combat.maxDex}}\normalsize \\
 
-\noindent\textbf{Saves}\\[1pt]
+\begin{sheetblock}{Saves}
 \begin{tabular}{|L{0.20\linewidth}|R{0.11\linewidth}|C{0.58\linewidth}|}
 \hline
 Save & Final & \normalsize Components \\
@@ -70,26 +130,30 @@ Reflex & {{saves.reflex}} & {{saves.reflex.breakdown}} \\
 Will & {{saves.will}} & {{saves.will.breakdown}} \\
 \hline
 \end{tabular}
+\end{sheetblock}
 
-\noindent\textbf{Encounter Notes}\\[1pt]
+\begin{sheetblock}{Encounter Notes}
 \begin{tabular}{|L{0.95\linewidth}|}
 \hline
 \rule{0pt}{1.0em}Conditions, temporary effects, and in-combat adjustments: \\
 \\
 \hline
 \end{tabular}
-\end{minipage}%
-\hfill
-\begin{minipage}[t]{0.47\linewidth}
-\noindent\textbf{Skills}\\[1pt]
-\begin{tabular}{|L{0.27\linewidth}|R{0.11\linewidth}|R{0.13\linewidth}|C{0.38\linewidth}|}
+\end{sheetblock}
+
+\columnbreak
+
+\begin{sheetblock}{Skills}
+\begin{tabular}{H}
 \hline
-Skill & Final & Pre-ACP & \normalsize Sources \\
-\hline
-{{{skills.detailedTable}}}
+Skills & Bonus & w/o AC Penalty & Sources \\
 \hline
 \end{tabular}
-\end{minipage}
+\end{sheetblock}
+\begin{skillstable}
+{{{skills.detailedTable}}}
+\end{skillstable}
+\end{multicols*}
 
 \newpage
 \section*{Inventory Sheet (Detailed Draft)}
