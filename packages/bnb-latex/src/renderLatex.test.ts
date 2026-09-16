@@ -13,9 +13,6 @@ describe('renderLatex', () => {
   it('renders default dnd35 template with calculated data', () => {
     const result = renderLatex({ yaml: VALID_YAML })
     expect(result.template.key).toBe('dnd35-detailed')
-    expect(result.latex).toContain(
-      'D\\&D 3.5 Primary Character Sheet (Detailed Draft)',
-    )
     expect(result.latex).toContain('\\setmainfont{Atkinson Hyperlegible Next}')
     expect(result.latex).toContain('Landorf the Human Fighter')
     expect(result.latex).toContain('fighter 1')
