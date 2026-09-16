@@ -191,6 +191,28 @@ pnpm build       # Build for production
 pnpm preview     # Preview production build
 ```
 
+## GitHub Pages
+
+The app has a Pages build mode that prerenders the repository's `data/parties` content. The normal
+build still uses the Node adapter; Pages uses the static adapter:
+
+```bash
+GITHUB_PAGES=true BNB_READ_ONLY=true BASE_PATH=/beefbrain pnpm --filter bnb-web build
+```
+
+`.github/workflows/bnb-web-pages.yml` uses GitHub's official Pages artifact actions to publish
+`main`. Pull requests run the same static build and retain it as a downloadable workflow artifact
+for 14 days.
+
+GitHub Pages cannot run the Node endpoints. Pages builds are therefore read-only: browsing, view
+switching, DM tables, CSV export, and printing work, while inventory persistence and server-generated
+LaTeX/PDF downloads remain available only from the Node deployment.
+
+GitHub's official `actions/deploy-pages` action has a PR-preview input, but GitHub currently marks it
+private alpha and unavailable to the public. Consequently, Actions-based Pages publishing cannot
+provide simultaneous live environments for individual PRs yet. Enabling live ephemeral URLs later
+will require GitHub to release that feature or using a separate preview hosting service.
+
 ## Current Architecture Issues
 
 ### 🚨 Critical: Not Using bnb-core

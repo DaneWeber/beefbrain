@@ -1,0 +1,95 @@
+name: bnb-web GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "data/**"
+      - "packages/bnb-web/**"
+      - "packages/bnb-core/**"
+      - "packages/bnb-latex/**"
+      - "pnpm-lock.yaml"
+      - "package.json"
+      - ".github/workflows/bnb-web-pages.yml"
+  pull_request:
+    paths:
+      - "data/**"
+      - "packages/bnb-web/**"
+      - "packages/bnb-core/**"
+      - "packages/bnb-latex/**"
+      - "pnpm-lock.yaml"
+      - "package.json"
+      - ".github/workflows/bnb-web-pages.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: ${{ github.event_name == 'push' && 'github-pages' || format('bnb-web-pages-pr-{0}', github.event.number) }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure GitHub Pages
+        if: github.event_name == 'push'
+        uses: actions/configure-pages@v5
+
+      - name: Build static site
+        env:
+          BASE_PATH: /beefbrain
+          BNB_READ_ONLY: "true"
+          GITHUB_PAGES: "true"
+        run: |
+          pnpm --filter bnb-core --filter bnb-latex build
+          pnpm --filter bnb-web build
+
+      - name: Upload Pages artifact
+        if: github.event_name == 'push'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: packages/bnb-web/build
+
+      - name: Upload PR review artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bnb-web-pages-pr-${{ github.event.number }}
+          path: packages/bnb-web/build
+          retention-days: 14
+
+  deploy:
+    if: github.event_name == 'push'
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

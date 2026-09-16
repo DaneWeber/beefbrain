@@ -154,6 +154,7 @@
 	let editingItem: { location: string; orderIndex: number } | null = $state(null);
 	let editName = $state('');
 	let editEffects = $state('');
+	let submitError: string | null = $state(null);
 
 	function startEdit(item: SlottedItem) {
 		editingItem = { location: item.location, orderIndex: item.orderIndex };
@@ -176,13 +177,15 @@
 			result,
 			update
 		}: {
-			result: { type: string };
+			result: { type: string; data?: { error?: string } };
 			update: () => Promise<void>;
 		}) => {
 			await update();
 			if (result.type === 'success') {
 				await invalidateAll();
 				cancelEdit();
+			} else {
+				submitError = result.data?.error ?? 'Inventory update failed';
 			}
 		};
 	}
@@ -190,6 +193,9 @@
 
 <section class="inventory-section" class:compact>
 	<h2>Inventory</h2>
+	{#if submitError}
+		<p class="submit-error" role="alert">{submitError}</p>
+	{/if}
 	{#if inventory.money}
 		<div class="money-row">
 			<span class="label">Money</span>
@@ -411,6 +417,13 @@
 <style>
 	.inventory-section {
 		margin-bottom: 0.75rem;
+	}
+	.submit-error {
+		padding: 0.5rem 0.75rem;
+		border: 1px solid #b42318;
+		border-radius: 4px;
+		background: #fef3f2;
+		color: #b42318;
 	}
 	h2 {
 		font-size: 1rem;
