@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 320" role="img" aria-labelledby="title desc">
+  <title id="title">bnb - Beef &amp; Brains</title>
+  <desc id="desc">The Beef &amp; Brains shield and geometric wordmark in a blue-to-teal gradient.</desc>
+  <defs>
+    <linearGradient id="brand-gradient" x1="35" y1="285" x2="900" y2="30" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#123d82"/>
+      <stop offset="0.52" stop-color="#167ca1"/>
+      <stop offset="1" stop-color="#20beb2"/>
+    </linearGradient>
+    <symbol id="glyph-b" viewBox="0 0 40 60">
+      <path fill-rule="evenodd" d="M0 0h25l11 9v15l-6 5 8 6v15L27 60H0V0Zm10 9v16h14l3-4v-8l-4-4H10Zm0 25v17h15l4-4v-9l-5-4H10Z"/>
+    </symbol>
+    <symbol id="glyph-e" viewBox="0 0 40 60">
+      <path d="M0 0h38v10H10v14h24v10H10v16h28v10H0V0Z"/>
+    </symbol>
+    <symbol id="glyph-f" viewBox="0 0 40 60">
+      <path d="M0 0h38v10H10v16h24v10H10v24H0V0Z"/>
+    </symbol>
+    <symbol id="glyph-a" viewBox="0 0 40 60">
+      <path fill-rule="evenodd" d="M15 0h10l15 60H29l-3-14H14l-3 14H0L15 0Zm5 16-4 20h8l-4-20Z"/>
+    </symbol>
+    <symbol id="glyph-r" viewBox="0 0 40 60">
+      <path fill-rule="evenodd" d="M0 0h25l12 10v18l-8 7 11 25H28L18 38h-8v22H0V0Zm10 10v18h13l4-4V14l-4-4H10Z"/>
+    </symbol>
+    <symbol id="glyph-i" viewBox="0 0 40 60">
+      <path d="M0 0h40v10H25v40h15v10H0V50h15V10H0V0Z"/>
+    </symbol>
+    <symbol id="glyph-n" viewBox="0 0 40 60">
+      <path d="M0 0h10l20 38V0h10v60H30L10 22v38H0V0Z"/>
+    </symbol>
+    <symbol id="glyph-s" viewBox="0 0 40 60">
+      <path d="M10 0h30v10H13l-3 4v9l4 4h16l10 9v14L30 60H0V50h27l3-4v-6l-4-4H10L0 27V10L10 0Z"/>
+    </symbol>
+    <symbol id="glyph-amp" viewBox="0 0 40 60">
+      <path fill-rule="evenodd" d="M10 0h18l9 8v12l-10 10 6 7 7-8v15l-1 1 9 10-8 7-8-9-7 7H9L0 51V37l10-10-6-8V8l6-8Zm5 9-2 2v6l7 7 8-8v-5l-3-2H15ZM16 34l-7 7v6l4 4h8l5-5-10-12Z"/>
+    </symbol>
+  </defs>
+  <g fill="url(#brand-gradient)">
+    <path
+      fill-rule="evenodd"
+      d="M145 15 260 72v78c0 61-37 96-115 132C67 246 30 211 30 150V72L145 15Zm0 37L65 92v58c0 41 22 65 80 94 58-29 80-53 80-94V92l-80-40Z"
+    />
+    <path d="M110 89h63c21 0 33 13 33 34v18h-20v-18c0-9-5-14-14-14h-4v69c0 11 4 19 14 27h-82c-19 0-31-11-31-30v-14h20v-47c0-15 8-25 21-25Zm-21 92c2 3 6 5 11 5h50c-1-2-1-3-1-5H89Z"/>
+    <path fill="#fff" d="M109 126h39v8h-39zm0 18h39v8h-39zm0 19h39v8h-39z"/>
+    <path
+      fill-rule="evenodd"
+      d="M300 28h48v76l58-36 81 51v108l-81 51-106-66V28Zm106 88-58 36v36l58 36 34-22v-58l-34-22Zm118-38h48v26l58-36 81 51v135h-48V144l-33-22-58 36v96h-48V78Zm224-50h48v76l58-36 81 51v108l-81 51-106-66V28Zm106 88-58 36v36l58 36 34-22v-58l-34-22Z"
+    />
+  </g>
+  <g fill="#12314d">
+    <use href="#glyph-b" x="321" y="276" width="23" height="35"/>
+    <use href="#glyph-e" x="349" y="276" width="23" height="35"/>
+    <use href="#glyph-e" x="377" y="276" width="23" height="35"/>
+    <use href="#glyph-f" x="405" y="276" width="23" height="35"/>
+    <use href="#glyph-amp" x="447" y="276" width="23" height="35"/>
+    <use href="#glyph-b" x="489" y="276" width="23" height="35"/>
+    <use href="#glyph-r" x="517" y="276" width="23" height="35"/>
+    <use href="#glyph-a" x="545" y="276" width="23" height="35"/>
+    <use href="#glyph-i" x="573" y="276" width="23" height="35"/>
+    <use href="#glyph-n" x="601" y="276" width="23" height="35"/>
+    <use href="#glyph-s" x="629" y="276" width="23" height="35"/>
+  </g>
+</svg>
