@@ -175,6 +175,42 @@ Basic Playwright setup exists. Example test in `src/routes/demo/playwright/`
 
 **Needs**: Full workflow coverage
 
+#### Debugging e2e tests in the DevContainer
+
+The container has no X server, so anything that opens a window fails with
+"Looks like you launched a headed browser without having a XServer running."
+That rules out `--headed`, and it ruled out `--debug` until Playwright grew a
+terminal-driven debugger. Use the entry points that stay headless:
+
+```bash
+pnpm test:e2e:debug    # pauses the run, then attach from a second terminal
+pnpm test:e2e:ui       # Playwright UI mode, served on forwarded port 8123
+pnpm test:e2e:report   # last HTML report + trace viewer, on forwarded port 9323
+```
+
+`test:e2e:debug` uses `--debug cli`. It pauses at the first statement and prints
+a session id; open a second integrated terminal and drive it from there:
+
+```bash
+pnpm exec playwright cli attach <id>          # e.g. tw-97ccf0
+pnpm exec playwright cli --s=<id> step-over
+pnpm exec playwright cli --s=<id> snapshot
+pnpm exec playwright cli --s=<id> resume
+```
+
+(Playwright's own hint says to run `playwright-cli attach <id>`; that is the
+internal bin name. From the repo it is the `cli` subcommand, as above.)
+
+`test:e2e:ui` and `test:e2e:report` serve a web UI instead of opening one. VS
+Code forwards both ports (see `.devcontainer/devcontainer.json`), so open the
+printed URL in the host's browser. The config records a trace, video, and
+screenshot for every test, so the report is usually enough on its own.
+
+`pnpm test:e2e:headed` and `pnpm test:e2e:debug:inspector` need a real display
+and only work outside the container -- or inside it if you give it one, e.g. by
+adding `ghcr.io/devcontainers/features/desktop-lite:1` (Xvfb plus noVNC on port
+6080, host-OS agnostic) or by forwarding X11 to XQuartz on a Mac.
+
 ### Run All Tests
 
 ```bash

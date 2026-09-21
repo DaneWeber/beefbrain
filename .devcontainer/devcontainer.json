@@ -43,6 +43,23 @@
 		"source=beefbrain-claude-config,target=/home/node/.claude,type=volume",
 		"source=beefbrain-playwright-browsers,target=/home/node/.cache/ms-playwright,type=volume"
 	],
+	// The e2e debugging entry points that work without an X server serve their UI
+	// over HTTP instead of opening a window: `pnpm test:e2e:ui` (Playwright's UI
+	// mode) and `pnpm test:e2e:report` (the HTML report, which embeds the trace
+	// viewer). Listed explicitly so they are forwarded even when VS Code's
+	// auto-detection misses them -- open them in the host's browser.
+	"forwardPorts": [
+		8123,
+		9323
+	],
+	"portsAttributes": {
+		"8123": {
+			"label": "Playwright UI mode"
+		},
+		"9323": {
+			"label": "Playwright HTML report"
+		}
+	},
 	"remoteEnv": {
 		"CLAUDE_CONFIG_DIR": "/home/node/.claude",
 		// Already Playwright's default location, but naming it explicitly keeps
