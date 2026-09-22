@@ -17,3 +17,4 @@ jest.config.js
 .vscode-test.js
 **/*.map
 **/*.ts
+run-e2e.mjs

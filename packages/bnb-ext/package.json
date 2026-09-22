@@ -79,7 +79,7 @@
     "compile": "tsc --noEmit",
     "compile:test": "tsc -p tsconfig.test.json",
     "test": "vitest run src/core",
-    "test:e2e": "vscode-test",
+    "test:e2e": "node run-e2e.mjs",
     "pretest:e2e": "pnpm run build && pnpm run compile:test",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

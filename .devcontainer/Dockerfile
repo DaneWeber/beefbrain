@@ -46,3 +46,21 @@ RUN apt-get update \
 ARG PLAYWRIGHT_VERSION=1.62.1
 RUN npx --yes playwright-core@${PLAYWRIGHT_VERSION} install-deps chromium \
 	&& rm -rf /var/lib/apt/lists/* /root/.npm
+
+# `pnpm --filter bnb-ext test:e2e` downloads a real VS Code build and launches
+# it, so it needs Electron's shared libraries and a virtual display. The
+# Playwright layer above already covers most of the overlap (libnss3, libgbm1,
+# libdrm2, libxkbcommon0, and xvfb itself), which leaves three gaps:
+#   - libgtk-3-0  Electron links against GTK 3; headless chromium does not, so
+#                 Playwright's dep list dropped it. Without this the download
+#                 dies with "libgtk-3.so.0: cannot open shared object file".
+#   - libxss1     the X screensaver extension, on VS Code's own dep list but
+#                 not chromium's.
+#   - xauth       xvfb-run refuses to start without it ("xauth command not
+#                 found"); the xvfb package does not pull it in.
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		libgtk-3-0 \
+		libxss1 \
+		xauth \
+	&& rm -rf /var/lib/apt/lists/*
