@@ -75,6 +75,36 @@ suite('bnb-ext extension', () => {
     }
   })
 
+  test('surrounds a selection when typing brackets or quotes', async () => {
+    // Without a language-configuration.json contributing surroundingPairs,
+    // typing over a selection replaces it instead of wrapping it.
+    const document = await vscode.workspace.openTextDocument({
+      language: 'bnb-yaml',
+      content: 'name: Ryan\n',
+    })
+    const editor = await vscode.window.showTextDocument(document)
+    const ryan = new vscode.Selection(0, 6, 0, 10)
+
+    for (const [typed, expected] of [
+      ['"', 'name: "Ryan"\n'],
+      ["'", "name: 'Ryan'\n"],
+      ['{', 'name: {Ryan}\n'],
+      ['[', 'name: [Ryan]\n'],
+      ['(', 'name: (Ryan)\n'],
+    ]) {
+      editor.selection = ryan
+      await vscode.commands.executeCommand('type', { text: typed })
+
+      assert.strictEqual(
+        document.getText(),
+        expected,
+        `typing ${typed} should surround the selection`,
+      )
+
+      await vscode.commands.executeCommand('undo')
+    }
+  })
+
   test('formats and calculates a .bnb.yaml document via the format command', async () => {
     const fixturePath = path.resolve(
       __dirname,

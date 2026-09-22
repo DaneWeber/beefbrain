@@ -50,4 +50,5 @@ jobs:
         run: pnpm --filter bnb-ext format
 
       - name: Run bnb-ext end-to-end extension tests
-        run: xvfb-run -a pnpm --filter bnb-ext test:e2e
+        # test:e2e supplies its own virtual display -- see run-e2e.mjs.
+        run: pnpm --filter bnb-ext test:e2e

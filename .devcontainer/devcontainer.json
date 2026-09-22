@@ -41,7 +41,8 @@
 	// and they're ~650MB.
 	"mounts": [
 		"source=beefbrain-claude-config,target=/home/node/.claude,type=volume",
-		"source=beefbrain-playwright-browsers,target=/home/node/.cache/ms-playwright,type=volume"
+		"source=beefbrain-playwright-browsers,target=/home/node/.cache/ms-playwright,type=volume",
+		"source=projectname-bashhistory,target=/commandhistory,type=volume"
 	],
 	"remoteEnv": {
 		"CLAUDE_CONFIG_DIR": "/home/node/.claude",
@@ -53,7 +54,9 @@
 		"vscode": {
 			"extensions": [
 				"ms-playwright.playwright",
-				"svelte.svelte-vscode"
+				"svelte.svelte-vscode",
+				"github.vscode-github-actions",
+				"dbaeumer.vscode-eslint"
 			]
 		}
 	}
