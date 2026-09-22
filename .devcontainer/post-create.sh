@@ -32,6 +32,14 @@ sudo chown -R node:node /home/node/.claude
 sudo mkdir -p "$BROWSERS_PATH"
 sudo chown -R node:node "$BROWSERS_PATH"
 
+# Docker also creates any *parent* directory it has to invent in order to place
+# a mount, and those are root-owned too. /home/node/.cache exists only because
+# the ms-playwright volume above is mounted inside it, so nothing else can
+# write there: `pnpm --filter bnb-ext test:e2e` logs EACCES for Electron's mesa
+# shader cache and for VS Code's ~/.cache/Microsoft telemetry directory. Not
+# recursive -- the volume's own contents are handled above.
+sudo chown node:node /home/node/.cache
+
 # Same problem, different owner: the claude-code devcontainer feature installs
 # into npm's global prefix as root, so Claude Code's own updater can't replace
 # the package. Background updates fail with "no_permissions" and the CLI goes
