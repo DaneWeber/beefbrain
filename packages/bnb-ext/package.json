@@ -40,7 +40,8 @@
         "extensions": [
           ".bnb.yaml",
           ".bnb.yml"
-        ]
+        ],
+        "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
