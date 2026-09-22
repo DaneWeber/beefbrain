@@ -46,7 +46,9 @@ character:
         bow-of-the-wintermoon: [19, 1d8+6, x3, {_: 18, enhancement: 1}, {str: 5, enhancement: 1}, [longbow, composite, 110ft]]
         dagger-throw: [18, 1d4+5, 19-20/x2, _: 18, str: 5, [dagger, 10ft/50ft]]
       grapple: [21, {bab: 12, str: 5, improved-grapple: 4}]
-      full-attack-two-weapon: main +10/+5/+0 offhand +10/+5/+0
+      full-attack:
+        natural-and-two-light-weapons: {main: +10/+5/+0, offhand: +10/+5/+0, helm: +7}
+        helm-and-two-sickles: {main: +10/+5/+0, offhand: +10/+5/+0, helm: +7}
       sneak-attack: +2d6
     defense:
       ac: [29, {base: 10, armor: 9, shield: 1, deflection: 1, natural: 2, dex: 6}]
