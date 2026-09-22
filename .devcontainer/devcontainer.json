@@ -53,7 +53,9 @@
 		"vscode": {
 			"extensions": [
 				"ms-playwright.playwright",
-				"svelte.svelte-vscode"
+				"svelte.svelte-vscode",
+				"github.vscode-github-actions",
+				"dbaeumer.vscode-eslint"
 			]
 		}
 	}
