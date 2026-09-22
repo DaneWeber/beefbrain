@@ -36,6 +36,9 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm --filter bnb-web exec playwright install --with-deps chromium
 
+      - name: Build bnb-core and bnb-latex (dependencies)
+        run: pnpm --filter bnb-core --filter bnb-latex build
+
       - name: Run bnb-web Playwright tests
         run: pnpm --filter bnb-web test:e2e
 

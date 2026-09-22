@@ -304,6 +304,7 @@ volume, so a rebuild re-uses the ~650MB rather than re-downloading it.
 rebuild, which is a no-op once the volume is warm.
 
 ```bash
+pnpm test:e2e                             # every suite, from the project root
 pnpm --filter bnb-web test:e2e            # headless (the default)
 pnpm --filter bnb-web test:e2e:headed     # watch it in a real browser window
 pnpm --filter bnb-web test:e2e:debug      # step through with the Inspector
@@ -311,8 +312,19 @@ pnpm --filter bnb-web test:e2e:ui         # time-travel debugger
 pnpm --filter bnb-web test:e2e:install    # retry, if deferred setup's install failed
 ```
 
-Each of those builds `bnb-core` and `bnb-latex` first, so you're never debugging
-against a stale `dist/`.
+Building `bnb-core` and `bnb-latex` is the caller's job, not each suite's. The
+root `pnpm test:e2e` does it once (`pnpm test:e2e:build`) and then runs the
+bnb-web and bnb-ext suites; the headed, `--debug`, and `--ui` variants above
+still build the two themselves, since nothing else runs alongside them.
+
+That split matters: `tsdown` cleans `dist/` before it writes, so a suite that
+rebuilds a shared package can delete `bnb-core/dist` out from under a suite
+running next to it. pnpm runs bnb-web and bnb-ext concurrently -- they are
+siblings, with no dependency to order them -- and bnb-ext's build would fail
+with `Could not resolve "bnb-core"` partway through. Hence one build up front.
+
+When you run `pnpm --filter bnb-web test:e2e` on its own, run
+`pnpm test:e2e:build` from the root first if `dist/` may be stale.
 
 The headed, `--debug`, and `--ui` variants open a real window and so need an X
 server. Under VS Code you get one for free: the Dev Containers extension
