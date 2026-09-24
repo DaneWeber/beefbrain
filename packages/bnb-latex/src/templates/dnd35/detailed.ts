@@ -20,10 +20,8 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 % varwidth, which defines V.
 \newcolumntype{Q}[1]{>{\fontsize{\sourcesize}{\sourceleading}\selectfont\raggedright\arraybackslash}p{#1}}
 
-% Skills column widths, in one place because the header, every row, and the
-% closing rule are separate tabulars that only line up as one table if they
-% agree. Measured against the widest content at these sizes, in a 370.4pt
-% column: \wskill (148.2pt) clears the longest skill name, "Knowledge
+% Skills column widths, measured against the widest content at these sizes, in
+% a 370.4pt column: \wskill (148.2pt) clears the longest skill name, "Knowledge
 % Dungeoneering" at 142.9pt, so no name wraps. \wbonus (40.8pt) clears the
 % widest header word, "Penalty" at 38.8pt. \wsource takes the rest, which wraps
 % the longest source list to the two 6pt lines that fit one 12pt skill row.
@@ -31,35 +29,20 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \newcommand{\wskill}{0.400\linewidth}
 \newcommand{\wbonus}{0.110\linewidth}
 \newcommand{\wsource}{0.309\linewidth}
-% K for the rows, H for the header: same widths, but the header keeps body size
-% rather than shrinking to source size.
 \newcolumntype{K}{|L{\wskill}|R{\wbonus}|R{\wbonus}|Q{\wsource}|}
-\newcolumntype{H}{|L{\wskill}|R{\wbonus}|R{\wbonus}|L{\wsource}|}
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{0.8}
 \setlength{\parskip}{2pt}
 \setlength{\columnsep}{18pt}
 
-% One skill per one-row tabular. \nointerlineskip plus a zero \parskip (set by
-% \skillstable) butts the boxes together so they read as a continuous grid.
-% Holds every skill row to exactly one body line. \arraystretch{0.8} would
-% otherwise compress a row to 11.2pt, which is less than the 14pt two 6pt
-% source lines need, so a two-line source list would push its own row taller
-% than its neighbours. With the strut the rows stay uniform and two source
-% lines fit exactly one skill line, which is the point of the half-size source
-% font.
+% One table row per skill. The strut holds every row to exactly one body line.
+% \arraystretch{0.8} would otherwise compress a row to 11.2pt, which is less
+% than the 14pt two 6pt source lines need, so a two-line source list would push
+% its own row taller than its neighbours. With the strut the rows stay uniform
+% and two source lines fit exactly one skill line, which is the point of the
+% half-size source font.
 \newcommand{\skillstrut}{\rule[-0.3\bodyleading]{0pt}{\bodyleading}}
-\newcommand{\skillrow}[4]{%
-  \par\nointerlineskip
-  \noindent\begin{tabular}{K}\skillstrut #1 & #2 & #3 & #4 \\\end{tabular}%
-}
-% A closing \hline needs a row above it, and a row-less tabular renders
-% nothing, so the bottom rule is drawn at the table's own measured width.
-\newsavebox{\skillrulebox}
-\newcommand{\skillrule}{%
-  \sbox{\skillrulebox}{\begin{tabular}{K}\\\end{tabular}}%
-  \par\nointerlineskip\noindent\rule{\wd\skillrulebox}{\arrayrulewidth}}
-\newenvironment{skillstable}{\par\setlength{\parskip}{0pt}}{\skillrule\par}
+\newcommand{\skillrow}[4]{\skillstrut #1 & #2 & #3 & #4 \\}
 % Each labelled block is a single box, so a column break can land between two
 % blocks but never between a label and the table it names. \\* is not enough
 % here: multicol splits with \vsplit, which broke at the label anyway.
@@ -144,19 +127,18 @@ Will & {{saves.will}} & {{saves.will.breakdown}} \\
 \columnbreak
 
 % The whole skills list stays in the right column: at natural size when it
-% fits, scaled down uniformly (header included, so it still lines up) when a
-% character has more skills than one column holds. max totalheight only ever
-% shrinks.
+% fits, scaled down uniformly when a character has more skills than one column
+% holds. max totalheight only ever shrinks.
 \begin{adjustbox}{max totalheight=\textheight}
 \begin{sheetblock}{Skills}
-\begin{tabular}{H}
+\begin{tabular}{K}
 \hline
-Skills & Bonus & w/o AC Penalty & Sources \\
+% The header keeps body size rather than shrinking to source size.
+Skills & Bonus & w/o AC Penalty & \multicolumn{1}{L{\wsource}|}{Sources} \\
+\hline
+{{{skills.detailedTable}}}
 \hline
 \end{tabular}
-\begin{skillstable}
-{{{skills.detailedTable}}}
-\end{skillstable}
 \end{sheetblock}
 \end{adjustbox}
 \end{multicols*}
