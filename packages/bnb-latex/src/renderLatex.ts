@@ -262,9 +262,9 @@ function isNonZeroComponent(value: unknown): boolean {
  * bonus. Cell text is escaped individually; the macro call itself is left raw
  * for a {{{...}}} template token.
  *
- * A macro rather than a bare `&`-separated row because the detailed sheet
- * gives each skill its own one-row tabular, so a long skills list can break
- * across columns and pages. Templates using this field define `\skillrow`.
+ * A macro rather than a bare `&`-separated row so the template owns the row
+ * markup (the detailed sheet adds a strut to hold rows to one line). Templates
+ * using this field define `\skillrow`.
  */
 function buildSkillsTableRows(skills: Record<string, unknown>): string {
   return Object.entries(skills)

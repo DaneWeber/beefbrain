@@ -19,6 +19,7 @@ RUN apt-get update \
 		fontconfig \
 		texlive-latex-base \
 		texlive-latex-recommended \
+		texlive-latex-extra \
 		texlive-luatex \
 	&& install -d /usr/local/share/fonts/atkinson-hyperlegible-next \
 	&& curl --fail --location --silent --show-error \

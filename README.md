@@ -267,7 +267,7 @@ split across four places by how well each one caches:
 
 | Where | What | Cost on rebuild |
 | --- | --- | --- |
-| `.devcontainer/Dockerfile` | `texlive-latex-base`, Chromium's shared libraries | none -- Docker reuses the layers |
+| `.devcontainer/Dockerfile` | TeX Live (`lualatex`, `adjustbox`), Chromium's shared libraries | none -- Docker reuses the layers |
 | devcontainer `features` | pnpm, Claude Code, gh, pnpm-store | none -- also cached layers |
 | `.devcontainer/post-create.sh` | `chown` of the named-volume mounts | ~a second |
 | `.devcontainer/deferred-setup.sh` | Chromium download, `pnpm ext:install` | off the critical path -- runs detached |
@@ -359,7 +359,7 @@ LaTeX compiler (`lualatex`) and the Atkinson Hyperlegible Next system font.
 
 ```bash
 sudo apt update
-sudo apt install -y fontconfig texlive-latex-base texlive-latex-recommended texlive-luatex
+sudo apt install -y fontconfig texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-luatex
 sudo bash scripts/install-atkinson-hyperlegible-next.sh
 pnpm doctor:latex
 ```
