@@ -26,9 +26,14 @@ on:
       - "scripts/install-atkinson-hyperlegible-next.sh"
       - ".github/workflows/bnb-latex-prs.yml"
 
+permissions:
+  contents: read
+
 jobs:
   test-and-generate:
     runs-on: ubuntu-latest
+    outputs:
+      pdfs: ${{ steps.list-pdfs.outputs.pdfs }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -74,9 +79,96 @@ jobs:
           done < <(find data -type f \( -name '*.bnb.yaml' -o -name '*.bnb.yml' \) -print0 | sort -z)
           ls -lah artifacts/latex
 
+      - name: List generated PDFs
+        id: list-pdfs
+        # Each PDF gets a flat, unique file name (e.g. parties--beefy-boys--don-cade.pdf)
+        # because unzipped artifacts are named after the uploaded file.
+        run: |
+          pdfs=$(cd artifacts/latex && find . -type f -name '*.pdf' | sed 's|^\./||' | sort \
+            | jq -R -s -c 'split("\n") | map(select(length > 0)) | map({path: ., name: gsub("/"; "--")})')
+          echo "pdfs=$pdfs" >> "$GITHUB_OUTPUT"
+
       - name: Upload generated character sheets
         uses: actions/upload-artifact@v7
         with:
           name: bnb-latex-character-sheets
           path: artifacts/latex
           if-no-files-found: error
+
+  upload-pdfs:
+    if: github.event_name == 'pull_request'
+    needs: test-and-generate
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pdf: ${{ fromJSON(needs.test-and-generate.outputs.pdfs) }}
+    steps:
+      - name: Download generated character sheets
+        uses: actions/download-artifact@v8
+        with:
+          name: bnb-latex-character-sheets
+          path: sheets
+
+      - name: Stage PDF
+        env:
+          PDF_PATH: ${{ matrix.pdf.path }}
+          PDF_NAME: ${{ matrix.pdf.name }}
+        run: |
+          mkdir -p staged
+          cp "sheets/$PDF_PATH" "staged/$PDF_NAME"
+
+      - name: Upload PDF without zipping
+        uses: actions/upload-artifact@v7
+        with:
+          path: staged/${{ matrix.pdf.name }}
+          archive: false
+          overwrite: true
+          if-no-files-found: error
+
+  comment-pdf-links:
+    # Fork PRs get a read-only token, so they can't comment.
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    needs: upload-pdfs
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      pull-requests: write
+    steps:
+      - name: Post or update PR comment with PDF links
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          marker='<!-- bnb-latex-pdf-links -->'
+
+          links=$(gh api --paginate "repos/$GH_REPO/actions/runs/$RUN_ID/artifacts" \
+            --jq '.artifacts[] | select(.name | endswith(".pdf")) | "\(.name)\t\(.id)"' \
+            | sort | while IFS=$'\t' read -r name id; do
+                echo "- [${name//--//}](${RUN_URL}/artifacts/${id})"
+              done)
+
+          body=$(cat <<EOF
+          $marker
+          ### 📄 Generated character sheets
+
+          Built from ${HEAD_SHA::7} in [this run](${RUN_URL}):
+
+          $links
+
+          All \`.tex\` and \`.pdf\` files are also in the \`bnb-latex-character-sheets\` artifact. You need to be signed in to GitHub to download them.
+          EOF
+          )
+
+          comment_id=$(gh api --paginate "repos/$GH_REPO/issues/$PR_NUMBER/comments" \
+            --jq "[.[] | select(.user.login == \"github-actions[bot]\" and (.body | startswith(\"$marker\")))][0].id // empty" \
+            | head -n1)
+
+          if [[ -n "$comment_id" ]]; then
+            gh api -X PATCH "repos/$GH_REPO/issues/comments/$comment_id" -f body="$body" > /dev/null
+          else
+            gh api -X POST "repos/$GH_REPO/issues/$PR_NUMBER/comments" -f body="$body" > /dev/null
+          fi
