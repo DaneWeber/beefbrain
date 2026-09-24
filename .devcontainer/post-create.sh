@@ -50,6 +50,10 @@ if [ -d "$CLAUDE_CODE_PKG" ]; then
 	sudo chown -R node:npm "$CLAUDE_CODE_PKG"
 fi
 
+# Tell git that this directory is safe even though it's owned
+# by a host user.
+git config --global --add safe.directory "${REPO_ROOT}"
+
 # Hand the rest off to a detached process and return immediately.
 #
 # setsid + </dev/null + redirected output is what actually detaches it: without
