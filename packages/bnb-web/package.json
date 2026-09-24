@@ -21,7 +21,7 @@
 		"test:vite": "vitest run",
 		"test:all": "pnpm run test:vite && pnpm run test:e2e",
 		"test:e2e:build": "pnpm --filter bnb-core build && pnpm --filter bnb-latex build",
-		"test:e2e": "pnpm run test:e2e:build && pnpm run test:browser && playwright test",
+		"test:e2e": "pnpm run test:browser && playwright test",
 		"test:e2e:headed": "pnpm run test:e2e:build && playwright test --headed",
 		"test:e2e:debug": "pnpm run test:e2e:build && playwright test --debug",
 		"test:e2e:ui": "pnpm run test:e2e:build && playwright test --ui",

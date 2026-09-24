@@ -17,6 +17,8 @@
     "test": "pnpm -r test",
     "test:watch": "pnpm -r test:watch",
     "test:coverage": "pnpm -r test:coverage",
+    "test:e2e:build": "pnpm --filter bnb-core --filter bnb-latex build",
+    "test:e2e": "pnpm run test:e2e:build && pnpm --filter bnb-web --filter bnb-ext test:e2e",
     "lint": "pnpm -r lint",
     "lint:fix": "pnpm -r lint:fix",
     "format": "pnpm --filter bnb-core --filter bnb-cli format:fix",

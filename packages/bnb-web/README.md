@@ -171,6 +171,12 @@ pnpm test:e2e         # Component tests + all e2e tests
 Matches `**/*.e2e.{ts,js}`. Because this step already requires Chromium, it runs
 `test:browser` first, then the Playwright suite.
 
+It does _not_ build `bnb-core` and `bnb-latex` -- the caller does, so that the
+root `pnpm test:e2e` can build them once and run this suite alongside bnb-ext's
+without the two rebuilds colliding. Run `pnpm test:e2e:build` (here, or from the
+root) first if their `dist/` may be stale. The `test:e2e:headed`, `:debug`, and
+`:ui` variants still build both, since they only ever run on their own.
+
 Basic Playwright setup exists. Example test in `src/routes/demo/playwright/`
 
 **Needs**: Full workflow coverage
