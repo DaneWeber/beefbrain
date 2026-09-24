@@ -2,6 +2,7 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \usepackage[landscape, margin=0.25in]{geometry}
 \usepackage{array}
 \usepackage{multicol}
+\usepackage{adjustbox}
 \usepackage{fontspec}
 \setmainfont{Atkinson Hyperlegible Next}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
@@ -15,7 +16,9 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \newlength{\bodyleading}   \setlength{\bodyleading}{14pt}
 \newlength{\sourcesize}    \setlength{\sourcesize}{0.5\bodysize}
 \newlength{\sourceleading} \setlength{\sourceleading}{0.5\bodyleading}
-\newcolumntype{V}[1]{>{\fontsize{\sourcesize}{\sourceleading}\selectfont\raggedright\arraybackslash}p{#1}}
+% Q because the obvious letters are taken: array defines W, and adjustbox loads
+% varwidth, which defines V.
+\newcolumntype{Q}[1]{>{\fontsize{\sourcesize}{\sourceleading}\selectfont\raggedright\arraybackslash}p{#1}}
 
 % Skills column widths, in one place because the header, every row, and the
 % closing rule are separate tabulars that only line up as one table if they
@@ -30,18 +33,15 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \newcommand{\wsource}{0.309\linewidth}
 % K for the rows, H for the header: same widths, but the header keeps body size
 % rather than shrinking to source size.
-\newcolumntype{K}{|L{\wskill}|R{\wbonus}|R{\wbonus}|V{\wsource}|}
+\newcolumntype{K}{|L{\wskill}|R{\wbonus}|R{\wbonus}|Q{\wsource}|}
 \newcolumntype{H}{|L{\wskill}|R{\wbonus}|R{\wbonus}|L{\wsource}|}
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{0.8}
 \setlength{\parskip}{2pt}
 \setlength{\columnsep}{18pt}
 
-% One skill per one-row tabular. A single tabular is one unbreakable box, so a
-% long skills list could not flow to the next column or page; this stack can.
-% \nointerlineskip plus a zero \parskip (set by \skillstable) butts the boxes
-% together so they still read as a continuous grid, while the zero-length
-% \parskip glue between them stays a legal break point.
+% One skill per one-row tabular. \nointerlineskip plus a zero \parskip (set by
+% \skillstable) butts the boxes together so they read as a continuous grid.
 % Holds every skill row to exactly one body line. \arraystretch{0.8} would
 % otherwise compress a row to 11.2pt, which is less than the 14pt two 6pt
 % source lines need, so a two-line source list would push its own row taller
@@ -143,16 +143,22 @@ Will & {{saves.will}} & {{saves.will.breakdown}} \\
 
 \columnbreak
 
+% The whole skills list stays in the right column: at natural size when it
+% fits, scaled down uniformly (header included, so it still lines up) when a
+% character has more skills than one column holds. max totalheight only ever
+% shrinks.
+\begin{adjustbox}{max totalheight=\textheight}
 \begin{sheetblock}{Skills}
 \begin{tabular}{H}
 \hline
 Skills & Bonus & w/o AC Penalty & Sources \\
 \hline
 \end{tabular}
-\end{sheetblock}
 \begin{skillstable}
 {{{skills.detailedTable}}}
 \end{skillstable}
+\end{sheetblock}
+\end{adjustbox}
 \end{multicols*}
 
 \newpage

@@ -34,7 +34,7 @@ For WSL (Ubuntu):
 
 ```bash
 sudo apt update
-sudo apt install -y fontconfig texlive-latex-base texlive-latex-recommended texlive-luatex
+sudo apt install -y fontconfig texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-luatex
 sudo bash scripts/install-atkinson-hyperlegible-next.sh
 ```
 
