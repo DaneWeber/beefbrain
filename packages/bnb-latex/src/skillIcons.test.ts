@@ -45,7 +45,7 @@ describe('DND35_DETAILED_TEMPLATE icons', () => {
   // the first (icon) argument of the page 1 row macros.
   const templateIcons = [
     ...DND35_DETAILED_TEMPLATE.matchAll(
-      /\\(?:emoji|rowicon|statrow|abilityrow)\{([a-z-]+)\}/g,
+      /\\(?:emoji|rowicon|inlineicon|statrow|abilityrow)\{([a-z-]+)\}/g,
     ),
     ...DND35_DETAILED_TEMPLATE.matchAll(
       // A \descrow's second icon follows the first value, `{ {{token}} }`.

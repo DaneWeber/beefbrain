@@ -51,6 +51,25 @@ describe('renderLatex', () => {
     expect(result.latex).toContain('Appraise')
   })
 
+  it('renders the detailed sheet without emoji as its own template', () => {
+    const plain = renderLatex({
+      yaml: VALID_YAML,
+      templateKey: 'dnd35-detailed-plain',
+    })
+    const withEmoji = renderLatex({
+      yaml: VALID_YAML,
+      templateKey: 'dnd35-detailed',
+    })
+    expect(plain.template.key).toBe('dnd35-detailed-plain')
+    expect(plain.latex).toContain('\\sheetemojifalse')
+    expect(plain.latex).not.toContain('\\sheetemojitrue')
+    expect(withEmoji.latex).toContain('\\sheetemojitrue')
+    // The switch is the only difference between the two.
+    expect(plain.latex.replace('\\sheetemojifalse', '\\sheetemojitrue')).toBe(
+      withEmoji.latex,
+    )
+  })
+
   describe('skills.detailedTable', () => {
     const renderSkillsTable = (yaml: string) =>
       renderLatex({ yaml, templateContent: '{{{skills.detailedTable}}}' }).latex

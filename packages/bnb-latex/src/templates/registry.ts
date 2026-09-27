@@ -1,4 +1,7 @@
-import { DND35_DETAILED_TEMPLATE } from './dnd35/detailed'
+import {
+  DND35_DETAILED_PLAIN_TEMPLATE,
+  DND35_DETAILED_TEMPLATE,
+} from './dnd35/detailed'
 import { DND35_SPELLCASTER_TEMPLATE } from './dnd35/spellcaster'
 import { DND35_STREAMLINED_TEMPLATE } from './dnd35/streamlined'
 import type { LatexTemplateKey, TemplateInfo } from '../types'
@@ -16,6 +19,14 @@ const TEMPLATE_REGISTRY: Record<LatexTemplateKey, TemplateRecord> = {
       description: 'Expanded combat summary with saves and movement details.',
     },
     template: DND35_DETAILED_TEMPLATE,
+  },
+  'dnd35-detailed-plain': {
+    info: {
+      key: 'dnd35-detailed-plain',
+      name: 'D&D 3.5 Detailed (no emoji)',
+      description: 'The detailed sheet without emoji icons.',
+    },
+    template: DND35_DETAILED_PLAIN_TEMPLATE,
   },
   'dnd35-streamlined': {
     info: {

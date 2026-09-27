@@ -1,3 +1,8 @@
+// The emoji switch. The plain variant flips this one line, so both sheets
+// stay the same template.
+const EMOJI_ON = String.raw`\sheetemojitrue`
+const EMOJI_OFF = String.raw`\sheetemojifalse`
+
 export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \usepackage[landscape, margin=0.25in]{geometry}
 \usepackage{array}
@@ -8,10 +13,18 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \usepackage[table]{xcolor}
 \usepackage{fontspec}
 \setmainfont{Atkinson Hyperlegible Next}
-% Color emoji beside each item on page 1. Needs LuaLaTeX and the Noto Color Emoji
-% system font (Debian/Ubuntu: fonts-noto-color-emoji).
-\usepackage{emoji}
-\setemojifont{Noto Color Emoji}
+% Color emoji beside each item on page 1 and each skill. Needs LuaLaTeX and
+% the Noto Color Emoji system font (Debian/Ubuntu: fonts-noto-color-emoji).
+% With the switch off (the plain sheet) the package is not loaded, so neither
+% is the font, and every icon macro below prints nothing.
+\newif\ifsheetemoji
+${EMOJI_ON}
+\ifsheetemoji
+  \usepackage{emoji}
+  \setemojifont{Noto Color Emoji}
+\else
+  \newcommand{\emoji}[1]{}
+\fi
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
 \newcolumntype{C}[1]{>{\footnotesize\raggedright\arraybackslash}p{#1}}
@@ -59,9 +72,12 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \newlength{\rowpad} \setlength{\rowpad}{3pt}
 \newcommand{\rowstrut}{\rule[\dimexpr-0.3\bodyleading-0.5\rowpad\relax]{0pt}{\dimexpr\bodyleading+\rowpad\relax}}
 % The icon sits in a fixed-width box so labels line up whether or not a row
-% has an icon (#1 is an \emoji name, or empty). A 12pt emoji is 14.9pt wide,
+% has an icon (#1 is an \emoji name, or empty); on the plain sheet it takes
+% no room at all. A 12pt emoji is 14.9pt wide,
 % so 1.4em (16.8pt) leaves a small gap before the label.
-\newcommand{\rowicon}[1]{\makebox[1.4em][l]{\if\relax\detokenize{#1}\relax\else\emoji{#1}\fi}}
+\newcommand{\rowicon}[1]{\ifsheetemoji\makebox[1.4em][l]{\if\relax\detokenize{#1}\relax\else\emoji{#1}\fi}\fi}
+% An icon inline in running text, with its gap before the label.
+\newcommand{\inlineicon}[1]{\ifsheetemoji\emoji{#1}\,\fi}
 % Sources are centred on the row's vertical middle (0.2\bodyleading above the
 % baseline, from the strut), so one or two source lines sit inside the row
 % rather than hanging from its top edge. An m column would centre too, but it
@@ -128,7 +144,7 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \newcommand{\slotheader}{\stackheader{J}{\textbf{Slot} & \textbf{Equipped}}}
 \newcommand{\slotitem}[2]{#1\if\relax\detokenize{#2}\relax\else\ {\footnotesize(#2)}\fi}
 \newcommand{\slotcells}[3]{%
-  #1\ifnum#2=1 \ \emoji{warning}\fi &
+  #1\ifnum#2=1 \ \ifsheetemoji\emoji{warning}\else\textbf{(!)}\fi\fi &
   \if\relax\detokenize{#3}\relax\textcolor{black!40}{\textemdash}\else #3\fi}
 \newcommand{\slotrow}[3]{\stackbody{J}{\slotcells{#1}{#2}{#3}}\nobreak}
 % #1 label ("Slotless" on the first row only), #2 the \slotitem.
@@ -208,8 +224,8 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \end{sheetblock}
 
 \begin{blocknote}
-\footnotesize\emoji{nazar-amulet}\,\textbf{Defense Special:} {{combat.defenseSpecial}} \\
-\emoji{running-shoe}\,\textbf{Run:} {{movement.run}} \quad \emoji{safety-vest}\,\textbf{Max Dex:} {{combat.maxDex}}
+\footnotesize\inlineicon{nazar-amulet}\textbf{Defense Special:} {{combat.defenseSpecial}} \\
+\inlineicon{running-shoe}\textbf{Run:} {{movement.run}} \quad \inlineicon{safety-vest}\textbf{Max Dex:} {{combat.maxDex}}
 \end{blocknote}
 \blockrule
 \begin{sheetblock}{Saves}
@@ -315,3 +331,10 @@ Level & Total Slots & Used & Prepared / Changes \\
 \end{tabular}
 \end{document}
 `
+
+// The same sheet with every emoji left out, for players who would rather not
+// have them. It needs no emoji font.
+export const DND35_DETAILED_PLAIN_TEMPLATE = DND35_DETAILED_TEMPLATE.replace(
+  EMOJI_ON,
+  EMOJI_OFF,
+)
