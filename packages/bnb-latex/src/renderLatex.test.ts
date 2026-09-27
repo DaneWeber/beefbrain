@@ -142,6 +142,50 @@ character:
       )
     })
   })
+  describe('page 1 sources', () => {
+    const renderField = (yaml: string, field: string) =>
+      renderLatex({ yaml, templateContent: `{{${field}}}` }).latex
+
+    const yaml = `---
+character:
+  abilities:
+    strength: [20, str: 5, {base: 12, orc: 4, belt-enhancement: 4}]
+    dexterity: [16, dex: 3]
+  levels:
+    hp: [11, {max-hp: 11, damage: 0}]
+  combat:
+    defense:
+      ac: [18, {base: 10, armor: 5, dex: 3}]
+    saves:
+      will: [0, {}]
+`
+
+    it('lists what an ability score is built from, base unsigned', () => {
+      expect(renderField(yaml, 'abilities.strength.sources')).toBe(
+        'Base 12, Orc +4, Belt Enhancement +4',
+      )
+    })
+
+    it('shows no sources for a bare ability score', () => {
+      expect(renderField(yaml, 'abilities.dexterity.sources')).toBe('')
+    })
+
+    it('signs ability modifiers', () => {
+      expect(renderField(yaml, 'abilities.strength.mod')).toBe('+5')
+    })
+
+    it('drops zero components from a breakdown', () => {
+      expect(renderField(yaml, 'combat.hp.sources')).toBe('Max HP +11')
+      expect(renderField(yaml, 'combat.ac.sources')).toBe(
+        'Dex +3, Base 10, Armor +5',
+      )
+    })
+
+    it('shows nothing, not "none", for an empty breakdown', () => {
+      expect(renderField(yaml, 'saves.will.sources')).toBe('')
+    })
+  })
+
   describe('inventory tables', () => {
     const renderField = (yaml: string, field: string) =>
       renderLatex({ yaml, templateContent: `{{{${field}}}}` }).latex

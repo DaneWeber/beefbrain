@@ -35,6 +35,7 @@ const COMPONENT_LABELS: Record<string, string> = {
   acp: 'ACP',
   bab: 'BAB',
   base: 'Base',
+  'max-hp': 'Max HP',
   class: 'Class',
   racial: 'Racial',
   armor: 'Armor',
@@ -195,6 +196,60 @@ function formatBreakdown(value: unknown): string {
     .map(([key, componentValue]) => {
       return `${formatComponentKey(key)} ${formatSigned(componentValue)}`
     })
+    .join(', ')
+}
+
+// A `base` component is the value the others adjust (AC 10, speed 30, an
+// ability's rolled score), so it reads unsigned: "Base 10, Armor +5".
+function formatSource(key: string, value: unknown): string {
+  const shown = key === 'base' ? String(value) : formatSigned(value)
+  return `${formatComponentKey(key)} ${shown}`
+}
+
+/**
+ * The named sources of a value, as the detailed sheet lists them beside a
+ * total: the same component order and labels as formatBreakdown, but zero
+ * components are dropped (HP's `damage: 0`) and nothing is shown when no
+ * source is left, matching the skills table.
+ */
+function formatSources(value: unknown): string {
+  return sortComponentEntries(
+    Object.entries(extractBreakdown(value)).filter(
+      ([key, componentValue]) =>
+        !key.startsWith('_') && isNonZeroComponent(componentValue),
+    ),
+  )
+    .map(([key, componentValue]) => formatSource(key, componentValue))
+    .join(', ')
+}
+
+// An ability's modifier, signed like every other bonus on the sheet ("+4").
+// Ability data is `[score, {mod}, ...]`.
+function formatAbilityMod(value: unknown): string {
+  const mod = getFirstRecordValue(Array.isArray(value) ? value[1] : undefined)
+  return mod === '' ? '' : formatSigned(mod)
+}
+
+/**
+ * What an ability score is built from. Ability data is
+ * `[score, {mod}, {sources}?]`, and index 1 is the modifier, not a source, so
+ * only the records after it count, in the order the data lists them.
+ */
+function formatAbilitySources(value: unknown): string {
+  if (!Array.isArray(value)) {
+    return ''
+  }
+  const sources: Record<string, unknown> = {}
+  for (const item of value.slice(2)) {
+    Object.assign(sources, toRecord(item))
+  }
+  return Object.entries(sources)
+    .filter(
+      ([key, sourceValue]) =>
+        !key.startsWith('_') &&
+        (key === 'base' || isNonZeroComponent(sourceValue)),
+    )
+    .map(([key, sourceValue]) => formatSource(key, sourceValue))
     .join(', ')
 }
 
@@ -714,60 +769,62 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'character.level': getCharacterLevel(hpContainer),
 
     'abilities.strength.score': getArrayFirst(abilities.strength),
-    'abilities.strength.mod': getFirstRecordValue(
-      (abilities.strength as unknown[] | undefined)?.[1] as
-        Record<string, unknown> | undefined,
-    ),
+    'abilities.strength.sources': formatAbilitySources(abilities.strength),
+    'abilities.strength.mod': formatAbilityMod(abilities.strength),
     'abilities.dexterity.score': getArrayFirst(abilities.dexterity),
-    'abilities.dexterity.mod': getFirstRecordValue(
-      (abilities.dexterity as unknown[] | undefined)?.[1] as
-        Record<string, unknown> | undefined,
-    ),
+    'abilities.dexterity.sources': formatAbilitySources(abilities.dexterity),
+    'abilities.dexterity.mod': formatAbilityMod(abilities.dexterity),
     'abilities.constitution.score': getArrayFirst(abilities.constitution),
-    'abilities.constitution.mod': getFirstRecordValue(
-      (abilities.constitution as unknown[] | undefined)?.[1] as
-        Record<string, unknown> | undefined,
+    'abilities.constitution.sources': formatAbilitySources(
+      abilities.constitution,
     ),
+    'abilities.constitution.mod': formatAbilityMod(abilities.constitution),
     'abilities.intelligence.score': getArrayFirst(abilities.intelligence),
-    'abilities.intelligence.mod': getFirstRecordValue(
-      (abilities.intelligence as unknown[] | undefined)?.[1] as
-        Record<string, unknown> | undefined,
+    'abilities.intelligence.sources': formatAbilitySources(
+      abilities.intelligence,
     ),
+    'abilities.intelligence.mod': formatAbilityMod(abilities.intelligence),
     'abilities.wisdom.score': getArrayFirst(abilities.wisdom),
-    'abilities.wisdom.mod': getFirstRecordValue(
-      (abilities.wisdom as unknown[] | undefined)?.[1] as
-        Record<string, unknown> | undefined,
-    ),
+    'abilities.wisdom.sources': formatAbilitySources(abilities.wisdom),
+    'abilities.wisdom.mod': formatAbilityMod(abilities.wisdom),
     'abilities.charisma.score': getArrayFirst(abilities.charisma),
-    'abilities.charisma.mod': getFirstRecordValue(
-      (abilities.charisma as unknown[] | undefined)?.[1] as
-        Record<string, unknown> | undefined,
-    ),
+    'abilities.charisma.sources': formatAbilitySources(abilities.charisma),
+    'abilities.charisma.mod': formatAbilityMod(abilities.charisma),
 
     'combat.hp': getArrayFirst(hpContainer.hp),
     'combat.hp.breakdown': formatBreakdown(hpContainer.hp),
+    'combat.hp.sources': formatSources(hpContainer.hp),
     'combat.ac': getArrayFirst(defense.ac),
     'combat.ac.breakdown': formatBreakdown(defense.ac),
+    'combat.ac.sources': formatSources(defense.ac),
     'combat.touchAc': getArrayFirst(defense['touch-ac']),
     'combat.touchAc.breakdown': formatBreakdown(defense['touch-ac']),
+    'combat.touchAc.sources': formatSources(defense['touch-ac']),
     'combat.flatFootedAc': getArrayFirst(defense['flat-footed-ac']),
     'combat.flatFootedAc.breakdown': formatBreakdown(defense['flat-footed-ac']),
+    'combat.flatFootedAc.sources': formatSources(defense['flat-footed-ac']),
     'combat.acp': getArrayFirst(defense.acp),
     'combat.acp.breakdown': formatBreakdown(defense.acp),
+    'combat.acp.sources': formatSources(defense.acp),
     'combat.maxDex': getArrayFirst(defense['max-dex']),
     'combat.initiative': getArrayFirst(combat.initiative),
     'combat.initiative.breakdown': formatBreakdown(combat.initiative),
+    'combat.initiative.sources': formatSources(combat.initiative),
     'combat.defenseSpecial': String(defense.special ?? 'None'),
 
     'saves.fortitude': getArrayFirst(savesContainer.fortitude),
     'saves.fortitude.breakdown': formatBreakdown(savesContainer.fortitude),
+    'saves.fortitude.sources': formatSources(savesContainer.fortitude),
     'saves.reflex': getArrayFirst(savesContainer.reflex),
     'saves.reflex.breakdown': formatBreakdown(savesContainer.reflex),
+    'saves.reflex.sources': formatSources(savesContainer.reflex),
     'saves.will': getArrayFirst(savesContainer.will),
     'saves.will.breakdown': formatBreakdown(savesContainer.will),
+    'saves.will.sources': formatSources(savesContainer.will),
 
     'movement.speed': getArrayFirst(movement.speed),
     'movement.speed.breakdown': formatBreakdown(movement.speed),
+    'movement.speed.sources': formatSources(movement.speed),
     'movement.run': getArrayFirst(movement.run),
     'movement.load': getArrayFirst(movement.load),
     'movement.capacity': formatEffects(movement.capacity),

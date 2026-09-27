@@ -3,6 +3,7 @@ import { resolve } from 'path'
 import * as yaml from 'js-yaml'
 import { describe, expect, it } from 'vitest'
 import { getSkillIcon, SKILL_ICONS } from './skillIcons'
+import { DND35_DETAILED_TEMPLATE } from './templates/dnd35/detailed'
 
 const CATALOG = yaml.load(
   readFileSync(
@@ -33,6 +34,32 @@ describe('SKILL_ICONS', () => {
 
   it.skipIf(!emojiTable)('uses only names the emoji package knows', () => {
     const unknown = [...new Set(Object.values(SKILL_ICONS))].filter(
+      (name) => !emojiTable?.includes(`{${name}}`),
+    )
+    expect(unknown).toEqual([])
+  })
+})
+
+describe('DND35_DETAILED_TEMPLATE icons', () => {
+  // Every emoji name the template writes directly: inline \emoji{...}, and
+  // the first (icon) argument of the page 1 row macros.
+  const templateIcons = [
+    ...DND35_DETAILED_TEMPLATE.matchAll(
+      /\\(?:emoji|rowicon|statrow|abilityrow)\{([a-z-]+)\}/g,
+    ),
+    ...DND35_DETAILED_TEMPLATE.matchAll(
+      // A \descrow's second icon follows the first value, `{ {{token}} }`.
+      /\\descrow\{([a-z-]+)\}.*? \}\{([a-z-]+)\}/g,
+    ),
+  ].flatMap((match) => match.slice(1))
+
+  it('finds the page 1 icons', () => {
+    expect(templateIcons).toContain('shield')
+    expect(templateIcons).toContain('game-die')
+  })
+
+  it.skipIf(!emojiTable)('uses only names the emoji package knows', () => {
+    const unknown = [...new Set(templateIcons)].filter(
       (name) => !emojiTable?.includes(`{${name}}`),
     )
     expect(unknown).toEqual([])

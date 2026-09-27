@@ -3,11 +3,12 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \usepackage{array}
 \usepackage{multicol}
 \usepackage{adjustbox}
+\usepackage{graphicx}
 % table option: loads colortbl, for \rowcolors zebra striping.
 \usepackage[table]{xcolor}
 \usepackage{fontspec}
 \setmainfont{Atkinson Hyperlegible Next}
-% Color emoji beside each skill name. Needs LuaLaTeX and the Noto Color Emoji
+% Color emoji beside each item on page 1. Needs LuaLaTeX and the Noto Color Emoji
 % system font (Debian/Ubuntu: fonts-noto-color-emoji).
 \usepackage{emoji}
 \setemojifont{Noto Color Emoji}
@@ -26,50 +27,58 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 % varwidth, which defines V.
 \newcolumntype{Q}[1]{>{\fontsize{\sourcesize}{\sourceleading}\selectfont\raggedright\arraybackslash}p{#1}}
 
-% Skills column widths, measured against the widest content at these sizes, in
-% a 370.4pt column: \wskill (160.8pt) clears the 16.8pt icon slot plus the
-% longest skill name, "Knowledge Dungeoneering" at 142.9pt, so no name wraps.
-% \wbonus (40.8pt) clears the widest header word, "Penalty" at 38.8pt.
-% \wsource takes the rest (92.6pt), which wraps the longest source list in the
-% party data (162.7pt) to the two 6pt lines that fit one 12pt skill row.
-% The four widths plus 35pt of rules (5 x 0.6pt) and \tabcolsep (8 x 4pt)
-% must stay under \linewidth.
-\newcommand{\wskill}{0.434\linewidth}
-\newcommand{\wbonus}{0.110\linewidth}
-\newcommand{\wsource}{0.250\linewidth}
-\newcolumntype{K}{|L{\wskill}|R{\wbonus}|R{\wbonus}|Q{\wsource}|}
-% Cell padding and rule weight for every table on the sheet.
+% Skills column widths, measured against the widest content at these sizes.
+% The table sits beside its rotated label, so \linewidth is the 370.4pt column
+% less \blocklabel: 353.6pt. \wskill (160.9pt) clears the 16.8pt icon slot plus
+% the longest skill name, "Knowledge Dungeoneering" at 142.9pt, so no name
+% wraps. \wbonus (33.2pt) clears the widest header word, "Penalty", at the
+% header's footnote size (32.4pt). \wsource takes the rest (94.1pt), which
+% wraps the longest source list in the party data (162.7pt) to the two 6pt
+% lines that fit one 12pt skill row. The four widths plus \tabcolsep
+% (8 x 4pt) must stay under \linewidth.
+\newcommand{\wskill}{0.455\linewidth}
+\newcommand{\wbonus}{0.094\linewidth}
+\newcommand{\wsource}{0.266\linewidth}
+\newcolumntype{K}{L{\wskill}R{\wbonus}R{\wbonus}Q{\wsource}}
+% Cell padding for every table on the sheet, and the rule weight for the
+% tables after page 1. Page 1 has no rules: the striping separates rows.
 \setlength{\tabcolsep}{4pt}
 \setlength{\arrayrulewidth}{0.6pt}
 \renewcommand{\arraystretch}{0.9}
-% Alternate rows of every table are shaded, starting with the row after the
-% header; light enough to stay legible in grayscale. A table that should not be
-% striped resets \rowcolors{1}{}{} first.
+% Alternate rows of every table are shaded, starting with the second row;
+% light enough to stay legible in grayscale.
 \colorlet{zebra}{black!10}
 \rowcolors{2}{}{zebra}
 \setlength{\parskip}{2pt}
 \setlength{\columnsep}{18pt}
 
-% One table row per skill. The strut holds every row to one body line plus
-% 3pt of padding, split above and below the text so it clears the rules. Two
-% 6pt source lines (14pt) fit inside that, so a two-line source list does not
-% push its own row taller than its neighbours, which is the point of the
-% half-size source font.
-\newlength{\skillpad} \setlength{\skillpad}{3pt}
-\newcommand{\skillstrut}{\rule[\dimexpr-0.3\bodyleading-0.5\skillpad\relax]{0pt}{\dimexpr\bodyleading+\skillpad\relax}}
-% The icon sits in a fixed-width box so names line up whether or not a row has
-% an icon (#1 is an \emoji name, or empty). A 12pt emoji is 14.9pt wide, so
-% 1.4em (16.8pt) leaves a small gap before the name.
-\newcommand{\skillicon}[1]{\makebox[1.4em][l]{\if\relax\detokenize{#1}\relax\else\emoji{#1}\fi}}
+% Page 1 rows. The strut holds every row to one body line plus 3pt of
+% padding, split above and below the text. Two 6pt source lines (14pt) fit
+% inside that, so a two-line source list does not push its own row taller
+% than its neighbours, which is the point of the half-size source font.
+\newlength{\rowpad} \setlength{\rowpad}{3pt}
+\newcommand{\rowstrut}{\rule[\dimexpr-0.3\bodyleading-0.5\rowpad\relax]{0pt}{\dimexpr\bodyleading+\rowpad\relax}}
+% The icon sits in a fixed-width box so labels line up whether or not a row
+% has an icon (#1 is an \emoji name, or empty). A 12pt emoji is 14.9pt wide,
+% so 1.4em (16.8pt) leaves a small gap before the label.
+\newcommand{\rowicon}[1]{\makebox[1.4em][l]{\if\relax\detokenize{#1}\relax\else\emoji{#1}\fi}}
 % Sources are centred on the row's vertical middle (0.2\bodyleading above the
 % baseline, from the strut), so one or two source lines sit inside the row
 % rather than hanging from its top edge. An m column would centre too, but it
 % adds a full-size strut that makes two-line rows taller than their neighbours.
 \newsavebox{\sourcebox}
-\newcommand{\skillsources}[1]{%
+\newcommand{\rowsources}[1]{%
   \sbox{\sourcebox}{\parbox[b]{\linewidth}{\raggedright #1}}%
   \raisebox{\dimexpr0.2\bodyleading-0.5\ht\sourcebox+0.5\dp\sourcebox\relax}{\usebox{\sourcebox}}}
-\newcommand{\skillrow}[5]{\skillstrut \skillicon{#1}#2 & #3 & #4 & \skillsources{#5} \\}
+% #1 icon, #2 label, then the cells.
+% Skills: #3 bonus, #4 bonus without the armor check penalty, #5 sources.
+\newcommand{\skillrow}[5]{\rowstrut \rowicon{#1}#2 & #3 & #4 & \rowsources{#5} \\}
+% Abilities: #3 score, #4 modifier, #5 what the score is built from.
+\newcommand{\abilityrow}[5]{\rowstrut \rowicon{#1}#2 & #3 & #4 & \rowsources{#5} \\}
+% Combat and saves: #3 total, #4 sources.
+\newcommand{\statrow}[4]{\rowstrut \rowicon{#1}#2 & #3 & \rowsources{#4} \\}
+% Character description, two fields per row: icon, label, value, twice.
+\newcommand{\descrow}[6]{\rowstrut \rowicon{#1}#2 & #3 & \rowicon{#4}#5 & #6 \\}
 % Stacked tables for the inventory page. Each row is its own one-row tabular,
 % stacked with no space between, so a long table can break across columns and
 % pages; one tabular cannot. The rows of a table share a column spec, so the
@@ -128,9 +137,23 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 % Each labelled block is a single box, so a column break can land between two
 % blocks but never between a label and the table it names. \\* is not enough
 % here: multicol splits with \vsplit, which broke at the label anyway.
+% Each block restarts the striping: xcolor's row count otherwise runs on from
+% the previous table, and a block could open on a shaded row.
+% The label runs up the block's left side, centred on the table and as long
+% as the table is tall, so a label longer than that wraps to a second line.
+\newlength{\blocklabel} \setlength{\blocklabel}{1.4em}
+\newsavebox{\blockbox}
 \newenvironment{sheetblock}[1]{%
-  \par\noindent\minipage{\linewidth}\noindent\textbf{#1}\\[1pt]}%
-  {\endminipage\par}
+  \def\blocktitle{#1}%
+  \rowcolors{2}{}{zebra}%
+  \par\noindent
+  \begin{lrbox}{\blockbox}\begin{minipage}{\dimexpr\linewidth-\blocklabel\relax}}%
+  {\end{minipage}\end{lrbox}%
+  \parbox[c]{\blocklabel}{\rotatebox{90}{%
+    \parbox{\dimexpr\ht\blockbox+\dp\blockbox\relax}{\centering\bfseries\blocktitle}}}%
+  \usebox{\blockbox}\par}
+% Text between blocks lines up with the tables, not the labels.
+\newenvironment{blocknote}{\par\leftskip\blocklabel\noindent}{\par}
 
 \begin{document}
 \fontsize{\bodysize}{\bodyleading}\selectfont
@@ -138,73 +161,50 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \begin{multicols*}{2}
 \raggedcolumns
 \begin{sheetblock}{Character Description}
-\begin{tabular}{|L{0.19\linewidth}|L{0.26\linewidth}|L{0.19\linewidth}|L{0.26\linewidth}|}
-\hline
-Name & {{character.name}} & Player & {{character.player}} \\
-Race & {{character.race}} & Alignment & {{character.alignment}} \\
-Classes & {{character.classes}} & Level & {{character.level}} \\
-Size & {{character.size}} & Sex & {{character.sex}} \\
-Age & {{character.age}} & Height & {{character.height}} \\
-Weight & {{character.weight}} & Eyes & {{character.eyes}} \\
-Hair & {{character.hair}} & Build & {{character.build}} \\
-\hline
+\begin{tabular}{L{0.225\linewidth}L{0.22\linewidth}L{0.225\linewidth}L{0.22\linewidth}}
+\descrow{name-badge}{Name}{ {{character.name}} }{game-die}{Player}{ {{character.player}} }
+\descrow{dna}{Race}{ {{character.race}} }{yin-yang}{Alignment}{ {{character.alignment}} }
+\descrow{crossed-swords}{Classes}{ {{character.classes}} }{level-slider}{Level}{ {{character.level}} }
+\descrow{nesting-dolls}{Size}{ {{character.size}} }{transgender-symbol}{Sex}{ {{character.sex}} }
+\descrow{hourglass-not-done}{Age}{ {{character.age}} }{straight-ruler}{Height}{ {{character.height}} }
+\descrow{person-lifting-weights}{Weight}{ {{character.weight}} }{eye}{Eyes}{ {{character.eyes}} }
+\descrow{person-getting-haircut}{Hair}{ {{character.hair}} }{person-standing}{Build}{ {{character.build}} }
 \end{tabular}
 \end{sheetblock}
 
 \begin{sheetblock}{Abilities}
-\begin{tabular}{|L{0.32\linewidth}|R{0.29\linewidth}|R{0.29\linewidth}|}
-\hline
-Ability & Score & Mod \\
-\hline
-STR & {{abilities.strength.score}} & {{abilities.strength.mod}} \\
-DEX & {{abilities.dexterity.score}} & {{abilities.dexterity.mod}} \\
-CON & {{abilities.constitution.score}} & {{abilities.constitution.mod}} \\
-INT & {{abilities.intelligence.score}} & {{abilities.intelligence.mod}} \\
-WIS & {{abilities.wisdom.score}} & {{abilities.wisdom.mod}} \\
-CHA & {{abilities.charisma.score}} & {{abilities.charisma.mod}} \\
-\hline
+\begin{tabular}{L{0.20\linewidth}R{0.12\linewidth}R{0.12\linewidth}Q{0.46\linewidth}}
+\abilityrow{flexed-biceps}{STR}{ {{abilities.strength.score}} }{ {{abilities.strength.mod}} }{ {{abilities.strength.sources}} }
+\abilityrow{person-juggling}{DEX}{ {{abilities.dexterity.score}} }{ {{abilities.dexterity.mod}} }{ {{abilities.dexterity.sources}} }
+\abilityrow{lungs}{CON}{ {{abilities.constitution.score}} }{ {{abilities.constitution.mod}} }{ {{abilities.constitution.sources}} }
+\abilityrow{brain}{INT}{ {{abilities.intelligence.score}} }{ {{abilities.intelligence.mod}} }{ {{abilities.intelligence.sources}} }
+\abilityrow{owl}{WIS}{ {{abilities.wisdom.score}} }{ {{abilities.wisdom.mod}} }{ {{abilities.wisdom.sources}} }
+\abilityrow{smiling-face-with-sunglasses}{CHA}{ {{abilities.charisma.score}} }{ {{abilities.charisma.mod}} }{ {{abilities.charisma.sources}} }
 \end{tabular}
 \end{sheetblock}
 
 \begin{sheetblock}{Combat Snapshot}
-\begin{tabular}{|L{0.20\linewidth}|R{0.11\linewidth}|C{0.58\linewidth}|}
-\hline
-Field & Final & \normalsize Components \\
-\hline
-HP & {{combat.hp}} & {{combat.hp.breakdown}} \\
-AC & {{combat.ac}} & {{combat.ac.breakdown}} \\
-Touch AC & {{combat.touchAc}} & {{combat.touchAc.breakdown}} \\
-Flat-Footed AC & {{combat.flatFootedAc}} & {{combat.flatFootedAc.breakdown}} \\
-ACP & {{combat.acp}} & {{combat.acp.breakdown}} \\
-Initiative & {{combat.initiative}} & {{combat.initiative.breakdown}} \\
-Speed & {{movement.speed}} & {{movement.speed.breakdown}} \\
-\hline
+\begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
+\statrow{red-heart}{HP}{ {{combat.hp}} }{ {{combat.hp.sources}} }
+\statrow{shield}{AC}{ {{combat.ac}} }{ {{combat.ac.sources}} }
+\statrow{raised-hand}{Touch AC}{ {{combat.touchAc}} }{ {{combat.touchAc.sources}} }
+\statrow{astonished-face}{Flat-Footed AC}{ {{combat.flatFootedAc}} }{ {{combat.flatFootedAc.sources}} }
+\statrow{anchor}{ACP}{ {{combat.acp}} }{ {{combat.acp.sources}} }
+\statrow{high-voltage}{Initiative}{ {{combat.initiative}} }{ {{combat.initiative.sources}} }
+\statrow{person-running}{Speed}{ {{movement.speed}} }{ {{movement.speed.sources}} }
 \end{tabular}
 \end{sheetblock}
 
-\footnotesize\textbf{Defense Special:} {{combat.defenseSpecial}} \\
-\textbf{Run:} {{movement.run}} \quad \textbf{Max Dex:} {{combat.maxDex}}\normalsize \\
+\begin{blocknote}
+\footnotesize\emoji{nazar-amulet}\,\textbf{Defense Special:} {{combat.defenseSpecial}} \\
+\emoji{running-shoe}\,\textbf{Run:} {{movement.run}} \quad \emoji{safety-vest}\,\textbf{Max Dex:} {{combat.maxDex}}
+\end{blocknote}
 
 \begin{sheetblock}{Saves}
-\begin{tabular}{|L{0.20\linewidth}|R{0.11\linewidth}|C{0.58\linewidth}|}
-\hline
-Save & Final & \normalsize Components \\
-\hline
-Fortitude & {{saves.fortitude}} & {{saves.fortitude.breakdown}} \\
-Reflex & {{saves.reflex}} & {{saves.reflex.breakdown}} \\
-Will & {{saves.will}} & {{saves.will.breakdown}} \\
-\hline
-\end{tabular}
-\end{sheetblock}
-
-\begin{sheetblock}{Encounter Notes}
-% Writing space, not striped.
-\rowcolors{1}{}{}
-\begin{tabular}{|L{0.95\linewidth}|}
-\hline
-\rule{0pt}{1.0em}Conditions, temporary effects, and in-combat adjustments: \\
-\\
-\hline
+\begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
+\statrow{castle}{Fortitude}{ {{saves.fortitude}} }{ {{saves.fortitude.sources}} }
+\statrow{dashing-away}{Reflex}{ {{saves.reflex}} }{ {{saves.reflex.sources}} }
+\statrow{lion}{Will}{ {{saves.will}} }{ {{saves.will.sources}} }
 \end{tabular}
 \end{sheetblock}
 
@@ -216,12 +216,9 @@ Will & {{saves.will}} & {{saves.will.breakdown}} \\
 \begin{adjustbox}{max totalheight=\textheight}
 \begin{sheetblock}{Skills}
 \begin{tabular}{K}
-\hline
-% The header keeps body size rather than shrinking to source size.
-Skills & Bonus & w/o AC Penalty & \multicolumn{1}{L{\wsource}|}{Sources} \\
-\hline
+% The header is set small: it only names the columns.
+\footnotesize Skill & \footnotesize Bonus & \footnotesize w/o AC Penalty & \multicolumn{1}{L{\wsource}}{\footnotesize Sources} \\
 {{{skills.detailedTable}}}
-\hline
 \end{tabular}
 \end{sheetblock}
 \end{adjustbox}
