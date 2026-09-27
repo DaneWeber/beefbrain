@@ -154,6 +154,18 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
   \usebox{\blockbox}\par}
 % Text between blocks lines up with the tables, not the labels.
 \newenvironment{blocknote}{\par\leftskip\blocklabel\noindent}{\par}
+% A decorative break between blocks: a gray line a third of the column wide
+% with a small diamond at its middle, centred over the tables (not the
+% labels), with \blockrulepad above and below.
+\newlength{\blockrulepad} \setlength{\blockrulepad}{6pt}
+\newcommand{\blockrule}{%
+  \par\vspace{\blockrulepad}%
+  \noindent\hspace*{\blocklabel}%
+  \makebox[\dimexpr\linewidth-\blocklabel\relax]{\color{black!45}%
+    \rule[2pt]{\dimexpr\linewidth/6-4pt\relax}{0.6pt}%
+    \hspace{2pt}\raisebox{0.8pt}{\rotatebox[origin=c]{45}{\rule{3pt}{3pt}}}\hspace{2pt}%
+    \rule[2pt]{\dimexpr\linewidth/6-4pt\relax}{0.6pt}}%
+  \par\vspace{\blockrulepad}}
 
 \begin{document}
 \fontsize{\bodysize}{\bodyleading}\selectfont
@@ -171,7 +183,7 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \descrow{person-getting-haircut}{Hair}{ {{character.hair}} }{person-standing}{Build}{ {{character.build}} }
 \end{tabular}
 \end{sheetblock}
-
+\blockrule
 \begin{sheetblock}{Abilities}
 \begin{tabular}{L{0.20\linewidth}R{0.12\linewidth}R{0.12\linewidth}Q{0.46\linewidth}}
 \abilityrow{flexed-biceps}{STR}{ {{abilities.strength.score}} }{ {{abilities.strength.mod}} }{ {{abilities.strength.sources}} }
@@ -182,7 +194,7 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \abilityrow{smiling-face-with-sunglasses}{CHA}{ {{abilities.charisma.score}} }{ {{abilities.charisma.mod}} }{ {{abilities.charisma.sources}} }
 \end{tabular}
 \end{sheetblock}
-
+\blockrule
 \begin{sheetblock}{Combat Snapshot}
 \begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
 \statrow{red-heart}{HP}{ {{combat.hp}} }{ {{combat.hp.sources}} }
@@ -199,7 +211,7 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \footnotesize\emoji{nazar-amulet}\,\textbf{Defense Special:} {{combat.defenseSpecial}} \\
 \emoji{running-shoe}\,\textbf{Run:} {{movement.run}} \quad \emoji{safety-vest}\,\textbf{Max Dex:} {{combat.maxDex}}
 \end{blocknote}
-
+\blockrule
 \begin{sheetblock}{Saves}
 \begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
 \statrow{castle}{Fortitude}{ {{saves.fortitude}} }{ {{saves.fortitude.sources}} }
