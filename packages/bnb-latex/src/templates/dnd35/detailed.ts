@@ -5,6 +5,10 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \usepackage{adjustbox}
 \usepackage{fontspec}
 \setmainfont{Atkinson Hyperlegible Next}
+% Color emoji beside each skill name. Needs LuaLaTeX and the Noto Color Emoji
+% system font (Debian/Ubuntu: fonts-noto-color-emoji).
+\usepackage{emoji}
+\setemojifont{Noto Color Emoji}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
 \newcolumntype{C}[1]{>{\footnotesize\raggedright\arraybackslash}p{#1}}
@@ -21,14 +25,15 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \newcolumntype{Q}[1]{>{\fontsize{\sourcesize}{\sourceleading}\selectfont\raggedright\arraybackslash}p{#1}}
 
 % Skills column widths, measured against the widest content at these sizes, in
-% a 370.4pt column: \wskill (148.2pt) clears the longest skill name, "Knowledge
-% Dungeoneering" at 142.9pt, so no name wraps. \wbonus (40.8pt) clears the
-% widest header word, "Penalty" at 38.8pt. \wsource takes the rest, which wraps
-% the longest source list to the two 6pt lines that fit one 12pt skill row.
+% a 370.4pt column: \wskill (161.1pt) clears the 16.8pt icon slot plus the
+% longest skill name, "Knowledge Dungeoneering" at 142.9pt, so no name wraps.
+% \wbonus (40.8pt) clears the widest header word, "Penalty" at 38.8pt.
+% \wsource takes the rest (101.5pt), which wraps the longest source list in the
+% party data (162.7pt) to the two 6pt lines that fit one 12pt skill row.
 % The four widths plus 26pt of rules and \tabcolsep must stay under \linewidth.
-\newcommand{\wskill}{0.400\linewidth}
+\newcommand{\wskill}{0.435\linewidth}
 \newcommand{\wbonus}{0.110\linewidth}
-\newcommand{\wsource}{0.309\linewidth}
+\newcommand{\wsource}{0.274\linewidth}
 \newcolumntype{K}{|L{\wskill}|R{\wbonus}|R{\wbonus}|Q{\wsource}|}
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{0.8}
@@ -42,7 +47,11 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 % and two source lines fit exactly one skill line, which is the point of the
 % half-size source font.
 \newcommand{\skillstrut}{\rule[-0.3\bodyleading]{0pt}{\bodyleading}}
-\newcommand{\skillrow}[4]{\skillstrut #1 & #2 & #3 & #4 \\}
+% The icon sits in a fixed-width box so names line up whether or not a row has
+% an icon (#1 is an \emoji name, or empty). A 12pt emoji is 14.9pt wide, so
+% 1.4em (16.8pt) leaves a small gap before the name.
+\newcommand{\skillicon}[1]{\makebox[1.4em][l]{\if\relax\detokenize{#1}\relax\else\emoji{#1}\fi}}
+\newcommand{\skillrow}[5]{\skillstrut \skillicon{#1}#2 & #3 & #4 & #5 \\}
 % Each labelled block is a single box, so a column break can land between two
 % blocks but never between a label and the table it names. \\* is not enough
 % here: multicol splits with \vsplit, which broke at the label anyway.

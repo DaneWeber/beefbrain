@@ -28,13 +28,14 @@ selected template with safe token substitution.
 ## PDF prerequisite
 
 `compilePdf` requires `lualatex` on your system `PATH`. The Detailed template
-also requires Atkinson Hyperlegible Next to be installed as a system font.
+also requires Atkinson Hyperlegible Next and Noto Color Emoji (for the skill
+icons) to be installed as system fonts.
 
 For WSL (Ubuntu):
 
 ```bash
 sudo apt update
-sudo apt install -y fontconfig texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-luatex
+sudo apt install -y fontconfig fonts-noto-color-emoji texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-luatex
 sudo bash scripts/install-atkinson-hyperlegible-next.sh
 ```
 

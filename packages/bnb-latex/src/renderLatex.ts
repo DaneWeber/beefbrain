@@ -7,6 +7,7 @@ import {
 import { LatexGenerationError } from './errors'
 import { DEFAULT_TEMPLATE_KEY, getTemplateRecord } from './templates/registry'
 import { renderTemplate, escapeLatexText } from './renderTemplate'
+import { getSkillIcon } from './skillIcons'
 import type {
   LatexFieldMap,
   RenderLatexInput,
@@ -257,7 +258,8 @@ function isNonZeroComponent(value: unknown): boolean {
 }
 
 /**
- * Builds one `\skillrow` call per skill (alphabetical): name, final bonus
+ * Builds one `\skillrow` call per skill (alphabetical): emoji name (empty
+ * when the skill has none, see skillIcons.ts), display name, final bonus
  * (post-ACP), pre-ACP bonus, and only the non-zero named sources of the
  * bonus. Cell text is escaped individually; the macro call itself is left raw
  * for a {{{...}}} template token.
@@ -290,9 +292,12 @@ function buildSkillsTableRows(skills: Record<string, unknown>): string {
         .map(([key, value]) => formatSkillComponent(key, value, false))
         .join(', ')
 
+      // The icon is a CLDR emoji name from our own table, never user text, so
+      // it goes in unescaped.
+      const icon = getSkillIcon(skillName)
       const name = escapeLatexText(formatTitleKey(skillName))
       const sourcesCell = escapeLatexText(sources)
-      return `\\skillrow{${name}}{${formatSigned(total)}}{${formatSigned(preAcp)}}{${sourcesCell}}`
+      return `\\skillrow{${icon}}{${name}}{${formatSigned(total)}}{${formatSigned(preAcp)}}{${sourcesCell}}`
     })
     .join('\n')
 }
