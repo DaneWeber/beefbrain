@@ -27,7 +27,7 @@ export const SKILL_ICONS: Record<string, string> = {
   forgery: 'fountain-pen',
   'gather-information': 'beer-mug',
   'handle-animal': 'paw-prints',
-  heal: 'adhesive-bandage',
+  heal: 'mending-heart',
   hide: 'ninja',
   intimidate: 'angry-face',
   jump: 'kangaroo',
