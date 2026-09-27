@@ -4,15 +4,23 @@ const EMOJI_ON = String.raw`\sheetemojitrue`
 const EMOJI_OFF = String.raw`\sheetemojifalse`
 
 export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
-\usepackage[landscape, margin=0.25in]{geometry}
+% The left margin also holds the spine: a band down the page's left edge
+% with the player, character and page title (\sheetspine below).
+\usepackage[landscape, margin=0.25in, left=0.63in]{geometry}
 \usepackage{array}
 \usepackage{multicol}
 \usepackage{adjustbox}
 \usepackage{graphicx}
+\usepackage{eso-pic}
 % table option: loads colortbl, for \rowcolors zebra striping.
 \usepackage[table]{xcolor}
 \usepackage{fontspec}
-\setmainfont{Atkinson Hyperlegible Next}
+% The installed font is a variable font, one file for every weight, so fontspec
+% finds no separate bold and \textbf would print regular. Bold is the same file
+% at weight 700.
+\setmainfont{Atkinson Hyperlegible Next}[
+  BoldFont={Atkinson Hyperlegible Next},
+  BoldFeatures={RawFeature={axis={wght=700}}}]
 % Color emoji beside each item on page 1 and each skill. Needs LuaLaTeX and
 % the Noto Color Emoji system font (Debian/Ubuntu: fonts-noto-color-emoji).
 % With the switch off (the plain sheet) the package is not loaded, so neither
@@ -41,17 +49,17 @@ ${EMOJI_ON}
 \newcolumntype{Q}[1]{>{\fontsize{\sourcesize}{\sourceleading}\selectfont\raggedright\arraybackslash}p{#1}}
 
 % Skills column widths, measured against the widest content at these sizes.
-% The table sits beside its rotated label, so \linewidth is the 370.4pt column
-% less \blocklabel: 353.6pt. \wskill (160.9pt) clears the 16.8pt icon slot plus
+% The table sits beside its rotated label, so \linewidth is the 358.7pt column
+% less \blocklabel: 341.9pt. \wskill (160.7pt) clears the 16.8pt icon slot plus
 % the longest skill name, "Knowledge Dungeoneering" at 142.9pt, so no name
 % wraps. \wbonus (33.2pt) clears the widest header word, "Penalty", at the
-% header's footnote size (32.4pt). \wsource takes the rest (94.1pt), which
+% header's footnote size (32.4pt). \wsource takes the rest (82.0pt), which
 % wraps the longest source list in the party data (162.7pt) to the two 6pt
 % lines that fit one 12pt skill row. The four widths plus \tabcolsep
 % (8 x 4pt) must stay under \linewidth.
-\newcommand{\wskill}{0.455\linewidth}
-\newcommand{\wbonus}{0.094\linewidth}
-\newcommand{\wsource}{0.266\linewidth}
+\newcommand{\wskill}{0.47\linewidth}
+\newcommand{\wbonus}{0.097\linewidth}
+\newcommand{\wsource}{0.24\linewidth}
 \newcolumntype{K}{L{\wskill}R{\wbonus}R{\wbonus}Q{\wsource}}
 % Cell padding for every table on the sheet, and the rule weight for the
 % tables after page 1. Page 1 has no rules: the striping separates rows.
@@ -63,7 +71,29 @@ ${EMOJI_ON}
 \colorlet{zebra}{black!10}
 \rowcolors{2}{}{zebra}
 \setlength{\parskip}{2pt}
-\setlength{\columnsep}{18pt}
+\setlength{\columnsep}{14pt}
+
+% The spine: a shaded band in the left margin, level with the text block,
+% reading bottom to top. The player sits at its bottom, the character's name
+% at its centre and the page title at its top. \rlap and \llap keep the name
+% centred on the page however long the other two are. Every page shows the
+% current \sheettitle, so an inventory that runs to a second page carries
+% "Inventory" there too; an empty title leaves the page without a spine.
+\newlength{\spinewidth} \setlength{\spinewidth}{0.28in}
+\newlength{\spinepad}   \setlength{\spinepad}{8pt}
+\newcommand{\sheettitle}{}
+\newcommand{\sheetspine}{%
+  \if\relax\detokenize\expandafter{\sheettitle}\relax\else
+  \AtPageLowerLeft{\put(\LenToUnit{0.25in},\LenToUnit{0.25in}){%
+    \textcolor{zebra}{\rule{\spinewidth}{\textheight}}}%
+  \put(\LenToUnit{0.25in},\LenToUnit{0.25in}){%
+    \makebox(\LenToUnit{\spinewidth},\LenToUnit{\textheight}){%
+      \rotatebox{90}{\makebox[\textheight]{\hspace{\spinepad}%
+        \rlap{\normalsize\inlineicon{game-die}{{character.player}}}\hfill
+        {\large\bfseries {{character.name}}}\hfill
+        \llap{\large\bfseries\sheettitle}\hspace{\spinepad}}}}}}%
+  \fi}
+\AddToShipoutPictureBG{\sheetspine}
 
 % Page 1 rows. The strut holds every row to one body line plus 3pt of
 % padding, split above and below the text. Two 6pt source lines (14pt) fit
@@ -185,12 +215,12 @@ ${EMOJI_ON}
 
 \begin{document}
 \fontsize{\bodysize}{\bodyleading}\selectfont
+\renewcommand{\sheettitle}{Stats}
 
 \begin{multicols*}{2}
 \raggedcolumns
-\begin{sheetblock}{Character Description}
+\begin{sheetblock}{Description}
 \begin{tabular}{L{0.225\linewidth}L{0.22\linewidth}L{0.225\linewidth}L{0.22\linewidth}}
-\descrow{name-badge}{Name}{ {{character.name}} }{game-die}{Player}{ {{character.player}} }
 \descrow{dna}{Race}{ {{character.race}} }{yin-yang}{Alignment}{ {{character.alignment}} }
 \descrow{crossed-swords}{Classes}{ {{character.classes}} }{level-slider}{Level}{ {{character.level}} }
 \descrow{nesting-dolls}{Size}{ {{character.size}} }{transgender-symbol}{Sex}{ {{character.sex}} }
@@ -253,7 +283,7 @@ ${EMOJI_ON}
 \end{multicols*}
 
 \newpage
-\section*{Inventory Sheet (Detailed Draft)}
+\renewcommand{\sheettitle}{Inventory}
 \textbf{Current Load:} {{movement.load}} \\
 \textbf{Capacity Thresholds:} {{movement.capacity}} \\
 
@@ -298,6 +328,7 @@ Item & Qty & Location & Reason / Session Notes \\
 \end{tabular}
 
 \newpage
+\renewcommand{\sheettitle}{}
 \section*{Spell Sheet (Detailed Draft)}
 \textbf{Casting Profile:} {{spells.summary}} \\
 \textbf{Slots by Level:} {{spells.slotsSummary}} \\

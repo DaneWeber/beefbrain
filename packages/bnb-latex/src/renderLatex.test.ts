@@ -16,7 +16,7 @@ describe('renderLatex', () => {
     expect(result.latex).toContain('\\setmainfont{Atkinson Hyperlegible Next}')
     expect(result.latex).toContain('Landorf the Human Fighter')
     expect(result.latex).toContain('fighter 1')
-    expect(result.latex).toContain('Inventory Sheet (Detailed Draft)')
+    expect(result.latex).toContain('\\renewcommand{\\sheettitle}{Inventory}')
     expect(result.latex).toContain('Spell Sheet (Detailed Draft)')
   })
 
@@ -41,7 +41,7 @@ describe('renderLatex', () => {
       templateKey: 'dnd35-detailed',
     })
 
-    expect(result.latex).toContain('Character Description')
+    expect(result.latex).toContain('{Description}')
     expect(result.latex).toContain('Abilities')
     expect(result.latex).toContain('Combat Snapshot')
     expect(result.latex).toContain('Saves')
