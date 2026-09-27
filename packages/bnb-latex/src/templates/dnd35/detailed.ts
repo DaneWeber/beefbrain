@@ -42,8 +42,11 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \setlength{\tabcolsep}{4pt}
 \setlength{\arrayrulewidth}{0.6pt}
 \renewcommand{\arraystretch}{0.9}
-% Alternate skill rows are shaded; light enough to stay legible in grayscale.
+% Alternate rows of every table are shaded, starting with the row after the
+% header; light enough to stay legible in grayscale. A table that should not be
+% striped resets \rowcolors{1}{}{} first.
 \colorlet{zebra}{black!10}
+\rowcolors{2}{}{zebra}
 \setlength{\parskip}{2pt}
 \setlength{\columnsep}{18pt}
 
@@ -67,6 +70,61 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
   \sbox{\sourcebox}{\parbox[b]{\linewidth}{\raggedright #1}}%
   \raisebox{\dimexpr0.2\bodyleading-0.5\ht\sourcebox+0.5\dp\sourcebox\relax}{\usebox{\sourcebox}}}
 \newcommand{\skillrow}[5]{\skillstrut \skillicon{#1}#2 & #3 & #4 & \skillsources{#5} \\}
+% Stacked tables for the inventory page. Each row is its own one-row tabular,
+% stacked with no space between, so a long table can break across columns and
+% pages; one tabular cannot. The rows of a table share a column spec, so the
+% stack reads as one table, and a counter carries the zebra striping across
+% rows. Every row draws only its top rule; \stackclose draws the bottom one.
+% Header rows end in \nobreak so a column never ends on a header.
+\newcounter{stackrow}
+\newcommand{\stackline}[2]{% #1 column spec, #2 cells
+  \par\nointerlineskip\noindent
+  \begin{tabular}{#1}\hline #2 \\ \end{tabular}\par}
+\newcommand{\stackclose}{\par\nointerlineskip\noindent\rule{\linewidth}{\arrayrulewidth}\par}
+% A table's first row, and container rows inside the inventory, restart the
+% striping.
+\newcommand{\stackheader}[3][]{% #1 background (default none), #2 spec, #3 cells
+  \setcounter{stackrow}{0}\rowcolors{1}{#1}{}\stackline{#2}{#3}\nobreak}
+\newcommand{\stackbody}[2]{%
+  \stepcounter{stackrow}%
+  \ifodd\value{stackrow}\rowcolors{1}{}{}\else\rowcolors{1}{zebra}{}\fi
+  \stackline{#1}{#2}}
+
+% Column specs, sized from \linewidth when the multicols column starts.
+\newlength{\invqty}  \setlength{\invqty}{2.1em}
+\newlength{\invwt}   \setlength{\invwt}{3.3em}
+\newlength{\invname}
+\newlength{\slotname}
+\newlength{\slotitems}
+\newcommand{\setstackwidths}{%
+  \setlength{\invname}{\dimexpr\linewidth-\invqty-\invwt-6\tabcolsep-4\arrayrulewidth\relax}%
+  \setlength{\slotname}{0.27\linewidth}%
+  \setlength{\slotitems}{\dimexpr\linewidth-\slotname-4\tabcolsep-3\arrayrulewidth\relax}}
+% Column types rather than macros: tabular does not expand a macro in its
+% column spec.
+\newcolumntype{I}{|L{\invname}|R{\invqty}|R{\invwt}|}
+\newcolumntype{J}{|L{\slotname}|L{\slotitems}|}
+
+% Inventory: #1 item, #2 quantity, #3 the line's total weight in pounds.
+\newcommand{\invheader}{\stackheader{I}{\textbf{Item} & \textbf{Qty} & \textbf{Wt (lb)}}}
+% A container row spans Item and Qty: #1 container, #2 its subtotal weight.
+\newcommand{\invcontainer}[2]{\stackheader[black!20]{I}{%
+  \multicolumn{2}{|L{\dimexpr\invname+\invqty+2\tabcolsep+\arrayrulewidth\relax}|}{\textbf{#1}} & \textbf{#2}}}
+\newcommand{\invitem}[3]{\stackbody{I}{#1 & #2 & #3}}
+
+% Magic item slots: #1 slot name, #2 1 when more than one item claims the slot,
+% #3 the \slotitem entries (empty for a free slot). The twelve body slots end
+% in \nobreak so they stay in one column; the slotless rows after them may
+% break, since there can be many.
+\newcommand{\slotheader}{\stackheader{J}{\textbf{Slot} & \textbf{Equipped}}}
+\newcommand{\slotitem}[2]{#1\if\relax\detokenize{#2}\relax\else\ {\footnotesize(#2)}\fi}
+\newcommand{\slotcells}[3]{%
+  #1\ifnum#2=1 \ \emoji{warning}\fi &
+  \if\relax\detokenize{#3}\relax\textcolor{black!40}{\textemdash}\else #3\fi}
+\newcommand{\slotrow}[3]{\stackbody{J}{\slotcells{#1}{#2}{#3}}\nobreak}
+% #1 label ("Slotless" on the first row only), #2 the \slotitem.
+\newcommand{\slotlessrow}[2]{\stackbody{J}{\slotcells{#1}{0}{#2}}}
+
 % Each labelled block is a single box, so a column break can land between two
 % blocks but never between a label and the table it names. \\* is not enough
 % here: multicol splits with \vsplit, which broke at the label anyway.
@@ -140,6 +198,8 @@ Will & {{saves.will}} & {{saves.will.breakdown}} \\
 \end{sheetblock}
 
 \begin{sheetblock}{Encounter Notes}
+% Writing space, not striped.
+\rowcolors{1}{}{}
 \begin{tabular}{|L{0.95\linewidth}|}
 \hline
 \rule{0pt}{1.0em}Conditions, temporary effects, and in-combat adjustments: \\
@@ -155,8 +215,6 @@ Will & {{saves.will}} & {{saves.will.breakdown}} \\
 % holds. max totalheight only ever shrinks.
 \begin{adjustbox}{max totalheight=\textheight}
 \begin{sheetblock}{Skills}
-% Row 1 is the header; shading starts on the second skill.
-\rowcolors{2}{}{zebra}
 \begin{tabular}{K}
 \hline
 % The header keeps body size rather than shrinking to source size.
@@ -174,11 +232,28 @@ Skills & Bonus & w/o AC Penalty & \multicolumn{1}{L{\wsource}|}{Sources} \\
 \textbf{Current Load:} {{movement.load}} \\
 \textbf{Capacity Thresholds:} {{movement.capacity}} \\
 
-\subsection*{Items by Container}
-\small {{inventory.itemsByContainer}} \normalsize
+% Slots first, then the full inventory flowing down the columns after it.
+% collectmore below zero makes multicols gather a little less than a full page
+% before splitting it into columns. At the default, a long inventory whose
+% last page balances (Mike's) overshot the page by 8pt, because the header
+% rows' \nobreak leaves few places to split.
+\setcounter{collectmore}{-5}
+\begin{multicols}{3}
+\raggedcolumns
+\small
+\setlength{\parskip}{0pt}
+\setstackwidths
+\noindent\textbf{\normalsize Magic Item Slots}\par\nobreak\vspace{1pt}
+\slotheader
+{{{inventory.slotsTable}}}
+\stackclose
 
-\subsection*{Equipped Magic Items}
-\small {{inventory.equippedMagicItems}} \normalsize
+\vspace{8pt}
+\noindent\textbf{\normalsize Items by Container}\par\nobreak\vspace{1pt}
+\invheader
+{{{inventory.detailedTable}}}
+\stackclose
+\end{multicols}
 
 \subsection*{Inventory Change Log}
 \begin{tabular}{|p{1.3in}|p{0.7in}|p{1.5in}|p{2.9in}|}

@@ -302,6 +302,188 @@ function buildSkillsTableRows(skills: Record<string, unknown>): string {
     .join('\n')
 }
 
+// The twelve magic item body slots, head to toe, as a printed sheet reads.
+const BODY_SLOTS = [
+  'head',
+  'face',
+  'throat',
+  'shoulders',
+  'body',
+  'torso',
+  'arms',
+  'hands',
+  'left-ring',
+  'right-ring',
+  'waist',
+  'feet',
+]
+
+// `<name>-slot` tags as written in the data, singular or plural, to the slot
+// they occupy.
+const SLOT_TAGS: Record<string, string> = {
+  head: 'head',
+  face: 'face',
+  throat: 'throat',
+  neck: 'throat',
+  shoulder: 'shoulders',
+  shoulders: 'shoulders',
+  body: 'body',
+  torso: 'torso',
+  arm: 'arms',
+  arms: 'arms',
+  hand: 'hands',
+  hands: 'hands',
+  'left-ring': 'left-ring',
+  'right-ring': 'right-ring',
+  belt: 'waist',
+  waist: 'waist',
+  foot: 'feet',
+  feet: 'feet',
+}
+
+type InventoryItem = unknown[]
+
+function getContainers(
+  inventory: Record<string, unknown>,
+): Array<[string, InventoryItem[]]> {
+  return Object.entries(inventory)
+    .filter(
+      ([key, value]) =>
+        !key.startsWith('_') && key !== 'money' && Array.isArray(value),
+    )
+    .map(([key, value]) => [
+      key,
+      (value as unknown[]).filter(
+        (entry): entry is InventoryItem =>
+          Array.isArray(entry) && entry.length > 0,
+      ),
+    ])
+}
+
+// An item is [name, qty, category, weight, cost, props?, tags?, ...], and the
+// data often leaves out props, which moves tags up to index 5. So both are
+// found by shape from index 5 on: props is the first plain object, tags the
+// first array of strings (a later array may hold effect targets).
+function getItemProps(item: InventoryItem): Record<string, unknown> {
+  const props = item
+    .slice(5)
+    .find(
+      (entry) => entry && typeof entry === 'object' && !Array.isArray(entry),
+    )
+  return toRecord(props)
+}
+
+function getItemTags(item: InventoryItem): string[] {
+  const tags = item
+    .slice(5)
+    .find(
+      (entry): entry is unknown[] =>
+        Array.isArray(entry) && entry.every((tag) => typeof tag === 'string'),
+    )
+  return tags ? tags.map((tag) => String(tag).toLowerCase()) : []
+}
+
+/** Per-item weight in pounds from strings like "4 lbs" or "0.1 lb". */
+function parseWeight(value: unknown): number | undefined {
+  if (typeof value === 'number') {
+    return value
+  }
+  const match = /^\s*(\d+(?:\.\d+)?)/.exec(String(value ?? ''))
+  return match ? Number(match[1]) : undefined
+}
+
+function formatPounds(value: number): string {
+  return String(Math.round(value * 100) / 100)
+}
+
+/**
+ * One `\invcontainer` header per container, then one `\invitem` per item:
+ * name, quantity, and the line's total weight (quantity x per-item weight).
+ * Containers the character is not carrying (absent from `_on`, e.g. a horse)
+ * are marked, since their weight does not count toward load. Templates using
+ * this field define `\invcontainer` and `\invitem`.
+ */
+function buildInventoryTableRows(inventory: Record<string, unknown>): string {
+  const carried = Array.isArray(inventory._on)
+    ? inventory._on.map(String)
+    : undefined
+
+  return getContainers(inventory)
+    .map(([container, items]) => {
+      let subtotal = 0
+      const rows = items.map((item) => {
+        const qty = Number(item[1] ?? 1)
+        const each = parseWeight(item[3])
+        const weight = each === undefined ? undefined : each * qty
+        subtotal += weight ?? 0
+        const name = escapeLatexText(String(item[0] ?? 'Unknown item'))
+        const weightCell = weight === undefined ? '' : formatPounds(weight)
+        return `\\invitem{${name}}{${Number.isFinite(qty) ? qty : ''}}{${weightCell}}`
+      })
+
+      const notCarried =
+        carried !== undefined && !carried.includes(container)
+          ? ' (not carried)'
+          : ''
+      const label = escapeLatexText(`${formatTitleKey(container)}${notCarried}`)
+      return [
+        `\\invcontainer{${label}}{${formatPounds(subtotal)}}`,
+        ...rows,
+      ].join('\n')
+    })
+    .join('\n')
+}
+
+function formatSlotItem(item: InventoryItem): string {
+  const name = escapeLatexText(String(item[0] ?? 'Unknown item'))
+  const effects = escapeLatexText(formatEffects(getItemProps(item)))
+  return `\\slotitem{${name}}{${effects}}`
+}
+
+/**
+ * One `\slotrow` per body slot (head to toe): label, whether the slot is
+ * over-filled (1 or 0), and the items in it. Then one `\slotlessrow` per
+ * slotless magic item: label ("Slotless" on the first) and the item.
+ * Only the `equipped` container counts; a spare belt in the pack occupies no
+ * slot. Templates using this field define `\slotrow`, `\slotlessrow` and
+ * `\slotitem`.
+ */
+function buildSlotsTableRows(inventory: Record<string, unknown>): string {
+  const equipped = getContainers(inventory).find(
+    ([container]) => container === 'equipped',
+  )?.[1]
+  const bySlot = new Map<string, InventoryItem[]>(
+    BODY_SLOTS.map((slot) => [slot, []]),
+  )
+  const slotless: InventoryItem[] = []
+
+  for (const item of equipped ?? []) {
+    for (const tag of getItemTags(item)) {
+      if (tag === 'other-slot') {
+        slotless.push(item)
+        continue
+      }
+      const slot = tag.endsWith('-slot')
+        ? SLOT_TAGS[tag.slice(0, -'-slot'.length)]
+        : undefined
+      if (slot) {
+        bySlot.get(slot)?.push(item)
+      }
+    }
+  }
+
+  const slotRows = BODY_SLOTS.map((slot) => {
+    const items = bySlot.get(slot) ?? []
+    const conflict = items.length > 1 ? 1 : 0
+    return `\\slotrow{${formatTitleKey(slot)}}{${conflict}}{${items.map(formatSlotItem).join('\\newline ')}}`
+  })
+  const slotlessRows = slotless.map(
+    (item, index) =>
+      `\\slotlessrow{${index === 0 ? 'Slotless' : ''}}{${formatSlotItem(item)}}`,
+  )
+  return [...slotRows, ...slotlessRows].join('\n')
+}
+
 function hasMagicIndicators(
   name: string,
   effects: Record<string, unknown>,
@@ -597,6 +779,8 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'inventory.equippedMagicItems':
       formatEquippedMagicItems(inventoryContainer),
     'inventory.itemsByContainer': formatItemsByContainer(inventoryContainer),
+    'inventory.detailedTable': buildInventoryTableRows(inventoryContainer),
+    'inventory.slotsTable': buildSlotsTableRows(inventoryContainer),
 
     'spells.summary': formatSpellsSummary(spellsContainer),
     'spells.slotsSummary': formatSpellSlotsSummary(spellsContainer),

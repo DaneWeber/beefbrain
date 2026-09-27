@@ -46,7 +46,7 @@ describe('renderLatex', () => {
     expect(result.latex).toContain('Combat Snapshot')
     expect(result.latex).toContain('Saves')
     expect(result.latex).toContain('Skills')
-    expect(result.latex).toContain('Equipped Magic Items')
+    expect(result.latex).toContain('Magic Item Slots')
     expect(result.latex).toContain('longsword')
     expect(result.latex).toContain('Appraise')
   })
@@ -140,6 +140,86 @@ character:
       expect(latex).toContain(
         '\\skillrow{magic-wand}{Use Magic Device}{+19}{+19}{Cha +1, Ranks +13, Magic Ring +5}',
       )
+    })
+  })
+  describe('inventory tables', () => {
+    const renderField = (yaml: string, field: string) =>
+      renderLatex({ yaml, templateContent: `{{{${field}}}}` }).latex
+
+    const yaml = `---
+character:
+  inventory:
+    _on: [equipped, pack]
+    money:
+      coins: [10 gp, 0.2 lbs, pack]
+    equipped:
+      - [Cloak of Resistance +3, 1, gear, 1 lb, 1, saves-resistance: 3, [magic, shoulder-slot]]
+      - [Pearl of Speech, 3, gear, 0 lbs, 2, [magic, face-slot]]
+      - [Third Eye, 1, gear, 0 lbs, 3, [magic, face-slot]]
+      - [Heward's Haversack, 1, container, 5 lbs, 4, [magic, other-slot]]
+      - [Arrows, 20, weapon, 0.15 lbs, 5]
+    pack:
+      - [Healing Belt, 1, gear, 1 lb, 6, [magic, belt-slot]]
+      - [Bedroll, 1, gear, 5 lbs, 7]
+    horse:
+      - [Saddle & Bit, 1, gear, 25 lbs, 8]
+`
+
+    it('lists each container with its subtotal, then its items', () => {
+      expect(renderField(yaml, 'inventory.detailedTable')).toBe(
+        [
+          '\\invcontainer{Equipped}{9}',
+          '\\invitem{Cloak of Resistance +3}{1}{1}',
+          '\\invitem{Pearl of Speech}{3}{0}',
+          '\\invitem{Third Eye}{1}{0}',
+          "\\invitem{Heward's Haversack}{1}{5}",
+          '\\invitem{Arrows}{20}{3}',
+          '\\invcontainer{Pack}{6}',
+          '\\invitem{Healing Belt}{1}{1}',
+          '\\invitem{Bedroll}{1}{5}',
+          '\\invcontainer{Horse (not carried)}{25}',
+          '\\invitem{Saddle \\& Bit}{1}{25}',
+        ].join('\n'),
+      )
+    })
+
+    it('fills slots head to toe from equipped items only', () => {
+      const latex = renderField(yaml, 'inventory.slotsTable')
+      const rows = latex.split('\n')
+      expect(rows.slice(0, 12).map((row) => row.split('}')[0])).toEqual(
+        [
+          'Head',
+          'Face',
+          'Throat',
+          'Shoulders',
+          'Body',
+          'Torso',
+          'Arms',
+          'Hands',
+          'Left Ring',
+          'Right Ring',
+          'Waist',
+          'Feet',
+        ].map((slot) => `\\slotrow{${slot}`),
+      )
+      expect(latex).toContain(
+        '\\slotrow{Shoulders}{0}{\\slotitem{Cloak of Resistance +3}{Saves Resistance=3}}',
+      )
+      // The belt in the pack is a spare, not worn.
+      expect(latex).toContain('\\slotrow{Waist}{0}{}')
+    })
+
+    it('flags a slot claimed by more than one item', () => {
+      expect(renderField(yaml, 'inventory.slotsTable')).toContain(
+        '\\slotrow{Face}{1}{\\slotitem{Pearl of Speech}{}\\newline \\slotitem{Third Eye}{}}',
+      )
+    })
+
+    it('lists equipped slotless items after the body slots', () => {
+      const rows = renderField(yaml, 'inventory.slotsTable').split('\n')
+      expect(rows.slice(12)).toEqual([
+        "\\slotlessrow{Slotless}{\\slotitem{Heward's Haversack}{}}",
+      ])
     })
   })
 })
