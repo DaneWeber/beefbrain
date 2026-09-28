@@ -53,6 +53,25 @@ describe('renderLatex', () => {
     expect(result.latex).toContain('Appraise')
   })
 
+  it('puts the Actions page between Stats and Inventory', () => {
+    const { latex } = renderLatex({ yaml: VALID_YAML })
+    const actions = latex.indexOf('\\renewcommand{\\sheettitle}{Actions}')
+    expect(actions).toBeGreaterThan(latex.indexOf('{Skills}'))
+    expect(actions).toBeLessThan(
+      latex.indexOf('\\renewcommand{\\sheettitle}{Inventory}'),
+    )
+    expect(latex).toContain('\\statrow{bullseye}{BAB}{ +1 }{ Fighter +1 }')
+    expect(latex).toContain(
+      '\\statrow{people-wrestling}{Grapple}{ +3 }{ Str +2, BAB +1 }',
+    )
+    expect(latex).toContain(
+      '\\meleerow{Longsword}{+4}{1d8+2 slashing}{19-20/x2}{Weapon Focus Longsword +1; Dmg Str +2}',
+    )
+    expect(latex).toContain(
+      '\\featrow{Weapon Focus (Longsword)}{Longsword +1}{Fighter 1}',
+    )
+  })
+
   it('renders the detailed sheet without emoji as its own template', () => {
     const plain = renderLatex({
       yaml: VALID_YAML,

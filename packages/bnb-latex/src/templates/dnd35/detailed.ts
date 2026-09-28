@@ -35,6 +35,7 @@ ${EMOJI_ON}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
 \newcolumntype{C}[1]{>{\footnotesize\raggedright\arraybackslash}p{#1}}
+\newcolumntype{N}[1]{>{\small\raggedright\arraybackslash}p{#1}}
 
 % Body type size. Sources in the skills table are reference material consulted
 % rarely, so they set at half the body's size AND half its leading: two source
@@ -154,16 +155,21 @@ ${EMOJI_ON}
 \newlength{\invname}
 \newlength{\slotname}
 \newlength{\slotitems}
+\newlength{\traitname}
+\newlength{\traitdetail}
 \newcommand{\setstackwidths}{%
   \setlength{\stackindent}{\blocklabel}%
   \setlength{\stackwidth}{\dimexpr\linewidth-\blocklabel\relax}%
   \setlength{\invname}{\dimexpr\stackwidth-\invqty-\invwt-6\tabcolsep\relax}%
   \setlength{\slotname}{0.27\stackwidth}%
-  \setlength{\slotitems}{\dimexpr\stackwidth-\slotname-4\tabcolsep\relax}}
+  \setlength{\slotitems}{\dimexpr\stackwidth-\slotname-4\tabcolsep\relax}%
+  \setlength{\traitname}{0.4\stackwidth}%
+  \setlength{\traitdetail}{\dimexpr\stackwidth-\traitname-4\tabcolsep\relax}}
 % Column types rather than macros: tabular does not expand a macro in its
 % column spec.
 \newcolumntype{I}{L{\invname}R{\invqty}R{\invwt}}
 \newcolumntype{J}{L{\slotname}L{\slotitems}}
+\newcolumntype{T}{L{\traitname}C{\traitdetail}}
 
 % Inventory: #1 item, #2 quantity, #3 the line's total weight in pounds.
 \newcommand{\invheader}{\stackheader{I}{\footnotesize Item & \footnotesize Qty & \footnotesize Wt (lb)}}
@@ -266,13 +272,46 @@ ${EMOJI_ON}
     \rule[2pt]{\dimexpr\linewidth/6-4pt\relax}{0.6pt}}%
   \par\vspace{\blockrulepad}}
 
+% The actions page. Weapons: #1 name, #2 attack bonus, #3 damage, then #4
+% crit (ranged: #4 range, #5 crit), and last the sources of the attack and
+% the damage, with the weapon's tags. Crit and range are set small: they are
+% short and looked up, not read. A weapon's sources run past the two lines
+% \rowsources centres in a row, so they are set as they are and the row
+% grows to hold them.
+\newcommand{\meleerow}[5]{\rowstrut #1 & #2 & #3 & #4 & #5 \\}
+\newcommand{\rangedrow}[6]{\rowstrut #1 & #2 & #3 & #4 & #5 & #6 \\}
+% A weapon table with nothing in it: #1 its number of columns.
+\newcommand{\attacknone}[1]{\multicolumn{#1}{L{\dimexpr\linewidth-2\tabcolsep\relax}}{\rowstrut\textcolor{black!40}{None recorded}} \\}
+% Full attacks: #1 the routine, #2 its attacks.
+\newenvironment{actionblock}[1]{%
+  \begin{sheetblock}{#1}%
+  \begin{tabular}{L{0.30\linewidth}N{0.63\linewidth}}}
+  {\end{tabular}\end{sheetblock}}
+\newcommand{\actionrow}[2]{\rowstrut #1 & #2 \\}
+% Feats: #1 feat, #2 what it does, #3 where it came from.
+\newcommand{\featrow}[3]{\rowstrut #1 & #2 & \rowsources{#3} \\}
+\newcommand{\featnone}{\attacknone{3}}
+% Class and special abilities, stacked so a group of them (a class, the
+% racial traits) can open with a header row as the inventory's containers do.
+% #1 the group's name.
+\newcommand{\traitgroup}[1]{\stackheader[black!20]{T}{%
+  \multicolumn{2}{L{\dimexpr\stackwidth-2\tabcolsep\relax}}{\rowstrut\textbf{#1}}}}
+% #1 the ability, #2 its detail. An ability with no detail takes the whole
+% row, so a long one wraps less.
+% The test sits outside the row: a conditional cannot span a cell's &.
+\newcommand{\traitrow}[2]{%
+  \if\relax\detokenize{#2}\relax
+    \stackbody{T}{\multicolumn{2}{L{\dimexpr\stackwidth-2\tabcolsep\relax}}{\rowstrut #1}}%
+  \else\stackbody{T}{\rowstrut #1 & #2}\fi}
+\newcommand{\traitnone}{\stackopen\stackbody{T}{%
+  \multicolumn{2}{L{\dimexpr\stackwidth-2\tabcolsep\relax}}{\rowstrut\textcolor{black!40}{None recorded}}}}
+
 % The spells page. Casting: one row per class, #1 class, #2 casting type,
 % #3 key ability, #4 caster level, #5 domains.
 \newcommand{\castingrow}[5]{\rowstrut #1 & #2 & #3 & #4 & #5 \\}
 \newcommand{\castingnone}{\multicolumn{5}{L{\dimexpr\linewidth-2\tabcolsep\relax}}{\rowstrut\textcolor{black!40}{No spellcasting recorded}} \\}
 % A class's spells, one row per spell level: #1 class, #2 what its lists are
 % ("Prepared" or "Known").
-\newcolumntype{N}[1]{>{\small\raggedright\arraybackslash}p{#1}}
 \newenvironment{spelllevels}[2]{%
   \begin{sheetblock}{#1}%
   \begin{tabular}{R{0.08\linewidth}R{0.11\linewidth}R{0.1\linewidth}N{0.61\linewidth}}
@@ -357,6 +396,64 @@ ${EMOJI_ON}
 \end{tabular}
 \end{sheetblock}}
 \end{multicols*}
+
+\newpage
+\renewcommand{\sheettitle}{Actions}
+
+% What the character can do on a turn: attacks first, then the abilities and
+% feats behind them. The page flows, so a character with more abilities
+% than two columns hold continues on a second Actions page.
+\begin{multicols}{2}
+\raggedcolumns
+\setstackwidths
+\begin{sheetblock}{Attack}
+\begin{tabular}{L{0.27\linewidth}R{0.18\linewidth}Q{0.48\linewidth}}
+\statrow{bullseye}{BAB}{ {{combat.bab}} }{ {{combat.bab.sources}} }
+\statrow{dagger}{Melee}{ {{combat.melee}} }{ {{combat.melee.sources}} }
+\statrow{bow-and-arrow}{Ranged}{ {{combat.ranged}} }{ {{combat.ranged.sources}} }
+\statrow{people-wrestling}{Grapple}{ {{combat.grapple}} }{ {{combat.grapple.sources}} }
+{{{actions.specialAttackRows}}}
+\end{tabular}
+\end{sheetblock}
+\blockrule
+\begin{sheetblock}{Melee}
+\begin{tabular}{L{0.29\linewidth}R{0.11\linewidth}L{0.17\linewidth}C{0.12\linewidth}Q{0.19\linewidth}}
+\footnotesize Weapon & \footnotesize Atk & \footnotesize Damage & Crit & \multicolumn{1}{L{0.19\linewidth}}{\footnotesize Sources} \\
+{{{actions.meleeTable}}}
+\end{tabular}
+\end{sheetblock}
+\blockrule
+\begin{sheetblock}{Ranged}
+\begin{tabular}{L{0.22\linewidth}R{0.10\linewidth}L{0.13\linewidth}C{0.12\linewidth}C{0.12\linewidth}Q{0.16\linewidth}}
+\footnotesize Weapon & \footnotesize Atk & \footnotesize Damage & Range & Crit & \multicolumn{1}{L{0.16\linewidth}}{\footnotesize Sources} \\
+{{{actions.rangedTable}}}
+\end{tabular}
+\end{sheetblock}
+{{{actions.fullAttackBlock}}}
+\blockrule
+% Each list is one block, scaled down only if it is taller than a column.
+% Special abilities come first: they are usually short, and fit under the
+% attacks where the feats and class abilities would not.
+\fitblock{\textheight}{%
+\begin{sheetblock}{Special Abilities}
+\stackopen
+{{{actions.specialAbilitiesTable}}}
+\end{sheetblock}}
+\blockrule
+\fitblock{\textheight}{%
+\begin{sheetblock}{Feats}
+\begin{tabular}{L{0.36\linewidth}C{0.42\linewidth}Q{0.15\linewidth}}
+\footnotesize Feat & Effect & \multicolumn{1}{L{0.15\linewidth}}{\footnotesize Source} \\
+{{{actions.featsTable}}}
+\end{tabular}
+\end{sheetblock}}
+\blockrule
+\fitblock{\textheight}{%
+\begin{sheetblock}{Class Abilities}
+\stackopen
+{{{actions.classAbilitiesTable}}}
+\end{sheetblock}}
+\end{multicols}
 
 \newpage
 \renewcommand{\sheettitle}{Inventory}
