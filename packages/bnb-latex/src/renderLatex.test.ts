@@ -17,7 +17,7 @@ describe('renderLatex', () => {
     expect(result.latex).toContain('Landorf the Human Fighter')
     expect(result.latex).toContain('fighter 1')
     expect(result.latex).toContain('\\renewcommand{\\sheettitle}{Inventory}')
-    expect(result.latex).toContain('Spell Sheet (Detailed Draft)')
+    expect(result.latex).toContain('\\renewcommand{\\sheettitle}{Spells}')
   })
 
   it('supports secure value escaping in field substitution', () => {
@@ -47,6 +47,7 @@ describe('renderLatex', () => {
     expect(result.latex).toContain('Saves')
     expect(result.latex).toContain('Skills')
     expect(result.latex).toContain('Magic Item Slots')
+    expect(result.latex).toContain('\\loadrow{Light load}{up to 58 lbs }')
     expect(result.latex).toContain('longsword')
     expect(result.latex).toContain('Appraise')
   })

@@ -745,6 +745,7 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
   const combat = (characterData.combat ?? {}) as Record<string, unknown>
   const defense = (combat.defense ?? {}) as Record<string, unknown>
   const movement = (characterData.movement ?? {}) as Record<string, unknown>
+  const capacity = toRecord(movement.capacity)
   const savesContainer = (combat.saves ?? {}) as Record<string, unknown>
   const hpContainer = (characterData.levels ?? {}) as Record<string, unknown>
   const skillsContainer = toRecord(characterData.skills)
@@ -828,6 +829,11 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'movement.run': getArrayFirst(movement.run),
     'movement.load': getArrayFirst(movement.load),
     'movement.capacity': formatEffects(movement.capacity),
+    'movement.capacity.light': getArrayFirst(capacity.light),
+    'movement.capacity.medium': getArrayFirst(capacity.medium),
+    'movement.capacity.heavy': getArrayFirst(capacity.heavy),
+    'movement.capacity.lift': getArrayFirst(capacity.lift),
+    'movement.capacity.drag': getArrayFirst(capacity.drag),
 
     'skills.summary': formatSkills(skillsContainer, false),
     'skills.summaryDetailed': formatSkills(skillsContainer, true),

@@ -61,10 +61,9 @@ ${EMOJI_ON}
 \newcommand{\wbonus}{0.097\linewidth}
 \newcommand{\wsource}{0.24\linewidth}
 \newcolumntype{K}{L{\wskill}R{\wbonus}R{\wbonus}Q{\wsource}}
-% Cell padding for every table on the sheet, and the rule weight for the
-% tables after page 1. Page 1 has no rules: the striping separates rows.
+% Cell padding for every table on the sheet. No table has rules: the striping
+% separates rows.
 \setlength{\tabcolsep}{4pt}
-\setlength{\arrayrulewidth}{0.6pt}
 \renewcommand{\arraystretch}{0.9}
 % Alternate rows of every table are shaded, starting with the second row;
 % light enough to stay legible in grayscale.
@@ -78,12 +77,11 @@ ${EMOJI_ON}
 % at its centre and the page title at its top. \rlap and \llap keep the name
 % centred on the page however long the other two are. Every page shows the
 % current \sheettitle, so an inventory that runs to a second page carries
-% "Inventory" there too; an empty title leaves the page without a spine.
+% "Inventory" there too.
 \newlength{\spinewidth} \setlength{\spinewidth}{0.28in}
 \newlength{\spinepad}   \setlength{\spinepad}{8pt}
-\newcommand{\sheettitle}{}
+\newcommand{\sheettitle}{Stats}
 \newcommand{\sheetspine}{%
-  \if\relax\detokenize\expandafter{\sheettitle}\relax\else
   \AtPageLowerLeft{\put(\LenToUnit{0.25in},\LenToUnit{0.25in}){%
     \textcolor{zebra}{\rule{\spinewidth}{\textheight}}}%
   \put(\LenToUnit{0.25in},\LenToUnit{0.25in}){%
@@ -91,8 +89,7 @@ ${EMOJI_ON}
       \rotatebox{90}{\makebox[\textheight]{\hspace{\spinepad}%
         \rlap{\normalsize\inlineicon{game-die}{{character.player}}}\hfill
         {\large\bfseries {{character.name}}}\hfill
-        \llap{\large\bfseries\sheettitle}\hspace{\spinepad}}}}}}%
-  \fi}
+        \llap{\large\bfseries\sheettitle}\hspace{\spinepad}}}}}}}
 \AddToShipoutPictureBG{\sheetspine}
 
 % Page 1 rows. The strut holds every row to one body line plus 3pt of
@@ -129,17 +126,19 @@ ${EMOJI_ON}
 % stacked with no space between, so a long table can break across columns and
 % pages; one tabular cannot. The rows of a table share a column spec, so the
 % stack reads as one table, and a counter carries the zebra striping across
-% rows. Every row draws only its top rule; \stackclose draws the bottom one.
-% Header rows end in \nobreak so a column never ends on a header.
+% rows. Header rows end in \nobreak so a column never ends on a header.
 \newcounter{stackrow}
 \newcommand{\stackline}[2]{% #1 column spec, #2 cells
   \par\nointerlineskip\noindent
-  \begin{tabular}{#1}\hline #2 \\ \end{tabular}\par}
-\newcommand{\stackclose}{\par\nointerlineskip\noindent\rule{\linewidth}{\arrayrulewidth}\par}
+  \begin{tabular}{#1}#2 \\ \end{tabular}\par}
 % A table's first row, and container rows inside the inventory, restart the
-% striping.
+% striping. The row after a column header is shaded, as on page 1; the row
+% after a container, already shaded darker, is not.
 \newcommand{\stackheader}[3][]{% #1 background (default none), #2 spec, #3 cells
-  \setcounter{stackrow}{0}\rowcolors{1}{#1}{}\stackline{#2}{#3}\nobreak}
+  \setcounter{stackrow}{\if\relax\detokenize{#1}\relax 1\else 0\fi}%
+  \rowcolors{1}{#1}{}\stackline{#2}{#3}\nobreak}
+% A table with no header starts unshaded, as on page 1.
+\newcommand{\stackopen}{\setcounter{stackrow}{0}}
 \newcommand{\stackbody}[2]{%
   \stepcounter{stackrow}%
   \ifodd\value{stackrow}\rowcolors{1}{}{}\else\rowcolors{1}{zebra}{}\fi
@@ -151,20 +150,28 @@ ${EMOJI_ON}
 \newlength{\invname}
 \newlength{\slotname}
 \newlength{\slotitems}
+\newlength{\loadname}
+\newlength{\loadweight}
 \newcommand{\setstackwidths}{%
-  \setlength{\invname}{\dimexpr\linewidth-\invqty-\invwt-6\tabcolsep-4\arrayrulewidth\relax}%
+  \setlength{\invname}{\dimexpr\linewidth-\invqty-\invwt-6\tabcolsep\relax}%
   \setlength{\slotname}{0.27\linewidth}%
-  \setlength{\slotitems}{\dimexpr\linewidth-\slotname-4\tabcolsep-3\arrayrulewidth\relax}}
+  \setlength{\slotitems}{\dimexpr\linewidth-\slotname-4\tabcolsep\relax}%
+  \setlength{\loadname}{0.4\linewidth}%
+  \setlength{\loadweight}{\dimexpr\linewidth-\loadname-4\tabcolsep\relax}}
 % Column types rather than macros: tabular does not expand a macro in its
 % column spec.
-\newcolumntype{I}{|L{\invname}|R{\invqty}|R{\invwt}|}
-\newcolumntype{J}{|L{\slotname}|L{\slotitems}|}
+\newcolumntype{I}{L{\invname}R{\invqty}R{\invwt}}
+\newcolumntype{J}{L{\slotname}L{\slotitems}}
+\newcolumntype{G}{L{\loadname}L{\loadweight}}
+
+% Load: #1 label, #2 weight.
+\newcommand{\loadrow}[2]{\stackbody{G}{#1 & #2}}
 
 % Inventory: #1 item, #2 quantity, #3 the line's total weight in pounds.
 \newcommand{\invheader}{\stackheader{I}{\textbf{Item} & \textbf{Qty} & \textbf{Wt (lb)}}}
 % A container row spans Item and Qty: #1 container, #2 its subtotal weight.
 \newcommand{\invcontainer}[2]{\stackheader[black!20]{I}{%
-  \multicolumn{2}{|L{\dimexpr\invname+\invqty+2\tabcolsep+\arrayrulewidth\relax}|}{\textbf{#1}} & \textbf{#2}}}
+  \multicolumn{2}{L{\dimexpr\invname+\invqty+2\tabcolsep\relax}}{\textbf{#1}} & \textbf{#2}}}
 \newcommand{\invitem}[3]{\stackbody{I}{#1 & #2 & #3}}
 
 % Magic item slots: #1 slot name, #2 1 when more than one item claims the slot,
@@ -215,7 +222,6 @@ ${EMOJI_ON}
 
 \begin{document}
 \fontsize{\bodysize}{\bodyleading}\selectfont
-\renewcommand{\sheettitle}{Stats}
 
 \begin{multicols*}{2}
 \raggedcolumns
@@ -284,81 +290,62 @@ ${EMOJI_ON}
 
 \newpage
 \renewcommand{\sheettitle}{Inventory}
-\textbf{Current Load:} {{movement.load}} \\
-\textbf{Capacity Thresholds:} {{movement.capacity}} \\
 
-% Slots first, then the full inventory flowing down the columns after it.
-% collectmore below zero makes multicols gather a little less than a full page
-% before splitting it into columns. At the default, a long inventory whose
-% last page balances (Mike's) overshot the page by 8pt, because the header
-% rows' \nobreak leaves few places to split.
+% Load first, then slots, then the full inventory flowing down the columns
+% after them. collectmore below zero makes multicols gather a little less than
+% a full page before splitting it into columns. At the default, a long
+% inventory whose last page balances (Mike's) overshot the page by 8pt,
+% because the header rows' \nobreak leaves few places to split.
 \setcounter{collectmore}{-5}
 \begin{multicols}{3}
 \raggedcolumns
 \small
+% A little more room above and below each row than page 1's tables need,
+% since these rows have no strut.
+\renewcommand{\arraystretch}{1.15}
 \setlength{\parskip}{0pt}
 \setstackwidths
+\noindent\textbf{\normalsize Load}\par\nobreak\vspace{1pt}
+\stackopen
+\loadrow{Current load}{ {{movement.load}} }
+\loadrow{Light load}{up to {{movement.capacity.light}} }
+\loadrow{Medium load}{up to {{movement.capacity.medium}} }
+\loadrow{Heavy load}{up to {{movement.capacity.heavy}} }
+\loadrow{Lift over head}{ {{movement.capacity.lift}} }
+\loadrow{Push or drag}{ {{movement.capacity.drag}} }
+
+\vspace{8pt}
 \noindent\textbf{\normalsize Magic Item Slots}\par\nobreak\vspace{1pt}
 \slotheader
 {{{inventory.slotsTable}}}
-\stackclose
 
 \vspace{8pt}
 \noindent\textbf{\normalsize Items by Container}\par\nobreak\vspace{1pt}
 \invheader
 {{{inventory.detailedTable}}}
-\stackclose
 \end{multicols}
 
-\subsection*{Inventory Change Log}
-\begin{tabular}{|p{1.3in}|p{0.7in}|p{1.5in}|p{2.9in}|}
-\hline
-Item & Qty & Location & Reason / Session Notes \\
-\hline
- & & & \\
-\hline
- & & & \\
-\hline
- & & & \\
-\hline
- & & & \\
-\hline
- & & & \\
-\hline
-\end{tabular}
-
 \newpage
-\renewcommand{\sheettitle}{}
-\section*{Spell Sheet (Detailed Draft)}
-\textbf{Casting Profile:} {{spells.summary}} \\
+\renewcommand{\sheettitle}{Spells}
+\noindent\textbf{Casting Profile:} {{spells.summary}} \\
 \textbf{Slots by Level:} {{spells.slotsSummary}} \\
-\textbf{Prepared / Known by Level:} {{spells.preparedSummary}} \\
+\textbf{Prepared / Known by Level:} {{spells.preparedSummary}}
 
 \subsection*{Prepared and Expended Tracking}
-\begin{tabular}{|l|l|l|p{4.7in}|}
-\hline
-Level & Total Slots & Used & Prepared / Changes \\
-\hline
-0 & & & \\
-\hline
-1 & & & \\
-\hline
-2 & & & \\
-\hline
-3 & & & \\
-\hline
-4 & & & \\
-\hline
-5 & & & \\
-\hline
-6 & & & \\
-\hline
-7 & & & \\
-\hline
-8 & & & \\
-\hline
-9 & & & \\
-\hline
+% Rows for writing in, so each gets page 1's full row height.
+\rowcolors{2}{}{zebra}
+\begin{tabular}{L{0.6in}L{0.9in}L{0.6in}L{\dimexpr\linewidth-2.1in-8\tabcolsep\relax}}
+\bfseries Level & \bfseries Total Slots & \bfseries Used & \bfseries Prepared / Changes \\
+\rowstrut 0 & & & \\
+\rowstrut 1 & & & \\
+\rowstrut 2 & & & \\
+\rowstrut 3 & & & \\
+\rowstrut 4 & & & \\
+\rowstrut 5 & & & \\
+\rowstrut 6 & & & \\
+\rowstrut 7 & & & \\
+\rowstrut 8 & & & \\
+\rowstrut 9 & & & \\
 \end{tabular}
 \end{document}
 `
