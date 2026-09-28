@@ -41,9 +41,10 @@ surprise you on unrelated YAML files in a workspace.
   usual; no `editor.defaultFormatter` setting is needed for `bnb-yaml`.
 - **BeefBrain: Add Missing Fields (Core Skills) and Calculate**
   (`bnb.addMissingFields`) — adds any D&D 3.5 core skills the character is
-  missing (existing skills are left alone) along with `skills._acp`, then
-  formats and calculates. New armor-penalty skills get an `acp` component.
-  Trained-only skills without ranks are added as `not-trained: .nan`.
+  missing along with `skills._acp`, then formats and calculates.
+  Armor-penalty skills (new or existing) that lack an `acp` component get one,
+  and trained-only skills without ranks get `not-trained: .nan`. Existing
+  ranks and bonuses are left alone.
 
 ## Settings
 

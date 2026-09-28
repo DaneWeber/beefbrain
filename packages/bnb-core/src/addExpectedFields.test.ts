@@ -207,14 +207,78 @@ character:
     expect(skills.hide).toEqual([0, { dex: 0, acp: 0 }])
   })
 
-  it('returns the input unchanged when nothing is missing', () => {
-    const input = `---
+  it('returns its own output unchanged, since nothing is missing any more', () => {
+    const filled = addExpectedFields(`---
 character:
 ${ABILITIES}  skills:
-    _acp: [0]
-${DND35_CORE_SKILLS.map((skill) => `    ${skill.name}: [0, int: 0]`).join('\n')}
-`
-    expect(addExpectedFields(input)).toBe(input)
+    _acp: [-2, armor: -2]
+    climb: [4, {str: 6}]
+    open-lock: [3, dex: 1]
+    know-arcana: [0, int: 0]
+`)
+    expect(addExpectedFields(filled)).toBe(filled)
+  })
+
+  it('adds a forgotten acp to existing armor-penalty skills, doubled for swim', () => {
+    const skills = skillsOf(
+      addExpectedFields(`---
+character:
+${ABILITIES}  skills:
+    _acp: [-4, {armor: -2, shield: -2}]
+    climb: [19, {str: 6, ranks: [13, fighter: 13]}]
+    swim: [6, str: 6]
+    tumble: [7, {dex: 1, ranks: 6, acp: -2}]
+    bluff: [-1, cha: -1]
+`),
+    )
+
+    expect(skills.climb).toEqual([
+      15,
+      { str: 6, ranks: [13, { fighter: 13 }], acp: -4 },
+    ])
+    expect(skills.swim).toEqual([-2, { str: 6, acp: -8 }])
+    // A skill that already has acp is left for the calculation to update.
+    expect(skills.tumble).toEqual([7, { dex: 1, ranks: 6, acp: -2 }])
+    expect(skills.bluff).toEqual([-1, { cha: -1 }])
+  })
+
+  it('marks existing trained-only skills without ranks as not-trained', () => {
+    const skills = skillsOf(
+      addExpectedFields(`---
+character:
+${ABILITIES}  skills:
+    disable-device: [0, int: 0]
+    open-lock: [1, {dex: 1, ranks: 0}]
+    sleight-of-hand: [1, dex: 1]
+    knowledge-nature: [0, int: 0]
+    know-arcana: [4, {int: 0, ranks: [4, wizard: 4]}]
+    profession-fisherman: [1, {wis: -1, ranks: 2}]
+    appraise: [0, int: 0]
+`),
+    )
+
+    expect(skills['disable-device']).toEqual([
+      NaN,
+      { int: 0, 'not-trained': NaN },
+    ])
+    expect(skills['open-lock']).toEqual([
+      NaN,
+      { dex: 1, ranks: 0, 'not-trained': NaN },
+    ])
+    expect(skills['sleight-of-hand']).toEqual([
+      NaN,
+      { dex: 1, acp: 0, 'not-trained': NaN },
+    ])
+    expect(skills['knowledge-nature']).toEqual([
+      NaN,
+      { int: 0, 'not-trained': NaN },
+    ])
+    expect(skills['know-arcana']).toEqual([
+      4,
+      { int: 0, ranks: [4, { wizard: 4 }] },
+    ])
+    expect(skills['profession-fisherman']).toEqual([1, { wis: -1, ranks: 2 }])
+    expect(skills.appraise).toEqual([0, { int: 0 }])
   })
 
   it('ignores non-D&D 3.5 characters', () => {

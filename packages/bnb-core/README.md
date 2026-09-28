@@ -99,8 +99,8 @@ Calculates all derived fields and returns formatted YAML.
 
 ### `addExpectedFields(yaml: string): string`
 
-Adds expected fields that are missing, without changing any that are already
-present. Currently this adds, for D&D 3.5 characters:
+Adds expected fields that are missing, without changing any values that are
+already present. Currently this adds, for D&D 3.5 characters:
 
 - `skills._acp`, the armor check penalty (moved from the legacy
   `combat.defense.acp` if present, otherwise `[0]`)
@@ -108,6 +108,10 @@ present. Currently this adds, for D&D 3.5 characters:
   or `know-arcana` counts as listing it), populated with its key ability
   modifier plus `acp` for armor-penalty skills (doubled for swim).
   Trained-only skills are added as `[.nan, {<ability>: N, not-trained: .nan}]`.
+- on skills that are already listed (including specializations such as
+  `knowledge-nature`): a forgotten `acp` on armor-penalty skills, and a
+  forgotten `not-trained: .nan` on trained-only skills without ranks. The
+  skill's total is re-summed when either is added.
 
 Run `updateCalculatedFields` afterwards to derive `_acp` from equipment and
 load and to fill in other derived components.

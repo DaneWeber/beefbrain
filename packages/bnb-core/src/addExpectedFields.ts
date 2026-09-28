@@ -1,5 +1,6 @@
 import { parse as parseYAML } from 'yaml'
 import { dataToCompactYAML } from './dataToCompactYAML'
+import { sumValues } from './updateCalculatedFields'
 import {
   ACP_FIELD,
   DND35_CORE_SKILLS,
@@ -31,14 +32,61 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * A skill counts as present if it is listed directly or as a specialization,
- * e.g. craft-traps, knowledge-nature or know-planes.
+ * A skill key belongs to a core skill if it is the skill itself or a
+ * specialization, e.g. craft-traps, knowledge-nature or know-planes.
  */
-function hasSkill(skillNames: string[], name: string): boolean {
+function isSkillOrSpecialization(key: string, name: string): boolean {
   const prefixes = [name, ...(SKILL_ALIASES[name] ?? [])]
-  return skillNames.some((key) =>
-    prefixes.some((prefix) => key === prefix || key.startsWith(`${prefix}-`)),
+  return prefixes.some(
+    (prefix) => key === prefix || key.startsWith(`${prefix}-`),
   )
+}
+
+function hasSkill(skillNames: string[], name: string): boolean {
+  return skillNames.some((key) => isSkillOrSpecialization(key, name))
+}
+
+function coreSkillFor(key: string): CoreSkill | undefined {
+  return DND35_CORE_SKILLS.find((skill) =>
+    isSkillOrSpecialization(key, skill.name),
+  )
+}
+
+function hasRanks(components: Record<string, unknown>): boolean {
+  const ranks = components.ranks
+  const value = Array.isArray(ranks) ? ranks[0] : ranks
+  return typeof value === 'number' && value > 0
+}
+
+/**
+ * Adds what an already-listed skill is missing: `acp` on armor-penalty
+ * skills, and `not-trained: .nan` on trained-only skills without ranks.
+ * Existing components are kept. Returns true if the skill changed.
+ */
+function fillExistingSkill(
+  key: string,
+  entry: unknown,
+  acpTotal: number,
+): boolean {
+  const skill = coreSkillFor(key)
+  if (!skill || !Array.isArray(entry) || !isRecord(entry[1])) return false
+  const components = entry[1]
+
+  let changed = false
+  if (skill.armorPenalty && !('acp' in components)) {
+    components.acp = skillAcp(skill.name, acpTotal)
+    changed = true
+  }
+  if (
+    skill.trainedOnly &&
+    !('not-trained' in components) &&
+    !hasRanks(components)
+  ) {
+    components['not-trained'] = NaN
+    changed = true
+  }
+  if (changed) entry[0] = sumValues(components)
+  return changed
 }
 
 /** Only D&D 3.5 characters use [score, {abbr: mod}] ability entries. */
@@ -76,8 +124,7 @@ function buildSkillEntry(
     components['not-trained'] = NaN
     return [NaN, components]
   }
-  const total = Object.values(components).reduce((sum, v) => sum + v, 0)
-  return [total, components]
+  return [sumValues(components), components]
 }
 
 /**
@@ -106,7 +153,7 @@ function mergeSkills(
 
 /**
  * Adds expected fields that are missing from a Beef Brain data file, without
- * changing any that are already there. Currently this adds, for D&D 3.5:
+ * changing any values that are already there. Currently this adds, for D&D 3.5:
  * - `skills._acp`, the armor check penalty total (moved from the legacy
  *   `combat.defense.acp` if present, otherwise `[0]` for the calculation to
  *   fill in)
@@ -114,6 +161,10 @@ function mergeSkills(
  *   ability modifier, plus `acp` for skills armor check penalty applies to.
  *   Trained-only skills are added as `[.nan, {<ability>: N, not-trained: .nan}]`
  *   since a character without ranks cannot attempt them.
+ * - on skills that are already listed (including specializations like
+ *   knowledge-nature), a missing `acp` for armor-penalty skills and a missing
+ *   `not-trained: .nan` for trained-only skills without ranks. The skill's
+ *   total is re-summed when either is added.
  * @param yamlContent - The YAML content to fill in
  * @returns YAML content with missing fields added
  * @public
@@ -133,6 +184,12 @@ export function addExpectedFields(yamlContent: string): string {
     changed = true
   }
   const acpTotal = getAcpTotal(skills) ?? 0
+
+  for (const [key, entry] of Object.entries(skills)) {
+    if (!key.startsWith('_') && fillExistingSkill(key, entry, acpTotal)) {
+      changed = true
+    }
+  }
 
   const skillNames = Object.keys(skills)
   const missing = DND35_CORE_SKILLS.filter(

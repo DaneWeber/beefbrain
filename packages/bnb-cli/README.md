@@ -49,7 +49,8 @@ bnb gimli.yaml --write
 ```bash
 bnb gimli.yaml --add-missing --write
 # Adds any D&D 3.5 core skills the character is missing, then calculates
-# Existing skills keep their ranks and bonuses
+# Existing skills keep their ranks and bonuses, but gain a forgotten acp
+# (armor-penalty skills) or not-trained: .nan (trained-only, no ranks)
 ```
 
 ### Common Workflows

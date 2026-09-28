@@ -47,7 +47,7 @@ describe('formatBnbYaml', () => {
     const result = formatBnbYaml(content, { addMissing: true })
 
     expect(result.error).toBeUndefined()
-    expect(result.formatted).toContain('hide: [7, {dex: 2, ranks: 5}]')
+    expect(result.formatted).toContain('hide: [7, {dex: 2, ranks: 5, acp: 0}]')
     expect(result.formatted).toContain('_acp: [0]')
     expect(result.formatted).toContain('balance: [2, {dex: 2, acp: 0}]')
     expect(result.formatted).toContain('bluff: [0, cha: 0]')
