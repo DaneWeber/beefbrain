@@ -1,56 +1,15 @@
 import { parse as parseYAML } from 'yaml'
 import { dataToCompactYAML } from './dataToCompactYAML'
-
-type AbilityAbbr = 'str' | 'dex' | 'con' | 'int' | 'wis' | 'cha'
-
-export interface CoreSkill {
-  name: string
-  ability?: AbilityAbbr
-  trainedOnly?: boolean
-}
-
-/**
- * D&D 3.5e core skills. Mirrors catalogs/dnd35/skills.yaml (a test keeps the
- * two in sync).
- */
-export const DND35_CORE_SKILLS: readonly CoreSkill[] = [
-  { name: 'appraise', ability: 'int' },
-  { name: 'balance', ability: 'dex' },
-  { name: 'bluff', ability: 'cha' },
-  { name: 'climb', ability: 'str' },
-  { name: 'concentration', ability: 'con' },
-  { name: 'craft', ability: 'int' },
-  { name: 'decipher-script', ability: 'int', trainedOnly: true },
-  { name: 'diplomacy', ability: 'cha' },
-  { name: 'disable-device', ability: 'int', trainedOnly: true },
-  { name: 'disguise', ability: 'cha' },
-  { name: 'escape-artist', ability: 'dex' },
-  { name: 'forgery', ability: 'int' },
-  { name: 'gather-information', ability: 'cha' },
-  { name: 'handle-animal', ability: 'cha', trainedOnly: true },
-  { name: 'heal', ability: 'wis' },
-  { name: 'hide', ability: 'dex' },
-  { name: 'intimidate', ability: 'cha' },
-  { name: 'jump', ability: 'str' },
-  { name: 'knowledge', ability: 'int', trainedOnly: true },
-  { name: 'listen', ability: 'wis' },
-  { name: 'move-silently', ability: 'dex' },
-  { name: 'open-lock', ability: 'dex', trainedOnly: true },
-  { name: 'perform', ability: 'cha' },
-  { name: 'profession', ability: 'wis', trainedOnly: true },
-  { name: 'ride', ability: 'dex' },
-  { name: 'search', ability: 'int' },
-  { name: 'sense-motive', ability: 'wis' },
-  { name: 'sleight-of-hand', ability: 'dex', trainedOnly: true },
-  { name: 'speak-language', trainedOnly: true },
-  { name: 'spellcraft', ability: 'int', trainedOnly: true },
-  { name: 'spot', ability: 'wis' },
-  { name: 'survival', ability: 'wis' },
-  { name: 'swim', ability: 'str' },
-  { name: 'tumble', ability: 'dex', trainedOnly: true },
-  { name: 'use-magic-device', ability: 'cha', trainedOnly: true },
-  { name: 'use-rope', ability: 'dex' },
-]
+import {
+  ACP_FIELD,
+  DND35_CORE_SKILLS,
+  getAcpTotal,
+  moveLegacyAcp,
+  setSkillsField,
+  skillAcp,
+  type AbilityAbbr,
+  type CoreSkill,
+} from './dnd35Skills'
 
 const ABILITY_NAMES: Record<AbilityAbbr, string> = {
   str: 'strength',
@@ -104,16 +63,21 @@ function getAbilityMod(
 function buildSkillEntry(
   skill: CoreSkill,
   abilities: Record<string, unknown>,
+  acpTotal: number,
 ): [number, Record<string, number>] {
   const components: Record<string, number> = {}
   if (skill.ability) {
     components[skill.ability] = getAbilityMod(abilities, skill.ability)
   }
+  if (skill.armorPenalty) {
+    components.acp = skillAcp(skill.name, acpTotal)
+  }
   if (skill.trainedOnly) {
     components['not-trained'] = NaN
     return [NaN, components]
   }
-  return [components[skill.ability!] ?? 0, components]
+  const total = Object.values(components).reduce((sum, v) => sum + v, 0)
+  return [total, components]
 }
 
 /**
@@ -142,10 +106,14 @@ function mergeSkills(
 
 /**
  * Adds expected fields that are missing from a Beef Brain data file, without
- * changing any that are already there. Currently this adds every D&D 3.5 core
- * skill that is not already listed, populated with its key ability modifier.
- * Trained-only skills are added as `[.nan, {<ability>: N, not-trained: .nan}]`
- * since a character without ranks cannot attempt them.
+ * changing any that are already there. Currently this adds, for D&D 3.5:
+ * - `skills._acp`, the armor check penalty total (moved from the legacy
+ *   `combat.defense.acp` if present, otherwise `[0]` for the calculation to
+ *   fill in)
+ * - every core skill that is not already listed, populated with its key
+ *   ability modifier, plus `acp` for skills armor check penalty applies to.
+ *   Trained-only skills are added as `[.nan, {<ability>: N, not-trained: .nan}]`
+ *   since a character without ranks cannot attempt them.
  * @param yamlContent - The YAML content to fill in
  * @returns YAML content with missing fields added
  * @public
@@ -158,15 +126,22 @@ export function addExpectedFields(yamlContent: string): string {
   const abilities = character.abilities
   if (!isRecord(abilities) || !isDnd35Abilities(abilities)) return yamlContent
 
-  const skills = isRecord(character.skills) ? character.skills : {}
+  let changed = moveLegacyAcp(character)
+  let skills = isRecord(character.skills) ? character.skills : {}
+  if (!(ACP_FIELD in skills)) {
+    skills = setSkillsField(skills, ACP_FIELD, [0])
+    changed = true
+  }
+  const acpTotal = getAcpTotal(skills) ?? 0
+
   const skillNames = Object.keys(skills)
   const missing = DND35_CORE_SKILLS.filter(
     (skill) => !hasSkill(skillNames, skill.name),
   ).map((skill): [string, unknown] => [
     skill.name,
-    buildSkillEntry(skill, abilities),
+    buildSkillEntry(skill, abilities, acpTotal),
   ])
-  if (missing.length === 0) return yamlContent
+  if (!changed && missing.length === 0) return yamlContent
 
   character.skills = mergeSkills(skills, missing)
   return dataToCompactYAML(data)

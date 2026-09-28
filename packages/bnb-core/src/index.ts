@@ -52,8 +52,5 @@ export {
   getSkillPointMismatch,
   type SkillPointMismatch,
 } from './skillPoints'
-export {
-  addExpectedFields,
-  DND35_CORE_SKILLS,
-  type CoreSkill,
-} from './addExpectedFields'
+export { addExpectedFields } from './addExpectedFields'
+export { DND35_CORE_SKILLS, type CoreSkill } from './dnd35Skills'

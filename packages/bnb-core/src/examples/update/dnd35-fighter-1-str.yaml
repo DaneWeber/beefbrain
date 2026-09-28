@@ -44,7 +44,6 @@ character:
       ac: [18, { base: 10, dex: 1, armor: 5, shield: 2 }]
       touch-ac: [11, { base: 10, dex: 1 }]
       flat-footed-ac: [17, { base: 10 }, { armor: 5 }, { shield: 2 }]
-      acp: [-4, { armor: -2 }, { shield: -2 }]
       max-dex: [3, { medium-load: 3 }]
       special: ['Blind Fight: no advantage to invisible melee attackers']
   movement:
@@ -55,6 +54,7 @@ character:
     special: ['Blind Fight: 1/2 penalty when unable to see']
   skills:
     _ranks: [12, { fighter: 8, int: 0, human: 4, cc: -2 }]
+    _acp: [-4, {armor: -2, shield: -2}]
     appraise: [2, { int: 0, ranks: 2 }]
     balance: [-3, { dex: 1, acp: -4 }]
     bluff: [-2, { cha: -2 }]

@@ -43,13 +43,13 @@ character:
       ac: [19, {base: 10, armor: 9, deflection: 1, dex: -1}]
       touch-ac: [10, {base: 10, deflection: 1, dex: -1}]
       flat-footed-ac: [19, {base: 10, armor: 9, deflection: 1}]
-      acp: [-5, armor: -5]
   movement:
     speed: [20, {base: 30, heavy-armor: -10}]
     load: [50.3 lbs, {equipped: 30.8 lbs, pack: 19.5 lbs}]
     capacity: {light: 100 lbs, medium: 200 lbs, heavy: 300 lbs, lift: 600 lbs, drag: 1500 lbs}
   skills:
     _points: [51, {cleric: 36, mystic-theurge: 15}]
+    _acp: [-5, armor: -5]
     concentration: [17, {con: 2, ranks: [15, {cleric: 12, mystic-theurge: 3}]}]
     diplomacy: [6, {cha: 1, ranks: [5, {cleric: 3, mystic-theurge: 2}]}]
     knowledge-arcana: [5, {int: 0, ranks: [5, cleric: 5]}]

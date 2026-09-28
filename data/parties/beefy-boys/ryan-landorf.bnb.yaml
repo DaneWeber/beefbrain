@@ -50,7 +50,6 @@ character:
       ac: [24, {base: 10, armor: 9, shield: 4, dex: 1}]
       touch-ac: [15, {base: 10, shield-ward: 4, dex: 1}]
       flat-footed-ac: [23, {base: 10, armor: 9, shield: 4}]
-      acp: [-4, {armor: -2, shield: -2}]
   movement:
     speed: [20, {base: 30, heavy-armor: -10}]
     run: [80, base: x4]
@@ -58,6 +57,7 @@ character:
     capacity: {light: 173 lbs, medium: 346 lbs, heavy: 520 lbs, lift: 1040 lbs, drag: 2600 lbs}
   skills:
     _points: [48, {fighter: 26, human: 13, first-level: 9}]
+    _acp: [-4, {armor: -2, shield: -2}]
     climb: [15, {str: 6, ranks: [13, fighter: 13], acp: -4}]
     heal: [1, {wis: -1, healer-kit: 2}]
     intimidate: [4, {cha: -1, ranks: [5, fighter: 5]}]

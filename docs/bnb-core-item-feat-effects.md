@@ -151,7 +151,7 @@ the target.
 **Bonus effects** (`bonusDict` present) always need a `[total, {mods}]`-shaped target:
 
 1. **Plain `[total, {mods}]`** — skills, saves, initiative, speed, grapple, AC / touch-AC /
-   flat-footed-AC, ACP, and the mods element (index 1) of a generic attack tuple
+   flat-footed-AC, ACP (`skills._acp`), and the mods element (index 1) of a generic attack tuple
    (`combat.attack.melee._`). No bracket needed. `bonusDict` merges into `mods`, the total is resummed
    via `sumValues` and written back to element 0.
 2. **Named weapon, attack channel** (`combat.attack.melee.longsword[0]`) — a named weapon tuple
