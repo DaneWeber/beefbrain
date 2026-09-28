@@ -3,6 +3,7 @@ import { basename, extname, resolve } from 'path'
 import { compilePdf, listTemplates, renderLatex } from 'bnb-latex'
 import type { LatexTemplateKey } from 'bnb-latex'
 import {
+  addExpectedFields,
   formatSkillPointMismatch,
   getSkillPointMismatch,
   validateBeefBrainData,
@@ -14,10 +15,12 @@ function printUsage(): void {
   console.log(`Usage: bnb <file.yaml> [options]
 
 Options:
-  --calc    Calculate derived fields and print to stdout
-  --write   Calculate derived fields and update the file in place
-  latex     Generate LaTeX/PDF character sheets
-  --help    Show this help message
+  --calc          Calculate derived fields and print to stdout
+  --write         Calculate derived fields and update the file in place
+  --add-missing   Add expected fields that are missing (e.g. core skills);
+                  combine with --calc or --write
+  latex           Generate LaTeX/PDF character sheets
+  --help          Show this help message
 
 With no options, validates and prints the formatted file to stdout.`)
 }
@@ -232,6 +235,7 @@ async function main(): Promise<void> {
 
   const doCalc = flags.includes('--calc') || flags.includes('--write')
   const doWrite = flags.includes('--write')
+  const doAddMissing = flags.includes('--add-missing')
 
   for (const file of files) {
     const filePath = resolve(file)
@@ -252,9 +256,20 @@ async function main(): Promise<void> {
     }
 
     let output = content
+    if (doAddMissing) {
+      try {
+        output = addExpectedFields(output)
+      } catch (err) {
+        console.error(
+          `Error adding missing fields for "${file}": ${(err as Error).message}`,
+        )
+        process.exit(1)
+      }
+    }
+
     if (doCalc) {
       try {
-        output = updateCalculatedFields(content)
+        output = updateCalculatedFields(output)
         const mismatch = getSkillPointMismatch(parseYAML(output))
         if (mismatch) {
           console.warn(

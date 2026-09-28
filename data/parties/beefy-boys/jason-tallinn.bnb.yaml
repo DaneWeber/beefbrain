@@ -45,13 +45,13 @@ character:
       ac: [16, {base: 10, armor: 6, dex: 0}]
       touch-ac: [10, {base: 10, dex: 0}]
       flat-footed-ac: [16, {base: 10, armor: 6}]
-      acp: [-3, armor: -3]
   movement:
     speed: [30, base: 30]
     load: [42.5 lbs, {equipped: 17 lbs, pack: 25.5 lbs}]
     capacity: {light: 26 lbs, medium: 53 lbs, heavy: 80 lbs, lift: 160 lbs, drag: 400 lbs}
   skills:
     _points: [105, {druid: 48, int: 24, human: 12, first-level: 21}]
+    _acp: [-3, armor: -3]
     diplomacy: [15, {cha: 1, ranks: [14, druid: 14]}]
     handle-animal: [15, {cha: 1, ranks: [14, druid: 14]}]
     heal: [10, {wis: 5, ranks: [5, druid: 5]}]

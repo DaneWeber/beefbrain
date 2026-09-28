@@ -97,6 +97,32 @@ Validates a YAML string against the BeefBrain schema.
 
 Calculates all derived fields and returns formatted YAML.
 
+### `addExpectedFields(yaml: string): string`
+
+Adds expected fields that are missing, without changing any that are already
+present. Currently this adds, for D&D 3.5 characters:
+
+- `skills._acp`, the armor check penalty (moved from the legacy
+  `combat.defense.acp` if present, otherwise `[0]`)
+- every core skill that isn't listed (a specialization such as `craft-traps`
+  or `know-arcana` counts as listing it), populated with its key ability
+  modifier plus `acp` for armor-penalty skills (doubled for swim).
+  Trained-only skills are added as `[.nan, {<ability>: N, not-trained: .nan}]`.
+
+Run `updateCalculatedFields` afterwards to derive `_acp` from equipment and
+load and to fill in other derived components.
+
+### Armor check penalty
+
+ACP only affects skills, so it lives at `character.skills._acp` as
+`[total, {sources}]`, e.g. `_acp: [-4, {armor: -2, shield: -2}]` or
+`_acp: [-3, medium-load: -3]`. `updateCalculatedFields` sets it to the worse
+of armor + shield ACP and load ACP, then copies it into every skill's `acp`
+component (doubled for swim). An `_acp` it can't derive from the inventory is
+left as written. Files that still have the old `combat.defense.acp` are
+migrated automatically. (`max-dex` stays under `combat.defense`, since it only
+affects AC.)
+
 ### `dataToCompactYAML(data: BeefBrainData): string`
 
 Converts JavaScript object to compact YAML format.

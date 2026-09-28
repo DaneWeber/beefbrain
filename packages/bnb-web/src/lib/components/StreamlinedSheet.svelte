@@ -527,11 +527,11 @@
 						{/if}
 					</div>
 				{/if}
-				{#if combat.defense?.acp}
-					{#if val(combat.defense.acp) !== '0'}
+				{#if skills._acp}
+					{#if val(skills._acp) !== '0'}
 						<div class="inline-stat">
 							<span class="label">ACP</span>
-							{val(combat.defense.acp)}
+							{val(skills._acp)}
 						</div>
 					{/if}
 				{/if}

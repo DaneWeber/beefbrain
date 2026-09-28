@@ -32,6 +32,30 @@ describe('formatBnbYaml', () => {
     expect(result.formatted).toContain('strength:')
   })
 
+  it('adds missing core skills when asked', () => {
+    const content = [
+      'character:',
+      '  abilities:',
+      '    dexterity: [14, dex: 2]',
+      '  skills:',
+      '    hide: [7, {dex: 2, ranks: 5}]',
+      '',
+    ].join('\n')
+
+    expect(formatBnbYaml(content).formatted).not.toContain('tumble:')
+
+    const result = formatBnbYaml(content, { addMissing: true })
+
+    expect(result.error).toBeUndefined()
+    expect(result.formatted).toContain('hide: [7, {dex: 2, ranks: 5}]')
+    expect(result.formatted).toContain('_acp: [0]')
+    expect(result.formatted).toContain('balance: [2, {dex: 2, acp: 0}]')
+    expect(result.formatted).toContain('bluff: [0, cha: 0]')
+    expect(result.formatted).toContain(
+      'tumble: [.nan, {dex: 2, acp: 0, not-trained: .nan}]',
+    )
+  })
+
   it('surfaces calculation errors from bnb-core instead of throwing', async () => {
     vi.resetModules()
     vi.doMock('bnb-core', () => ({

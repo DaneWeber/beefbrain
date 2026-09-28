@@ -36,13 +36,13 @@ character:
       ac: [0, {base: 10, dex: 0}]
       touch-ac: [0, {base: 10, dex: 0}]
       flat-footed-ac: [0, base: 10]
-      acp: [0, none: 0]
       max-dex: [99, none: 99]
   movement:
     speed: [30, {base: 30}]
     load: [0 lbs, {equipped: 0 lbs}]
     capacity: {light: 0 lbs, medium: 0 lbs, heavy: 0 lbs, lift: 0 lbs, drag: 0 lbs}
   skills:
+    _acp: [0]
     concentration: [0, {con: 0, ranks: 5}]
     diplomacy: [0, {cha: 0, ranks: 4}]
     heal: [0, {wis: 0, ranks: 5}]

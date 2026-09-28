@@ -119,7 +119,7 @@ describe('Beef Brain Core Integration', () => {
 
       // Defense
       expect(c.combat.defense.ac[0]).toBe(16) // 10+armor(5)+dex(1)
-      expect(c.combat.defense.acp[0]).toBe(-2)
+      expect(c.skills._acp[0]).toBe(-2)
 
       // Synergy
       expect(c.skills.spellcraft[1]['synergy-knowledge-arcana']).toBe(2)

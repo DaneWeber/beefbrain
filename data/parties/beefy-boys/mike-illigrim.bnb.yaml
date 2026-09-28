@@ -47,7 +47,6 @@ character:
       ac: [27, {base: 10, armor: 8, deflection: 1, natural: 2, dex: 6}]
       touch-ac: [17, {base: 10, deflection: 1, dex: 6}]
       flat-footed-ac: [21, {base: 10, armor: 8, deflection: 1, natural: 2}]
-      acp: [-2, armor: -2]
       dr: 10/silver
   movement:
     speed: [30, base: 30]
@@ -55,6 +54,7 @@ character:
     capacity: {light: 100 lbs, medium: 200 lbs, heavy: 300 lbs, lift: 600 lbs, drag: 1500 lbs}
   skills:
     _points: [148, {rogue: 143, first-level: 5}]
+    _acp: [-2, armor: -2]
     appraise: [4, {int: 3, ranks: [1, rogue: 1]}]
     balance: [11, {dex: 6, ranks: [3, rogue: 3], tumble-synergy: 2}]
     bluff: [13, {cha: 1, ranks: [12, rogue: 12]}]

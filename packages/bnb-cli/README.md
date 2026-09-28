@@ -44,6 +44,14 @@ bnb gimli.yaml --write
 # Useful after manually editing base stats
 ```
 
+### Add Missing Core Skills
+
+```bash
+bnb gimli.yaml --add-missing --write
+# Adds any D&D 3.5 core skills the character is missing, then calculates
+# Existing skills keep their ranks and bonuses
+```
+
 ### Common Workflows
 
 **After editing a character:**
@@ -80,6 +88,8 @@ bnb latex --list-templates
 - **(no options)**: Validate and print formatted YAML
 - `--calc`: Calculate derived fields and print
 - `--write`: Calculate and update file in place
+- `--add-missing`: Add expected fields that are missing (currently the D&D 3.5
+  core skills); combine with `--calc` or `--write`
 - `latex`: Generate LaTeX files (and optional PDF) from character YAML
 - `--help`: Show help message
 

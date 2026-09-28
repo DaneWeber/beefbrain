@@ -41,7 +41,6 @@ character:
       ac: [24, {base: 10, armor: 5, deflection: 2, natural: 3, dex: 4}]
       touch-ac: [16, {base: 10, deflection: 2, dex: 4}]
       flat-footed-ac: [20, {base: 10, armor: 5, deflection: 2, natural: 3}]
-      acp: [0]
       spell-resistance: 18
   movement:
     speed: [30, base: 30]
@@ -49,6 +48,7 @@ character:
     capacity: {light: 23 lbs, medium: 46 lbs, heavy: 70 lbs, lift: 140 lbs, drag: 350 lbs}
   skills:
     _points: [32, {sorcerer: 26, first-level: 6}]
+    _acp: [0]
     bluff: [8, {cha: 6, ranks: [2, sorcerer: 2]}]
     concentration: [11, {con: 0, ranks: [11, sorcerer: 11]}]
     spellcraft: [11, {int: 0, ranks: [11, sorcerer: 11]}]
