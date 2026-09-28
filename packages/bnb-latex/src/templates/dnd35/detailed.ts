@@ -282,21 +282,26 @@ ${EMOJI_ON}
 \end{tabular}
 \end{sheetblock}
 \blockrule
-\begin{sheetblock}{Combat Snapshot}
+\begin{sheetblock}{Defense}
 \begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
 \statrow{red-heart}{HP}{ {{combat.hp}} }{ {{combat.hp.sources}} }
 \statrow{shield}{AC}{ {{combat.ac}} }{ {{combat.ac.sources}} }
 \statrow{raised-hand}{Touch AC}{ {{combat.touchAc}} }{ {{combat.touchAc.sources}} }
 \statrow{astonished-face}{Flat-Footed AC}{ {{combat.flatFootedAc}} }{ {{combat.flatFootedAc.sources}} }
-\statrow{anchor}{ACP}{ {{combat.acp}} }{ {{combat.acp.sources}} }
-\statrow{person-running}{Speed}{ {{movement.speed}} }{ {{movement.speed.sources}} }
 \end{tabular}
 \end{sheetblock}
-
 \begin{blocknote}
 \footnotesize\inlineicon{nazar-amulet}\textbf{Defense Special:} {{combat.defenseSpecial}} \\
-\inlineicon{running-shoe}\textbf{Run:} {{movement.run}} \quad \inlineicon{safety-vest}\textbf{Max Dex:} {{combat.maxDex}}
 \end{blocknote}
+\blockrule
+\begin{sheetblock}{Movement}
+\begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
+\statrow{anchor}{ACP}{ {{combat.acp}} }{ {{combat.acp.sources}} }
+\statrow{safety-vest}{Max Dex}{ {{combat.maxDex}} }{ {{combat.maxDex.sources}} }
+\statrow{person-running}{Speed}{ {{movement.speed}} }{ {{movement.speed.sources}} }
+\statrow{running-shoe}{Run}{ {{movement.run}} }{ {{movement.run.sources}} }
+\end{tabular}
+\end{sheetblock}
 \blockrule
 \begin{sheetblock}{Saves}
 \begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}

@@ -43,7 +43,8 @@ describe('renderLatex', () => {
 
     expect(result.latex).toContain('{Description}')
     expect(result.latex).toContain('Abilities')
-    expect(result.latex).toContain('Combat Snapshot')
+    expect(result.latex).toContain('\\begin{sheetblock}{Defense}')
+    expect(result.latex).toContain('\\begin{sheetblock}{Movement}')
     expect(result.latex).toContain('Saves')
     expect(result.latex).toContain('Skills')
     expect(result.latex).toContain('Magic Item Slots')
