@@ -240,6 +240,7 @@ character:
       - [Third Eye, 1, gear, 0 lbs, 3, [magic, face-slot]]
       - [Heward's Haversack, 1, container, 5 lbs, 4, [magic, other-slot]]
       - [Arrows, 20, weapon, 0.15 lbs, 5]
+      - [Ioun Stone, 1, gear, 0 lbs, 9, [magic, other-slot]]
     pack:
       - [Healing Belt, 1, gear, 1 lb, 6, [magic, belt-slot]]
       - [Bedroll, 1, gear, 5 lbs, 7]
@@ -256,6 +257,7 @@ character:
           '\\invitem{Third Eye}{1}{0}',
           "\\invitem{Heward's Haversack}{1}{5}",
           '\\invitem{Arrows}{20}{3}',
+          '\\invitem{Ioun Stone}{1}{0}',
           '\\invcontainer{Pack}{6}',
           '\\invitem{Healing Belt}{1}{1}',
           '\\invitem{Bedroll}{1}{5}',
@@ -297,10 +299,11 @@ character:
       )
     })
 
-    it('lists equipped slotless items after the body slots', () => {
+    it('lists each equipped slotless item on its own row after the body slots', () => {
       const rows = renderField(yaml, 'inventory.slotsTable').split('\n')
       expect(rows.slice(12)).toEqual([
         "\\slotlessrow{Slotless}{\\slotitem{Heward's Haversack}{}}",
+        '\\slotlessrow{Slotless}{\\slotitem{Ioun Stone}{}}',
       ])
     })
   })

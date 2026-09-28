@@ -9,7 +9,6 @@ export const DND35_DETAILED_TEMPLATE = String.raw`\documentclass[12pt]{article}
 \usepackage[landscape, margin=0.25in, left=0.63in]{geometry}
 \usepackage{array}
 \usepackage{multicol}
-\usepackage{adjustbox}
 \usepackage{graphicx}
 \usepackage{eso-pic}
 % table option: loads colortbl, for \rowcolors zebra striping.
@@ -44,8 +43,8 @@ ${EMOJI_ON}
 \newlength{\bodyleading}   \setlength{\bodyleading}{14pt}
 \newlength{\sourcesize}    \setlength{\sourcesize}{0.5\bodysize}
 \newlength{\sourceleading} \setlength{\sourceleading}{0.5\bodyleading}
-% Q because the obvious letters are taken: array defines W, and adjustbox loads
-% varwidth, which defines V.
+% Q because the obvious letters are taken: array defines W, and V was taken
+% by varwidth when the sheet loaded adjustbox.
 \newcolumntype{Q}[1]{>{\fontsize{\sourcesize}{\sourceleading}\selectfont\raggedright\arraybackslash}p{#1}}
 
 % Skills column widths, measured against the widest content at these sizes.
@@ -174,16 +173,14 @@ ${EMOJI_ON}
 \newcommand{\invitem}[3]{\stackbody{I}{#1 & #2 & #3}}
 
 % Magic item slots: #1 slot name, #2 1 when more than one item claims the slot,
-% #3 the \slotitem entries (empty for a free slot). The twelve body slots end
-% in \nobreak so they stay in one column; the slotless rows after them may
-% break, since there can be many.
-\newcommand{\slotheader}{\stackheader{J}{\footnotesize Slot & \footnotesize Equipped}}
+% #3 the \slotitem entries (empty for a free slot). No header row: the slot
+% names and what is in them need no labels.
 \newcommand{\slotitem}[2]{#1\if\relax\detokenize{#2}\relax\else\ {\footnotesize(#2)}\fi}
 \newcommand{\slotcells}[3]{%
   #1\ifnum#2=1 \ \ifsheetemoji\emoji{warning}\else\textbf{(!)}\fi\fi &
   \if\relax\detokenize{#3}\relax\textcolor{black!40}{\textemdash}\else #3\fi}
-\newcommand{\slotrow}[3]{\stackbody{J}{\slotcells{#1}{#2}{#3}}\nobreak}
-% #1 label ("Slotless" on the first row only), #2 the \slotitem.
+\newcommand{\slotrow}[3]{\stackbody{J}{\slotcells{#1}{#2}{#3}}}
+% #1 label ("Slotless", on every row), #2 the \slotitem.
 \newcommand{\slotlessrow}[2]{\stackbody{J}{\slotcells{#1}{0}{#2}}}
 
 % Each labelled block is a single box, so a column break can land between two
@@ -197,6 +194,7 @@ ${EMOJI_ON}
 \newlength{\blocklabel} \setlength{\blocklabel}{1.4em}
 \newcommand{\blocklabelfont}{\fontsize{\bodysize}{\bodyleading}\selectfont\bfseries}
 \newsavebox{\blockbox}
+\newsavebox{\loadbox}
 \newlength{\blocklabellength}
 \newenvironment{sheetblock}[1]{%
   \def\blocktitle{#1}%
@@ -219,6 +217,39 @@ ${EMOJI_ON}
   \rlap{\makebox[\blocklabel][l]{\raisebox{-\height}[0pt][0pt]{%
     \rotatebox{90}{\blocklabelfont #1}}}}%
   \par\nointerlineskip\nobreak}
+% A block that must fit in #1 of height, scaled down if it is taller. Scaling
+% alone would narrow it too, leaving white space beside it, so it is first
+% laid out wider, in steps of \fitstep, until at that width it is short
+% enough that scaling it back to \linewidth brings it within #1. Its text
+% wraps less at each step, so it shrinks less than a plain scale would.
+% Never more than 3 times as wide, which is well past any real sheet.
+\newsavebox{\fitbox}
+\newlength{\fitwidth}
+\newlength{\fitheight}
+\newlength{\fitstep}
+% Set #1 at \fitwidth. \setstackwidths sizes the stacked tables' columns to
+% that width; the skills columns follow \linewidth by themselves.
+\newcommand{\fitset}[1]{%
+  \sbox{\fitbox}{\begin{minipage}[t]{\fitwidth}\setstackwidths #1\end{minipage}}}
+% \fitwider: too tall at this width once scaled, and still room to widen.
+\newif\iffitwider
+\newcommand{\fitcheck}{%
+  \fitwiderfalse
+  \ifdim\dimexpr(\ht\fitbox+\dp\fitbox)*\linewidth/\fitwidth\relax>\fitheight
+    \ifdim\fitwidth<3\linewidth \fitwidertrue\fi
+  \fi}
+\newcommand{\fitblock}[2]{%
+  \setlength{\fitheight}{#1}%
+  \setlength{\fitwidth}{\linewidth}%
+  \setlength{\fitstep}{0.02\linewidth}%
+  \fitset{#2}%
+  \fitcheck
+  \loop\iffitwider
+    \addtolength{\fitwidth}{\fitstep}%
+    \fitset{#2}%
+    \fitcheck
+  \repeat
+  \par\noindent\resizebox{\linewidth}{!}{\usebox{\fitbox}}\par}
 % Text between blocks lines up with the tables, not the labels.
 \newenvironment{blocknote}{\par\leftskip\blocklabel\noindent}{\par}
 % A decorative break between blocks: a gray line a third of the column wide
@@ -314,27 +345,27 @@ ${EMOJI_ON}
 \columnbreak
 
 % The whole skills list stays in the right column: at natural size when it
-% fits, scaled down uniformly when a character has more skills than one column
-% holds. max totalheight only ever shrinks.
-\begin{adjustbox}{max totalheight=\textheight}
+% fits, scaled down when a character has more skills than one column holds,
+% laid out wider first so it still fills the column's width.
+\fitblock{\textheight}{%
 \begin{sheetblock}{Skills}
 \begin{tabular}{K}
 % The header is set small: it only names the columns.
 \footnotesize Skill & \footnotesize Bonus & \footnotesize w/o AC Penalty & \multicolumn{1}{L{\wsource}}{\footnotesize Sources} \\
 {{{skills.detailedTable}}}
 \end{tabular}
-\end{sheetblock}
-\end{adjustbox}
+\end{sheetblock}}
 \end{multicols*}
 
 \newpage
 \renewcommand{\sheettitle}{Inventory}
 
-% Load first, then slots, then the full inventory flowing down the columns
-% after them. collectmore below zero makes multicols gather a little less than
-% a full page before splitting it into columns. At the default, a long
-% inventory whose last page balances (Mike's) overshot the page by 8pt,
-% because the header rows' \nobreak leaves few places to split.
+% The left column holds Load and Magic Item Slots, and nothing else; the full
+% inventory starts at the top of the middle column and flows on from there.
+% collectmore below zero makes multicols gather a little less than a full
+% page before splitting it into columns. At the default, a long inventory
+% whose last page balances (Mike's) overshot the page by 8pt, because the
+% header rows' \nobreak leaves few places to split.
 \setcounter{collectmore}{-5}
 \begin{multicols}{3}
 \raggedcolumns
@@ -344,6 +375,9 @@ ${EMOJI_ON}
 \renewcommand{\arraystretch}{1.15}
 \setlength{\parskip}{0pt}
 \setstackwidths
+% Load and the rule under it are set in a box first, so the slots table
+% knows how much of the column is left for it.
+\setbox\loadbox\vbox{%
 \begin{sheetblock}{Load}
 \begin{tabular}{L{0.42\linewidth}L{0.5\linewidth}}
 Current load & {{movement.load}} \\
@@ -354,15 +388,18 @@ Lift over head & {{movement.capacity.lift}} \\
 Push or drag & {{movement.capacity.drag}} \\
 \end{tabular}
 \end{sheetblock}
-\blockrule
-% The twelve body slots are one block, labelled like page 1's tables. The
-% slotless rows after it may run on into the next column.
+\blockrule}
+\noindent\copy\loadbox\par\nointerlineskip
+% The body slots and the slotless rows after them are one block, so the
+% table never breaks across columns. A character with many slotless items
+% gets the block scaled down to fit the rest of the left column, laid out
+% wider first so it still fills the column's width.
+\fitblock{\dimexpr\textheight-\ht\loadbox-\dp\loadbox\relax}{%
 \begin{sheetblock}{Magic Item Slots}
-\slotheader
-{{{inventory.bodySlotsTable}}}
-\end{sheetblock}
-{{{inventory.slotlessTable}}}
-\blockrule
+\stackopen
+{{{inventory.slotsTable}}}
+\end{sheetblock}}
+\columnbreak
 \stacklabel{Items by Container}
 \invheader
 {{{inventory.detailedTable}}}

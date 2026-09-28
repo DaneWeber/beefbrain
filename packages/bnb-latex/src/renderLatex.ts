@@ -500,16 +500,12 @@ function formatSlotItem(item: InventoryItem): string {
 /**
  * One `\slotrow` per body slot (head to toe): label, whether the slot is
  * over-filled (1 or 0), and the items in it. Then one `\slotlessrow` per
- * slotless magic item: label ("Slotless" on the first) and the item.
+ * slotless magic item: label ("Slotless" on each) and the item.
  * Only the `equipped` container counts; a spare belt in the pack occupies no
  * slot. Templates using this field define `\slotrow`, `\slotlessrow` and
  * `\slotitem`.
  */
-// The twelve body slots head to toe, then one row per equipped slotless item.
-function buildSlotsTableRows(inventory: Record<string, unknown>): {
-  slotRows: string[]
-  slotlessRows: string[]
-} {
+function buildSlotsTableRows(inventory: Record<string, unknown>): string {
   const equipped = getContainers(inventory).find(
     ([container]) => container === 'equipped',
   )?.[1]
@@ -539,10 +535,9 @@ function buildSlotsTableRows(inventory: Record<string, unknown>): {
     return `\\slotrow{${formatTitleKey(slot)}}{${conflict}}{${items.map(formatSlotItem).join('\\newline ')}}`
   })
   const slotlessRows = slotless.map(
-    (item, index) =>
-      `\\slotlessrow{${index === 0 ? 'Slotless' : ''}}{${formatSlotItem(item)}}`,
+    (item) => `\\slotlessrow{Slotless}{${formatSlotItem(item)}}`,
   )
-  return { slotRows, slotlessRows }
+  return [...slotRows, ...slotlessRows].join('\n')
 }
 
 function hasMagicIndicators(
@@ -723,7 +718,6 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
   const hpContainer = (characterData.levels ?? {}) as Record<string, unknown>
   const skillsContainer = toRecord(characterData.skills)
   const inventoryContainer = toRecord(characterData.inventory)
-  const slots = buildSlotsTableRows(inventoryContainer)
   const casters = summarizeSpellcasting(characterData)
 
   return {
@@ -819,11 +813,7 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
       formatEquippedMagicItems(inventoryContainer),
     'inventory.itemsByContainer': formatItemsByContainer(inventoryContainer),
     'inventory.detailedTable': buildInventoryTableRows(inventoryContainer),
-    'inventory.slotsTable': [...slots.slotRows, ...slots.slotlessRows].join(
-      '\n',
-    ),
-    'inventory.bodySlotsTable': slots.slotRows.join('\n'),
-    'inventory.slotlessTable': slots.slotlessRows.join('\n'),
+    'inventory.slotsTable': buildSlotsTableRows(inventoryContainer),
 
     'spells.summary': formatSpellsSummary(casters),
     'spells.slotsSummary': formatSpellSlotsSummary(casters),
