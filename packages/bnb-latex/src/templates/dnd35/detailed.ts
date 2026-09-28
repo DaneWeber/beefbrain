@@ -120,6 +120,24 @@ ${EMOJI_ON}
 \newcommand{\abilityrow}[5]{\rowstrut \rowicon{#1}#2 & #3 & #4 & \rowsources{#5} \\}
 % Combat and saves: #3 total, #4 sources.
 \newcommand{\statrow}[4]{\rowstrut \rowicon{#1}#2 & #3 & \rowsources{#4} \\}
+% A block's optional row for a note rather than a total (Mike's DR
+% 10/silver): #1 the label column's share of the block's width, #2 label,
+% #3 the note, set small across the total and sources columns. The columns
+% of every block that has such rows add up to 0.93 of its width. Like the
+% block's other optional rows it has no icon, but keeps the room for one so
+% the labels line up.
+\newcommand{\noterow}[3]{\rowstrut \rowicon{}#2 &
+  \multicolumn{2}{C{\dimexpr0.93\linewidth-#1\linewidth+2\tabcolsep\relax}}{#3} \\}
+% A block's note with no label (the view notes under Defense and Movement):
+% #1 the note, set small across all three columns.
+% \multicolumn has to open the row, so the strut goes inside it.
+\newcommand{\fullnoterow}[1]{%
+  \multicolumn{3}{C{\dimexpr0.93\linewidth+4\tabcolsep\relax}}{\rowstrut #1} \\}
+% A label and a note set small beside it, in a two-column table: the Build
+% page's notes, and the social note after the languages.
+\newcommand{\textrow}[2]{\rowstrut #1 & {\footnotesize #2} \\}
+% Languages, two to a row.
+\newcommand{\langrow}[2]{\rowstrut #1 & #2 \\}
 % Character description, two fields per row: icon, label, value, twice.
 \newcommand{\descrow}[6]{\rowstrut \rowicon{#1}#2 & #3 & \rowicon{#4}#5 & #6 \\}
 % Stacked tables for the inventory page. Each row is its own one-row tabular,
@@ -157,6 +175,9 @@ ${EMOJI_ON}
 \newlength{\slotitems}
 \newlength{\traitname}
 \newlength{\traitdetail}
+\newlength{\featname}
+\newlength{\feateffect}
+\newlength{\featsource}
 \newcommand{\setstackwidths}{%
   \setlength{\stackindent}{\blocklabel}%
   \setlength{\stackwidth}{\dimexpr\linewidth-\blocklabel\relax}%
@@ -164,12 +185,16 @@ ${EMOJI_ON}
   \setlength{\slotname}{0.27\stackwidth}%
   \setlength{\slotitems}{\dimexpr\stackwidth-\slotname-4\tabcolsep\relax}%
   \setlength{\traitname}{0.4\stackwidth}%
-  \setlength{\traitdetail}{\dimexpr\stackwidth-\traitname-4\tabcolsep\relax}}
+  \setlength{\traitdetail}{\dimexpr\stackwidth-\traitname-4\tabcolsep\relax}%
+  \setlength{\featname}{0.36\stackwidth}%
+  \setlength{\feateffect}{0.42\stackwidth}%
+  \setlength{\featsource}{\dimexpr\stackwidth-\featname-\feateffect-6\tabcolsep\relax}}
 % Column types rather than macros: tabular does not expand a macro in its
 % column spec.
 \newcolumntype{I}{L{\invname}R{\invqty}R{\invwt}}
 \newcolumntype{J}{L{\slotname}L{\slotitems}}
 \newcolumntype{T}{L{\traitname}C{\traitdetail}}
+\newcolumntype{F}{L{\featname}C{\feateffect}Q{\featsource}}
 
 % Inventory: #1 item, #2 quantity, #3 the line's total weight in pounds.
 \newcommand{\invheader}{\stackheader{I}{\footnotesize Item & \footnotesize Qty & \footnotesize Wt (lb)}}
@@ -178,10 +203,15 @@ ${EMOJI_ON}
   \multicolumn{2}{L{\dimexpr\invname+\invqty+2\tabcolsep\relax}}{\textbf{#1}} & \textbf{#2}}}
 \newcommand{\invitem}[3]{\stackbody{I}{#1 & #2 & #3}}
 
+% Money: #1 the coin or "Total", #2 how much, #3 where it is carried. A
+% sheet with several purses heads each with \moneygroup.
+\newcommand{\moneyrow}[3]{#1 & #2 & {\footnotesize #3} \\}
+\newcommand{\moneygroup}[1]{\multicolumn{3}{L{\dimexpr\linewidth-2\tabcolsep\relax}}{\textbf{#1}} \\}
+
 % Magic item slots: #1 icon, #2 slot name, #3 1 when more than one item claims
 % the slot, #4 the \slotitem entries (empty for a free slot). No header row:
 % the slot names and what is in them need no labels.
-\newcommand{\slotitem}[2]{#1\if\relax\detokenize{#2}\relax\else\ {\footnotesize(#2)}\fi}
+\newcommand{\slotitem}[1]{#1}
 \newcommand{\slotcells}[4]{%
   \rowicon{#1}#2\ifnum#3=1 \ \ifsheetemoji\emoji{warning}\else\textbf{(!)}\fi\fi &
   \if\relax\detokenize{#4}\relax\textcolor{black!40}{\textemdash}\else #4\fi}
@@ -224,6 +254,20 @@ ${EMOJI_ON}
   \rlap{\makebox[\blocklabel][l]{\raisebox{-\height}[0pt][0pt]{%
     \rotatebox{90}{\blocklabelfont #1}}}}%
   \par\nointerlineskip\nobreak}
+% A stacked table under a \stacklabel, #1, that can break across columns
+% and pages: #2 is set in a box first, to measure it, then unboxed, which
+% leaves its rows free to break as before. A table shorter than its label
+% is padded to the label's length, so the label cannot run into what follows.
+\newbox\flowbox
+\newlength{\flowheight}
+\newcommand{\flowblock}[2]{%
+  \setbox\flowbox\vbox{#2}%
+  \setlength{\flowheight}{\dimexpr\ht\flowbox+\dp\flowbox\relax}%
+  \settowidth{\blocklabellength}{\blocklabelfont #1}%
+  \stacklabel{#1}%
+  \unvbox\flowbox
+  \ifdim\flowheight<\blocklabellength
+    \nobreak\vspace{\dimexpr\blocklabellength-\flowheight\relax}\fi}
 % A block that must fit in #1 of height, scaled down if it is taller. Scaling
 % alone would narrow it too, leaving white space beside it, so it is first
 % laid out wider, in steps of \fitstep, until at that width it is short
@@ -280,17 +324,24 @@ ${EMOJI_ON}
 % grows to hold them.
 \newcommand{\meleerow}[5]{\rowstrut #1 & #2 & #3 & #4 & #5 \\}
 \newcommand{\rangedrow}[6]{\rowstrut #1 & #2 & #3 & #4 & #5 & #6 \\}
-% A weapon table with nothing in it: #1 its number of columns.
-\newcommand{\attacknone}[1]{\multicolumn{#1}{L{\dimexpr\linewidth-2\tabcolsep\relax}}{\rowstrut\textcolor{black!40}{None recorded}} \\}
+% Ammunition: #1 name, #2 how many, #3 the container it is in. The last
+% column is left empty, for marking off what is used.
+\newcommand{\ammorow}[3]{\rowstrut #1 & #2 & {\footnotesize #3} & \\}
+% A table with nothing in it: #1 its number of columns.
+\newcommand{\nonerow}[1]{\multicolumn{#1}{L{\dimexpr\linewidth-2\tabcolsep\relax}}{\rowstrut\textcolor{black!40}{None recorded}} \\}
 % Full attacks: #1 the routine, #2 its attacks.
 \newenvironment{actionblock}[1]{%
   \begin{sheetblock}{#1}%
   \begin{tabular}{L{0.30\linewidth}N{0.63\linewidth}}}
   {\end{tabular}\end{sheetblock}}
 \newcommand{\actionrow}[2]{\rowstrut #1 & #2 \\}
-% Feats: #1 feat, #2 what it does, #3 where it came from.
-\newcommand{\featrow}[3]{\rowstrut #1 & #2 & \rowsources{#3} \\}
-\newcommand{\featnone}{\attacknone{3}}
+% Feats, stacked so a long list can break across columns: #1 feat, #2 what
+% it does, #3 where it came from.
+\newcommand{\featheader}{\stackheader{F}{\footnotesize Feat & Effect &
+  \multicolumn{1}{L{\featsource}}{\footnotesize Source}}}
+\newcommand{\featrow}[3]{\stackbody{F}{\rowstrut #1 & #2 & \rowsources{#3}}}
+\newcommand{\featnone}{\stackbody{F}{%
+  \multicolumn{3}{L{\dimexpr\stackwidth-2\tabcolsep\relax}}{\rowstrut\textcolor{black!40}{None recorded}}}}
 % Class and special abilities, stacked so a group of them (a class, the
 % racial traits) can open with a header row as the inventory's containers do.
 % #1 the group's name.
@@ -325,20 +376,14 @@ ${EMOJI_ON}
 
 \begin{multicols*}{2}
 \raggedcolumns
+% The left column is one block, so it never runs into the skills column: a
+% character with many optional rows (Andy's armor and items under Defense)
+% gets it scaled down to fit, laid out wider first as the skills are.
+\fitblock{\textheight}{%
 \begin{sheetblock}{Init}
 \begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
 \statrow{high-voltage}{Initiative}{ {{combat.initiative}} }{ {{combat.initiative.sources}} }
-\end{tabular}
-\end{sheetblock}
-\blockrule
-\begin{sheetblock}{Description}
-\begin{tabular}{L{0.225\linewidth}L{0.22\linewidth}L{0.225\linewidth}L{0.22\linewidth}}
-\descrow{dna}{Race}{ {{character.race}} }{yin-yang}{Alignment}{ {{character.alignment}} }
-\descrow{crossed-swords}{Classes}{ {{character.classes}} }{level-slider}{Level}{ {{character.level}} }
-\descrow{nesting-dolls}{Size}{ {{character.size}} }{transgender-symbol}{Sex}{ {{character.sex}} }
-\descrow{hourglass-not-done}{Age}{ {{character.age}} }{straight-ruler}{Height}{ {{character.height}} }
-\descrow{person-lifting-weights}{Weight}{ {{character.weight}} }{eye}{Eyes}{ {{character.eyes}} }
-\descrow{person-getting-haircut}{Hair}{ {{character.hair}} }{person-standing}{Build}{ {{character.build}} }
+{{{combat.initiativeSpecialRows}}}
 \end{tabular}
 \end{sheetblock}
 \blockrule
@@ -358,20 +403,20 @@ ${EMOJI_ON}
 \statrow{castle}{Fortitude}{ {{saves.fortitude}} }{ {{saves.fortitude.sources}} }
 \statrow{dashing-away}{Reflex}{ {{saves.reflex}} }{ {{saves.reflex.sources}} }
 \statrow{lion}{Will}{ {{saves.will}} }{ {{saves.will.sources}} }
+{{{saves.specialRows}}}
 \end{tabular}
 \end{sheetblock}
 \blockrule
 \begin{sheetblock}{Defense}
 \begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
 \statrow{red-heart}{HP}{ {{combat.hp}} }{ {{combat.hp.sources}} }
+\statrow{game-die}{Hit Dice}{ {{combat.hd}} }{ {{combat.hd.sources}} }
 \statrow{shield}{AC}{ {{combat.ac}} }{ {{combat.ac.sources}} }
 \statrow{raised-hand}{Touch AC}{ {{combat.touchAc}} }{ {{combat.touchAc.sources}} }
 \statrow{astonished-face}{Flat-Footed AC}{ {{combat.flatFootedAc}} }{ {{combat.flatFootedAc.sources}} }
+{{{combat.defenseSpecialRows}}}
 \end{tabular}
 \end{sheetblock}
-\begin{blocknote}
-\footnotesize\inlineicon{nazar-amulet}\textbf{Defense Special:} {{combat.defenseSpecial}} \\
-\end{blocknote}
 \blockrule
 \begin{sheetblock}{Movement}
 \begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
@@ -379,8 +424,15 @@ ${EMOJI_ON}
 \statrow{safety-vest}{Max Dex}{ {{combat.maxDex}} }{ {{combat.maxDex.sources}} }
 \statrow{person-running}{Speed}{ {{movement.speed}} }{ {{movement.speed.sources}} }
 \statrow{running-shoe}{Run}{ {{movement.run}} }{ {{movement.run.sources}} }
+{{{movement.specialRows}}}
 \end{tabular}
 \end{sheetblock}
+\blockrule
+\begin{sheetblock}{Languages}
+\begin{tabular}{L{0.465\linewidth}L{0.465\linewidth}}
+{{{character.languagesTable}}}
+\end{tabular}
+\end{sheetblock}}
 
 \columnbreak
 
@@ -400,9 +452,9 @@ ${EMOJI_ON}
 \newpage
 \renewcommand{\sheettitle}{Actions}
 
-% What the character can do on a turn: attacks first, then the abilities and
-% feats behind them. The page flows, so a character with more abilities
-% than two columns hold continues on a second Actions page.
+% What the character can do on a turn: attacks, and what they can bring to
+% one. The page flows, so a character with more than two columns hold
+% continues on a second Actions page.
 \begin{multicols}{2}
 \raggedcolumns
 \setstackwidths
@@ -413,6 +465,7 @@ ${EMOJI_ON}
 \statrow{bow-and-arrow}{Ranged}{ {{combat.ranged}} }{ {{combat.ranged.sources}} }
 \statrow{people-wrestling}{Grapple}{ {{combat.grapple}} }{ {{combat.grapple.sources}} }
 {{{actions.specialAttackRows}}}
+{{{actions.offenseNoteRows}}}
 \end{tabular}
 \end{sheetblock}
 \blockrule
@@ -429,43 +482,80 @@ ${EMOJI_ON}
 {{{actions.rangedTable}}}
 \end{tabular}
 \end{sheetblock}
+\blockrule
+\begin{sheetblock}{Ammunition}
+\begin{tabular}{L{0.40\linewidth}R{0.10\linewidth}L{0.18\linewidth}L{0.25\linewidth}}
+\footnotesize Ammunition & \footnotesize Qty & \footnotesize Where & \footnotesize Used \\
+{{{actions.ammoTable}}}
+\end{tabular}
+\end{sheetblock}
 {{{actions.fullAttackBlock}}}
 \blockrule
-% Each list is one block, scaled down only if it is taller than a column.
-% Special abilities come first: they are usually short, and fit under the
-% attacks where the feats and class abilities would not.
 \fitblock{\textheight}{%
-\begin{sheetblock}{Special Abilities}
+\begin{sheetblock}{Attack Options}
 \stackopen
-{{{actions.specialAbilitiesTable}}}
+{{{actions.attackOptionsTable}}}
 \end{sheetblock}}
+{{{actions.spellLikeBlock}}}
+\end{multicols}
+
+\newpage
+\renewcommand{\sheettitle}{Build}
+
+% Who the character is and how they got here: what changes between
+% sessions, if at all, rather than during one. The page flows, so a
+% character with many feats and abilities continues on a second Build page.
+\begin{multicols}{2}
+\raggedcolumns
+\setstackwidths
+\begin{sheetblock}{Description}
+\begin{tabular}{L{0.25\linewidth}L{0.195\linewidth}L{0.25\linewidth}L{0.195\linewidth}}
+\descrow{dna}{Race}{ {{character.race}} }{yin-yang}{Alignment}{ {{character.alignment}} }
+\descrow{crossed-swords}{Classes}{ {{character.classes}} }{level-slider}{Level}{ {{character.level}} }
+\descrow{nesting-dolls}{Size}{ {{character.size}} }{transgender-symbol}{Sex}{ {{character.sex}} }
+\descrow{hourglass-not-done}{Age}{ {{character.age}} }{straight-ruler}{Height}{ {{character.height}} }
+\descrow{person-lifting-weights}{Weight}{ {{character.weight}} }{eye}{Eyes}{ {{character.eyes}} }
+\descrow{person-getting-haircut}{Hair}{ {{character.hair}} }{person-standing}{Build}{ {{character.build}} }
+\descrow{artist-palette}{Complexion}{ {{character.complexion}} }{performing-arts}{Template}{ {{character.template}} }
+\end{tabular}
+\end{sheetblock}
+\blockrule
+\begin{sheetblock}{Level}
+\begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
+{{{build.levelRows}}}
+\end{tabular}
+\end{sheetblock}
 \blockrule
 \fitblock{\textheight}{%
-\begin{sheetblock}{Feats}
-\begin{tabular}{L{0.36\linewidth}C{0.42\linewidth}Q{0.15\linewidth}}
-\footnotesize Feat & Effect & \multicolumn{1}{L{0.15\linewidth}}{\footnotesize Source} \\
-{{{actions.featsTable}}}
+\begin{sheetblock}{Notes}
+\begin{tabular}{L{0.30\linewidth}L{0.63\linewidth}}
+{{{build.noteRows}}}
 \end{tabular}
 \end{sheetblock}}
 \blockrule
-\fitblock{\textheight}{%
-\begin{sheetblock}{Class Abilities}
+% The lists can run long, so they flow across columns and pages as the
+% inventory does.
+\flowblock{Special Abilities}{%
 \stackopen
-{{{actions.classAbilitiesTable}}}
-\end{sheetblock}}
+{{{build.specialAbilitiesTable}}}}
+\blockrule
+\flowblock{Feats}{%
+\featheader
+{{{build.featsTable}}}}
+\blockrule
+\flowblock{Class Abilities}{%
+\stackopen
+{{{build.classAbilitiesTable}}}}
 \end{multicols}
 
 \newpage
 \renewcommand{\sheettitle}{Inventory}
 
-% The left column holds Load and Magic Item Slots, and nothing else; the full
-% inventory starts at the top of the middle column and flows on from there.
-% collectmore below zero makes multicols gather a little less than a full
-% page before splitting it into columns. At the default, a long inventory
-% whose last page balances (Mike's) overshot the page by 8pt, because the
-% header rows' \nobreak leaves few places to split.
-\setcounter{collectmore}{-5}
-\begin{multicols}{3}
+% The left column holds Load, Magic Item Slots and Money, and nothing else;
+% the full inventory starts at the top of the middle column and flows on from
+% there. The columns are not balanced: an inventory that runs onto another
+% page fills each column to the bottom before starting the next.
+\begin{multicols*}{3}
 \raggedcolumns
 \small
 % A little more room above and below each row than page 1's tables need,
@@ -488,20 +578,26 @@ Push or drag & {{movement.capacity.drag}} \\
 \end{sheetblock}
 \blockrule}
 \noindent\copy\loadbox\par\nointerlineskip
-% The body slots and the slotless rows after them are one block, so the
-% table never breaks across columns. A character with many slotless items
-% gets the block scaled down to fit the rest of the left column, laid out
-% wider first so it still fills the column's width.
+% The body slots, the slotless rows after them and the money are one block,
+% so neither table breaks across columns. A character with many slotless
+% items or purses gets the block scaled down to fit the rest of the left
+% column, laid out wider first so it still fills the column's width.
 \fitblock{\dimexpr\textheight-\ht\loadbox-\dp\loadbox\relax}{%
 \begin{sheetblock}{Magic Item Slots}
 \stackopen
 {{{inventory.slotsTable}}}
+\end{sheetblock}
+\blockrule
+\begin{sheetblock}{Money}
+\begin{tabular}{L{0.30\linewidth}R{0.28\linewidth}L{0.34\linewidth}}
+{{{inventory.moneyTable}}}
+\end{tabular}
 \end{sheetblock}}
 \columnbreak
 \stacklabel{Items by Container}
 \invheader
 {{{inventory.detailedTable}}}
-\end{multicols}
+\end{multicols*}
 
 \newpage
 \renewcommand{\sheettitle}{Spells}

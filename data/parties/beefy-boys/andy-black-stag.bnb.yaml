@@ -129,15 +129,15 @@ character:
       - [Heward's Handy Haversack, 1, container, 5 lbs, 1, [magic, other-slot]]
       - [Everfull Mug, 1, gear, 5 lbs, 2, [magic]]
       - [Everlasting Rations, 1, supplies, 5 lbs, 3, [magic]]
-      - [Sickle +1, 2, weapon, 1 lb, 4, {damage: 1d6, crit: x2, enhancement: 1}, [magic, other-slot]]
-      - [Weapon Crystal Energy Assault Greater (Acid), 1, gear, 0.1 lbs, 5, [magic, other-slot]]
+      - [Sickle +1, 2, weapon, 1 lb, 4, {damage: 1d6, crit: x2, enhancement: 1}, [magic]]
+      - [Weapon Crystal Energy Assault Greater (Acid), 1, gear, 0.1 lbs, 5, [magic]]
       - [Weapon Crystal Energy Assault Greater (Shocking), 1, gear, 0.1 lbs, 6, [magic]]
       - [Weapon Crystal Energy Assault Greater (Fire), 1, gear, 0.1 lbs, 7, [magic]]
       - [Dagger, 1, weapon, 1 lb, 8, {damage: 1d4, crit: 19-20/x2}]
       - [Leather Mask, 1, gear, 1 lb, 9]
       - [Dagger Silver MW, 1, weapon, 2 lbs, 10, {damage: 1d4, crit: 19-20/x2}, [mw, silver]]
-      - [Bow of the Wintermoon +1 Full Str Bonus, 1, weapon, 2 lbs, 11, {damage: 1d8, crit: x3, range: 110ft, enhancement: 1}, [magic, other-slot]]
-      - [Arrows, 31, supplies, 0.15 lbs, 12]
+      - [Bow of the Wintermoon +1 Full Str Bonus, 1, weapon, 2 lbs, 11, {damage: 1d8, crit: x3, range: 110ft, enhancement: 1}, [magic]]
+      - [Arrows, 31, ammo, 0.15 lbs, 12]
       - [Horned Helm +1 (1d8 natural attack 1/2 str; +1 AC), 1, gear, 0 lbs, 13, {ac: 1, damage: 1d8, crit: x2}, [magic, head-slot]]
       - [+4 Deathward Improved Stamina/Agility Mindarmor Mithralmist Chain Shirt (+8 AC), 1, armor, 12.5 lbs, 14, {ac: 9, acp: 0, mist: 7/day 5ft 1min, will-mindarmor: 3/day +5 vs mind-affecting, deathward: 1/day ignore death/neg energy}, [magic, mithral, body-slot], [[combat.saves.fortitude, {armor-resistance: 3}], [combat.saves.reflex, {armor-resistance: 3}]]]
       - [Ring of Protection +1, 1, gear, 0 lbs, 15, {}, [magic, left-ring-slot], [[combat.defense.ac, {deflection: 1}], [combat.defense.touch-ac, {deflection: 1}], [combat.defense.flat-footed-ac, {deflection: 1}]]]
@@ -147,11 +147,11 @@ character:
       - ["Vanisher Cloak (3 charges/day: 1=4rds, 2=3rds, 3=2rds invisibility)", 1, gear, 0 lbs, 19, [magic, shoulders-slot]]
       - [Vest of Resistance +2 Saves, 1, gear, 0 lbs, 20, {}, [magic, torso-slot], [[combat.saves.fortitude, {vest-resistance: 2}], [combat.saves.reflex, {vest-resistance: 2}], [combat.saves.will, {vest-resistance: 2}]]]
       - [Filcher's Friend (+5 Sleight of Hand/metal), 1, gear, 0 lbs, 21, [magic, right-ring-slot]]
-      - [Flask Holy Water, 1, supplies, 1 lb, 22]
-      - [Flask Acid, 1, supplies, 1 lb, 23]
+      - [Flask Holy Water, 1, ammo, 1 lb, 22]
+      - [Flask Acid, 1, ammo, 1 lb, 23]
       - [Everburning Torch (Candle/Skull), 1, gear, 1 lb, 24, [magic]]
       - [Holy Symbol wooden (Obad-Hai), 1, gear, 0 lbs, 25]
-      - [Alchemist Arrow (+1d4 next rnd), 6, supplies, 0.15 lbs, 26]
+      - [Alchemist Arrow (+1d4 next rnd), 6, ammo, 0.15 lbs, 26]
       - [Blessed Bandages, 3, supplies, 0 lbs, 27]
       - [Ghost Oil (2 rds Ghost Touch), 1, supplies, 0 lbs, 28]
       - [Wand Cure Light (45 charges), 1, wand, 0 lbs, 29, [magic]]
@@ -195,5 +195,4 @@ character:
     combat-defense: Vanisher Cloak (3 charges/day invisibility); Deathward 1/day; Mental Acuity 3/day +5 vs mind-affecting
   notes:
     devotee: Obad-Hai, Pelor
-    special-damage: 3
     human-until-level-10: Was Human until level 10, then became Orc

@@ -1,8 +1,5 @@
 import { json } from '@sveltejs/kit';
-import {
-	moveCharacterMagicItem,
-	saveCharacterMagicItem
-} from '$lib/server/characters';
+import { moveCharacterMagicItem, saveCharacterMagicItem } from '$lib/server/characters';
 
 export async function POST({ request, params }) {
 	const form = await request.formData();

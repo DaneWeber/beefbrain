@@ -23,6 +23,7 @@ import {
   toRecord,
 } from './components'
 import {
+  buildAttackOptionRows,
   buildClassAbilityRows,
   buildFeatRows,
   buildFullAttackBlock,
@@ -30,8 +31,18 @@ import {
   buildRangedRows,
   buildSpecialAbilityRows,
   buildSpecialAttackRows,
+  buildSpellLikeBlock,
   getClassNames,
 } from './actionsSummary'
+import {
+  buildAmmoRows,
+  buildLanguageRows,
+  buildLevelRows,
+  buildMoneyRows,
+  buildNoteRows,
+  buildSpecialRows,
+  formatHitDice,
+} from './sheetExtras'
 import {
   buildCastingTableRows,
   buildSpellLevelBlocks,
@@ -369,10 +380,10 @@ function buildInventoryTableRows(inventory: Record<string, unknown>): string {
     .join('\n')
 }
 
+// Only the item's name: its effects are on page 1 and the item list.
 function formatSlotItem(item: InventoryItem): string {
   const name = escapeLatexText(String(item[0] ?? 'Unknown item'))
-  const effects = escapeLatexText(formatItemEffects(item))
-  return `\\slotitem{${name}}{${effects}}`
+  return `\\slotitem{${name}}`
 }
 
 /**
@@ -605,6 +616,17 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
   const attack = toRecord(combat.attack)
   const special = toRecord(characterData.special)
   const classes = getClassNames(hpContainer)
+  const viewNotes = toRecord(characterData['view-notes'])
+  // A block's fixed rows are printed by the template; every other key in it
+  // gets an optional row after them.
+  const extraEntries = (
+    record: Record<string, unknown>,
+    fixed: string[],
+  ): [string, unknown][] =>
+    Object.entries(record).filter(([key]) => !fixed.includes(key))
+  // A view note, if the sheet has one, as a row labelled `label`.
+  const viewNote = (key: string, label: string): [string, unknown][] =>
+    viewNotes[key] === undefined ? [] : [[label, viewNotes[key]]]
 
   return {
     'character.name': String(description.name ?? 'Unknown'),
@@ -620,6 +642,16 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'character.hair': String(description.hair ?? 'Unknown'),
     'character.complexion': String(description.complexion ?? 'Unknown'),
     'character.build': String(description.build ?? 'Unknown'),
+    'character.template': String(description.template ?? 'None'),
+    'character.languagesTable': buildLanguageRows(
+      special.languages,
+      viewNotes.social,
+    ),
+    'build.levelRows': buildLevelRows(hpContainer, skillsContainer),
+    'build.noteRows': buildNoteRows(characterData.notes),
+    'build.featsTable': buildFeatRows(special),
+    'build.classAbilitiesTable': buildClassAbilityRows(special, classes),
+    'build.specialAbilitiesTable': buildSpecialAbilityRows(special, classes),
     'character.classes': getClassSummary(characterData),
     'character.level': getCharacterLevel(hpContainer),
 
@@ -649,6 +681,8 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'combat.hp': getArrayFirst(hpContainer.hp),
     'combat.hp.breakdown': formatBreakdown(hpContainer.hp),
     'combat.hp.sources': formatSources(hpContainer.hp),
+    'combat.hd': getArrayFirst(hpContainer.hd),
+    'combat.hd.sources': formatHitDice(hpContainer.hd),
     'combat.ac': getArrayFirst(defense.ac),
     'combat.ac.breakdown': formatBreakdown(defense.ac),
     'combat.ac.sources': formatSources(defense.ac),
@@ -666,7 +700,19 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'combat.initiative': getArrayFirst(combat.initiative),
     'combat.initiative.breakdown': formatBreakdown(combat.initiative),
     'combat.initiative.sources': formatSources(combat.initiative),
-    'combat.defenseSpecial': String(defense.special ?? 'None'),
+    'combat.initiativeSpecialRows': buildSpecialRows(
+      viewNote('senses', 'senses'),
+    ),
+    'combat.defenseSpecialRows': buildSpecialRows([
+      ...extraEntries(defense, [
+        'ac',
+        'touch-ac',
+        'flat-footed-ac',
+        'acp',
+        'max-dex',
+      ]),
+      ...viewNote('combat-defense', 'notes'),
+    ]),
 
     // The written-out iteratives (+12/+7/+2) when the sheet has them.
     'combat.bab':
@@ -685,10 +731,24 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'actions.rangedTable': buildRangedRows(attack),
     'actions.fullAttackBlock': buildFullAttackBlock(attack),
     'actions.specialAttackRows': buildSpecialAttackRows(combat),
-    'actions.featsTable': buildFeatRows(special),
-    'actions.classAbilitiesTable': buildClassAbilityRows(special, classes),
-    'actions.specialAbilitiesTable': buildSpecialAbilityRows(special, classes),
+    'actions.offenseNoteRows': buildSpecialRows(
+      viewNote('combat-offense', 'notes'),
+      { labelWidth: '0.27' },
+    ),
+    'actions.spellLikeBlock': buildSpellLikeBlock(
+      characterData['spell-like-abilities'],
+    ),
+    'actions.ammoTable': buildAmmoRows(inventoryContainer),
+    'actions.attackOptionsTable': buildAttackOptionRows(
+      special,
+      classes,
+      inventoryContainer,
+    ),
 
+    'saves.specialRows': buildSpecialRows(
+      extraEntries(savesContainer, ['fortitude', 'reflex', 'will']),
+      { signed: true },
+    ),
     'saves.fortitude': formatSignedTotal(savesContainer.fortitude),
     'saves.fortitude.breakdown': formatBreakdown(savesContainer.fortitude),
     'saves.fortitude.sources': formatSources(savesContainer.fortitude),
@@ -699,6 +759,10 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'saves.will.breakdown': formatBreakdown(savesContainer.will),
     'saves.will.sources': formatSources(savesContainer.will),
 
+    'movement.specialRows': buildSpecialRows([
+      ...extraEntries(movement, ['speed', 'run', 'load', 'capacity']),
+      ...viewNote('movement', 'notes'),
+    ]),
     'movement.speed': getArrayFirst(movement.speed),
     'movement.speed.breakdown': formatBreakdown(movement.speed),
     'movement.speed.sources': formatSources(movement.speed),
@@ -720,6 +784,7 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
       formatEquippedMagicItems(inventoryContainer),
     'inventory.itemsByContainer': formatItemsByContainer(inventoryContainer),
     'inventory.detailedTable': buildInventoryTableRows(inventoryContainer),
+    'inventory.moneyTable': buildMoneyRows(inventoryContainer.money),
     'inventory.slotsTable': buildSlotsTableRows(inventoryContainer),
 
     'spells.summary': formatSpellsSummary(casters),

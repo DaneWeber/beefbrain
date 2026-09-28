@@ -53,7 +53,7 @@ describe('renderLatex', () => {
     expect(result.latex).toContain('Appraise')
   })
 
-  it('puts the Actions page between Stats and Inventory', () => {
+  it('puts the Actions page between Stats and Build', () => {
     const { latex } = renderLatex({ yaml: VALID_YAML })
     const actions = latex.indexOf('\\renewcommand{\\sheettitle}{Actions}')
     expect(actions).toBeGreaterThan(latex.indexOf('{Skills}'))
@@ -69,6 +69,48 @@ describe('renderLatex', () => {
     )
     expect(latex).toContain(
       '\\featrow{Weapon Focus (Longsword)}{Longsword +1}{Fighter 1}',
+    )
+  })
+
+  it('orders the pages Stats, Actions, Build, Inventory, Spells', () => {
+    const { latex } = renderLatex({ yaml: VALID_YAML })
+    const at = (title: string) =>
+      latex.indexOf(`\\renewcommand{\\sheettitle}{${title}}`)
+    const skills = latex.indexOf('{Skills}')
+    expect(skills).toBeLessThan(at('Actions'))
+    expect(at('Actions')).toBeLessThan(at('Build'))
+    expect(at('Build')).toBeLessThan(at('Inventory'))
+    expect(at('Inventory')).toBeLessThan(at('Spells'))
+    // Description moved from page 1 to Build.
+    expect(latex.indexOf('{Description}')).toBeGreaterThan(at('Build'))
+    expect(latex.indexOf('{Languages}')).toBeLessThan(skills)
+    // Actions keeps the attacks; the lists behind them are on Build.
+    expect(latex.indexOf('{Ammunition}')).toBeGreaterThan(at('Actions'))
+    expect(latex.indexOf('{Attack Options}')).toBeLessThan(at('Build'))
+    for (const list of ['Feats', 'Class Abilities', 'Special Abilities']) {
+      expect(latex.indexOf(`\\flowblock{${list}}`)).toBeGreaterThan(at('Build'))
+      expect(latex.indexOf(`\\flowblock{${list}}`)).toBeLessThan(
+        at('Inventory'),
+      )
+    }
+  })
+
+  it('shows hit dice between HP and AC', () => {
+    const { latex } = renderLatex({ yaml: VALID_YAML })
+    const hp = latex.indexOf('\\statrow{red-heart}{HP}')
+    const hd = latex.indexOf('\\statrow{game-die}{Hit Dice}')
+    expect(hd).toBeGreaterThan(hp)
+    expect(hd).toBeLessThan(latex.indexOf('\\statrow{shield}{AC}'))
+  })
+
+  it('prints special notes as rows of their block, not as Defense Special', () => {
+    const { latex } = renderLatex({ yaml: VALID_YAML })
+    expect(latex).not.toContain('Defense Special')
+    expect(latex).toContain(
+      '\\noterow{0.30}{Special}{Blind Fight: no advantage to invisible melee attackers}',
+    )
+    expect(latex).toContain(
+      '\\noterow{0.30}{Special}{Blind Fight: 1/2 penalty when unable to see}',
     )
   })
 
@@ -308,7 +350,7 @@ character:
         ].map(([icon, slot]) => `\\slotrow{${icon}}{${slot}`),
       )
       expect(latex).toContain(
-        '\\slotrow{coat}{Shoulders}{0}{\\slotitem{Cloak of Resistance +3}{Saves Resistance=3}}',
+        '\\slotrow{coat}{Shoulders}{0}{\\slotitem{Cloak of Resistance +3}}',
       )
       // The belt in the pack is a spare, not worn.
       expect(latex).toContain('\\slotrow{scarf}{Waist}{0}{}')
@@ -316,15 +358,15 @@ character:
 
     it('flags a slot claimed by more than one item', () => {
       expect(renderField(yaml, 'inventory.slotsTable')).toContain(
-        '\\slotrow{goggles}{Face}{1}{\\slotitem{Pearl of Speech}{}\\newline \\slotitem{Third Eye}{}}',
+        '\\slotrow{goggles}{Face}{1}{\\slotitem{Pearl of Speech}\\newline \\slotitem{Third Eye}}',
       )
     })
 
     it('lists each equipped slotless item on its own row after the body slots', () => {
       const rows = renderField(yaml, 'inventory.slotsTable').split('\n')
       expect(rows.slice(12)).toEqual([
-        "\\slotlessrow{Slotless}{\\slotitem{Heward's Haversack}{}}",
-        '\\slotlessrow{Slotless}{\\slotitem{Ioun Stone}{}}',
+        "\\slotlessrow{Slotless}{\\slotitem{Heward's Haversack}}",
+        '\\slotlessrow{Slotless}{\\slotitem{Ioun Stone}}',
       ])
     })
   })

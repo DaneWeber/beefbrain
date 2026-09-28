@@ -12,9 +12,7 @@
 	type ViewMode = 'streamlined' | 'detailed';
 	let viewMode: ViewMode = $state('detailed');
 	let selectedLatexTemplate = $state('dnd35-detailed');
-	const sheetExportBase = $derived(
-		`${base}/parties/${data.party.slug}/characters/${data.slug}`
-	);
+	const sheetExportBase = $derived(`${base}/parties/${data.party.slug}/characters/${data.slug}`);
 	const latexDownloadHref = $derived(
 		`${sheetExportBase}/latex?template=${encodeURIComponent(selectedLatexTemplate)}`
 	);
