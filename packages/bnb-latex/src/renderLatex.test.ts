@@ -350,7 +350,7 @@ character:
         ].map(([icon, slot]) => `\\slotrow{${icon}}{${slot}`),
       )
       expect(latex).toContain(
-        '\\slotrow{coat}{Shoulders}{0}{\\slotitem{Cloak of Resistance +3}{Saves Resistance=3}}',
+        '\\slotrow{coat}{Shoulders}{0}{\\slotitem{Cloak of Resistance +3}}',
       )
       // The belt in the pack is a spare, not worn.
       expect(latex).toContain('\\slotrow{scarf}{Waist}{0}{}')
@@ -358,15 +358,15 @@ character:
 
     it('flags a slot claimed by more than one item', () => {
       expect(renderField(yaml, 'inventory.slotsTable')).toContain(
-        '\\slotrow{goggles}{Face}{1}{\\slotitem{Pearl of Speech}{}\\newline \\slotitem{Third Eye}{}}',
+        '\\slotrow{goggles}{Face}{1}{\\slotitem{Pearl of Speech}\\newline \\slotitem{Third Eye}}',
       )
     })
 
     it('lists each equipped slotless item on its own row after the body slots', () => {
       const rows = renderField(yaml, 'inventory.slotsTable').split('\n')
       expect(rows.slice(12)).toEqual([
-        "\\slotlessrow{Slotless}{\\slotitem{Heward's Haversack}{}}",
-        '\\slotlessrow{Slotless}{\\slotitem{Ioun Stone}{}}',
+        "\\slotlessrow{Slotless}{\\slotitem{Heward's Haversack}}",
+        '\\slotlessrow{Slotless}{\\slotitem{Ioun Stone}}',
       ])
     })
   })

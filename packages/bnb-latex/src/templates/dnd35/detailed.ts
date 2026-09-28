@@ -211,7 +211,7 @@ ${EMOJI_ON}
 % Magic item slots: #1 icon, #2 slot name, #3 1 when more than one item claims
 % the slot, #4 the \slotitem entries (empty for a free slot). No header row:
 % the slot names and what is in them need no labels.
-\newcommand{\slotitem}[2]{#1\if\relax\detokenize{#2}\relax\else\ {\footnotesize(#2)}\fi}
+\newcommand{\slotitem}[1]{#1}
 \newcommand{\slotcells}[4]{%
   \rowicon{#1}#2\ifnum#3=1 \ \ifsheetemoji\emoji{warning}\else\textbf{(!)}\fi\fi &
   \if\relax\detokenize{#4}\relax\textcolor{black!40}{\textemdash}\else #4\fi}
@@ -551,9 +551,9 @@ ${EMOJI_ON}
 \newpage
 \renewcommand{\sheettitle}{Inventory}
 
-% The left column holds Load and Magic Item Slots, and nothing else; money
-% and then the full inventory start at the top of the middle column and flow
-% on from there.
+% The left column holds Load, Magic Item Slots and Money, and nothing else;
+% the full inventory starts at the top of the middle column and flows on from
+% there.
 % collectmore below zero makes multicols gather a little less than a full
 % page before splitting it into columns. At the default, a long inventory
 % whose last page balances (Mike's) overshot the page by 8pt, because the
@@ -582,22 +582,22 @@ Push or drag & {{movement.capacity.drag}} \\
 \end{sheetblock}
 \blockrule}
 \noindent\copy\loadbox\par\nointerlineskip
-% The body slots and the slotless rows after them are one block, so the
-% table never breaks across columns. A character with many slotless items
-% gets the block scaled down to fit the rest of the left column, laid out
-% wider first so it still fills the column's width.
+% The body slots, the slotless rows after them and the money are one block,
+% so neither table breaks across columns. A character with many slotless
+% items or purses gets the block scaled down to fit the rest of the left
+% column, laid out wider first so it still fills the column's width.
 \fitblock{\dimexpr\textheight-\ht\loadbox-\dp\loadbox\relax}{%
 \begin{sheetblock}{Magic Item Slots}
 \stackopen
 {{{inventory.slotsTable}}}
-\end{sheetblock}}
-\columnbreak
+\end{sheetblock}
+\blockrule
 \begin{sheetblock}{Money}
 \begin{tabular}{L{0.30\linewidth}R{0.28\linewidth}L{0.34\linewidth}}
 {{{inventory.moneyTable}}}
 \end{tabular}
-\end{sheetblock}
-\blockrule
+\end{sheetblock}}
+\columnbreak
 \stacklabel{Items by Container}
 \invheader
 {{{inventory.detailedTable}}}

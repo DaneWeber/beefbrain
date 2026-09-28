@@ -380,10 +380,10 @@ function buildInventoryTableRows(inventory: Record<string, unknown>): string {
     .join('\n')
 }
 
+// Only the item's name: its effects are on page 1 and the item list.
 function formatSlotItem(item: InventoryItem): string {
   const name = escapeLatexText(String(item[0] ?? 'Unknown item'))
-  const effects = escapeLatexText(formatItemEffects(item))
-  return `\\slotitem{${name}}{${effects}}`
+  return `\\slotitem{${name}}`
 }
 
 /**
