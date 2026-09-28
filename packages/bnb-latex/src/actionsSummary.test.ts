@@ -377,7 +377,15 @@ describe('buildAttackOptionRows', () => {
       {
         equipped: [
           ['Longsword', 1, 'weapon', '4 lbs', 15, {}, ['combat-offense']],
-          ['Silver Sheen', 1, 'supplies', '0.1 lbs', 221, {}, ['combat-offense']],
+          [
+            'Silver Sheen',
+            1,
+            'supplies',
+            '0.1 lbs',
+            221,
+            {},
+            ['combat-offense'],
+          ],
           ['Healing Belt', 1, 'gear', '0.1 lbs', 241, {}, ['combat-defense']],
         ],
       },

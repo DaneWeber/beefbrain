@@ -752,10 +752,7 @@ export function buildAttackOptionRows(
   }
 
   const traitGroupsFound = Object.entries(special)
-    .filter(
-      ([key]) =>
-        !key.startsWith('_') && !NOT_ABILITY_KEYS.has(key),
-    )
+    .filter(([key]) => !key.startsWith('_') && !NOT_ABILITY_KEYS.has(key))
     .flatMap(([key, value]) =>
       traitGroups(
         CLASS_ABILITY_KEYS.has(key) ? 'Class Abilities' : formatTitleKey(key),
@@ -788,7 +785,5 @@ export function buildAttackOptionRows(
     }
   }
 
-  return (
-    traitRows([featGroup, ...traitGroupsFound, itemGroup]) || '\\traitnone'
-  )
+  return traitRows([featGroup, ...traitGroupsFound, itemGroup]) || '\\traitnone'
 }

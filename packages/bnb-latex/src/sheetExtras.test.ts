@@ -158,10 +158,7 @@ describe('buildLevelRows', () => {
 describe('buildNoteRows', () => {
   it('gives each note a row', () => {
     expect(buildNoteRows({ devotee: 'Obad-Hai', nonlethal: '0/42' })).toBe(
-      [
-        '\\textrow{Devotee}{Obad-Hai}',
-        '\\textrow{Nonlethal}{0/42}',
-      ].join('\n'),
+      ['\\textrow{Devotee}{Obad-Hai}', '\\textrow{Nonlethal}{0/42}'].join('\n'),
     )
   })
 

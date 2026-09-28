@@ -88,9 +88,7 @@ describe('renderLatex', () => {
     expect(latex.indexOf('{Ammunition}')).toBeGreaterThan(at('Actions'))
     expect(latex.indexOf('{Attack Options}')).toBeLessThan(at('Build'))
     for (const list of ['Feats', 'Class Abilities', 'Special Abilities']) {
-      expect(latex.indexOf(`\\flowblock{${list}}`)).toBeGreaterThan(
-        at('Build'),
-      )
+      expect(latex.indexOf(`\\flowblock{${list}}`)).toBeGreaterThan(at('Build'))
       expect(latex.indexOf(`\\flowblock{${list}}`)).toBeLessThan(
         at('Inventory'),
       )
