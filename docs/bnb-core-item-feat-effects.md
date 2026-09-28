@@ -160,10 +160,19 @@ the target.
    merges into element 3 (`atkMods`), resums into element 0. `[1]` (damage) and `[2]` (critical) are
    **not implemented** and throw `EffectTargetError` — see below. A bracket anywhere else (a
    non-weapon target, or any index but 0/1/2) also throws.
-3. **Anything else** — including ability score components — throws `EffectTargetError`. Ability
-   scores are deliberately out of scope: they're already owned by `propagateEquipmentToAbilities`
-   and are resummed with the stricter `sumOfValues`, which (unlike `sumValues`) does not tolerate a
-   non-numeric value sitting in the same component map.
+3. **Ability score** (`abilities.strength`) — no bracket. `bonusDict` merges into the ability's
+   component map (element 2 of `[score, {str: mod}, {components}]`); if the ability has no component
+   map yet, one is created as `{base: <current score>}`. Values must be numbers, since ability scores
+   are resummed with the stricter `sumOfValues`. Ability effects are applied by
+   `propagateAbilityEffects` at step 0 of `updateCalculatedFields`, *before* ability scores and
+   modifiers are calculated, so the new modifier reaches attacks, saves, skills, etc. in the same
+   pass. Stale keys are cleaned up the same way as every other effect (see below).
+   ```yaml
+   - [Belt of Giant's Strength +4, 1, gear, 1 lb, 16000 gp, {}, [magic, waist-slot], [[abilities.strength, {belt-enhancement: 4}]]]
+   ```
+   The older props form (`{str: 4}` / `{str-enhancement: 4}` in element 5, handled by
+   `propagateEquipmentToAbilities`) still works, but only for those fixed key names.
+4. **Anything else** throws `EffectTargetError`.
 
 **Note-only effects** (no `bonusDict`) never use a bracket — there's no numeric channel to
 disambiguate, so the target's own shape says where the note goes (`applyNoteOnly` in

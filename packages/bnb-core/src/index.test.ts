@@ -691,6 +691,21 @@ character:
           expect(output.character.abilities.dexterity[0]).toBe(12)
           expect(output.character.abilities.dexterity[1].dex).toBe(1)
         })
+        it('should clear a legacy str-enhancement bonus when the item is unequipped', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [18, str: 4, {base: 14, str-enhancement: 4}]
+  inventory:
+    _on: [equipped]
+    equipped: []
+    pack:
+      - [belt of giant strength, 1, wondrous, 0 lbs, 4000 gp, {str-enhancement: 4}]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.abilities.strength[2]).toEqual({ base: 14 })
+          expect(output.character.abilities.strength[0]).toBe(14)
+        })
       })
       describe('BAB and save derivation from class levels', () => {
         it('should derive BAB from single class', () => {
@@ -953,14 +968,68 @@ character:
             EffectTargetError,
           )
         })
-        it('should throw when an effect targets an ability score', () => {
+        it('should apply an equipped item effect to an ability score before derived values', () => {
           const yamlContent = `---
 character:
   abilities:
-    strength: [14, str: 2]
+    strength: [14, str: 2, {base: 14}]
+  combat:
+    attack:
+      melee:
+        _: [2, {bab: 0, str: 2}]
+  inventory:
+    _on: [equipped]
+    equipped:
+      - [Belt of Giant's Strength +4, 1, gear, 1 lb, 16000 gp, {}, [magic], [[abilities.strength, {belt-enhancement: 4}]]]
+`
+          const once = updateCalculatedFields(yamlContent)
+          const output = parseYAML(once)
+          expect(output.character.abilities.strength).toEqual([
+            18,
+            { str: 4 },
+            { base: 14, 'belt-enhancement': 4 },
+          ])
+          expect(output.character.combat.attack.melee._[0]).toBe(4)
+          expect(updateCalculatedFields(once)).toBe(once)
+        })
+        it('should remove an ability effect when the item is unequipped', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [18, str: 4, {base: 14, belt-enhancement: 4}]
+  inventory:
+    _on: [equipped]
+    equipped: []
+    pack:
+      - [Belt of Giant's Strength +4, 1, gear, 1 lb, 16000 gp, {}, [magic], [[abilities.strength, {belt-enhancement: 4}]]]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.abilities.strength).toEqual([
+            14,
+            { str: 2 },
+            { base: 14 },
+          ])
+        })
+        it('should keep hand-authored *-enhancement ability components', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [16, str: 3, {base: 14, tome-enhancement: 2}]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.abilities.strength[0]).toBe(16)
+          expect(
+            output.character.abilities.strength[2]['tome-enhancement'],
+          ).toBe(2)
+        })
+        it('should throw when an ability effect uses a bracket', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [14, str: 2, {base: 14}]
   inventory:
     equipped:
-      - [belt of giant strength, 1, wondrous, 0 lbs, 4000 gp, {}, [], [[abilities.strength, {item: 4}]]]
+      - [belt of giant strength, 1, wondrous, 0 lbs, 4000 gp, {}, [], [["abilities.strength[0]", {item: 4}]]]
 `
           expect(() => updateCalculatedFields(yamlContent)).toThrow(
             EffectTargetError,

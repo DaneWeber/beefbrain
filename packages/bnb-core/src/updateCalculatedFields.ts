@@ -4,7 +4,7 @@ import type { Character, Abilities } from '.'
 import { loadSchema } from './schemaLoader'
 import { calculateFieldValue, getAbilityArrayType } from './calculationEngine'
 import { applyComponentBindings } from './genericEngine'
-import { propagateEffects } from './propagateEffects'
+import { propagateAbilityEffects, propagateEffects } from './propagateEffects'
 import { bonusSpellSlots, parseCastingProfile } from './spellcasting'
 import {
   ACP_FIELD,
@@ -101,6 +101,7 @@ export function updateCalculatedFields(yamlContent: string): string {
 
   // Step 0: Read magic item bonuses from equipment and apply to ability components
   hasChanges = propagateEquipmentToAbilities(data, hasChanges)
+  hasChanges = propagateAbilityEffects(data, hasChanges)
 
   // Step 1: Calculate ability scores and modifiers
   hasChanges = calculateAbilityScores(character, hasChanges, data, schema)
@@ -200,6 +201,11 @@ const ABBR_TO_ABILITY: Record<string, string> = {
   cha: 'charisma',
 }
 
+// Component keys written (and therefore cleared) by propagateEquipmentToAbilities
+const LEGACY_ENHANCEMENT_KEYS = new Set(
+  Object.values(ABILITY_ABBR).map((abbr) => `${abbr}-enhancement`),
+)
+
 function parseAbilityBonusKey(
   key: string,
 ): { abilityName: string; normalizedKey: string } | null {
@@ -276,8 +282,9 @@ function propagateEquipmentToAbilities(
     }
   }
 
-  // Clear previous enhancement-style components so unequipping/moving items
-  // does not leave stale equipment bonuses behind.
+  // Clear previous <abbr>-enhancement components so unequipping/moving items
+  // does not leave stale equipment bonuses behind. Other *-enhancement keys
+  // (e.g. from abilities.<name> item effects) are not owned by this pass.
   for (const abilityArr of Object.values(abilities)) {
     if (!Array.isArray(abilityArr) || abilityArr.length < 3) continue
     const components = abilityArr[2]
@@ -289,7 +296,7 @@ function propagateEquipmentToAbilities(
       continue
     const comps = components as Record<string, number>
     for (const key of Object.keys(comps)) {
-      if (key.endsWith('-enhancement')) {
+      if (LEGACY_ENHANCEMENT_KEYS.has(key)) {
         delete comps[key]
         hasChanges = true
       }
