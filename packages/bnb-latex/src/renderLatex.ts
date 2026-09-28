@@ -1,5 +1,6 @@
 import * as yaml from 'js-yaml'
 import {
+  summarizeItemEffects,
   updateCalculatedFields,
   validateBeefBrainData,
   type BeefBrainData,
@@ -300,6 +301,13 @@ function getItemProps(item: InventoryItem): Record<string, unknown> {
   return toRecord(props)
 }
 
+/** Item props plus a summary of its effect bonuses, for display. */
+function formatItemEffects(item: InventoryItem): string {
+  return [formatEffects(getItemProps(item)), ...summarizeItemEffects(item)]
+    .filter((part) => part.length > 0)
+    .join(', ')
+}
+
 function getItemTags(item: InventoryItem): string[] {
   const tags = item
     .slice(5)
@@ -363,7 +371,7 @@ function buildInventoryTableRows(inventory: Record<string, unknown>): string {
 
 function formatSlotItem(item: InventoryItem): string {
   const name = escapeLatexText(String(item[0] ?? 'Unknown item'))
-  const effects = escapeLatexText(formatEffects(getItemProps(item)))
+  const effects = escapeLatexText(formatItemEffects(item))
   return `\\slotitem{${name}}{${effects}}`
 }
 
@@ -446,18 +454,23 @@ function formatEquippedMagicItems(inventory: Record<string, unknown>): string {
     .map((entry) => {
       const name = String(entry[0] ?? 'Unknown item')
       const quantity = entry[1]
-      const effects = toRecord(entry[5])
-      const tags = entry[entry.length - 1]
+      const effects = getItemProps(entry)
+      const tags = getItemTags(entry)
       return {
         name,
         quantity: String(quantity ?? 1),
         effects,
         tags,
+        effectsText: formatItemEffects(entry),
       }
     })
-    .filter((item) => hasMagicIndicators(item.name, item.effects, item.tags))
+    .filter(
+      (item) =>
+        item.effectsText.length > 0 ||
+        hasMagicIndicators(item.name, item.effects, item.tags),
+    )
     .map((item) => {
-      const effectsText = formatEffects(item.effects)
+      const { effectsText } = item
       if (effectsText.length > 0) {
         return `${item.name} (qty ${item.quantity}; effects: ${effectsText})`
       }

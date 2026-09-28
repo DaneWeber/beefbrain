@@ -992,6 +992,41 @@ character:
           expect(output.character.combat.attack.melee._[0]).toBe(4)
           expect(updateCalculatedFields(once)).toBe(once)
         })
+        it('should apply only the larger of two same-type item bonuses to a save', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    constitution: [14, con: 2]
+  combat:
+    saves:
+      fortitude: [2, {con: 2}]
+  inventory:
+    _on: [equipped]
+    equipped:
+      - [Chain Shirt of Improved Stamina, 1, armor, 12.5 lbs, 1, {ac: 4}, [magic, body-slot], [[combat.saves.fortitude, {armor-resistance: 3}]]]
+      - [Vest of Resistance +2, 1, gear, 0 lbs, 2, {}, [magic, torso-slot], [[combat.saves.fortitude, {vest-resistance: 2}]]]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.combat.saves.fortitude).toEqual([
+            5,
+            { con: 2, 'armor-resistance': 3, 'vest-resistance': 2 },
+          ])
+        })
+        it('should apply only the larger of two enhancement bonuses to an ability score', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [14, str: 2, {base: 14, tome-inherent: 2}]
+  inventory:
+    _on: [equipped]
+    equipped:
+      - [Belt of Giant's Strength +4, 1, gear, 1 lb, 1, {}, [magic, waist-slot], [[abilities.strength, {belt-enhancement: 4}]]]
+      - [Gauntlets of Ogre Power, 1, gear, 1 lb, 2, {}, [magic, hands-slot], [[abilities.strength, {gauntlets-enhancement: 2}]]]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.abilities.strength[0]).toBe(20)
+          expect(output.character.abilities.strength[1].str).toBe(5)
+        })
         it('should remove an ability effect when the item is unequipped', () => {
           const yamlContent = `---
 character:

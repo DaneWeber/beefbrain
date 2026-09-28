@@ -3,6 +3,8 @@
  * Handles parsing, enriching, and exporting inventory data from all characters
  */
 
+import { splitItem } from 'bnb-core/items';
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type CharacterData = Record<string, any>;
 
@@ -29,7 +31,7 @@ export interface InventoryItem {
 
 /**
  * Parse individual item from YAML array format
- * Format: [description, quantity, category, weight, itemId, properties?, tags?]
+ * Format: [description, quantity, category, weight, itemId, properties?, tags?, effects?]
  */
 function parseItem(
 	itemArray: unknown[],
@@ -41,8 +43,9 @@ function parseItem(
 ): InventoryItem | null {
 	if (!Array.isArray(itemArray) || itemArray.length < 5) return null;
 
-	// Format: [description, quantity, category, weight, itemId, properties?, tags?]
-	const [description, quantity, category, weight, itemIdRaw, metadata, tags] = itemArray;
+	// Format: [description, quantity, category, weight, itemId, properties?, tags?, effects?]
+	const [description, quantity, category, weight, itemIdRaw] = itemArray;
+	const { props: metadata, tags } = splitItem(itemArray);
 
 	// Skip non-existent items
 	if (!description || !category) return null;
@@ -105,7 +108,7 @@ function parseItem(
 		weight: wt,
 		marketValue: metadataValue,
 		tags: tagList,
-		notes: metadata && typeof metadata === 'object' ? JSON.stringify(metadata) : ''
+		notes: Object.keys(metadata).length > 0 ? JSON.stringify(metadata) : ''
 	};
 }
 

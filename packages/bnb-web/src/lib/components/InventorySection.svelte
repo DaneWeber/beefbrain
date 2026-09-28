@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { formatKey } from '$lib/format';
+	import { itemEditLines, splitItem, summarizeItemEffects } from 'bnb-core/items';
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 
@@ -70,7 +71,7 @@
 		notes: string;
 		location: string;
 		orderIndex: number;
-		props: Record<string, unknown>;
+		editText: string;
 	}
 
 	interface SlotData {
@@ -78,19 +79,20 @@
 		hasConflict: boolean;
 	}
 
+	function itemNotes(item: unknown[]): string {
+		return [
+			...Object.entries(splitItem(item).props).map(([k, v]) => `${k}: ${v}`),
+			...summarizeItemEffects(item)
+		].join(', ');
+	}
+
 	function makeSlottedItem(item: unknown[], location: string): SlottedItem {
-		const props =
-			item[5] && typeof item[5] === 'object' && !Array.isArray(item[5])
-				? (item[5] as Record<string, unknown>)
-				: {};
 		return {
 			name: String(item[0] ?? ''),
-			notes: Object.entries(props)
-				.map(([k, v]) => `${k}: ${v}`)
-				.join(', '),
+			notes: itemNotes(item),
 			location,
 			orderIndex: Number(item[4] ?? 0),
-			props
+			editText: itemEditLines(item).join('\n')
 		};
 	}
 
@@ -101,10 +103,7 @@
 
 		for (const location of getLocations(inventory)) {
 			for (const item of inventoryItems(inventory, location)) {
-				// Tags are always the last item in the array
-				const tags = Array.isArray(item[item.length - 1])
-					? (item[item.length - 1] as string[]).map(String)
-					: [];
+				const { tags } = splitItem(item);
 
 				// Check for slot tags
 				for (const tag of tags) {
@@ -136,10 +135,7 @@
 
 		for (const location of getLocations(inventory)) {
 			for (const item of inventoryItems(inventory, location)) {
-				// Tags are always the last item in the array
-				const tags = Array.isArray(item[item.length - 1])
-					? (item[item.length - 1] as string[]).map(String)
-					: [];
+				const { tags } = splitItem(item);
 
 				if (tags.includes('other-slot')) {
 					items.push(makeSlottedItem(item, location));
@@ -159,9 +155,7 @@
 	function startEdit(item: SlottedItem) {
 		editingItem = { location: item.location, orderIndex: item.orderIndex };
 		editName = item.name;
-		editEffects = Object.entries(item.props)
-			.map(([k, v]) => `${k}: ${v}`)
-			.join('\n');
+		editEffects = item.editText;
 	}
 
 	function cancelEdit() {
@@ -245,7 +239,7 @@
 											name="effects"
 											bind:value={editEffects}
 											rows="3"
-											placeholder="key: value (one per line)"></textarea>
+											placeholder="key: value, or target.bonus-key: value (one per line)"></textarea>
 										<div class="edit-actions">
 											<button type="submit" class="btn-save">Save</button>
 											<button type="button" class="btn-cancel" onclick={cancelEdit}>Cancel</button>
@@ -313,7 +307,7 @@
 									name="effects"
 									bind:value={editEffects}
 									rows="3"
-									placeholder="key: value (one per line)"></textarea>
+									placeholder="key: value, or target.bonus-key: value (one per line)"></textarea>
 								<div class="edit-actions">
 									<button type="submit" class="btn-save">Save</button>
 									<button type="button" class="btn-cancel" onclick={cancelEdit}>Cancel</button>
@@ -391,16 +385,12 @@
 									{#if !compact}
 										<td class="right">{item[4] ?? ''}</td>
 										<td class="notes-cell">
-											{#if item[5] && typeof item[5] === 'object' && !Array.isArray(item[5])}
-												{Object.entries(item[5])
-													.map(([k, v]) => `${k}: ${v}`)
-													.join(', ')}
-											{/if}
-											{#if Array.isArray(item[6])}
-												{#if item[5] && typeof item[5] === 'object' && Object.keys(item[5]).length > 0}
+											{itemNotes(item)}
+											{#if splitItem(item).tags.length > 0}
+												{#if itemNotes(item)}
 													|
 												{/if}
-												<span class="tags">{item[6].join(', ')}</span>
+												<span class="tags">{splitItem(item).tags.join(', ')}</span>
 											{/if}
 										</td>
 									{/if}

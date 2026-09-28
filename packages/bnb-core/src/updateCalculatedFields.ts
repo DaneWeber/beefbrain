@@ -5,6 +5,8 @@ import { loadSchema } from './schemaLoader'
 import { calculateFieldValue, getAbilityArrayType } from './calculationEngine'
 import { applyComponentBindings } from './genericEngine'
 import { propagateAbilityEffects, propagateEffects } from './propagateEffects'
+import { stackedValues, sumStacked } from './bonusStacking'
+import { splitItem } from './itemTuple'
 import { bonusSpellSlots, parseCastingProfile } from './spellcasting'
 import {
   ACP_FIELD,
@@ -372,9 +374,7 @@ function readEquipmentStats(data: {
         if (typeof props['max-dex'] === 'number')
           result.armorMaxDex = props['max-dex']
         // Detect armor weight category from tags
-        const tags = Array.isArray(item[item.length - 1])
-          ? (item[item.length - 1] as string[])
-          : []
+        const { tags } = splitItem(item)
         if (tags.includes('heavy-armor')) result.armorCategory = 'heavy'
         else if (tags.includes('medium-armor')) result.armorCategory = 'medium'
         else if (tags.includes('light-armor')) result.armorCategory = 'light'
@@ -580,18 +580,7 @@ function updateAndVerifyModifierArray(
 }
 
 export function sumValues(obj: Record<string, unknown>): number {
-  let sum = 0
-  for (const v of Object.values(obj)) {
-    if (typeof v === 'number') {
-      sum += v
-      continue
-    }
-    // Support component entries like ranks: [13, { fighter: 13 }]
-    if (Array.isArray(v) && typeof v[0] === 'number') {
-      sum += v[0]
-    }
-  }
-  return sum
+  return sumStacked(obj)
 }
 
 // --- Propagation functions ---
@@ -999,7 +988,7 @@ function propagateToDefense(
         ffChanged = true
       }
 
-      const newTotal = mods.reduce((sum, [, v]) => sum + v, 0)
+      const newTotal = stackedValues(mods).reduce((sum, v) => sum + v, 0)
       if (ffArr[0] !== newTotal) ffChanged = true
 
       if (ffChanged) {
@@ -1840,5 +1829,5 @@ function calculateAbilityScores(
 }
 
 function sumOfValues(obj: Record<string, number>): number {
-  return Object.values(obj).reduce((sum, val) => sum + val, 0)
+  return sumStacked(obj)
 }

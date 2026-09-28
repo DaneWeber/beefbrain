@@ -27,6 +27,19 @@ export { updateCalculatedFields }
 export { dataToCompactYAML } from './dataToCompactYAML'
 export { EffectTargetError }
 export {
+  editItemFromLines,
+  itemEditLines,
+  joinItem,
+  splitItem,
+  summarizeItemEffects,
+} from './itemTuple'
+export type { ItemEffect, ItemParts } from './itemTuple'
+export {
+  NON_STACKING_BONUS_TYPES,
+  bonusType,
+  sumStacked,
+} from './bonusStacking'
+export {
   bonusSpellSlots,
   getSpellSaveDc,
   getSpellcastingIssues,

@@ -254,6 +254,42 @@ YAML entirely (not just unequipped), any value it previously wrote is indistingu
 the player typed by hand, and is left behind. Removing a feat/item's effect should be paired with
 manually clearing the value it wrote, the same as removing any other hand-maintained bonus.
 
+## Bonus types and stacking
+
+Following D&D 3.5, most bonuses of the same *type* don't stack: only the largest applies. A
+component key declares its type either exactly (`deflection: 1`) or as a `<source>-<type>` suffix
+(`vest-resistance: 2`, `belt-enhancement: 4`). Every total in bnb-core (skills, saves, AC, attacks,
+ability scores, schema `sum(components)` formulas, ...) is summed by `sumStacked`
+(`packages/bnb-core/src/bonusStacking.ts`), which keeps only the largest positive value per type:
+
+```yaml
+# Improved Stamina armor (+3 resistance) and a Vest of Resistance +2: Fortitude gets +3, not +5
+fortitude: [14, {ranger: 5, fighter: 3, rogue: 1, con: 2, armor-resistance: 3, vest-resistance: 2}]
+```
+
+The non-stacking types are `alchemical`, `armor`, `competence`, `deflection`, `enhancement`,
+`inherent`, `insight`, `luck`, `morale`, `natural`, `profane`, `racial`, `resistance`, `sacred`,
+`shield` and `size` (`NON_STACKING_BONUS_TYPES`). Everything else stacks: dodge and circumstance
+bonuses, untyped keys (`weapon-focus`, `ranks`, `base`, ...), and **all penalties** (negative
+values), even of the same type.
+
+Name item and feat bonus keys `<source>-<type>` so they both identify their source (see below) and
+stack correctly. The type is read from the key alone, so bnb-core doesn't need to know anything
+about the item.
+
+## Editing effects in the web app
+
+The web app's item editor shows an item's props and editable effects as one `key: value` line
+each (`itemEditLines` / `editItemFromLines` in `packages/bnb-core/src/itemTuple.ts`):
+
+- `key: value` with no dot in the key is a plain prop (`charges: 3`).
+- `<target>.<bonus-key>: <number>` is a bonus effect on `<target>`, e.g.
+  `abilities.strength.belt-enhancement: 4`. Lines with the same target merge into one effect.
+- `<target>: <text>` (a dotted key with a text value) is a note effect.
+
+Effects the editor can't express this way (managed list entries, a bonus with a note) are kept as
+they are.
+
 ## Known limitation: same-key collisions
 
 Bonus keys are author-chosen, not auto-generated, so two unrelated sources can still legally choose

@@ -1,3 +1,4 @@
+import { splitItem } from './itemTuple'
 import { sumValues } from './updateCalculatedFields'
 
 /**
@@ -436,8 +437,8 @@ function getAllItemEffects(inventory: Record<string, unknown>): ParsedEffect[] {
       continue
     }
     for (const item of value) {
-      if (!Array.isArray(item) || item.length < 8) continue
-      effects.push(...collectEffectEntries(item[7]))
+      if (!Array.isArray(item)) continue
+      effects.push(...collectEffectEntries(splitItem(item).effects))
     }
   }
   return effects
@@ -454,8 +455,8 @@ function getActiveItemEffects(
     const items = inventory[containerName]
     if (!Array.isArray(items)) continue
     for (const item of items) {
-      if (!Array.isArray(item) || item.length < 8) continue
-      effects.push(...collectEffectEntries(item[7]))
+      if (!Array.isArray(item)) continue
+      effects.push(...collectEffectEntries(splitItem(item).effects))
     }
   }
   return effects

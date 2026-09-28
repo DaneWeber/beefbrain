@@ -10,6 +10,11 @@
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs",
       "default": "./dist/index.mjs"
+    },
+    "./items": {
+      "types": "./dist/itemTuple.d.mts",
+      "import": "./dist/itemTuple.mjs",
+      "default": "./dist/itemTuple.mjs"
     }
   },
   "files": [
