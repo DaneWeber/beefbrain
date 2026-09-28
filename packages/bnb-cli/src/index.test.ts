@@ -177,6 +177,45 @@ describe('bnb-cli integration tests', () => {
     })
   })
 
+  describe('--add-missing flag', () => {
+    it('adds missing core skills without changing existing ones', () => {
+      const testFile = resolve(TEMP_DIR, 'add-missing.yaml')
+      writeFileSync(testFile, SKILL_POINT_MISMATCH_YAML)
+
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.mjs', testFile, '--add-missing'],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
+
+      expect(result.status).toBe(0)
+      const output = result.stdout.toString()
+      expect(output).toContain('listen: [5, {wis: 2, ranks: 3}]')
+      expect(output).toContain('heal: [2, wis: 2]')
+      expect(output).toContain(
+        'profession: [.nan, {wis: 2, not-trained: .nan}]',
+      )
+    })
+
+    it('writes added skills to the file with --write', () => {
+      const testFile = resolve(TEMP_DIR, 'add-missing-write.yaml')
+      writeFileSync(testFile, SKILL_POINT_MISMATCH_YAML)
+
+      const result = childProcess.spawnSync(
+        'node',
+        ['dist/index.mjs', testFile, '--add-missing', '--write'],
+        {
+          cwd: resolve(__dirname, '..'),
+        },
+      )
+
+      expect(result.status).toBe(0)
+      expect(readFileSync(testFile, 'utf-8')).toContain('sense-motive:')
+    })
+  })
+
   describe('--write flag', () => {
     it('should update file with --write flag', () => {
       const testFile = resolve(TEMP_DIR, 'write.yaml')

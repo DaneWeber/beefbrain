@@ -97,6 +97,15 @@ Validates a YAML string against the BeefBrain schema.
 
 Calculates all derived fields and returns formatted YAML.
 
+### `addExpectedFields(yaml: string): string`
+
+Adds expected fields that are missing, without changing any that are already
+present. Currently this adds every D&D 3.5 core skill that isn't listed (a
+specialization such as `craft-traps` or `know-arcana` counts as listing it),
+populated with its key ability modifier. Trained-only skills are added as
+`[.nan, {<ability>: N, not-trained: .nan}]`. Run `updateCalculatedFields`
+afterwards to bring in ACP and other derived components.
+
 ### `dataToCompactYAML(data: BeefBrainData): string`
 
 Converts JavaScript object to compact YAML format.
