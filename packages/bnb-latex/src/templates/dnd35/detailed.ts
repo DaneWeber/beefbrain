@@ -553,13 +553,9 @@ ${EMOJI_ON}
 
 % The left column holds Load, Magic Item Slots and Money, and nothing else;
 % the full inventory starts at the top of the middle column and flows on from
-% there.
-% collectmore below zero makes multicols gather a little less than a full
-% page before splitting it into columns. At the default, a long inventory
-% whose last page balances (Mike's) overshot the page by 8pt, because the
-% header rows' \nobreak leaves few places to split.
-\setcounter{collectmore}{-5}
-\begin{multicols}{3}
+% there. The columns are not balanced: an inventory that runs onto another
+% page fills each column to the bottom before starting the next.
+\begin{multicols*}{3}
 \raggedcolumns
 \small
 % A little more room above and below each row than page 1's tables need,
@@ -601,7 +597,7 @@ Push or drag & {{movement.capacity.drag}} \\
 \stacklabel{Items by Container}
 \invheader
 {{{inventory.detailedTable}}}
-\end{multicols}
+\end{multicols*}
 
 \newpage
 \renewcommand{\sheettitle}{Spells}
