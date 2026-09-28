@@ -2,6 +2,7 @@
 	import { formatKey, parseSumValue, formatMod } from '$lib/format';
 	import { categorizeAllSkills, getSkillAbility } from '$lib/skillCategories';
 	import InventorySection from './InventorySection.svelte';
+	import { splitItem } from 'bnb-core/items';
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let { character }: { character: Record<string, any> } = $props();
@@ -183,12 +184,8 @@
 		const results: TaggedItem[] = [];
 		for (const location of inventoryLocations(inventory)) {
 			for (const item of inventoryItems(inventory, location)) {
-				const tags = Array.isArray(item[6]) ? item[6].map(String) : [];
+				const { tags, props } = splitItem(item);
 				if (tags.includes(section)) {
-					const props =
-						item[5] && typeof item[5] === 'object' && !Array.isArray(item[5])
-							? (item[5] as Record<string, unknown>)
-							: {};
 					results.push({
 						name: String(item[0] ?? ''),
 						qty: Number(item[1] ?? 1),
@@ -527,11 +524,11 @@
 						{/if}
 					</div>
 				{/if}
-				{#if combat.defense?.acp}
-					{#if val(combat.defense.acp) !== '0'}
+				{#if skills._acp}
+					{#if val(skills._acp) !== '0'}
 						<div class="inline-stat">
 							<span class="label">ACP</span>
-							{val(combat.defense.acp)}
+							{val(skills._acp)}
 						</div>
 					{/if}
 				{/if}

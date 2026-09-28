@@ -12,7 +12,7 @@ All questions resolved as of 2026-09-03.
 
 4. **Max Dex**: Derive from equipped armor AND load (take worse). Cap dex in AC when max-dex < dex mod.
 
-5. **ACP**: Derive from armor + shield (summed) vs load (take worse). Propagate to skills.
+5. **ACP**: Derive from armor + shield (summed) vs load (take worse). Stored at `skills._acp` (not under defense, since it only affects skills). Propagate to skills.
 
 6. **HP**: `max-hp` has `con` (= con_mod × total_HD) and `rolls` (= sum of all class hp). Classes track individual rolls: `fighter: [3, {hd: 10, hp: [10, 8, 6]}]`.
 

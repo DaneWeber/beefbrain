@@ -46,7 +46,7 @@ describe.sequential('magic equipment editing persistence', () => {
 
 	it('persists magic-item effect edits and recalculates abilities', async () => {
 		await saveCharacterMagicItem(PARTY, SLUG, 'equipped', 34, "Belt of Giant's Strength +6", {
-			'str-enhancement': '6'
+			'abilities.strength.belt-enhancement': '6'
 		});
 
 		const updatedRaw = await readFile(characterPath, 'utf-8');
@@ -56,7 +56,11 @@ describe.sequential('magic equipment editing persistence', () => {
 
 		expect(belt).toBeTruthy();
 		expect(belt?.[0]).toBe("Belt of Giant's Strength +6");
-		expect((belt?.[5] as Record<string, unknown>)['str-enhancement']).toBe(6);
+		expect(belt?.slice(5)).toEqual([
+			{},
+			['magic', 'waist-slot'],
+			[['abilities.strength', { 'belt-enhancement': 6 }]]
+		]);
 		expect(updated.character.abilities.strength[0]).toBe(22);
 		expect(updated.character.abilities.strength[1].str).toBe(6);
 	});

@@ -50,7 +50,6 @@ character:
       ac: [18, {base: 10, armor: 5, dex: 3}]
       touch-ac: [13, {base: 10, dex: 3}]
       flat-footed-ac: [15, {base: 10, armor: 5}]
-      acp: [-3, medium-load: -3]
   movement:
     speed: [20, {base: 30, medium-load: -10}]
     run: [120, base: x4]
@@ -58,6 +57,7 @@ character:
     capacity: {light: 50 lbs, medium: 100 lbs, heavy: 150 lbs, lift: 300 lbs, drag: 750 lbs}
   skills:
     _points: [60, {ranger: 42, human: 10, first-level: 18, int-skills: -10}]
+    _acp: [-3, medium-load: -3]
     bluff: [5, {cha: 0, ranks: 5}]
     climb: [2, {str: 1, ranks: 1}]
     craft-arrowmaking: [1, {int: -1, ranks: 2}]

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { formatBnbYaml } from './core/formatBnbYaml'
+import { formatBnbYaml, FormatOptions } from './core/formatBnbYaml'
 import { computeDiagnostics, BnbDiagnostic } from './core/diagnostics'
 import { isBnbYamlPath } from './core/isBnbYamlPath'
 
@@ -66,6 +66,28 @@ function refreshDiagnostics(
   collection.set(document.uri, diagnostics)
 }
 
+async function formatActiveEditor(options?: FormatOptions): Promise<void> {
+  const editor = vscode.window.activeTextEditor
+  if (!editor) {
+    return
+  }
+  const document = editor.document
+  if (!shouldHandle(document)) {
+    vscode.window.showWarningMessage(
+      'BeefBrain: This file is not recognized as a BeefBrain character YAML file.',
+    )
+    return
+  }
+  const { formatted, error } = formatBnbYaml(document.getText(), options)
+  if (error) {
+    vscode.window.showErrorMessage(`BeefBrain: ${error}`)
+    return
+  }
+  await editor.edit((editBuilder) => {
+    editBuilder.replace(fullDocumentRange(document), formatted)
+  })
+}
+
 export function activate(context: vscode.ExtensionContext): void {
   const diagnosticCollection = vscode.languages.createDiagnosticCollection(
     DIAGNOSTIC_COLLECTION_NAME,
@@ -89,27 +111,12 @@ export function activate(context: vscode.ExtensionContext): void {
   )
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('bnb.formatDocument', async () => {
-      const editor = vscode.window.activeTextEditor
-      if (!editor) {
-        return
-      }
-      const document = editor.document
-      if (!shouldHandle(document)) {
-        vscode.window.showWarningMessage(
-          'BeefBrain: This file is not recognized as a BeefBrain character YAML file.',
-        )
-        return
-      }
-      const { formatted, error } = formatBnbYaml(document.getText())
-      if (error) {
-        vscode.window.showErrorMessage(`BeefBrain: ${error}`)
-        return
-      }
-      await editor.edit((editBuilder) => {
-        editBuilder.replace(fullDocumentRange(document), formatted)
-      })
-    }),
+    vscode.commands.registerCommand('bnb.formatDocument', () =>
+      formatActiveEditor(),
+    ),
+    vscode.commands.registerCommand('bnb.addMissingFields', () =>
+      formatActiveEditor({ addMissing: true }),
+    ),
   )
 
   const refresh = (document: vscode.TextDocument): void =>

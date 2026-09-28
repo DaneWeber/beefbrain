@@ -41,7 +41,6 @@ character:
       ac: [14, {base: 10, deflection: 2, dex: 2}]
       touch-ac: [14, {base: 10, deflection: 2, dex: 2}]
       flat-footed-ac: [12, {base: 10, deflection: 2}]
-      acp: [0]
   movement:
     speed: [20, base: 20]
     run: [80, base: x4]
@@ -49,6 +48,7 @@ character:
     capacity: {light: 25 lbs, medium: 50 lbs, heavy: 75 lbs, lift: 150 lbs, drag: 375 lbs}
   skills:
     _points: [87, {wizard: 75, first-level: 12}]
+    _acp: [0]
     appraise: [5, int: 5]
     balance: [2, dex: 2]
     bluff: [-2, cha: -2]

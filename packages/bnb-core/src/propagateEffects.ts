@@ -1,3 +1,4 @@
+import { splitItem } from './itemTuple'
 import { sumValues } from './updateCalculatedFields'
 
 /**
@@ -361,13 +362,6 @@ function applyEffect(
   effect: ParsedEffect,
 ): boolean {
   const { segments, bracketIndex } = parseTargetPath(effect.path)
-  if (segments[0] === 'abilities') {
-    throw new EffectTargetError(
-      `Effect target "${effect.path}": ability score targets are not supported. ` +
-        'Use item ability bonuses (propagateEquipmentToAbilities) instead. ' +
-        'See docs/bnb-core-item-feat-effects.md.',
-    )
-  }
   const resolved = resolveParent(character, segments)
   if (!resolved) {
     throw new EffectTargetError(
@@ -443,8 +437,8 @@ function getAllItemEffects(inventory: Record<string, unknown>): ParsedEffect[] {
       continue
     }
     for (const item of value) {
-      if (!Array.isArray(item) || item.length < 8) continue
-      effects.push(...collectEffectEntries(item[7]))
+      if (!Array.isArray(item)) continue
+      effects.push(...collectEffectEntries(splitItem(item).effects))
     }
   }
   return effects
@@ -461,8 +455,8 @@ function getActiveItemEffects(
     const items = inventory[containerName]
     if (!Array.isArray(items)) continue
     for (const item of items) {
-      if (!Array.isArray(item) || item.length < 8) continue
-      effects.push(...collectEffectEntries(item[7]))
+      if (!Array.isArray(item)) continue
+      effects.push(...collectEffectEntries(splitItem(item).effects))
     }
   }
   return effects
@@ -539,9 +533,114 @@ function removeInactiveBonusKeys(
   return changed
 }
 
+function isAbilityEffect(effect: ParsedEffect): boolean {
+  return parseTargetPath(effect.path).segments[0] === 'abilities'
+}
+
+/** Every declared effect in the file, and the currently active subset. */
+function gatherEffects(character: Record<string, unknown>): {
+  all: ParsedEffect[]
+  active: ParsedEffect[]
+} {
+  const inventory = isPlainObject(character.inventory)
+    ? (character.inventory as Record<string, unknown>)
+    : {}
+
+  const featEffects = getFeatEffects(character)
+  const traitEffects = getTraitEffects(character)
+  return {
+    all: [...featEffects, ...traitEffects, ...getAllItemEffects(inventory)],
+    active: [
+      ...featEffects,
+      ...traitEffects,
+      ...getActiveItemEffects(inventory),
+    ],
+  }
+}
+
+/**
+ * Resolves an `abilities.<name>` target to its component map (element 2 of
+ * `[score, {abbr: mod}, {components}]`), creating `{base: score}` when the
+ * ability has no component map yet.
+ */
+function getAbilityComponents(
+  character: Record<string, unknown>,
+  path: string,
+  create: boolean,
+): Record<string, unknown> | null {
+  const { segments, bracketIndex } = parseTargetPath(path)
+  if (bracketIndex !== undefined || segments.length !== 2) {
+    throw new EffectTargetError(
+      `Effect target "${path}": ability score targets must be "abilities.<name>" with no bracket.`,
+    )
+  }
+  const abilities = character.abilities
+  const ability = isPlainObject(abilities) ? abilities[segments[1]!] : undefined
+  if (!Array.isArray(ability) || typeof ability[0] !== 'number') {
+    throw new EffectTargetError(
+      `Effect target "${path}" does not resolve to a known ability score.`,
+    )
+  }
+  if (isPlainObject(ability[2])) return ability[2]
+  if (!create) return null
+  const components: Record<string, unknown> = { base: ability[0] }
+  ability[2] = components
+  return components
+}
+
+/**
+ * Propagates `abilities.<name>` effects into ability score component maps.
+ * Runs before ability scores are calculated so the new score and modifier
+ * flow through the rest of the sheet in the same pass; the score itself is
+ * resummed by calculateAbilityScores, not here.
+ */
+export function propagateAbilityEffects(
+  data: { character?: Record<string, unknown> },
+  hasChanges: boolean,
+): boolean {
+  const character = data.character
+  if (!character) return hasChanges
+
+  const { all, active } = gatherEffects(character)
+  const allAbility = all.filter(isAbilityEffect)
+  const activeAbility = active.filter(isAbilityEffect)
+
+  const activeByPath = collectBonusKeysByPath(activeAbility)
+  for (const [path, declaredKeys] of collectBonusKeysByPath(allAbility)) {
+    const components = getAbilityComponents(character, path, false)
+    if (!components) continue
+    for (const key of declaredKeys) {
+      if (!activeByPath.get(path)?.has(key) && key in components) {
+        delete components[key]
+        hasChanges = true
+      }
+    }
+  }
+
+  for (const effect of activeAbility) {
+    if (!effect.bonus) {
+      throw new EffectTargetError(
+        `Effect target "${effect.path}": ability score targets need a numeric bonus dict.`,
+      )
+    }
+    for (const value of Object.values(effect.bonus)) {
+      if (typeof value !== 'number') {
+        throw new EffectTargetError(
+          `Effect target "${effect.path}": ability score bonuses must be numbers.`,
+        )
+      }
+    }
+    const components = getAbilityComponents(character, effect.path, true)!
+    if (mergeIntoMods(components, effect.bonus, undefined)) hasChanges = true
+  }
+
+  return hasChanges
+}
+
 /**
  * Propagates feat and equipped-item effects (see docs/bnb-core-item-feat-effects.md)
- * onto the rest of the character sheet.
+ * onto the rest of the character sheet. Ability score targets are handled
+ * earlier by propagateAbilityEffects and skipped here.
  */
 export function propagateEffects(
   data: { character?: Record<string, unknown> },
@@ -550,16 +649,9 @@ export function propagateEffects(
   const character = data.character
   if (!character) return hasChanges
 
-  const inventory = isPlainObject(character.inventory)
-    ? (character.inventory as Record<string, unknown>)
-    : {}
-
-  const featEffects = getFeatEffects(character)
-  const traitEffects = getTraitEffects(character)
-  const allItemEffects = getAllItemEffects(inventory)
-  const activeItemEffects = getActiveItemEffects(inventory)
-  const activeEffects = [...featEffects, ...traitEffects, ...activeItemEffects]
-  const allEffects = [...featEffects, ...traitEffects, ...allItemEffects]
+  const gathered = gatherEffects(character)
+  const allEffects = gathered.all.filter((e) => !isAbilityEffect(e))
+  const activeEffects = gathered.active.filter((e) => !isAbilityEffect(e))
 
   const declaredByPath = collectBonusKeysByPath(allEffects)
   const activeByPath = collectBonusKeysByPath(activeEffects)

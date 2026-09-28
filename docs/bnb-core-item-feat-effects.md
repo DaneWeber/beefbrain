@@ -151,7 +151,7 @@ the target.
 **Bonus effects** (`bonusDict` present) always need a `[total, {mods}]`-shaped target:
 
 1. **Plain `[total, {mods}]`** — skills, saves, initiative, speed, grapple, AC / touch-AC /
-   flat-footed-AC, ACP, and the mods element (index 1) of a generic attack tuple
+   flat-footed-AC, ACP (`skills._acp`), and the mods element (index 1) of a generic attack tuple
    (`combat.attack.melee._`). No bracket needed. `bonusDict` merges into `mods`, the total is resummed
    via `sumValues` and written back to element 0.
 2. **Named weapon, attack channel** (`combat.attack.melee.longsword[0]`) — a named weapon tuple
@@ -160,10 +160,19 @@ the target.
    merges into element 3 (`atkMods`), resums into element 0. `[1]` (damage) and `[2]` (critical) are
    **not implemented** and throw `EffectTargetError` — see below. A bracket anywhere else (a
    non-weapon target, or any index but 0/1/2) also throws.
-3. **Anything else** — including ability score components — throws `EffectTargetError`. Ability
-   scores are deliberately out of scope: they're already owned by `propagateEquipmentToAbilities`
-   and are resummed with the stricter `sumOfValues`, which (unlike `sumValues`) does not tolerate a
-   non-numeric value sitting in the same component map.
+3. **Ability score** (`abilities.strength`) — no bracket. `bonusDict` merges into the ability's
+   component map (element 2 of `[score, {str: mod}, {components}]`); if the ability has no component
+   map yet, one is created as `{base: <current score>}`. Values must be numbers, since ability scores
+   are resummed with the stricter `sumOfValues`. Ability effects are applied by
+   `propagateAbilityEffects` at step 0 of `updateCalculatedFields`, *before* ability scores and
+   modifiers are calculated, so the new modifier reaches attacks, saves, skills, etc. in the same
+   pass. Stale keys are cleaned up the same way as every other effect (see below).
+   ```yaml
+   - [Belt of Giant's Strength +4, 1, gear, 1 lb, 16000 gp, {}, [magic, waist-slot], [[abilities.strength, {belt-enhancement: 4}]]]
+   ```
+   The older props form (`{str: 4}` / `{str-enhancement: 4}` in element 5, handled by
+   `propagateEquipmentToAbilities`) still works, but only for those fixed key names.
+4. **Anything else** throws `EffectTargetError`.
 
 **Note-only effects** (no `bonusDict`) never use a bracket — there's no numeric channel to
 disambiguate, so the target's own shape says where the note goes (`applyNoteOnly` in
@@ -244,6 +253,42 @@ or `propagateToSynergy`'s fixed `synergy-<source>` shape), the engine can only r
 YAML entirely (not just unequipped), any value it previously wrote is indistinguishable from a value
 the player typed by hand, and is left behind. Removing a feat/item's effect should be paired with
 manually clearing the value it wrote, the same as removing any other hand-maintained bonus.
+
+## Bonus types and stacking
+
+Following D&D 3.5, most bonuses of the same *type* don't stack: only the largest applies. A
+component key declares its type either exactly (`deflection: 1`) or as a `<source>-<type>` suffix
+(`vest-resistance: 2`, `belt-enhancement: 4`). Every total in bnb-core (skills, saves, AC, attacks,
+ability scores, schema `sum(components)` formulas, ...) is summed by `sumStacked`
+(`packages/bnb-core/src/bonusStacking.ts`), which keeps only the largest positive value per type:
+
+```yaml
+# Improved Stamina armor (+3 resistance) and a Vest of Resistance +2: Fortitude gets +3, not +5
+fortitude: [14, {ranger: 5, fighter: 3, rogue: 1, con: 2, armor-resistance: 3, vest-resistance: 2}]
+```
+
+The non-stacking types are `alchemical`, `armor`, `competence`, `deflection`, `enhancement`,
+`inherent`, `insight`, `luck`, `morale`, `natural`, `profane`, `racial`, `resistance`, `sacred`,
+`shield` and `size` (`NON_STACKING_BONUS_TYPES`). Everything else stacks: dodge and circumstance
+bonuses, untyped keys (`weapon-focus`, `ranks`, `base`, ...), and **all penalties** (negative
+values), even of the same type.
+
+Name item and feat bonus keys `<source>-<type>` so they both identify their source (see below) and
+stack correctly. The type is read from the key alone, so bnb-core doesn't need to know anything
+about the item.
+
+## Editing effects in the web app
+
+The web app's item editor shows an item's props and editable effects as one `key: value` line
+each (`itemEditLines` / `editItemFromLines` in `packages/bnb-core/src/itemTuple.ts`):
+
+- `key: value` with no dot in the key is a plain prop (`charges: 3`).
+- `<target>.<bonus-key>: <number>` is a bonus effect on `<target>`, e.g.
+  `abilities.strength.belt-enhancement: 4`. Lines with the same target merge into one effect.
+- `<target>: <text>` (a dotted key with a text value) is a note effect.
+
+Effects the editor can't express this way (managed list entries, a bonus with a note) are kept as
+they are.
 
 ## Known limitation: same-key collisions
 

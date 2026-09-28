@@ -1,6 +1,7 @@
 import type { Schema } from './schemaLoader'
 import { getTypeDefinition } from './schemaLoader'
 import * as mathjs from 'mathjs'
+import { stackedValues } from './bonusStacking'
 
 // Create a mathjs instance with all standard functions
 // @ts-expect-error mathjs namespace typing for `all` is incomplete here
@@ -24,17 +25,8 @@ function collectNumericValues(value: unknown): number[] {
   }
 
   if (value && typeof value === 'object') {
-    const values: number[] = []
-    for (const entry of Object.values(value)) {
-      if (typeof entry === 'number') {
-        values.push(entry)
-        continue
-      }
-      if (Array.isArray(entry) && typeof entry[0] === 'number') {
-        values.push(entry[0])
-      }
-    }
-    return values
+    // A component map: same-type bonuses don't stack (see bonusStacking.ts)
+    return stackedValues(Object.entries(value))
   }
 
   return []

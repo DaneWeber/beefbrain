@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { createRequire } from 'node:module';
 import * as yaml from 'js-yaml';
 import type { BeefBrainData } from 'bnb-core';
+import { editItemFromLines } from 'bnb-core/items';
 import {
 	compilePdf,
 	listTemplates,
@@ -264,50 +265,17 @@ export function formatKey(key: string): string {
 }
 
 /**
- * Mutate an item array in-place: update name and replace the effects object.
+ * Mutate an item array in-place: update the name and rebuild its props and
+ * effects from the edited `key: value` lines (see itemEditLines in bnb-core).
  */
 function applyItemEdits(
 	item: unknown[],
 	newName: string,
 	newEffects: Record<string, string>
 ): void {
-	item[0] = newName;
-
-	const tagsPos = Array.isArray(item[item.length - 1]) ? item.length - 1 : -1;
-	const tags = tagsPos >= 0 ? item[tagsPos] : null;
-
-	const effectKeys = Object.keys(newEffects).filter((k) => k.trim() !== '');
-	if (effectKeys.length > 0) {
-		const effectsObj: Record<string, unknown> = {};
-		for (const k of effectKeys) {
-			const v = newEffects[k].trim();
-			const num = Number(v);
-			effectsObj[k.trim()] = Number.isFinite(num) && v !== '' ? num : v;
-		}
-		if (tagsPos === 5) {
-			// [name, qty, type, weight, order, [tags]] — insert effects before tags
-			item.splice(5, 0, effectsObj);
-		} else {
-			item[5] = effectsObj;
-		}
-	} else {
-		// Remove effects object if present, keep tags
-		if (tagsPos === 6 && item[5] && typeof item[5] === 'object' && !Array.isArray(item[5])) {
-			item.splice(5, 1);
-		} else if (
-			tagsPos < 0 &&
-			item.length > 5 &&
-			typeof item[5] === 'object' &&
-			!Array.isArray(item[5])
-		) {
-			item.splice(5, 1);
-		}
-	}
-
-	// Ensure tags are still last
-	if (tags !== null && !Array.isArray(item[item.length - 1])) {
-		item.push(tags);
-	}
+	const edited = editItemFromLines(item, newEffects);
+	edited[0] = newName;
+	item.splice(0, item.length, ...edited);
 }
 
 /**

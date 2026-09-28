@@ -52,7 +52,6 @@ character:
       ac: [26, {base: 10, armor: 1, natural: 10, dex: 5}]
       touch-ac: [15, {base: 10, dex: 5}]
       flat-footed-ac: [21, {base: 10, armor: 1, natural: 10}]
-      acp: [0]
     special-attacks:
       line-of-force:
         - 4d8
@@ -69,6 +68,7 @@ character:
     capacity: {light: 116 lbs, medium: 232 lbs, heavy: 350 lbs, lift: 700 lbs, drag: 1750 lbs}
   skills:
     _points: [84, {amethyst-dragon: 70, psionic-fist: 14}]
+    _acp: [0]
     balance: [15, {dex: 5, ranks: [8, dragon: 8], racial: 2}]
     bluff: [3, {cha: 1, ranks: [2, dragon: 4]}]
     climb: [14, {str: 6, ranks: [8, dragon: 8]}]
