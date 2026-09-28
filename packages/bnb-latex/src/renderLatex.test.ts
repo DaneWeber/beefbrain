@@ -47,7 +47,7 @@ describe('renderLatex', () => {
     expect(result.latex).toContain('Saves')
     expect(result.latex).toContain('Skills')
     expect(result.latex).toContain('Magic Item Slots')
-    expect(result.latex).toContain('\\loadrow{Light load}{up to 58 lbs }')
+    expect(result.latex).toContain('Light load & up to 58 lbs')
     expect(result.latex).toContain('longsword')
     expect(result.latex).toContain('Appraise')
   })

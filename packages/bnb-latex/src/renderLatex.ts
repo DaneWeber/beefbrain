@@ -8,6 +8,13 @@ import { LatexGenerationError } from './errors'
 import { DEFAULT_TEMPLATE_KEY, getTemplateRecord } from './templates/registry'
 import { renderTemplate, escapeLatexText } from './renderTemplate'
 import { getSkillIcon } from './skillIcons'
+import { formatTitleKey } from './text'
+import {
+  buildCastingTableRows,
+  buildSpellLevelBlocks,
+  summarizeSpellcasting,
+  type CasterSummary,
+} from './spellSummary'
 import type {
   LatexFieldMap,
   RenderLatexInput,
@@ -105,18 +112,6 @@ function toRecord(value: unknown): Record<string, unknown> {
     return value as Record<string, unknown>
   }
   return {}
-}
-
-function formatTitleKey(key: string): string {
-  return key
-    .split('-')
-    .map((part) => {
-      if (part.length === 0) {
-        return part
-      }
-      return part.charAt(0).toUpperCase() + part.slice(1)
-    })
-    .join(' ')
 }
 
 function formatSigned(value: unknown): string {
@@ -503,7 +498,11 @@ function formatSlotItem(item: InventoryItem): string {
  * slot. Templates using this field define `\slotrow`, `\slotlessrow` and
  * `\slotitem`.
  */
-function buildSlotsTableRows(inventory: Record<string, unknown>): string {
+// The twelve body slots head to toe, then one row per equipped slotless item.
+function buildSlotsTableRows(inventory: Record<string, unknown>): {
+  slotRows: string[]
+  slotlessRows: string[]
+} {
   const equipped = getContainers(inventory).find(
     ([container]) => container === 'equipped',
   )?.[1]
@@ -536,7 +535,7 @@ function buildSlotsTableRows(inventory: Record<string, unknown>): string {
     (item, index) =>
       `\\slotlessrow{${index === 0 ? 'Slotless' : ''}}{${formatSlotItem(item)}}`,
   )
-  return [...slotRows, ...slotlessRows].join('\n')
+  return { slotRows, slotlessRows }
 }
 
 function hasMagicIndicators(
@@ -621,88 +620,55 @@ function formatItemsByContainer(inventory: Record<string, unknown>): string {
     .join('; ')
 }
 
-function formatSpellsSummary(spellsValue: unknown): string {
-  const spells = toRecord(spellsValue)
-  const classes = Object.entries(spells).filter(
-    ([key, value]) =>
-      !key.startsWith('_') && value && typeof value === 'object',
-  )
-  if (classes.length === 0) {
+function formatSpellsSummary(casters: CasterSummary[]): string {
+  if (casters.length === 0) {
     return 'No spellcasting data'
   }
-
-  return classes
-    .map(([className, classData]) => {
-      const classRecord = toRecord(classData)
-      const casting = Array.isArray(classRecord.casting)
-        ? classRecord.casting
-        : []
-      const castingMode = casting.length > 0 ? String(casting[0]) : 'unknown'
-      const castingAbility =
-        casting.length > 1 ? String(casting[1]).toUpperCase() : 'N/A'
-      const domains = Array.isArray(classRecord.domains)
-        ? classRecord.domains.map((entry) => String(entry)).join(', ')
-        : ''
-      const domainText = domains.length > 0 ? `; domains ${domains}` : ''
-      return `${formatTitleKey(className)}: ${castingMode} via ${castingAbility}${domainText}`
+  return casters
+    .map((caster) => {
+      const profile = [
+        caster.casting,
+        caster.ability,
+        caster.casterLevel && `caster level ${caster.casterLevel}`,
+        caster.domains && `domains ${caster.domains}`,
+      ].filter((part) => part)
+      return `${caster.name}: ${profile.length > 0 ? profile.join('; ') : 'unknown'}`
     })
     .join(' | ')
 }
 
-function formatSpellSlotsSummary(spellsValue: unknown): string {
-  const spells = toRecord(spellsValue)
-  const classes = Object.entries(spells).filter(
-    ([key, value]) =>
-      !key.startsWith('_') && value && typeof value === 'object',
-  )
-  if (classes.length === 0) {
+function formatSpellSlotsSummary(casters: CasterSummary[]): string {
+  if (casters.length === 0) {
     return 'No spell slot data'
   }
-
-  return classes
-    .map(([className, classData]) => {
-      const slots = toRecord(toRecord(classData).slots)
-      const levels = Object.keys(slots).sort((a, b) => Number(a) - Number(b))
-      if (levels.length === 0) {
-        return `${formatTitleKey(className)}: no slots listed`
+  return casters
+    .map((caster) => {
+      const slots = caster.levels.filter((level) => level.perDay)
+      if (slots.length === 0) {
+        return `${caster.name}: no slots listed`
       }
-
-      const slotText = levels
-        .map((level) => `${level}:${String(getArrayFirst(slots[level]))}`)
+      const slotText = slots
+        .map((level) => `${level.level}:${level.perDay}`)
         .join(', ')
-      return `${formatTitleKey(className)} slots ${slotText}`
+      return `${caster.name} slots ${slotText}`
     })
     .join(' | ')
 }
 
-function formatPreparedSpellsSummary(spellsValue: unknown): string {
-  const spells = toRecord(spellsValue)
-  const classes = Object.entries(spells).filter(
-    ([key, value]) =>
-      !key.startsWith('_') && value && typeof value === 'object',
-  )
-  if (classes.length === 0) {
+function formatPreparedSpellsSummary(casters: CasterSummary[]): string {
+  if (casters.length === 0) {
     return 'No prepared spell data'
   }
-
-  return classes
-    .map(([className, classData]) => {
-      const prepared = toRecord(toRecord(classData).prepared)
-      const levels = Object.keys(prepared).sort((a, b) => Number(a) - Number(b))
-      if (levels.length === 0) {
-        return `${formatTitleKey(className)}: no prepared list`
+  return casters
+    .map((caster) => {
+      const lists = caster.levels.filter((level) => level.spells.length > 0)
+      if (lists.length === 0) {
+        return `${caster.name}: no ${caster.listLabel.toLowerCase()} list`
       }
-      const preparedByLevel = levels
-        .map((level) => {
-          const spellsAtLevel = Array.isArray(prepared[level])
-            ? (prepared[level] as unknown[])
-                .map((entry) => String(entry))
-                .join(', ')
-            : String(prepared[level])
-          return `${level}[${spellsAtLevel}]`
-        })
+      const byLevel = lists
+        .map((level) => `${level.level}[${level.spells.join(', ')}]`)
         .join('; ')
-      return `${formatTitleKey(className)} prepared ${preparedByLevel}`
+      return `${caster.name} ${caster.listLabel.toLowerCase()} ${byLevel}`
     })
     .join(' | ')
 }
@@ -750,7 +716,8 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
   const hpContainer = (characterData.levels ?? {}) as Record<string, unknown>
   const skillsContainer = toRecord(characterData.skills)
   const inventoryContainer = toRecord(characterData.inventory)
-  const spellsContainer = toRecord(characterData.spells)
+  const slots = buildSlotsTableRows(inventoryContainer)
+  const casters = summarizeSpellcasting(characterData)
 
   return {
     'character.name': String(description.name ?? 'Unknown'),
@@ -843,11 +810,17 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
       formatEquippedMagicItems(inventoryContainer),
     'inventory.itemsByContainer': formatItemsByContainer(inventoryContainer),
     'inventory.detailedTable': buildInventoryTableRows(inventoryContainer),
-    'inventory.slotsTable': buildSlotsTableRows(inventoryContainer),
+    'inventory.slotsTable': [...slots.slotRows, ...slots.slotlessRows].join(
+      '\n',
+    ),
+    'inventory.bodySlotsTable': slots.slotRows.join('\n'),
+    'inventory.slotlessTable': slots.slotlessRows.join('\n'),
 
-    'spells.summary': formatSpellsSummary(spellsContainer),
-    'spells.slotsSummary': formatSpellSlotsSummary(spellsContainer),
-    'spells.preparedSummary': formatPreparedSpellsSummary(spellsContainer),
+    'spells.summary': formatSpellsSummary(casters),
+    'spells.slotsSummary': formatSpellSlotsSummary(casters),
+    'spells.preparedSummary': formatPreparedSpellsSummary(casters),
+    'spells.castingTable': buildCastingTableRows(casters),
+    'spells.levelBlocks': buildSpellLevelBlocks(casters),
   }
 }
 

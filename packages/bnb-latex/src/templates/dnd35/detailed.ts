@@ -127,9 +127,12 @@ ${EMOJI_ON}
 % pages; one tabular cannot. The rows of a table share a column spec, so the
 % stack reads as one table, and a counter carries the zebra striping across
 % rows. Header rows end in \nobreak so a column never ends on a header.
+% Rows sit \stackindent in from the column edge, clear of the table's label;
+% inside a sheetblock, which already leaves that room, the indent is zero.
 \newcounter{stackrow}
+\newlength{\stackindent}
 \newcommand{\stackline}[2]{% #1 column spec, #2 cells
-  \par\nointerlineskip\noindent
+  \par\nointerlineskip\noindent\hspace*{\stackindent}%
   \begin{tabular}{#1}#2 \\ \end{tabular}\par}
 % A table's first row, and container rows inside the inventory, restart the
 % striping. The row after a column header is shaded, as on page 1; the row
@@ -144,31 +147,27 @@ ${EMOJI_ON}
   \ifodd\value{stackrow}\rowcolors{1}{}{}\else\rowcolors{1}{zebra}{}\fi
   \stackline{#1}{#2}}
 
-% Column specs, sized from \linewidth when the multicols column starts.
+% Column specs, sized when the multicols column starts from the width left
+% beside the tables' labels.
 \newlength{\invqty}  \setlength{\invqty}{2.1em}
 \newlength{\invwt}   \setlength{\invwt}{3.3em}
+\newlength{\stackwidth}
 \newlength{\invname}
 \newlength{\slotname}
 \newlength{\slotitems}
-\newlength{\loadname}
-\newlength{\loadweight}
 \newcommand{\setstackwidths}{%
-  \setlength{\invname}{\dimexpr\linewidth-\invqty-\invwt-6\tabcolsep\relax}%
-  \setlength{\slotname}{0.27\linewidth}%
-  \setlength{\slotitems}{\dimexpr\linewidth-\slotname-4\tabcolsep\relax}%
-  \setlength{\loadname}{0.4\linewidth}%
-  \setlength{\loadweight}{\dimexpr\linewidth-\loadname-4\tabcolsep\relax}}
+  \setlength{\stackindent}{\blocklabel}%
+  \setlength{\stackwidth}{\dimexpr\linewidth-\blocklabel\relax}%
+  \setlength{\invname}{\dimexpr\stackwidth-\invqty-\invwt-6\tabcolsep\relax}%
+  \setlength{\slotname}{0.27\stackwidth}%
+  \setlength{\slotitems}{\dimexpr\stackwidth-\slotname-4\tabcolsep\relax}}
 % Column types rather than macros: tabular does not expand a macro in its
 % column spec.
 \newcolumntype{I}{L{\invname}R{\invqty}R{\invwt}}
 \newcolumntype{J}{L{\slotname}L{\slotitems}}
-\newcolumntype{G}{L{\loadname}L{\loadweight}}
-
-% Load: #1 label, #2 weight.
-\newcommand{\loadrow}[2]{\stackbody{G}{#1 & #2}}
 
 % Inventory: #1 item, #2 quantity, #3 the line's total weight in pounds.
-\newcommand{\invheader}{\stackheader{I}{\textbf{Item} & \textbf{Qty} & \textbf{Wt (lb)}}}
+\newcommand{\invheader}{\stackheader{I}{\footnotesize Item & \footnotesize Qty & \footnotesize Wt (lb)}}
 % A container row spans Item and Qty: #1 container, #2 its subtotal weight.
 \newcommand{\invcontainer}[2]{\stackheader[black!20]{I}{%
   \multicolumn{2}{L{\dimexpr\invname+\invqty+2\tabcolsep\relax}}{\textbf{#1}} & \textbf{#2}}}
@@ -178,7 +177,7 @@ ${EMOJI_ON}
 % #3 the \slotitem entries (empty for a free slot). The twelve body slots end
 % in \nobreak so they stay in one column; the slotless rows after them may
 % break, since there can be many.
-\newcommand{\slotheader}{\stackheader{J}{\textbf{Slot} & \textbf{Equipped}}}
+\newcommand{\slotheader}{\stackheader{J}{\footnotesize Slot & \footnotesize Equipped}}
 \newcommand{\slotitem}[2]{#1\if\relax\detokenize{#2}\relax\else\ {\footnotesize(#2)}\fi}
 \newcommand{\slotcells}[3]{%
   #1\ifnum#2=1 \ \ifsheetemoji\emoji{warning}\else\textbf{(!)}\fi\fi &
@@ -192,19 +191,34 @@ ${EMOJI_ON}
 % here: multicol splits with \vsplit, which broke at the label anyway.
 % Each block restarts the striping: xcolor's row count otherwise runs on from
 % the previous table, and a block could open on a shaded row.
-% The label runs up the block's left side, centred on the table and as long
-% as the table is tall, so a label longer than that wraps to a second line.
+% The label runs up the block's left side, centred on the table. It is set
+% at body size whatever the size around it, and a label longer than its table
+% is tall overhangs the table equally above and below.
 \newlength{\blocklabel} \setlength{\blocklabel}{1.4em}
+\newcommand{\blocklabelfont}{\fontsize{\bodysize}{\bodyleading}\selectfont\bfseries}
 \newsavebox{\blockbox}
+\newlength{\blocklabellength}
 \newenvironment{sheetblock}[1]{%
   \def\blocktitle{#1}%
   \rowcolors{2}{}{zebra}%
+  \setlength{\stackindent}{0pt}%
   \par\noindent
   \begin{lrbox}{\blockbox}\begin{minipage}{\dimexpr\linewidth-\blocklabel\relax}}%
   {\end{minipage}\end{lrbox}%
+  \settowidth{\blocklabellength}{\blocklabelfont\blocktitle}%
+  \ifdim\blocklabellength<\dimexpr\ht\blockbox+\dp\blockbox\relax
+    \setlength{\blocklabellength}{\dimexpr\ht\blockbox+\dp\blockbox\relax}\fi
   \parbox[c]{\blocklabel}{\rotatebox{90}{%
-    \parbox{\dimexpr\ht\blockbox+\dp\blockbox\relax}{\centering\bfseries\blocktitle}}}%
+    \parbox{\blocklabellength}{\centering\blocklabelfont\blocktitle}}}%
   \usebox{\blockbox}\par}
+% The label for a table that flows across columns and pages, and so cannot
+% be one box: it runs up the table's left side from the table's top, beside
+% the first rows. A \stackindent keeps every row of the table clear of it.
+\newcommand{\stacklabel}[1]{%
+  \par\nointerlineskip\noindent
+  \rlap{\makebox[\blocklabel][l]{\raisebox{-\height}[0pt][0pt]{%
+    \rotatebox{90}{\blocklabelfont #1}}}}%
+  \par\nointerlineskip\nobreak}
 % Text between blocks lines up with the tables, not the labels.
 \newenvironment{blocknote}{\par\leftskip\blocklabel\noindent}{\par}
 % A decorative break between blocks: a gray line a third of the column wide
@@ -219,6 +233,21 @@ ${EMOJI_ON}
     \hspace{2pt}\raisebox{0.8pt}{\rotatebox[origin=c]{45}{\rule{3pt}{3pt}}}\hspace{2pt}%
     \rule[2pt]{\dimexpr\linewidth/6-4pt\relax}{0.6pt}}%
   \par\vspace{\blockrulepad}}
+
+% The spells page. Casting: one row per class, #1 class, #2 casting type,
+% #3 key ability, #4 caster level, #5 domains.
+\newcommand{\castingrow}[5]{\rowstrut #1 & #2 & #3 & #4 & #5 \\}
+\newcommand{\castingnone}{\multicolumn{5}{L{\dimexpr\linewidth-2\tabcolsep\relax}}{\rowstrut\textcolor{black!40}{No spellcasting recorded}} \\}
+% A class's spells, one row per spell level: #1 class, #2 what its lists are
+% ("Prepared" or "Known").
+\newcolumntype{N}[1]{>{\small\raggedright\arraybackslash}p{#1}}
+\newenvironment{spelllevels}[2]{%
+  \begin{sheetblock}{#1}%
+  \begin{tabular}{R{0.08\linewidth}R{0.11\linewidth}R{0.1\linewidth}N{0.61\linewidth}}
+  \footnotesize Level & \footnotesize Per Day & \footnotesize Save DC & \footnotesize #2 \\}
+  {\end{tabular}\end{sheetblock}}
+% #1 spell level, #2 spells per day, #3 save DC, #4 the spells.
+\newcommand{\spelllevelrow}[4]{\rowstrut #1 & #2 & #3 & #4 \\}
 
 \begin{document}
 \fontsize{\bodysize}{\bodyleading}\selectfont
@@ -305,37 +334,48 @@ ${EMOJI_ON}
 \renewcommand{\arraystretch}{1.15}
 \setlength{\parskip}{0pt}
 \setstackwidths
-\noindent\textbf{\normalsize Load}\par\nobreak\vspace{1pt}
-\stackopen
-\loadrow{Current load}{ {{movement.load}} }
-\loadrow{Light load}{up to {{movement.capacity.light}} }
-\loadrow{Medium load}{up to {{movement.capacity.medium}} }
-\loadrow{Heavy load}{up to {{movement.capacity.heavy}} }
-\loadrow{Lift over head}{ {{movement.capacity.lift}} }
-\loadrow{Push or drag}{ {{movement.capacity.drag}} }
-
-\vspace{8pt}
-\noindent\textbf{\normalsize Magic Item Slots}\par\nobreak\vspace{1pt}
+\begin{sheetblock}{Load}
+\begin{tabular}{L{0.42\linewidth}L{0.5\linewidth}}
+Current load & {{movement.load}} \\
+Light load & up to {{movement.capacity.light}} \\
+Medium load & up to {{movement.capacity.medium}} \\
+Heavy load & up to {{movement.capacity.heavy}} \\
+Lift over head & {{movement.capacity.lift}} \\
+Push or drag & {{movement.capacity.drag}} \\
+\end{tabular}
+\end{sheetblock}
+\blockrule
+% The twelve body slots are one block, labelled like page 1's tables. The
+% slotless rows after it may run on into the next column.
+\begin{sheetblock}{Magic Item Slots}
 \slotheader
-{{{inventory.slotsTable}}}
-
-\vspace{8pt}
-\noindent\textbf{\normalsize Items by Container}\par\nobreak\vspace{1pt}
+{{{inventory.bodySlotsTable}}}
+\end{sheetblock}
+{{{inventory.slotlessTable}}}
+\blockrule
+\stacklabel{Items by Container}
 \invheader
 {{{inventory.detailedTable}}}
 \end{multicols}
 
 \newpage
 \renewcommand{\sheettitle}{Spells}
-\noindent\textbf{Casting Profile:} {{spells.summary}} \\
-\textbf{Slots by Level:} {{spells.slotsSummary}} \\
-\textbf{Prepared / Known by Level:} {{spells.preparedSummary}}
+\begin{multicols*}{2}
+\raggedcolumns
+\begin{sheetblock}{Casting}
+\begin{tabular}{L{0.17\linewidth}L{0.29\linewidth}L{0.09\linewidth}R{0.1\linewidth}L{0.21\linewidth}}
+\footnotesize Class & \footnotesize Casting & \footnotesize Ability & \footnotesize Caster Level & \footnotesize Domains \\
+{{{spells.castingTable}}}
+\end{tabular}
+\end{sheetblock}
+{{{spells.levelBlocks}}}
 
-\subsection*{Prepared and Expended Tracking}
+\columnbreak
+
 % Rows for writing in, so each gets page 1's full row height.
-\rowcolors{2}{}{zebra}
-\begin{tabular}{L{0.6in}L{0.9in}L{0.6in}L{\dimexpr\linewidth-2.1in-8\tabcolsep\relax}}
-\bfseries Level & \bfseries Total Slots & \bfseries Used & \bfseries Prepared / Changes \\
+\begin{sheetblock}{Tracking}
+\begin{tabular}{R{0.1\linewidth}R{0.14\linewidth}R{0.12\linewidth}L{0.54\linewidth}}
+\footnotesize Level & \footnotesize Total Slots & \footnotesize Used & \footnotesize Prepared / Changes \\
 \rowstrut 0 & & & \\
 \rowstrut 1 & & & \\
 \rowstrut 2 & & & \\
@@ -347,6 +387,8 @@ ${EMOJI_ON}
 \rowstrut 8 & & & \\
 \rowstrut 9 & & & \\
 \end{tabular}
+\end{sheetblock}
+\end{multicols*}
 \end{document}
 `
 
