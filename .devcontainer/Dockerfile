@@ -11,12 +11,14 @@ FROM mcr.microsoft.com/devcontainers/typescript-node:${VARIANT}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# LuaLaTeX and Atkinson Hyperlegible Next, for bnb-latex / bnb-cli --pdf.
+# LuaLaTeX, Atkinson Hyperlegible Next, and Noto Color Emoji (skill icons), for
+# bnb-latex / bnb-cli --pdf.
 ARG ATKINSON_FONT_COMMIT=7925f50f649b3813257faf2f4c0b381011f434f1
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		curl \
 		fontconfig \
+		fonts-noto-color-emoji \
 		texlive-latex-base \
 		texlive-latex-recommended \
 		texlive-latex-extra \

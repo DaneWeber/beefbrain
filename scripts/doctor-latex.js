@@ -12,7 +12,7 @@ if (result.error || result.status !== 0) {
   console.error('Install a LaTeX distribution before using bnb PDF generation.')
   console.error('WSL (Ubuntu) example:')
   console.error(
-    '  sudo apt install -y fontconfig texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-luatex',
+    '  sudo apt install -y fontconfig fonts-noto-color-emoji texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-luatex',
   )
   process.exit(1)
 }
@@ -39,3 +39,19 @@ if (adjustbox.error || adjustbox.status !== 0 || !adjustbox.stdout.trim()) {
 }
 
 console.log(`adjustbox detected: ${adjustbox.stdout.trim()}`)
+
+// The Detailed template draws skill icons with the emoji package, which needs
+// the Noto Color Emoji system font.
+const emojiFont = spawnSync('fc-list', ['Noto Color Emoji'], {
+  encoding: 'utf-8',
+  stdio: ['ignore', 'pipe', 'pipe'],
+})
+
+if (emojiFont.error || emojiFont.status !== 0 || !emojiFont.stdout.trim()) {
+  console.error('Font check failed: "Noto Color Emoji" is not installed.')
+  console.error('WSL (Ubuntu) example:')
+  console.error('  sudo apt install -y fonts-noto-color-emoji')
+  process.exit(1)
+}
+
+console.log('Noto Color Emoji detected')

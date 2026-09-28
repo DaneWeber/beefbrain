@@ -2,51 +2,53 @@
 character:
   description:
     name: Black Stag
-    player: Andy
+    player: Andy O
     race: Orc
     alignment: CG
     size: M
     sex: M
     age: 23 years
-    height: 5' 7"
-    weight: 155 lbs
+    height: 6'
+    weight: 290 lbs
   abilities:
-    strength: [20, str: 5, {base: 16, gloves-enhancement: 4}]
-    dexterity: [22, dex: 6, {base: 18, gloves-enhancement: 2, racial: 2}]
+    strength: [20, str: 5, {base: 12, orc: 4, belt-enhancement: 4}]
+    dexterity: [22, dex: 6, {base: 18, hd: 2, gloves-enhancement: 2}]
     constitution: [15, con: 2]
     intelligence: [12, int: 1]
-    wisdom: [18, wis: 4, {base: 17, enhancement: 1}]
+    wisdom: [18, wis: 4, {base: 17, hd: 1}]
     charisma: [11, cha: 0]
   levels:
-    xp: 81284
-    hd: [13, 6d8 + 3d10 + 4d6]
-    hp: [63, {max-hp: 89, damage: -26}]
+    xp: 91417
+    hd: [13, {d8: 6, d10: 3, d6: 4}]
+    hp: [89, {max-hp: 89, damage: 0}]
     max-hp: [89, {con: 26, rolls: 63}]
-    ranger: [6, hp: [null], {hd: 8, bab: good, fort: good, ref: good, will: poor}]
-    fighter: [3, hp: [null], {hd: 10, bab: good, fort: good, ref: poor, will: poor}]
-    rogue: [4, hp: [null], {hd: 6, bab: average, fort: poor, ref: good, will: poor}]
+    ranger: [6, hp: [8, 5, 5, 5, 5, 5], {hd: d8, bab: good, fort: good, ref: good, will: poor}]
+    fighter: [3, hp: [5, 5, 5], {hd: d10, bab: good, fort: good, ref: poor, will: poor}]
+    rogue: [4, hp: [5, 5, 2, 3], {hd: d6, bab: average, fort: poor, ref: good, will: poor}]
   combat:
     initiative: [6, dex: 6]
     saves:
-      fortitude: [14, {ranger: 5, fighter: 3, rogue: 1, con: 2, cloak-resistance: 3}]
-      reflex: [21, {ranger: 5, fighter: 1, rogue: 4, dex: 6, lightning-reflexes: 2, cloak-resistance: 3}]
-      will: [10, {ranger: 2, fighter: 1, rogue: 1, wis: 4, cloak-resistance: 2}]
-      will-vs-mental-acuity: [15, {will: 10, mental-acuity: 5}, 3/day]
+      fortitude: [14, {ranger: 5, fighter: 3, rogue: 1, con: 2, stamina-armor: 3}]
+      reflex: [21, {ranger: 5, fighter: 1, rogue: 4, dex: 6, lightning-reflexes: 2, vest-resistance: 2}]
+      will: [10, {ranger: 2, fighter: 1, rogue: 1, wis: 4, vest-resistance: 2}]
+      will-vs-mind-affecting: [15, {will: 10, mindarmor: 5}, 3/day]
     attack:
       bab: [12, {ranger: 6, fighter: 3, rogue: 3}]
       full-bab: +12/+7/+2
       melee:
         _: [17, {bab: 12, str: 5}]
         sickle-1-solo: [20, 1d6+6, x2, {_: 17, enhancement: 1, weapon-focus: 1, favored-enemy: 1}, {str: 5, enhancement: 1}, [sickle]]
-        sickle-1-two-weapon: [18, 1d6+6, x2, {_: 17, enhancement: 1, weapon-focus: 1, two-weapon: -2}, {str: 5, enhancement: 1}, [sickle, two-weapon]]
-        horned-helm-1: [14, 1d8+2, x2, {_: 17, enhancement: 1, secondary: -4}, str: 2, [helm, natural]]
+        sickle-1-two-weapon: [17, 1d6+6, x2, {_: 17, enhancement: 1, weapon-focus: 1, two-weapon: -2}, {str: 5, enhancement: 1}, [sickle, two-weapon]]
+        horned-helm-1: [14, 1d8+5, x2, {_: 17, enhancement: 1, secondary: -4}, str: 5, [helm, natural]]
         dagger-stab: [18, 1d4+5, 19-20/x2, {_: 17, weapon-finesse: 1}, str: 5, [dagger]]
       ranged:
         _: [18, {bab: 12, dex: 6}]
         bow-of-the-wintermoon: [19, 1d8+6, x3, {_: 18, enhancement: 1}, {str: 5, enhancement: 1}, [longbow, composite, 110ft]]
         dagger-throw: [18, 1d4+5, 19-20/x2, _: 18, str: 5, [dagger, 10ft/50ft]]
       grapple: [21, {bab: 12, str: 5, improved-grapple: 4}]
-      full-two-weapon-attack: +10/+10o/+5/+5o/+0/+0o
+      full-attack:
+        natural-and-two-light-weapons: {main: +10/+5/+0, offhand: +10/+5/+0, helm: +7}
+        helm-and-two-sickles: {main: +10/+5/+0, offhand: +10/+5/+0, helm: +7}
       sneak-attack: +2d6
     defense:
       ac: [29, {base: 10, armor: 9, shield: 1, deflection: 1, natural: 2, dex: 6}]
@@ -59,7 +61,7 @@ character:
       natural-amulet: +2 natural
   movement:
     speed: [30, base: 30]
-    load: [46.35 lbs, equipped: 46.35 lbs]
+    load: [46.4 lbs, equipped: 46.4 lbs]
     capacity: {light: 133 lbs, medium: 266 lbs, heavy: 400 lbs, lift: 800 lbs, drag: 2000 lbs}
   skills:
     _points: [119, {ranger: 71, fighter: 11, rogue: 37}]
@@ -84,7 +86,7 @@ character:
     perform-reed-flute: [3, {cha: 0, ranks: [3, rogue: 3]}]
     ride: [11, {dex: 6, ranks: [5, {ranger: 4, fighter: 1}]}]
     sleight-of-hand: [9, {dex: 6, ranks: [3, rogue: 3]}, +5 with metal objects]
-    speak-language: [1, {ranks: [1, rogue: 1]}]
+    speak-language: [1, ranks: [1, rogue: 1]]
     spellcraft: [3, {int: 1, ranks: [2, ranger: 4]}]
     spot: [15, {wis: 4, ranks: [11, {ranger: 10, rogue: 1}]}, "favored-enemy: +4"]
     survival: [13, {wis: 4, ranks: [9, ranger: 9]}, "favored-enemy: +4, +2 in natural environments"]
@@ -101,20 +103,8 @@ character:
       - [Two-Weapon Defense, level: 9, [combat.defense.ac, shield: 1]]
       - [Greater Two-Weapon Fighting, level: 12]
     class-abilities:
-      ranger:
-        - Track
-        - Spiritual Connection 3/day (Speak with Animals/Plants)
-        - "Favored Enemy: Humans, Giants (+4 bonus to Bluff, Listen, Sense Motive, Spot, Survival, and weapon damage)"
-        - Two-Weapon Fighting (combat style)
-        - Endurance
-        - Distracting Attack
-        - Improved Two-Weapon Fighting (combat style)
-      rogue:
-        - Trap-finding
-        - Sneak Attack +2d6
-        - Evasion
-        - Trap Sense +1
-        - Disruptive Attack
+      ranger: [Track, Spiritual Connection 3/day (Speak with Animals/Plants), "Favored Enemy: Humans, Giants (+4 bonus to Bluff, Listen, Sense Motive, Spot, Survival, and weapon damage)", Two-Weapon Fighting (combat style), Endurance, Distracting Attack, Improved Two-Weapon Fighting (combat style)]
+      rogue: [Trap-finding, Sneak Attack +2d6, Evasion, Trap Sense +1, Disruptive Attack]
     racial:
       - Darkvision 60'
       - "Dazzled in Sunlight: -1 attack, Spot, Search"
@@ -155,7 +145,7 @@ character:
       - [Horned Helm +1 (1d8 natural attack 1/2 str; +1 AC), 1, gear, 0 lbs, 13, {ac: 1, damage: 1d8, crit: x2}, [magic, head-slot]]
       - [+4 Deathward Improved Stamina/Agility Mindarmor Mithralmist Chain Shirt (+8 AC), 1, armor, 12.5 lbs, 14, {ac: 9, acp: 0, mist: 7/day 5ft 1min, fort-resistance: 3, ref-resistance: 3, will-mental-acuity: 3/day +5 vs mind-affecting, deathward: 1/day ignore death/neg energy}, [magic, mithral, body-slot]]
       - [Ring of Protection +1, 1, gear, 0 lbs, 15, deflection: 1, [magic, left-ring-slot]]
-      - [Gloves of Dexterity +2, 1, gear, 0 lbs, 16, dex-enhancement: 2, [magic, hands-slot]]
+      - [Gloves of Dexterity +2, 1, gear, 0 lbs, 16, gloves-enhancement: 2, [magic, hands-slot]]
       - ["Dimension Stride Boots (5 charges: 1/20ft, 3/40ft, 5/60ft)", 1, gear, 0 lbs, 17, [magic, feet-slot]]
       - ["Pearl of Speech (Giant, Abyssal, Celestial)", 3, gear, 0 lbs, 18, [magic, face-slot]]
       - ["Vanisher Cloak (3 charges/day: 1=4rds, 2=3rds, 3=2rds invisibility)", 1, gear, 0 lbs, 19, [magic, shoulders-slot]]
@@ -172,7 +162,7 @@ character:
       - [Third Eye Improvisation (1/day +5 and trained in any skill), 1, gear, 0 lbs, 30, [magic, face-slot]]
       - [Amulet of Natural Armor +2, 1, gear, 0 lbs, 32, natural: 2, [magic, throat-slot]]
       - [Sphere of Awakening (60ft burst), 1, gear, 0 lbs, 33, [magic]]
-      - [Belt of Giant's Strength +4, 1, gear, 1 lb, 34, str-enhancement: 4, [magic, waist-slot]]
+      - [Belt of Giant's Strength +4, 1, gear, 1 lb, 34, belt-enhancement: 4, [magic, waist-slot]]
       - [Tan Bag of Tricks, 1, gear, 0 lbs, 35, [magic]]
       - [Holy Symbol golden (Pelor), 1, gear, 1 lb, 36]
     pack:

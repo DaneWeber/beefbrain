@@ -7,6 +7,36 @@ import {
 import { LatexGenerationError } from './errors'
 import { DEFAULT_TEMPLATE_KEY, getTemplateRecord } from './templates/registry'
 import { renderTemplate, escapeLatexText } from './renderTemplate'
+import { getSkillIcon } from './skillIcons'
+import { formatTitleKey } from './text'
+import {
+  extractBreakdown,
+  formatComponentKey,
+  formatSigned,
+  formatSignedTotal,
+  formatSource,
+  formatSources,
+  getArrayFirst,
+  isNonZeroComponent,
+  sortComponentEntries,
+  toRecord,
+} from './components'
+import {
+  buildClassAbilityRows,
+  buildFeatRows,
+  buildFullAttackBlock,
+  buildMeleeRows,
+  buildRangedRows,
+  buildSpecialAbilityRows,
+  buildSpecialAttackRows,
+  getClassNames,
+} from './actionsSummary'
+import {
+  buildCastingTableRows,
+  buildSpellLevelBlocks,
+  summarizeSpellcasting,
+  type CasterSummary,
+} from './spellSummary'
 import type {
   LatexFieldMap,
   RenderLatexInput,
@@ -15,64 +45,6 @@ import type {
 
 const DEFAULT_MAX_YAML_BYTES = 256 * 1024
 const DEFAULT_MAX_TEMPLATE_BYTES = 256 * 1024
-
-// `.nan` in the YAML (e.g. `handle-animal: [.nan, {no-training: .nan}]`) means
-// the character cannot attempt the roll at all, which is different from a +0
-// bonus. Both the total and the component render as an em-dash.
-const NOT_APPLICABLE = '\u2014'
-
-const COMPONENT_LABELS: Record<string, string> = {
-  str: 'Str',
-  dex: 'Dex',
-  con: 'Con',
-  int: 'Int',
-  wis: 'Wis',
-  cha: 'Cha',
-  ranks: 'Ranks',
-  feat: 'Feat',
-  feats: 'Feats',
-  acp: 'ACP',
-  bab: 'BAB',
-  base: 'Base',
-  class: 'Class',
-  racial: 'Racial',
-  armor: 'Armor',
-  shield: 'Shield',
-  misc: 'Misc',
-}
-
-const COMPONENT_SORT_ORDER = [
-  'str',
-  'dex',
-  'con',
-  'int',
-  'wis',
-  'cha',
-  'ranks',
-  'class',
-  'racial',
-  'feat',
-  'feats',
-  'bab',
-  'base',
-  'armor',
-  'shield',
-  'acp',
-  'misc',
-]
-
-function getArrayFirst(value: unknown): string | number {
-  if (Array.isArray(value) && value.length > 0) {
-    const first = value[0]
-    if (typeof first === 'string' || typeof first === 'number') {
-      return first
-    }
-  }
-  if (typeof value === 'string' || typeof value === 'number') {
-    return value
-  }
-  return ''
-}
 
 function getFirstRecordValue(record: unknown): string | number {
   if (!record || typeof record !== 'object' || Array.isArray(record)) {
@@ -98,40 +70,6 @@ function getCharacterLevel(levels: Record<string, unknown>): string | number {
   return ''
 }
 
-function toRecord(value: unknown): Record<string, unknown> {
-  if (value && typeof value === 'object' && !Array.isArray(value)) {
-    return value as Record<string, unknown>
-  }
-  return {}
-}
-
-function formatTitleKey(key: string): string {
-  return key
-    .split('-')
-    .map((part) => {
-      if (part.length === 0) {
-        return part
-      }
-      return part.charAt(0).toUpperCase() + part.slice(1)
-    })
-    .join(' ')
-}
-
-function formatSigned(value: unknown): string {
-  if (typeof value === 'number' && Number.isNaN(value)) {
-    return NOT_APPLICABLE
-  }
-  const numeric = Number(value)
-  if (Number.isFinite(numeric)) {
-    return numeric >= 0 ? `+${numeric}` : String(numeric)
-  }
-  return String(value)
-}
-
-function formatComponentKey(key: string): string {
-  return COMPONENT_LABELS[key] ?? formatTitleKey(key)
-}
-
 function formatEffects(value: unknown): string {
   const record = toRecord(value)
   const entries = Object.entries(record)
@@ -141,43 +79,6 @@ function formatEffects(value: unknown): string {
   return entries
     .map(([key, val]) => `${formatComponentKey(key)}=${String(val)}`)
     .join(', ')
-}
-
-function extractBreakdown(value: unknown): Record<string, unknown> {
-  if (value && typeof value === 'object' && !Array.isArray(value)) {
-    return value as Record<string, unknown>
-  }
-
-  if (!Array.isArray(value)) {
-    return {}
-  }
-
-  const combined: Record<string, unknown> = {}
-  for (let i = 1; i < value.length; i++) {
-    const item = value[i]
-    if (item && typeof item === 'object' && !Array.isArray(item)) {
-      Object.assign(combined, item)
-    }
-  }
-  return combined
-}
-
-function sortComponentEntries(
-  entries: [string, unknown][],
-): [string, unknown][] {
-  const rank = new Map(COMPONENT_SORT_ORDER.map((key, index) => [key, index]))
-  return entries.sort(([a], [b]) => {
-    const aRank = rank.has(a)
-      ? (rank.get(a) as number)
-      : Number.MAX_SAFE_INTEGER
-    const bRank = rank.has(b)
-      ? (rank.get(b) as number)
-      : Number.MAX_SAFE_INTEGER
-    if (aRank !== bRank) {
-      return aRank - bRank
-    }
-    return a.localeCompare(b)
-  })
 }
 
 function formatBreakdown(value: unknown): string {
@@ -194,6 +95,36 @@ function formatBreakdown(value: unknown): string {
     .map(([key, componentValue]) => {
       return `${formatComponentKey(key)} ${formatSigned(componentValue)}`
     })
+    .join(', ')
+}
+
+// An ability's modifier, signed like every other bonus on the sheet ("+4").
+// Ability data is `[score, {mod}, ...]`.
+function formatAbilityMod(value: unknown): string {
+  const mod = getFirstRecordValue(Array.isArray(value) ? value[1] : undefined)
+  return mod === '' ? '' : formatSigned(mod)
+}
+
+/**
+ * What an ability score is built from. Ability data is
+ * `[score, {mod}, {sources}?]`, and index 1 is the modifier, not a source, so
+ * only the records after it count, in the order the data lists them.
+ */
+function formatAbilitySources(value: unknown): string {
+  if (!Array.isArray(value)) {
+    return ''
+  }
+  const sources: Record<string, unknown> = {}
+  for (const item of value.slice(2)) {
+    Object.assign(sources, toRecord(item))
+  }
+  return Object.entries(sources)
+    .filter(
+      ([key, sourceValue]) =>
+        !key.startsWith('_') &&
+        (key === 'base' || isNonZeroComponent(sourceValue)),
+    )
+    .map(([key, sourceValue]) => formatSource(key, sourceValue))
     .join(', ')
 }
 
@@ -251,13 +182,9 @@ function formatSkills(
   return rows.length > 0 ? rows.join('; ') : 'None listed'
 }
 
-function isNonZeroComponent(value: unknown): boolean {
-  const numeric = Array.isArray(value) ? value[0] : value
-  return Number(numeric) !== 0
-}
-
 /**
- * Builds one `\skillrow` call per skill (alphabetical): name, final bonus
+ * Builds one `\skillrow` call per skill (alphabetical): emoji name (empty
+ * when the skill has none, see skillIcons.ts), display name, final bonus
  * (post-ACP), pre-ACP bonus, and only the non-zero named sources of the
  * bonus. Cell text is escaped individually; the macro call itself is left raw
  * for a {{{...}}} template token.
@@ -290,11 +217,197 @@ function buildSkillsTableRows(skills: Record<string, unknown>): string {
         .map(([key, value]) => formatSkillComponent(key, value, false))
         .join(', ')
 
+      // The icon is a CLDR emoji name from our own table, never user text, so
+      // it goes in unescaped.
+      const icon = getSkillIcon(skillName)
       const name = escapeLatexText(formatTitleKey(skillName))
       const sourcesCell = escapeLatexText(sources)
-      return `\\skillrow{${name}}{${formatSigned(total)}}{${formatSigned(preAcp)}}{${sourcesCell}}`
+      return `\\skillrow{${icon}}{${name}}{${formatSigned(total)}}{${formatSigned(preAcp)}}{${sourcesCell}}`
     })
     .join('\n')
+}
+
+// The twelve magic item body slots, head to toe, as a printed sheet reads,
+// each with the CLDR emoji name the sheet shows beside it.
+const BODY_SLOT_ICONS: Record<string, string> = {
+  head: 'military-helmet',
+  face: 'goggles',
+  throat: 'prayer-beads',
+  shoulders: 'coat',
+  body: 'kimono',
+  torso: 't-shirt',
+  arms: 'mechanical-arm',
+  hands: 'gloves',
+  'left-ring': 'ring',
+  'right-ring': 'ring',
+  waist: 'scarf',
+  feet: 'hiking-boot',
+}
+const BODY_SLOTS = Object.keys(BODY_SLOT_ICONS)
+
+// `<name>-slot` tags as written in the data, singular or plural, to the slot
+// they occupy.
+const SLOT_TAGS: Record<string, string> = {
+  head: 'head',
+  face: 'face',
+  throat: 'throat',
+  neck: 'throat',
+  shoulder: 'shoulders',
+  shoulders: 'shoulders',
+  body: 'body',
+  torso: 'torso',
+  arm: 'arms',
+  arms: 'arms',
+  hand: 'hands',
+  hands: 'hands',
+  'left-ring': 'left-ring',
+  'right-ring': 'right-ring',
+  belt: 'waist',
+  waist: 'waist',
+  foot: 'feet',
+  feet: 'feet',
+}
+
+type InventoryItem = unknown[]
+
+function getContainers(
+  inventory: Record<string, unknown>,
+): Array<[string, InventoryItem[]]> {
+  return Object.entries(inventory)
+    .filter(
+      ([key, value]) =>
+        !key.startsWith('_') && key !== 'money' && Array.isArray(value),
+    )
+    .map(([key, value]) => [
+      key,
+      (value as unknown[]).filter(
+        (entry): entry is InventoryItem =>
+          Array.isArray(entry) && entry.length > 0,
+      ),
+    ])
+}
+
+// An item is [name, qty, category, weight, cost, props?, tags?, ...], and the
+// data often leaves out props, which moves tags up to index 5. So both are
+// found by shape from index 5 on: props is the first plain object, tags the
+// first array of strings (a later array may hold effect targets).
+function getItemProps(item: InventoryItem): Record<string, unknown> {
+  const props = item
+    .slice(5)
+    .find(
+      (entry) => entry && typeof entry === 'object' && !Array.isArray(entry),
+    )
+  return toRecord(props)
+}
+
+function getItemTags(item: InventoryItem): string[] {
+  const tags = item
+    .slice(5)
+    .find(
+      (entry): entry is unknown[] =>
+        Array.isArray(entry) && entry.every((tag) => typeof tag === 'string'),
+    )
+  return tags ? tags.map((tag) => String(tag).toLowerCase()) : []
+}
+
+/** Per-item weight in pounds from strings like "4 lbs" or "0.1 lb". */
+function parseWeight(value: unknown): number | undefined {
+  if (typeof value === 'number') {
+    return value
+  }
+  const match = /^\s*(\d+(?:\.\d+)?)/.exec(String(value ?? ''))
+  return match ? Number(match[1]) : undefined
+}
+
+function formatPounds(value: number): string {
+  return String(Math.round(value * 100) / 100)
+}
+
+/**
+ * One `\invcontainer` header per container, then one `\invitem` per item:
+ * name, quantity, and the line's total weight (quantity x per-item weight).
+ * Containers the character is not carrying (absent from `_on`, e.g. a horse)
+ * are marked, since their weight does not count toward load. Templates using
+ * this field define `\invcontainer` and `\invitem`.
+ */
+function buildInventoryTableRows(inventory: Record<string, unknown>): string {
+  const carried = Array.isArray(inventory._on)
+    ? inventory._on.map(String)
+    : undefined
+
+  return getContainers(inventory)
+    .map(([container, items]) => {
+      let subtotal = 0
+      const rows = items.map((item) => {
+        const qty = Number(item[1] ?? 1)
+        const each = parseWeight(item[3])
+        const weight = each === undefined ? undefined : each * qty
+        subtotal += weight ?? 0
+        const name = escapeLatexText(String(item[0] ?? 'Unknown item'))
+        const weightCell = weight === undefined ? '' : formatPounds(weight)
+        return `\\invitem{${name}}{${Number.isFinite(qty) ? qty : ''}}{${weightCell}}`
+      })
+
+      const notCarried =
+        carried !== undefined && !carried.includes(container)
+          ? ' (not carried)'
+          : ''
+      const label = escapeLatexText(`${formatTitleKey(container)}${notCarried}`)
+      return [
+        `\\invcontainer{${label}}{${formatPounds(subtotal)}}`,
+        ...rows,
+      ].join('\n')
+    })
+    .join('\n')
+}
+
+function formatSlotItem(item: InventoryItem): string {
+  const name = escapeLatexText(String(item[0] ?? 'Unknown item'))
+  const effects = escapeLatexText(formatEffects(getItemProps(item)))
+  return `\\slotitem{${name}}{${effects}}`
+}
+
+/**
+ * One `\slotrow` per body slot (head to toe): icon, label, whether the slot
+ * is over-filled (1 or 0), and the items in it. Then one `\slotlessrow` per
+ * slotless magic item: label ("Slotless" on each) and the item.
+ * Only the `equipped` container counts; a spare belt in the pack occupies no
+ * slot. Templates using this field define `\slotrow`, `\slotlessrow` and
+ * `\slotitem`.
+ */
+function buildSlotsTableRows(inventory: Record<string, unknown>): string {
+  const equipped = getContainers(inventory).find(
+    ([container]) => container === 'equipped',
+  )?.[1]
+  const bySlot = new Map<string, InventoryItem[]>(
+    BODY_SLOTS.map((slot) => [slot, []]),
+  )
+  const slotless: InventoryItem[] = []
+
+  for (const item of equipped ?? []) {
+    for (const tag of getItemTags(item)) {
+      if (tag === 'other-slot') {
+        slotless.push(item)
+        continue
+      }
+      const slot = tag.endsWith('-slot')
+        ? SLOT_TAGS[tag.slice(0, -'-slot'.length)]
+        : undefined
+      if (slot) {
+        bySlot.get(slot)?.push(item)
+      }
+    }
+  }
+
+  const slotRows = BODY_SLOTS.map((slot) => {
+    const items = bySlot.get(slot) ?? []
+    const conflict = items.length > 1 ? 1 : 0
+    return `\\slotrow{${BODY_SLOT_ICONS[slot]}}{${formatTitleKey(slot)}}{${conflict}}{${items.map(formatSlotItem).join('\\newline ')}}`
+  })
+  const slotlessRows = slotless.map(
+    (item) => `\\slotlessrow{Slotless}{${formatSlotItem(item)}}`,
+  )
+  return [...slotRows, ...slotlessRows].join('\n')
 }
 
 function hasMagicIndicators(
@@ -379,88 +492,55 @@ function formatItemsByContainer(inventory: Record<string, unknown>): string {
     .join('; ')
 }
 
-function formatSpellsSummary(spellsValue: unknown): string {
-  const spells = toRecord(spellsValue)
-  const classes = Object.entries(spells).filter(
-    ([key, value]) =>
-      !key.startsWith('_') && value && typeof value === 'object',
-  )
-  if (classes.length === 0) {
+function formatSpellsSummary(casters: CasterSummary[]): string {
+  if (casters.length === 0) {
     return 'No spellcasting data'
   }
-
-  return classes
-    .map(([className, classData]) => {
-      const classRecord = toRecord(classData)
-      const casting = Array.isArray(classRecord.casting)
-        ? classRecord.casting
-        : []
-      const castingMode = casting.length > 0 ? String(casting[0]) : 'unknown'
-      const castingAbility =
-        casting.length > 1 ? String(casting[1]).toUpperCase() : 'N/A'
-      const domains = Array.isArray(classRecord.domains)
-        ? classRecord.domains.map((entry) => String(entry)).join(', ')
-        : ''
-      const domainText = domains.length > 0 ? `; domains ${domains}` : ''
-      return `${formatTitleKey(className)}: ${castingMode} via ${castingAbility}${domainText}`
+  return casters
+    .map((caster) => {
+      const profile = [
+        caster.casting,
+        caster.ability,
+        caster.casterLevel && `caster level ${caster.casterLevel}`,
+        caster.domains && `domains ${caster.domains}`,
+      ].filter((part) => part)
+      return `${caster.name}: ${profile.length > 0 ? profile.join('; ') : 'unknown'}`
     })
     .join(' | ')
 }
 
-function formatSpellSlotsSummary(spellsValue: unknown): string {
-  const spells = toRecord(spellsValue)
-  const classes = Object.entries(spells).filter(
-    ([key, value]) =>
-      !key.startsWith('_') && value && typeof value === 'object',
-  )
-  if (classes.length === 0) {
+function formatSpellSlotsSummary(casters: CasterSummary[]): string {
+  if (casters.length === 0) {
     return 'No spell slot data'
   }
-
-  return classes
-    .map(([className, classData]) => {
-      const slots = toRecord(toRecord(classData).slots)
-      const levels = Object.keys(slots).sort((a, b) => Number(a) - Number(b))
-      if (levels.length === 0) {
-        return `${formatTitleKey(className)}: no slots listed`
+  return casters
+    .map((caster) => {
+      const slots = caster.levels.filter((level) => level.perDay)
+      if (slots.length === 0) {
+        return `${caster.name}: no slots listed`
       }
-
-      const slotText = levels
-        .map((level) => `${level}:${String(getArrayFirst(slots[level]))}`)
+      const slotText = slots
+        .map((level) => `${level.level}:${level.perDay}`)
         .join(', ')
-      return `${formatTitleKey(className)} slots ${slotText}`
+      return `${caster.name} slots ${slotText}`
     })
     .join(' | ')
 }
 
-function formatPreparedSpellsSummary(spellsValue: unknown): string {
-  const spells = toRecord(spellsValue)
-  const classes = Object.entries(spells).filter(
-    ([key, value]) =>
-      !key.startsWith('_') && value && typeof value === 'object',
-  )
-  if (classes.length === 0) {
+function formatPreparedSpellsSummary(casters: CasterSummary[]): string {
+  if (casters.length === 0) {
     return 'No prepared spell data'
   }
-
-  return classes
-    .map(([className, classData]) => {
-      const prepared = toRecord(toRecord(classData).prepared)
-      const levels = Object.keys(prepared).sort((a, b) => Number(a) - Number(b))
-      if (levels.length === 0) {
-        return `${formatTitleKey(className)}: no prepared list`
+  return casters
+    .map((caster) => {
+      const lists = caster.levels.filter((level) => level.spells.length > 0)
+      if (lists.length === 0) {
+        return `${caster.name}: no ${caster.listLabel.toLowerCase()} list`
       }
-      const preparedByLevel = levels
-        .map((level) => {
-          const spellsAtLevel = Array.isArray(prepared[level])
-            ? (prepared[level] as unknown[])
-                .map((entry) => String(entry))
-                .join(', ')
-            : String(prepared[level])
-          return `${level}[${spellsAtLevel}]`
-        })
+      const byLevel = lists
+        .map((level) => `${level.level}[${level.spells.join(', ')}]`)
         .join('; ')
-      return `${formatTitleKey(className)} prepared ${preparedByLevel}`
+      return `${caster.name} ${caster.listLabel.toLowerCase()} ${byLevel}`
     })
     .join(' | ')
 }
@@ -503,11 +583,15 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
   const combat = (characterData.combat ?? {}) as Record<string, unknown>
   const defense = (combat.defense ?? {}) as Record<string, unknown>
   const movement = (characterData.movement ?? {}) as Record<string, unknown>
+  const capacity = toRecord(movement.capacity)
   const savesContainer = (combat.saves ?? {}) as Record<string, unknown>
   const hpContainer = (characterData.levels ?? {}) as Record<string, unknown>
   const skillsContainer = toRecord(characterData.skills)
   const inventoryContainer = toRecord(characterData.inventory)
-  const spellsContainer = toRecord(characterData.spells)
+  const casters = summarizeSpellcasting(characterData)
+  const attack = toRecord(combat.attack)
+  const special = toRecord(characterData.special)
+  const classes = getClassNames(hpContainer)
 
   return {
     'character.name': String(description.name ?? 'Unknown'),
@@ -527,63 +611,93 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'character.level': getCharacterLevel(hpContainer),
 
     'abilities.strength.score': getArrayFirst(abilities.strength),
-    'abilities.strength.mod': getFirstRecordValue(
-      (abilities.strength as unknown[] | undefined)?.[1] as
-        Record<string, unknown> | undefined,
-    ),
+    'abilities.strength.sources': formatAbilitySources(abilities.strength),
+    'abilities.strength.mod': formatAbilityMod(abilities.strength),
     'abilities.dexterity.score': getArrayFirst(abilities.dexterity),
-    'abilities.dexterity.mod': getFirstRecordValue(
-      (abilities.dexterity as unknown[] | undefined)?.[1] as
-        Record<string, unknown> | undefined,
-    ),
+    'abilities.dexterity.sources': formatAbilitySources(abilities.dexterity),
+    'abilities.dexterity.mod': formatAbilityMod(abilities.dexterity),
     'abilities.constitution.score': getArrayFirst(abilities.constitution),
-    'abilities.constitution.mod': getFirstRecordValue(
-      (abilities.constitution as unknown[] | undefined)?.[1] as
-        Record<string, unknown> | undefined,
+    'abilities.constitution.sources': formatAbilitySources(
+      abilities.constitution,
     ),
+    'abilities.constitution.mod': formatAbilityMod(abilities.constitution),
     'abilities.intelligence.score': getArrayFirst(abilities.intelligence),
-    'abilities.intelligence.mod': getFirstRecordValue(
-      (abilities.intelligence as unknown[] | undefined)?.[1] as
-        Record<string, unknown> | undefined,
+    'abilities.intelligence.sources': formatAbilitySources(
+      abilities.intelligence,
     ),
+    'abilities.intelligence.mod': formatAbilityMod(abilities.intelligence),
     'abilities.wisdom.score': getArrayFirst(abilities.wisdom),
-    'abilities.wisdom.mod': getFirstRecordValue(
-      (abilities.wisdom as unknown[] | undefined)?.[1] as
-        Record<string, unknown> | undefined,
-    ),
+    'abilities.wisdom.sources': formatAbilitySources(abilities.wisdom),
+    'abilities.wisdom.mod': formatAbilityMod(abilities.wisdom),
     'abilities.charisma.score': getArrayFirst(abilities.charisma),
-    'abilities.charisma.mod': getFirstRecordValue(
-      (abilities.charisma as unknown[] | undefined)?.[1] as
-        Record<string, unknown> | undefined,
-    ),
+    'abilities.charisma.sources': formatAbilitySources(abilities.charisma),
+    'abilities.charisma.mod': formatAbilityMod(abilities.charisma),
 
     'combat.hp': getArrayFirst(hpContainer.hp),
     'combat.hp.breakdown': formatBreakdown(hpContainer.hp),
+    'combat.hp.sources': formatSources(hpContainer.hp),
     'combat.ac': getArrayFirst(defense.ac),
     'combat.ac.breakdown': formatBreakdown(defense.ac),
+    'combat.ac.sources': formatSources(defense.ac),
     'combat.touchAc': getArrayFirst(defense['touch-ac']),
     'combat.touchAc.breakdown': formatBreakdown(defense['touch-ac']),
+    'combat.touchAc.sources': formatSources(defense['touch-ac']),
     'combat.flatFootedAc': getArrayFirst(defense['flat-footed-ac']),
     'combat.flatFootedAc.breakdown': formatBreakdown(defense['flat-footed-ac']),
+    'combat.flatFootedAc.sources': formatSources(defense['flat-footed-ac']),
     'combat.acp': getArrayFirst(defense.acp),
     'combat.acp.breakdown': formatBreakdown(defense.acp),
+    'combat.acp.sources': formatSources(defense.acp),
     'combat.maxDex': getArrayFirst(defense['max-dex']),
+    'combat.maxDex.sources': formatSources(defense['max-dex']),
     'combat.initiative': getArrayFirst(combat.initiative),
     'combat.initiative.breakdown': formatBreakdown(combat.initiative),
+    'combat.initiative.sources': formatSources(combat.initiative),
     'combat.defenseSpecial': String(defense.special ?? 'None'),
 
-    'saves.fortitude': getArrayFirst(savesContainer.fortitude),
+    // The written-out iteratives (+12/+7/+2) when the sheet has them.
+    'combat.bab':
+      typeof attack['full-bab'] === 'string'
+        ? attack['full-bab']
+        : formatSignedTotal(attack.bab),
+    'combat.bab.sources': formatSources(attack.bab),
+    'combat.melee': formatSignedTotal(toRecord(attack.melee)._),
+    'combat.melee.sources': formatSources(toRecord(attack.melee)._),
+    'combat.ranged': formatSignedTotal(toRecord(attack.ranged)._),
+    'combat.ranged.sources': formatSources(toRecord(attack.ranged)._),
+    'combat.grapple': formatSignedTotal(attack.grapple),
+    'combat.grapple.sources': formatSources(attack.grapple),
+
+    'actions.meleeTable': buildMeleeRows(attack),
+    'actions.rangedTable': buildRangedRows(attack),
+    'actions.fullAttackBlock': buildFullAttackBlock(attack),
+    'actions.specialAttackRows': buildSpecialAttackRows(combat),
+    'actions.featsTable': buildFeatRows(special),
+    'actions.classAbilitiesTable': buildClassAbilityRows(special, classes),
+    'actions.specialAbilitiesTable': buildSpecialAbilityRows(special, classes),
+
+    'saves.fortitude': formatSignedTotal(savesContainer.fortitude),
     'saves.fortitude.breakdown': formatBreakdown(savesContainer.fortitude),
-    'saves.reflex': getArrayFirst(savesContainer.reflex),
+    'saves.fortitude.sources': formatSources(savesContainer.fortitude),
+    'saves.reflex': formatSignedTotal(savesContainer.reflex),
     'saves.reflex.breakdown': formatBreakdown(savesContainer.reflex),
-    'saves.will': getArrayFirst(savesContainer.will),
+    'saves.reflex.sources': formatSources(savesContainer.reflex),
+    'saves.will': formatSignedTotal(savesContainer.will),
     'saves.will.breakdown': formatBreakdown(savesContainer.will),
+    'saves.will.sources': formatSources(savesContainer.will),
 
     'movement.speed': getArrayFirst(movement.speed),
     'movement.speed.breakdown': formatBreakdown(movement.speed),
+    'movement.speed.sources': formatSources(movement.speed),
     'movement.run': getArrayFirst(movement.run),
+    'movement.run.sources': formatSources(movement.run),
     'movement.load': getArrayFirst(movement.load),
     'movement.capacity': formatEffects(movement.capacity),
+    'movement.capacity.light': getArrayFirst(capacity.light),
+    'movement.capacity.medium': getArrayFirst(capacity.medium),
+    'movement.capacity.heavy': getArrayFirst(capacity.heavy),
+    'movement.capacity.lift': getArrayFirst(capacity.lift),
+    'movement.capacity.drag': getArrayFirst(capacity.drag),
 
     'skills.summary': formatSkills(skillsContainer, false),
     'skills.summaryDetailed': formatSkills(skillsContainer, true),
@@ -592,10 +706,14 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'inventory.equippedMagicItems':
       formatEquippedMagicItems(inventoryContainer),
     'inventory.itemsByContainer': formatItemsByContainer(inventoryContainer),
+    'inventory.detailedTable': buildInventoryTableRows(inventoryContainer),
+    'inventory.slotsTable': buildSlotsTableRows(inventoryContainer),
 
-    'spells.summary': formatSpellsSummary(spellsContainer),
-    'spells.slotsSummary': formatSpellSlotsSummary(spellsContainer),
-    'spells.preparedSummary': formatPreparedSpellsSummary(spellsContainer),
+    'spells.summary': formatSpellsSummary(casters),
+    'spells.slotsSummary': formatSpellSlotsSummary(casters),
+    'spells.preparedSummary': formatPreparedSpellsSummary(casters),
+    'spells.castingTable': buildCastingTableRows(casters),
+    'spells.levelBlocks': buildSpellLevelBlocks(casters),
   }
 }
 

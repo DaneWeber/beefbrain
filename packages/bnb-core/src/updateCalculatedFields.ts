@@ -722,8 +722,23 @@ function propagateToMeleeWeaponDetails(
         !Array.isArray(weaponArr[4]) &&
         'str' in weaponArr[4]
       ) {
-        if ((weaponArr[4] as Record<string, number>).str !== strDamageMod) {
-          ;(weaponArr[4] as Record<string, number>).str = strDamageMod
+        const damageMods = weaponArr[4] as Record<string, number>
+        // A breakdown may split the two-handed bonus into its own component
+        // ({str: 6, two-handed-str: 3}); str then stays the plain Str mod and
+        // the split component carries the extra half.
+        const splitKey = ['two-handed-str', 'two-handed'].find(
+          (key) => key in damageMods,
+        )
+        if (splitKey) {
+          const extra = Math.floor(strMod * 1.5) - strMod
+          if (damageMods[splitKey] !== extra) {
+            damageMods[splitKey] = extra
+            hasChanges = true
+          }
+          strDamageMod = strMod
+        }
+        if (damageMods.str !== strDamageMod) {
+          damageMods.str = strDamageMod
           hasChanges = true
         }
       }
