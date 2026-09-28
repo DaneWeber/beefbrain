@@ -282,6 +282,14 @@ ${EMOJI_ON}
 \end{tabular}
 \end{sheetblock}
 \blockrule
+\begin{sheetblock}{Saves}
+\begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
+\statrow{castle}{Fortitude}{ {{saves.fortitude}} }{ {{saves.fortitude.sources}} }
+\statrow{dashing-away}{Reflex}{ {{saves.reflex}} }{ {{saves.reflex.sources}} }
+\statrow{lion}{Will}{ {{saves.will}} }{ {{saves.will.sources}} }
+\end{tabular}
+\end{sheetblock}
+\blockrule
 \begin{sheetblock}{Defense}
 \begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
 \statrow{red-heart}{HP}{ {{combat.hp}} }{ {{combat.hp.sources}} }
@@ -300,14 +308,6 @@ ${EMOJI_ON}
 \statrow{safety-vest}{Max Dex}{ {{combat.maxDex}} }{ {{combat.maxDex.sources}} }
 \statrow{person-running}{Speed}{ {{movement.speed}} }{ {{movement.speed.sources}} }
 \statrow{running-shoe}{Run}{ {{movement.run}} }{ {{movement.run.sources}} }
-\end{tabular}
-\end{sheetblock}
-\blockrule
-\begin{sheetblock}{Saves}
-\begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
-\statrow{castle}{Fortitude}{ {{saves.fortitude}} }{ {{saves.fortitude.sources}} }
-\statrow{dashing-away}{Reflex}{ {{saves.reflex}} }{ {{saves.reflex.sources}} }
-\statrow{lion}{Will}{ {{saves.will}} }{ {{saves.will.sources}} }
 \end{tabular}
 \end{sheetblock}
 
