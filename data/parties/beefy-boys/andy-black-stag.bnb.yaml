@@ -54,10 +54,6 @@ character:
       ac: [29, {base: 10, armor: 9, shield: 1, deflection: 1, natural: 2, dex: 6}]
       touch-ac: [17, {base: 10, deflection: 1, dex: 6}]
       flat-footed-ac: [23, {base: 10, armor: 9, shield: 1, deflection: 1, natural: 2}]
-      armor: Chain Shirt (mithral, +9)
-      shield: Two-Weapon Defense (+1)
-      deflection-ring: +1 deflection
-      natural-amulet: +2 natural
   movement:
     speed: [30, base: 30]
     load: [46.4 lbs, equipped: 46.4 lbs]
@@ -143,9 +139,9 @@ character:
       - [Bow of the Wintermoon +1 Full Str Bonus, 1, weapon, 2 lbs, 11, {damage: 1d8, crit: x3, range: 110ft, enhancement: 1}, [magic, other-slot]]
       - [Arrows, 31, supplies, 0.15 lbs, 12]
       - [Horned Helm +1 (1d8 natural attack 1/2 str; +1 AC), 1, gear, 0 lbs, 13, {ac: 1, damage: 1d8, crit: x2}, [magic, head-slot]]
-      - [+4 Deathward Improved Stamina/Agility Mindarmor Mithralmist Chain Shirt (+8 AC), 1, armor, 12.5 lbs, 14, {ac: 9, acp: 0, mist: 7/day 5ft 1min, fort-resistance: 3, ref-resistance: 3, will-mental-acuity: 3/day +5 vs mind-affecting, deathward: 1/day ignore death/neg energy}, [magic, mithral, body-slot]]
-      - [Ring of Protection +1, 1, gear, 0 lbs, 15, deflection: 1, [magic, left-ring-slot]]
-      - [Gloves of Dexterity +2, 1, gear, 0 lbs, 16, gloves-enhancement: 2, [magic, hands-slot]]
+      - [+4 Deathward Improved Stamina/Agility Mindarmor Mithralmist Chain Shirt (+8 AC), 1, armor, 12.5 lbs, 14, {ac: 9, acp: 0, mist: 7/day 5ft 1min, fort-resistance: 3, ref-resistance: 3, will-mindarmor: 3/day +5 vs mind-affecting, deathward: 1/day ignore death/neg energy}, [magic, mithral, body-slot]]
+      - [Ring of Protection +1, 1, gear, 0 lbs, 15, [{combat.defense.ac.deflection: 1}, {combat.defense.flat-footed-ac.deflection: 1}, {combat.defense.touch-ac.deflection: 1}], [magic, left-ring-slot]]
+      - [Gloves of Dexterity +2, 1, gear, 0 lbs, 16, abilities.dexterity.gloves-enhancement: 2, [magic, hands-slot]]
       - ["Dimension Stride Boots (5 charges: 1/20ft, 3/40ft, 5/60ft)", 1, gear, 0 lbs, 17, [magic, feet-slot]]
       - ["Pearl of Speech (Giant, Abyssal, Celestial)", 3, gear, 0 lbs, 18, [magic, face-slot]]
       - ["Vanisher Cloak (3 charges/day: 1=4rds, 2=3rds, 3=2rds invisibility)", 1, gear, 0 lbs, 19, [magic, shoulders-slot]]
@@ -162,7 +158,7 @@ character:
       - [Third Eye Improvisation (1/day +5 and trained in any skill), 1, gear, 0 lbs, 30, [magic, face-slot]]
       - [Amulet of Natural Armor +2, 1, gear, 0 lbs, 32, natural: 2, [magic, throat-slot]]
       - [Sphere of Awakening (60ft burst), 1, gear, 0 lbs, 33, [magic]]
-      - [Belt of Giant's Strength +4, 1, gear, 1 lb, 34, belt-enhancement: 4, [magic, waist-slot]]
+      - [Belt of Giant's Strength +4, 1, gear, 1 lb, 34, abilities.strength.belt-enhancement: 4, [magic, waist-slot]]
       - [Tan Bag of Tricks, 1, gear, 0 lbs, 35, [magic]]
       - [Holy Symbol golden (Pelor), 1, gear, 1 lb, 36]
     pack:
