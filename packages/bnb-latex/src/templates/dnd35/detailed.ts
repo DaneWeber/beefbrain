@@ -65,10 +65,10 @@ ${EMOJI_ON}
 % separates rows.
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{0.9}
-% Alternate rows of every table are shaded, starting with the second row;
+% Alternate rows of every table are shaded, starting with the first row;
 % light enough to stay legible in grayscale.
 \colorlet{zebra}{black!10}
-\rowcolors{2}{}{zebra}
+\rowcolors{1}{zebra}{}
 \setlength{\parskip}{2pt}
 \setlength{\columnsep}{14pt}
 
@@ -135,16 +135,16 @@ ${EMOJI_ON}
   \par\nointerlineskip\noindent\hspace*{\stackindent}%
   \begin{tabular}{#1}#2 \\ \end{tabular}\par}
 % A table's first row, and container rows inside the inventory, restart the
-% striping. The row after a column header is shaded, as on page 1; the row
-% after a container, already shaded darker, is not.
-\newcommand{\stackheader}[3][]{% #1 background (default none), #2 spec, #3 cells
-  \setcounter{stackrow}{\if\relax\detokenize{#1}\relax 1\else 0\fi}%
+% striping. A column header is shaded like any first row, as on page 1; the
+% row after it, or after a container (shaded darker), is not.
+\newcommand{\stackheader}[3][zebra]{% #1 background (default zebra), #2 spec, #3 cells
+  \setcounter{stackrow}{1}%
   \rowcolors{1}{#1}{}\stackline{#2}{#3}\nobreak}
-% A table with no header starts unshaded, as on page 1.
+% A table with no header starts shaded, as on page 1.
 \newcommand{\stackopen}{\setcounter{stackrow}{0}}
 \newcommand{\stackbody}[2]{%
   \stepcounter{stackrow}%
-  \ifodd\value{stackrow}\rowcolors{1}{}{}\else\rowcolors{1}{zebra}{}\fi
+  \ifodd\value{stackrow}\rowcolors{1}{zebra}{}\else\rowcolors{1}{}{}\fi
   \stackline{#1}{#2}}
 
 % Column specs, sized when the multicols column starts from the width left
@@ -190,7 +190,7 @@ ${EMOJI_ON}
 % blocks but never between a label and the table it names. \\* is not enough
 % here: multicol splits with \vsplit, which broke at the label anyway.
 % Each block restarts the striping: xcolor's row count otherwise runs on from
-% the previous table, and a block could open on a shaded row.
+% the previous table, and a block could open on an unshaded row.
 % The label runs up the block's left side, centred on the table. It is set
 % at body size whatever the size around it, and a label longer than its table
 % is tall overhangs the table equally above and below.
@@ -200,7 +200,7 @@ ${EMOJI_ON}
 \newlength{\blocklabellength}
 \newenvironment{sheetblock}[1]{%
   \def\blocktitle{#1}%
-  \rowcolors{2}{}{zebra}%
+  \rowcolors{1}{zebra}{}%
   \setlength{\stackindent}{0pt}%
   \par\noindent
   \begin{lrbox}{\blockbox}\begin{minipage}{\dimexpr\linewidth-\blocklabel\relax}}%
