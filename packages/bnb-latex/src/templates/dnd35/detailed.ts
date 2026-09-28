@@ -255,7 +255,7 @@ ${EMOJI_ON}
 \begin{multicols*}{2}
 \raggedcolumns
 \begin{sheetblock}{Init}
-\begin{tabular}{L{0.20\linewidth}R{0.12\linewidth}R{0.12\linewidth}Q{0.46\linewidth}}
+\begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
 \statrow{high-voltage}{Initiative}{ {{combat.initiative}} }{ {{combat.initiative.sources}} }
 \end{tabular}
 \end{sheetblock}
