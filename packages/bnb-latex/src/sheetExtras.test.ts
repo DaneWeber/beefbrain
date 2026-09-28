@@ -52,10 +52,16 @@ describe('buildSpecialRows', () => {
 
   it('takes the label width of the block it is in', () => {
     expect(
-      buildSpecialRows([['notes', 'Sneak Attack +5d6']], {
+      buildSpecialRows([['special', 'Sneak Attack +5d6']], {
         labelWidth: '0.27',
       }),
-    ).toBe('\\noterow{0.27}{Notes}{Sneak Attack +5d6}')
+    ).toBe('\\noterow{0.27}{Special}{Sneak Attack +5d6}')
+  })
+
+  it('sets notes across the whole row, with no label', () => {
+    expect(buildSpecialRows([['notes', 'Shield Ward: add shield bonus']])).toBe(
+      '\\fullnoterow{Shield Ward: add shield bonus}',
+    )
   })
 
   it('skips hidden keys and has no rows for none', () => {

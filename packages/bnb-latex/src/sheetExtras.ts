@@ -40,7 +40,8 @@ function isText(value: unknown): value is string {
  * beside "Mindarmor +5, Will +10; 3/day". Text, or a list of it, is a
  * `\noterow` whose text spans the total and sources columns: Mike's
  * `dr: 10/silver`. A note row's first argument is the label column's width,
- * a number, which escaping leaves as it is.
+ * a number, which escaping leaves as it is. A `notes` entry has no label and
+ * is a `\fullnoterow` across the whole row.
  */
 export function buildSpecialRows(
   entries: [string, unknown][],
@@ -65,6 +66,10 @@ export function buildSpecialRows(
         .map(formatDetail)
         .filter((part) => part)
         .join('; ')
+      // A block's notes need no label: the text takes the whole row.
+      if (key === 'notes') {
+        return macro('fullnoterow', [text])
+      }
       const width = options.labelWidth ?? '0.30'
       return macro('noterow', [width, label, text])
     })

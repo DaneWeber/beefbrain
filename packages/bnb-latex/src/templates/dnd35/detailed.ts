@@ -128,6 +128,11 @@ ${EMOJI_ON}
 % the labels line up.
 \newcommand{\noterow}[3]{\rowstrut \rowicon{}#2 &
   \multicolumn{2}{C{\dimexpr0.93\linewidth-#1\linewidth+2\tabcolsep\relax}}{#3} \\}
+% A block's note with no label (the view notes under Defense and Movement):
+% #1 the note, set small across all three columns.
+% \multicolumn has to open the row, so the strut goes inside it.
+\newcommand{\fullnoterow}[1]{%
+  \multicolumn{3}{C{\dimexpr0.93\linewidth+4\tabcolsep\relax}}{\rowstrut #1} \\}
 % A label and a note set small beside it, in a two-column table: the Build
 % page's notes, and the social note after the languages.
 \newcommand{\textrow}[2]{\rowstrut #1 & {\footnotesize #2} \\}
