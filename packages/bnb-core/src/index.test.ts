@@ -113,6 +113,28 @@ character:
             '2d6+6 slashing',
           )
         })
+        it('should keep a split two-handed str component in step with str', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [24, str: 7]
+  combat:
+    attack:
+      melee:
+        _: [20, {bab: 13, str: 7}]
+        greatsword: [23, 2d6+12, 19-20/x2, {_: 20, enhancement: 3}, {slashing: 2d6, str: 6, two-handed-str: 3, enhancement: 3}, [greatsword, 2-hand]]
+        maul: [20, 2d6+9, x3, _: 20, {str: 6, two-handed: 3}, [maul]]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          const { greatsword, maul } = output.character.combat.attack.melee
+          // floor(1.5 * 7) = 10: str 7 plus a two-handed share of 3
+          expect(greatsword[4].str).toBe(7)
+          expect(greatsword[4]['two-handed-str']).toBe(3)
+          expect(greatsword[1]).toBe('2d6+13')
+          expect(maul[4].str).toBe(7)
+          expect(maul[4]['two-handed']).toBe(3)
+          expect(maul[1]).toBe('2d6+10')
+        })
         it('should recalculate skill totals with array-style rank components', () => {
           const yamlContent = `---
 character:
