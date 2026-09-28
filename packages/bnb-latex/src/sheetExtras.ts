@@ -8,13 +8,9 @@ import {
 import { formatDetail, isRecord, macro } from './actionsSummary'
 
 // Rows for the parts of a sheet that vary most between characters: a
-// block's optional extras (Ben's fly speed, Mike's DR), languages, money, and
-// the Build page's level and notes rows. Each builder returns template macro
+// block's optional extras (Ben's fly speed, Mike's DR), languages, money,
+// ammunition, and the Build page's level and notes rows. Each builder returns template macro
 // calls with every cell escaped, for a {{{...}}} token.
-
-// The icon every optional row shares: it marks the row as particular to this
-// character.
-const SPECIAL_ICON = 'pushpin'
 
 // Keys that read badly title-cased.
 const SPECIAL_LABELS: Record<string, string> = {
@@ -62,21 +58,22 @@ export function buildSpecialRows(
           .filter((part) => part)
           .join('; ')
         const shown = options.signed ? formatSigned(total) : String(total)
-        return macro('statrow', [SPECIAL_ICON, label, shown, sources])
+        // No icon: the row keeps the room for one, so its label lines up.
+        return macro('statrow', ['', label, shown, sources])
       }
       const text = parts
         .map(formatDetail)
         .filter((part) => part)
         .join('; ')
       const width = options.labelWidth ?? '0.30'
-      return macro('noterow', [width, SPECIAL_ICON, label, text])
+      return macro('noterow', [width, label, text])
     })
     .join('\n')
 }
 
 /**
  * Languages two to a row, as `\langrow{a}{b}`, then any social note as
- * `\langnote{label}{text}`. `\nonerow` for a sheet with neither.
+ * `\textrow{label}{text}`. `\nonerow` for a sheet with neither.
  */
 export function buildLanguageRows(
   languages: unknown,
@@ -90,7 +87,7 @@ export function buildLanguageRows(
     rows.push(macro('langrow', [names[i] ?? '', names[i + 1] ?? '']))
   }
   if (social !== undefined) {
-    rows.push(macro('langnote', ['Social', formatDetail(social)]))
+    rows.push(macro('textrow', ['Social', formatDetail(social)]))
   }
   return rows.length > 0 ? rows.join('\n') : '\\nonerow{2}'
 }
@@ -143,7 +140,7 @@ export function buildMoneyRows(money: unknown): string {
 
 // Hit dice as the data writes them: `{d8: 6, d10: 3}` -> "6d8, 3d10", a
 // class-keyed record as "Rogue 6", and a bare die size (`[10, 12]`) as "d12".
-function formatHitDice(hd: unknown): string {
+export function formatHitDice(hd: unknown): string {
   const dice = Array.isArray(hd) ? hd[1] : undefined
   if (typeof dice === 'number') {
     return `d${dice}`
@@ -210,14 +207,40 @@ export function buildLevelRows(
 }
 
 /**
- * One `\noterow` per `notes` key, the note spanning the rest of the row.
- * `\nonerow` for a sheet with no notes.
+ * One `\textrow{label}{note}` per `notes` key. `\nonerow` for a sheet with
+ * no notes.
  */
 export function buildNoteRows(notes: unknown): string {
   const rows = Object.entries(toRecord(notes))
     .filter(([key]) => !key.startsWith('_'))
     .map(([key, value]) =>
-      macro('noterow', ['0.30', '', formatTitleKey(key), formatDetail(value)]),
+      macro('textrow', [formatTitleKey(key), formatDetail(value)]),
     )
-  return rows.length > 0 ? rows.join('\n') : '\\nonerow{3}'
+  return rows.length > 0 ? rows.join('\n') : '\\nonerow{2}'
+}
+
+/**
+ * One `\ammorow{name}{qty}{container}` per inventory item whose category is
+ * `ammo`, from every container. The template leaves a column beside them
+ * for marking off what is used. `\nonerow` for a sheet with none.
+ */
+export function buildAmmoRows(inventory: unknown): string {
+  const rows = Object.entries(toRecord(inventory))
+    .filter(([key, value]) => !key.startsWith('_') && Array.isArray(value))
+    .flatMap(([container, items]) =>
+      (items as unknown[])
+        .filter(
+          (item): item is unknown[] =>
+            Array.isArray(item) &&
+            String(item[2] ?? '').toLowerCase() === 'ammo',
+        )
+        .map((item) =>
+          macro('ammorow', [
+            String(item[0] ?? ''),
+            String(item[1] ?? ''),
+            formatTitleKey(container),
+          ]),
+        ),
+    )
+  return rows.length > 0 ? rows.join('\n') : '\\nonerow{4}'
 }

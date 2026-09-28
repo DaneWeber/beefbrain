@@ -23,6 +23,7 @@ import {
   toRecord,
 } from './components'
 import {
+  buildAttackOptionRows,
   buildClassAbilityRows,
   buildFeatRows,
   buildFullAttackBlock,
@@ -34,11 +35,13 @@ import {
   getClassNames,
 } from './actionsSummary'
 import {
+  buildAmmoRows,
   buildLanguageRows,
   buildLevelRows,
   buildMoneyRows,
   buildNoteRows,
   buildSpecialRows,
+  formatHitDice,
 } from './sheetExtras'
 import {
   buildCastingTableRows,
@@ -646,6 +649,9 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     ),
     'build.levelRows': buildLevelRows(hpContainer, skillsContainer),
     'build.noteRows': buildNoteRows(characterData.notes),
+    'build.featsTable': buildFeatRows(special),
+    'build.classAbilitiesTable': buildClassAbilityRows(special, classes),
+    'build.specialAbilitiesTable': buildSpecialAbilityRows(special, classes),
     'character.classes': getClassSummary(characterData),
     'character.level': getCharacterLevel(hpContainer),
 
@@ -675,6 +681,8 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'combat.hp': getArrayFirst(hpContainer.hp),
     'combat.hp.breakdown': formatBreakdown(hpContainer.hp),
     'combat.hp.sources': formatSources(hpContainer.hp),
+    'combat.hd': getArrayFirst(hpContainer.hd),
+    'combat.hd.sources': formatHitDice(hpContainer.hd),
     'combat.ac': getArrayFirst(defense.ac),
     'combat.ac.breakdown': formatBreakdown(defense.ac),
     'combat.ac.sources': formatSources(defense.ac),
@@ -730,9 +738,12 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'actions.spellLikeBlock': buildSpellLikeBlock(
       characterData['spell-like-abilities'],
     ),
-    'actions.featsTable': buildFeatRows(special),
-    'actions.classAbilitiesTable': buildClassAbilityRows(special, classes),
-    'actions.specialAbilitiesTable': buildSpecialAbilityRows(special, classes),
+    'actions.ammoTable': buildAmmoRows(inventoryContainer),
+    'actions.attackOptionsTable': buildAttackOptionRows(
+      special,
+      classes,
+      inventoryContainer,
+    ),
 
     'saves.specialRows': buildSpecialRows(
       extraEntries(savesContainer, ['fortitude', 'reflex', 'will']),

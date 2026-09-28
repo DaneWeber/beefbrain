@@ -9,8 +9,9 @@ import {
   toRecord,
 } from './components'
 
-// The rows of the Actions page: weapons, full attacks, special attacks, feats,
-// class abilities and special abilities. Each builder returns template macro
+// The rows of the Actions page (weapons, full attacks, special attacks,
+// attack options, spell-like abilities) and of the Build page's feats, class
+// abilities and special abilities. Each builder returns template macro
 // calls with every cell escaped, for a {{{...}}} token.
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
@@ -437,18 +438,24 @@ export function buildFeatRows(special: Record<string, unknown>): string {
   }
   return feats
     .map((feat) => {
-      const [name, source, ...effects] = Array.isArray(feat) ? feat : [feat]
-      const owner = { slug: slugify(String(name ?? '')) }
-      return macro('featrow', [
-        String(name ?? ''),
-        effects
-          .map((effect) => formatEffect(effect, owner))
-          .filter((part) => part)
-          .join('; '),
-        formatFeatSource(source),
-      ])
+      const [name, effect, source] = summarizeFeat(feat)
+      return macro('featrow', [name, effect, source])
     })
     .join('\n')
+}
+
+// A feat's name, what it does and where it came from.
+function summarizeFeat(feat: unknown): [string, string, string] {
+  const [name, source, ...effects] = Array.isArray(feat) ? feat : [feat]
+  const owner = { slug: slugify(String(name ?? '')) }
+  return [
+    String(name ?? ''),
+    effects
+      .map((effect) => formatEffect(effect, owner))
+      .filter((part) => part)
+      .join('; '),
+    formatFeatSource(source),
+  ]
 }
 
 /**
@@ -495,6 +502,8 @@ interface TraitGroup {
   /** '' for rows the data does not group. */
   title: string
   rows: [string, string][]
+  /** Each row's data as written, to tell what the row is about. */
+  entries: unknown[]
 }
 
 /**
@@ -508,24 +517,31 @@ function traitGroups(
   classes: Set<string>,
 ): TraitGroup[] {
   if (Array.isArray(value)) {
-    return [{ title, rows: value.map(formatTrait) }]
+    return [{ title, rows: value.map(formatTrait), entries: value }]
   }
   if (!isRecord(value)) {
-    return value ? [{ title, rows: [[formatDetail(value), '']] }] : []
+    return value
+      ? [{ title, rows: [[formatDetail(value), '']], entries: [value] }]
+      : []
   }
   const groups: TraitGroup[] = []
-  const abilities: [string, string][] = []
+  const abilities: TraitGroup = { title, rows: [], entries: [] }
   for (const [key, entry] of Object.entries(value)) {
     if (key.startsWith('_')) {
       continue
     }
     if (classes.has(key) && Array.isArray(entry)) {
-      groups.push({ title: formatTitleKey(key), rows: entry.map(formatTrait) })
+      groups.push({
+        title: formatTitleKey(key),
+        rows: entry.map(formatTrait),
+        entries: entry,
+      })
     } else {
-      abilities.push([formatTitleKey(key), formatDetail(entry)])
+      abilities.rows.push([formatTitleKey(key), formatDetail(entry)])
+      abilities.entries.push([key, entry])
     }
   }
-  return abilities.length > 0 ? [{ title, rows: abilities }, ...groups] : groups
+  return abilities.rows.length > 0 ? [abilities, ...groups] : groups
 }
 
 function traitRows(groups: TraitGroup[]): string {
@@ -563,6 +579,7 @@ export function buildClassAbilityRows(
     groups.push({
       title: 'Proficiencies',
       rows: special.proficiencies.map(formatTrait),
+      entries: special.proficiencies,
     })
   }
   return traitRows(groups) || '\\traitnone'
@@ -646,16 +663,18 @@ export function buildSpellLikeBlock(spellLike: unknown): string {
     .map(([source, abilities]) => {
       const record = toRecord(abilities)
       const settings = formatSpellLikeSettings(record._)
+      const abilityEntries = Object.entries(record).filter(
+        ([key]) => !key.startsWith('_'),
+      )
       return {
         title: settings
           ? `${formatTitleKey(source)} (${settings})`
           : formatTitleKey(source),
-        rows: Object.entries(record)
-          .filter(([key]) => !key.startsWith('_'))
-          .map(([name, value]): [string, string] => [
-            formatTitleKey(name),
-            formatSpellLike(value),
-          ]),
+        rows: abilityEntries.map(([name, value]): [string, string] => [
+          formatTitleKey(name),
+          formatSpellLike(value),
+        ]),
+        entries: abilityEntries,
       }
     })
   const rows = traitRows(groups)
@@ -669,4 +688,107 @@ export function buildSpellLikeBlock(spellLike: unknown): string {
     rows,
     '\\end{sheetblock}}',
   ].join('\n')
+}
+
+// Words that mark a feat, trait or item as something to use when attacking.
+// The data does not yet say so itself, so this is a guess from the text;
+// an effect aimed at `combat.attack` is certain.
+const ATTACK_WORDS =
+  /\b(?:attacks?|damage|crit(?:ical)?s?|shots?|strike|smite|cleave|charge|rage|blow|finesse|two-weapon fighting|grapple)\b/i
+
+function strings(value: unknown): string[] {
+  if (typeof value === 'string') {
+    return [value]
+  }
+  if (Array.isArray(value)) {
+    return value.flatMap(strings)
+  }
+  return isRecord(value) ? Object.values(value).flatMap(strings) : []
+}
+
+function isAttackOption(entry: unknown, row: [string, string]): boolean {
+  return (
+    strings(entry).some((text) => text.startsWith('combat.attack')) ||
+    ATTACK_WORDS.test(`${row[0]} ${row[1]}`)
+  )
+}
+
+// An inventory item is `[name, qty, category, weight, price, props?, tags?,
+// effects?]`.
+function isAttackItem(item: unknown[]): boolean {
+  const tail = item.slice(5)
+  const tags = tail.find(isStringList) ?? []
+  return (
+    String(item[2] ?? '').toLowerCase() !== 'weapon' &&
+    (tags.includes('combat-offense') ||
+      strings(tail.filter(Array.isArray).filter((part) => part !== tags)).some(
+        (text) => text.startsWith('combat.attack'),
+      ))
+  )
+}
+
+/**
+ * The Attack Options rows: every feat, special trait, class ability and
+ * carried item that bears on an attack, grouped by where it comes from.
+ * Feats and traits count when an effect targets `combat.attack` or their
+ * text is about attacking (see `ATTACK_WORDS`); items when they are tagged
+ * `combat-offense` or an effect targets `combat.attack`. Weapons are in their
+ * own tables. `\\traitnone` for a sheet with none.
+ */
+export function buildAttackOptionRows(
+  special: Record<string, unknown>,
+  classes: Set<string>,
+  inventory: Record<string, unknown>,
+): string {
+  const feats = Array.isArray(special.feats) ? special.feats : []
+  const featGroup: TraitGroup = { title: 'Feats', rows: [], entries: [] }
+  for (const feat of feats) {
+    const [name, effect] = summarizeFeat(feat)
+    const row: [string, string] = [name, effect]
+    if (isAttackOption(feat, row)) {
+      featGroup.rows.push(row)
+      featGroup.entries.push(feat)
+    }
+  }
+
+  const traitGroupsFound = Object.entries(special)
+    .filter(
+      ([key]) =>
+        !key.startsWith('_') && !NOT_ABILITY_KEYS.has(key),
+    )
+    .flatMap(([key, value]) =>
+      traitGroups(
+        CLASS_ABILITY_KEYS.has(key) ? 'Class Abilities' : formatTitleKey(key),
+        value,
+        classes,
+      ),
+    )
+    .map((group) => {
+      const kept = group.rows
+        .map((row, index) => [row, group.entries[index]] as const)
+        .filter(([row, entry]) => isAttackOption(entry, row))
+      return {
+        title: group.title,
+        rows: kept.map(([row]) => row),
+        entries: kept.map(([, entry]) => entry),
+      }
+    })
+
+  const itemGroup: TraitGroup = { title: 'Items', rows: [], entries: [] }
+  for (const [key, items] of Object.entries(inventory)) {
+    if (key.startsWith('_') || !Array.isArray(items)) {
+      continue
+    }
+    for (const item of items) {
+      if (Array.isArray(item) && isAttackItem(item)) {
+        const props = item.slice(5).find(isRecord)
+        itemGroup.rows.push([String(item[0] ?? ''), formatDetail(props)])
+        itemGroup.entries.push(item)
+      }
+    }
+  }
+
+  return (
+    traitRows([featGroup, ...traitGroupsFound, itemGroup]) || '\\traitnone'
+  )
 }

@@ -53,7 +53,7 @@ describe('renderLatex', () => {
     expect(result.latex).toContain('Appraise')
   })
 
-  it('puts the Actions page between Stats and Inventory', () => {
+  it('puts the Actions page between Stats and Build', () => {
     const { latex } = renderLatex({ yaml: VALID_YAML })
     const actions = latex.indexOf('\\renewcommand{\\sheettitle}{Actions}')
     expect(actions).toBeGreaterThan(latex.indexOf('{Skills}'))
@@ -84,16 +84,35 @@ describe('renderLatex', () => {
     // Description moved from page 1 to Build.
     expect(latex.indexOf('{Description}')).toBeGreaterThan(at('Build'))
     expect(latex.indexOf('{Languages}')).toBeLessThan(skills)
+    // Actions keeps the attacks; the lists behind them are on Build.
+    expect(latex.indexOf('{Ammunition}')).toBeGreaterThan(at('Actions'))
+    expect(latex.indexOf('{Attack Options}')).toBeLessThan(at('Build'))
+    for (const list of ['Feats', 'Class Abilities', 'Special Abilities']) {
+      expect(latex.indexOf(`\\flowblock{${list}}`)).toBeGreaterThan(
+        at('Build'),
+      )
+      expect(latex.indexOf(`\\flowblock{${list}}`)).toBeLessThan(
+        at('Inventory'),
+      )
+    }
+  })
+
+  it('shows hit dice between HP and AC', () => {
+    const { latex } = renderLatex({ yaml: VALID_YAML })
+    const hp = latex.indexOf('\\statrow{red-heart}{HP}')
+    const hd = latex.indexOf('\\statrow{game-die}{Hit Dice}')
+    expect(hd).toBeGreaterThan(hp)
+    expect(hd).toBeLessThan(latex.indexOf('\\statrow{shield}{AC}'))
   })
 
   it('prints special notes as rows of their block, not as Defense Special', () => {
     const { latex } = renderLatex({ yaml: VALID_YAML })
     expect(latex).not.toContain('Defense Special')
     expect(latex).toContain(
-      '\\noterow{0.30}{pushpin}{Special}{Blind Fight: no advantage to invisible melee attackers}',
+      '\\noterow{0.30}{Special}{Blind Fight: no advantage to invisible melee attackers}',
     )
     expect(latex).toContain(
-      '\\noterow{0.30}{pushpin}{Special}{Blind Fight: 1/2 penalty when unable to see}',
+      '\\noterow{0.30}{Special}{Blind Fight: 1/2 penalty when unable to see}',
     )
   })
 

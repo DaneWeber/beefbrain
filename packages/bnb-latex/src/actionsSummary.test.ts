@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  buildAttackOptionRows,
   buildSpellLikeBlock,
   buildClassAbilityRows,
   buildFeatRows,
@@ -345,5 +346,61 @@ describe('buildSpellLikeBlock', () => {
 
   it('leaves the block out when there are none', () => {
     expect(buildSpellLikeBlock(undefined)).toBe('')
+  })
+})
+
+describe('buildAttackOptionRows', () => {
+  const classes = new Set(['ranger', 'rogue'])
+
+  it('picks out what bears on an attack, grouped by where it comes from', () => {
+    const rows = buildAttackOptionRows(
+      {
+        feats: [
+          ['Lightning Reflexes', { level: 1 }, ['combat.saves.reflex', 2]],
+          [
+            'Weapon Focus (Sickle)',
+            { fighter: 2 },
+            ['combat.attack.melee.sickle', { atk: 1 }],
+          ],
+          ['Point Blank Shot', { level: 3 }, '+1 attack within 30ft'],
+          ['Two-Weapon Defense', { level: 9 }, ['combat.defense.ac', 1]],
+          ['Greater Two-Weapon Fighting', { level: 12 }],
+        ],
+        'class-abilities': {
+          ranger: ['Track', 'Two-Weapon Fighting (combat style)'],
+          rogue: ['Evasion', 'Sneak Attack +2d6'],
+        },
+        racial: ['Darkvision 60 ft', 'Dazzled in Sunlight: -1 attack'],
+        proficiencies: ['Martial Weapons'],
+      },
+      classes,
+      {
+        equipped: [
+          ['Longsword', 1, 'weapon', '4 lbs', 15, {}, ['combat-offense']],
+          ['Silver Sheen', 1, 'supplies', '0.1 lbs', 221, {}, ['combat-offense']],
+          ['Healing Belt', 1, 'gear', '0.1 lbs', 241, {}, ['combat-defense']],
+        ],
+      },
+    )
+    expect(rows.split('\n')).toEqual([
+      '\\traitgroup{Feats}',
+      '\\traitrow{Weapon Focus (Sickle)}{Sickle: Atk +1}',
+      '\\traitrow{Point Blank Shot}{+1 attack within 30ft}',
+      '\\traitrow{Greater Two-Weapon Fighting}{}',
+      '\\traitgroup{Ranger}',
+      '\\traitrow{Two-Weapon Fighting}{combat style}',
+      '\\traitgroup{Rogue}',
+      '\\traitrow{Sneak Attack +2d6}{}',
+      '\\traitgroup{Racial}',
+      '\\traitrow{Dazzled in Sunlight}{-1 attack}',
+      '\\traitgroup{Items}',
+      '\\traitrow{Silver Sheen}{}',
+    ])
+  })
+
+  it('marks a sheet with none', () => {
+    expect(buildAttackOptionRows({ racial: ['Darkvision'] }, classes, {})).toBe(
+      '\\traitnone',
+    )
   })
 })

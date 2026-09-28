@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  buildAmmoRows,
   buildLanguageRows,
   buildLevelRows,
   buildMoneyRows,
@@ -15,7 +16,7 @@ describe('buildSpecialRows', () => {
         { signed: true },
       ),
     ).toBe(
-      '\\statrow{pushpin}{Will vs. Mind-Affecting}{+15}{Mindarmor +5, Will +10; 3/day}',
+      '\\statrow{}{Will vs. Mind-Affecting}{+15}{Mindarmor +5, Will +10; 3/day}',
     )
   })
 
@@ -28,9 +29,9 @@ describe('buildSpecialRows', () => {
       ]),
     ).toBe(
       [
-        '\\statrow{pushpin}{Fly}{150}{poor}',
-        '\\statrow{pushpin}{Burrow}{20}{}',
-        '\\statrow{pushpin}{SR}{18}{}',
+        '\\statrow{}{Fly}{150}{poor}',
+        '\\statrow{}{Burrow}{20}{}',
+        '\\statrow{}{SR}{18}{}',
       ].join('\n'),
     )
   })
@@ -43,8 +44,8 @@ describe('buildSpecialRows', () => {
       ]),
     ).toBe(
       [
-        '\\noterow{0.30}{pushpin}{DR}{10/silver}',
-        '\\noterow{0.30}{pushpin}{Special}{Blind Fight: no advantage; Evasion}',
+        '\\noterow{0.30}{DR}{10/silver}',
+        '\\noterow{0.30}{Special}{Blind Fight: no advantage; Evasion}',
       ].join('\n'),
     )
   })
@@ -54,7 +55,7 @@ describe('buildSpecialRows', () => {
       buildSpecialRows([['notes', 'Sneak Attack +5d6']], {
         labelWidth: '0.27',
       }),
-    ).toBe('\\noterow{0.27}{pushpin}{Notes}{Sneak Attack +5d6}')
+    ).toBe('\\noterow{0.27}{Notes}{Sneak Attack +5d6}')
   })
 
   it('skips hidden keys and has no rows for none', () => {
@@ -71,7 +72,7 @@ describe('buildLanguageRows', () => {
       [
         '\\langrow{Common}{Elven}',
         '\\langrow{Orc}{}',
-        '\\langnote{Social}{Lycanthropic Empathy}',
+        '\\textrow{Social}{Lycanthropic Empathy}',
       ].join('\n'),
     )
   })
@@ -155,16 +156,43 @@ describe('buildLevelRows', () => {
 })
 
 describe('buildNoteRows', () => {
-  it('gives each note a row with no icon', () => {
+  it('gives each note a row', () => {
     expect(buildNoteRows({ devotee: 'Obad-Hai', nonlethal: '0/42' })).toBe(
       [
-        '\\noterow{0.30}{}{Devotee}{Obad-Hai}',
-        '\\noterow{0.30}{}{Nonlethal}{0/42}',
+        '\\textrow{Devotee}{Obad-Hai}',
+        '\\textrow{Nonlethal}{0/42}',
       ].join('\n'),
     )
   })
 
   it('marks a sheet with none', () => {
-    expect(buildNoteRows(undefined)).toBe('\\nonerow{3}')
+    expect(buildNoteRows(undefined)).toBe('\\nonerow{2}')
+  })
+})
+
+describe('buildAmmoRows', () => {
+  it('lists the ammunition in every container, with where it is', () => {
+    expect(
+      buildAmmoRows({
+        _on: ['equipped', 'pack'],
+        money: { _total: '0 gp' },
+        equipped: [
+          ['+1 Composite Shortbow', 1, 'weapon', '3 lbs', 191],
+          ['Arrows', 20, 'ammo', '3 lbs', 194],
+        ],
+        pack: [['Arrows Cold Iron', 20, 'ammo', '3 lbs', 195]],
+      }),
+    ).toBe(
+      [
+        '\\ammorow{Arrows}{20}{Equipped}',
+        '\\ammorow{Arrows Cold Iron}{20}{Pack}',
+      ].join('\n'),
+    )
+  })
+
+  it('marks a sheet with none', () => {
+    expect(buildAmmoRows({ equipped: [['Dagger', 1, 'weapon']] })).toBe(
+      '\\nonerow{4}',
+    )
   })
 })
