@@ -48,9 +48,11 @@ describe('formatBnbYaml', () => {
 
     expect(result.error).toBeUndefined()
     expect(result.formatted).toContain('hide: [7, {dex: 2, ranks: 5}]')
-    expect(result.formatted).toContain('balance: [2, dex: 2]')
+    expect(result.formatted).toContain('_acp: [0]')
+    expect(result.formatted).toContain('balance: [2, {dex: 2, acp: 0}]')
+    expect(result.formatted).toContain('bluff: [0, cha: 0]')
     expect(result.formatted).toContain(
-      'tumble: [.nan, {dex: 2, not-trained: .nan}]',
+      'tumble: [.nan, {dex: 2, acp: 0, not-trained: .nan}]',
     )
   })
 

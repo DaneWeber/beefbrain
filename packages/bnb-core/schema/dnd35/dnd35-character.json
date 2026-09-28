@@ -482,7 +482,6 @@
       { "name": "ac", "type": "ArmorClass" },
       { "name": "touch-ac", "type": "TouchArmorClass" },
       { "name": "flat-footed-ac", "type": "FlatFootedArmorClass" },
-      { "name": "acp", "type": "ArmorCheckPenalty", "optional": true },
       { "name": "max-dex", "type": "MaxDexBonus", "optional": true },
       { "name": "special", "type": "array", "optional": true }
     ]
@@ -537,7 +536,7 @@
       "0": { "type": "number", "description": "Total ACP (negative value)" },
       "1": {
         "type": "object",
-        "description": "ACP sources: armor, shield, or encumbrance (use worst)"
+        "description": "ACP sources: armor + shield, or load (whichever is worse)"
       }
     }
   },
@@ -608,6 +607,12 @@
         "type": "SkillRanks",
         "optional": true,
         "description": "Total available skill points and how they were gained"
+      },
+      {
+        "name": "_acp",
+        "type": "ArmorCheckPenalty",
+        "optional": true,
+        "description": "Armor check penalty applied to each skill's acp component (doubled for swim)"
       },
       {
         "name": "_ranks",

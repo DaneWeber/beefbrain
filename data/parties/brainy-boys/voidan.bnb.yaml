@@ -42,7 +42,6 @@ character:
       ac: [27, {base: 10, dex: 2, size-huge: -2, natural: 12, breastplate: 5}]
       touch-ac: [10, {base: 10, dex: 2, size-huge: -2}]
       flat-footed-ac: [25, {base: 10, size-huge: -2, natural: 12, breastplate: 5}]
-      acp: [-4, breastplate: -4]
       max-dex: [3, breastplate: 4]
   spell-like-abilities:
     storm-giant:
@@ -69,6 +68,7 @@ character:
     storm-giant:
       - [Enhanced Swimming, [[skills.swim, "+8 for special actions/avoid hazards, can always take 10, swim 'run', ignore weight penalties"]]]
   skills:
+    _acp: [-4, breastplate: -4]
     climb: [20, {str: 14, ranks: 6}]
     concentration: [26, {con: 6, ranks: 20}]
     diplomacy: [4, {cha: 2, synergy-sense-motive: 2}]

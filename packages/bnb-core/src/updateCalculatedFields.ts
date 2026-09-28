@@ -6,6 +6,13 @@ import { calculateFieldValue, getAbilityArrayType } from './calculationEngine'
 import { applyComponentBindings } from './genericEngine'
 import { propagateEffects } from './propagateEffects'
 import { bonusSpellSlots, parseCastingProfile } from './spellcasting'
+import {
+  ACP_FIELD,
+  getAcpTotal,
+  moveLegacyAcp,
+  setSkillsField,
+  skillAcp,
+} from './dnd35Skills'
 // BAB and save progression formulas (used by class entries in character YAML)
 function calculateBab(progression: string, level: number): number {
   switch (progression) {
@@ -78,6 +85,9 @@ export function updateCalculatedFields(yamlContent: string): string {
   }
   const character = data.character as Character
 
+  // ACP used to live at combat.defense.acp; it now lives at skills._acp.
+  if (data.character && moveLegacyAcp(data.character)) hasChanges = true
+
   if (!data.character?.abilities) {
     hasChanges = propagateToSkillTotals(data, hasChanges)
     if (hasChanges) return dataToCompactYAML(data)
@@ -147,13 +157,17 @@ export function updateCalculatedFields(yamlContent: string): string {
 
   // Step 8: Specialized propagation that overrides bindings where needed
   // (e.g., dex capped by max-dex in AC, con*HD in max-hp, bonus spell slots)
-  hasChanges = propagateToSkillAcp(data, effectiveAcp, hasChanges)
+  hasChanges = propagateToSkillAcp(
+    data,
+    effectiveAcp,
+    updatedLoadEffects,
+    hasChanges,
+  )
   hasChanges = propagateToDefense(
     data,
     abilityMods,
     equipStats,
     effectiveMaxDex,
-    effectiveAcp,
     hasChanges,
   )
   hasChanges = propagateToMaxHp(data, abilityMods, hasChanges)
@@ -608,42 +622,73 @@ function propagateToSkillTotals(
   return hasChanges
 }
 
-// Skills that take double ACP (swim in D&D 3.5e)
-// TODO: move to schema as a conditional component or skill property
-const DOUBLE_ACP_SKILLS = new Set(['swim'])
+// Source keys calculateEffectiveAcp produces. An _acp made only of these can
+// be safely reset to [0] when the armor or load that caused it goes away.
+function isDerivedAcpSource(key: string): boolean {
+  return key === 'armor' || key === 'shield' || key.endsWith('-load')
+}
+
+function acpSourcesAreDerived(acp: unknown): boolean {
+  if (!Array.isArray(acp)) return false
+  return acp
+    .slice(1)
+    .every(
+      (element) =>
+        !!element &&
+        typeof element === 'object' &&
+        Object.keys(element).every(isDerivedAcpSource),
+    )
+}
 
 /**
- * Propagate ACP to skills that have an 'acp' component.
- * Ability mod propagation is now handled by componentBindings.
+ * Keep skills._acp in line with the worse of armor + shield ACP and load
+ * ACP, then set every skill's `acp` component from it (doubled for swim).
+ * An _acp that can't be derived (no ACP-bearing gear and no known load, or
+ * hand-entered sources) is left as written and still drives the skills.
  */
 function propagateToSkillAcp(
   data: { character?: Record<string, unknown> },
   effectiveAcp: { value: number; sources: Record<string, number> },
+  loadEffects: LoadEffects,
   hasChanges: boolean,
 ): boolean {
-  const skills = data.character?.skills as Record<string, unknown> | undefined
-  if (!skills) return hasChanges
+  const character = data.character
+  let skills = character?.skills as Record<string, unknown> | undefined
+  if (!character || !skills) return hasChanges
+
+  const existing = skills[ACP_FIELD]
+  let next: unknown[] | undefined
+  if (effectiveAcp.value !== 0) {
+    next = [effectiveAcp.value, effectiveAcp.sources]
+  } else if (
+    existing !== undefined &&
+    loadEffects.category !== 'unknown' &&
+    acpSourcesAreDerived(existing)
+  ) {
+    next = [0]
+  }
+  if (next && JSON.stringify(next) !== JSON.stringify(existing)) {
+    skills = setSkillsField(skills, ACP_FIELD, next)
+    character.skills = skills
+    hasChanges = true
+  }
+
+  const acpTotal = getAcpTotal(skills)
+  if (acpTotal === undefined) return hasChanges
 
   for (const [skillName, skillArr] of Object.entries(skills)) {
+    if (skillName.startsWith('_')) continue
     if (!Array.isArray(skillArr) || skillArr.length < 2) continue
     const mods = skillArr[1]
     if (!mods || typeof mods !== 'object' || Array.isArray(mods)) continue
 
     const modsObj = mods as Record<string, number>
-
-    // Update ACP in skills that have it
-    if ('acp' in modsObj && effectiveAcp.value !== 0) {
-      const acpForSkill = DOUBLE_ACP_SKILLS.has(skillName)
-        ? effectiveAcp.value * 2
-        : effectiveAcp.value
-      if (modsObj.acp !== acpForSkill) {
-        modsObj.acp = acpForSkill
-        const newTotal = sumValues(modsObj)
-        if (skillArr[0] !== newTotal) {
-          skillArr[0] = newTotal
-        }
-        hasChanges = true
-      }
+    if (!('acp' in modsObj)) continue
+    const acpForSkill = skillAcp(skillName, acpTotal)
+    if (modsObj.acp !== acpForSkill) {
+      modsObj.acp = acpForSkill
+      skillArr[0] = sumValues(modsObj)
+      hasChanges = true
     }
   }
   return hasChanges
@@ -807,7 +852,6 @@ function propagateToDefense(
   abilityMods: Record<string, number>,
   equipStats: EquipmentStats,
   effectiveMaxDex: { value: number | null; sources: Record<string, number> },
-  effectiveAcp: { value: number; sources: Record<string, number> },
   hasChanges: boolean,
 ): boolean {
   const defense = (data.character?.combat as Record<string, unknown>)
@@ -941,23 +985,6 @@ function propagateToDefense(
         ffArr.push(newTotal)
         for (const [k, v] of mods) {
           ffArr.push({ [k]: v })
-        }
-        hasChanges = true
-      }
-    }
-  }
-
-  // ACP: update from effective ACP
-  if (defense.acp && Array.isArray(defense.acp) && effectiveAcp.value !== 0) {
-    const acpArr = defense.acp as unknown[]
-    if (acpArr.length >= 2) {
-      const currentTotal = acpArr[0]
-      if (currentTotal !== effectiveAcp.value) {
-        // Rebuild in spread format with the dominating sources
-        acpArr.length = 0
-        acpArr.push(effectiveAcp.value)
-        for (const [k, v] of Object.entries(effectiveAcp.sources)) {
-          acpArr.push({ [k]: v })
         }
         hasChanges = true
       }

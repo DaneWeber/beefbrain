@@ -2,7 +2,8 @@ import { readFileSync } from 'fs'
 import { resolve } from 'path'
 import { describe, it, expect } from 'vitest'
 import { parse as parseYAML } from 'yaml'
-import { addExpectedFields, DND35_CORE_SKILLS } from './addExpectedFields'
+import { addExpectedFields } from './addExpectedFields'
+import { DND35_CORE_SKILLS } from './dnd35Skills'
 
 const ABILITIES = `  abilities:
     strength: [22, str: 6, {base: 18, belt-enhancement: 4}]
@@ -24,19 +25,28 @@ describe('DND35_CORE_SKILLS', () => {
         resolve(__dirname, '../catalogs/dnd35/skills.yaml'),
         'utf-8',
       ),
-    ).skills as Record<string, { ability?: string; 'trained-only'?: boolean }>
+    ).skills as Record<
+      string,
+      {
+        ability?: string
+        'trained-only'?: boolean
+        'armor-penalty'?: true | 'double'
+      }
+    >
 
     expect(
-      DND35_CORE_SKILLS.map(({ name, ability, trainedOnly }) => ({
+      DND35_CORE_SKILLS.map(({ name, ability, trainedOnly, armorPenalty }) => ({
         name,
         ability,
         trainedOnly: !!trainedOnly,
+        armorPenalty,
       })),
     ).toEqual(
       Object.entries(catalog).map(([name, skill]) => ({
         name,
         ability: skill.ability,
         trainedOnly: !!skill['trained-only'],
+        armorPenalty: skill['armor-penalty'],
       })),
     )
   })
@@ -54,9 +64,11 @@ ${ABILITIES}  skills:
 
     expect(Object.keys(skills)).toEqual([
       '_points',
+      '_acp',
       ...DND35_CORE_SKILLS.map((skill) => skill.name),
     ])
-    expect(skills.climb).toEqual([6, { str: 6 }])
+    expect(skills._acp).toEqual([0])
+    expect(skills.climb).toEqual([6, { str: 6, acp: 0 }])
     expect(skills['sense-motive']).toEqual([-1, { wis: -1 }])
   })
 
@@ -84,7 +96,49 @@ character:
 ${ABILITIES}  skills:
     appraise: [0, int: 0]
 `),
-    ).toContain('tumble: [.nan, {dex: 1, not-trained: .nan}]')
+    ).toContain('tumble: [.nan, {dex: 1, acp: 0, not-trained: .nan}]')
+  })
+
+  it('applies the existing ACP to new armor-penalty skills, doubled for swim', () => {
+    const skills = skillsOf(
+      addExpectedFields(`---
+character:
+${ABILITIES}  skills:
+    _acp: [-4, {armor: -2, shield: -2}]
+    climb: [15, {str: 6, ranks: [13, fighter: 13], acp: -4}]
+`),
+    )
+
+    expect(skills._acp).toEqual([-4, { armor: -2, shield: -2 }])
+    expect(skills.balance).toEqual([-3, { dex: 1, acp: -4 }])
+    expect(skills.swim).toEqual([-2, { str: 6, acp: -8 }])
+    expect(skills['sleight-of-hand']).toEqual([
+      NaN,
+      { dex: 1, acp: -4, 'not-trained': NaN },
+    ])
+    expect(skills.bluff).toEqual([-1, { cha: -1 }])
+  })
+
+  it('moves a legacy combat.defense.acp to skills._acp', () => {
+    const parsed = parseYAML(
+      addExpectedFields(`---
+character:
+${ABILITIES}  combat:
+    defense:
+      ac: [10, base: 10]
+      acp: [-3, armor: -3]
+  skills:
+    _points: [5, fighter: 5]
+`),
+    )
+
+    expect(parsed.character.combat.defense).not.toHaveProperty('acp')
+    expect(Object.keys(parsed.character.skills).slice(0, 2)).toEqual([
+      '_points',
+      '_acp',
+    ])
+    expect(parsed.character.skills._acp).toEqual([-3, { armor: -3 }])
+    expect(parsed.character.skills.hide).toEqual([-2, { dex: 1, acp: -3 }])
   })
 
   it('keeps existing skills and their order, inserting missing ones alphabetically', () => {
@@ -137,7 +191,7 @@ character:
 ${ABILITIES}`),
     )
 
-    expect(Object.keys(skills)).toHaveLength(DND35_CORE_SKILLS.length)
+    expect(Object.keys(skills)).toHaveLength(DND35_CORE_SKILLS.length + 1)
   })
 
   it('falls back to the ability score when the modifier is not listed', () => {
@@ -149,14 +203,15 @@ character:
 `),
     )
 
-    expect(skills.climb).toEqual([2, { str: 2 }])
-    expect(skills.hide).toEqual([0, { dex: 0 }])
+    expect(skills.climb).toEqual([2, { str: 2, acp: 0 }])
+    expect(skills.hide).toEqual([0, { dex: 0, acp: 0 }])
   })
 
   it('returns the input unchanged when nothing is missing', () => {
     const input = `---
 character:
 ${ABILITIES}  skills:
+    _acp: [0]
 ${DND35_CORE_SKILLS.map((skill) => `    ${skill.name}: [0, int: 0]`).join('\n')}
 `
     expect(addExpectedFields(input)).toBe(input)

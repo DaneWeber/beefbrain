@@ -459,7 +459,6 @@ character:
       ac: [10, {base: 10, dex: 0}]
       touch-ac: [10, {base: 10, dex: 0}]
       flat-footed-ac: [10, base: 10]
-      acp: [0, none: 0]
       max-dex: [99, none: 99]
   movement:
     load: [30 lbs, {equipped: 30 lbs}]
@@ -488,7 +487,6 @@ character:
       ac: [10, {base: 10, dex: 0}]
       touch-ac: [10, {base: 10, dex: 0}]
       flat-footed-ac: [10, base: 10]
-      acp: [0, none: 0]
       max-dex: [99, none: 99]
   movement:
     load: [20 lbs, {equipped: 20 lbs}]
@@ -513,7 +511,6 @@ character:
   combat:
     defense:
       ac: [10, {base: 10, dex: 0}]
-      acp: [0, none: 0]
       max-dex: [99, none: 99]
   movement:
     load: [75.5 lbs, {equipped: 49 lbs, pack: 26.5 lbs}]
@@ -524,15 +521,115 @@ character:
       - [chain shirt, 1, armor, 25 lbs, 100 gp, {ac: 5, max-dex: 4, acp: -2, asfc: 20%}]
       - [heavy steel shield, 1, shield, 15 lbs, 30 gp, {ac: 2, acp: -2, asfc: 15%}]
   skills:
+    _acp: [0]
     climb: [3, {str: 2, acp: -3, ranks: 4}]
     swim: [-4, {str: 2, acp: -6}]
 `
           const output = parseYAML(updateCalculatedFields(yamlContent))
           // Equipment ACP: -2 + -2 = -4, load ACP: -3 (medium). Equipment worse.
-          expect(output.character.combat.defense.acp[0]).toBe(-4)
+          expect(output.character.skills._acp).toEqual([
+            -4,
+            { armor: -2, shield: -2 },
+          ])
           // Skills should use equipment ACP (-4), swim double (-8)
           expect(output.character.skills.climb[1].acp).toBe(-4)
           expect(output.character.skills.swim[1].acp).toBe(-8)
+        })
+      })
+      describe('armor check penalty (skills._acp)', () => {
+        const withGear = (equipped: string, skills: string) => `---
+character:
+  abilities:
+    strength: [14, str: 2]
+  movement:
+    load: [20 lbs, {equipped: 20 lbs}]
+    capacity: {light: 58 lbs, medium: 116 lbs, heavy: 175 lbs, lift: 350 lbs, drag: 875 lbs}
+  inventory:
+    _on: [equipped]
+    equipped:
+${equipped}
+  skills:
+${skills}
+`
+        it('uses heavy load ACP when it is worse than armor', () => {
+          const output = parseYAML(
+            updateCalculatedFields(`---
+character:
+  abilities:
+    strength: [10, str: 0]
+  movement:
+    load: [80 lbs, {equipped: 80 lbs}]
+    capacity: {light: 33 lbs, medium: 66 lbs, heavy: 100 lbs, lift: 200 lbs, drag: 500 lbs}
+  skills:
+    _acp: [0]
+    climb: [0, {str: 0, acp: 0}]
+`),
+          )
+          expect(output.character.skills._acp).toEqual([
+            -6,
+            { 'heavy-load': -6 },
+          ])
+          expect(output.character.skills.climb).toEqual([
+            -6,
+            { str: 0, acp: -6 },
+          ])
+        })
+
+        it('resets a derived ACP to 0 once the armor is gone', () => {
+          const output = parseYAML(
+            updateCalculatedFields(
+              withGear(
+                '      - [dagger, 1, weapon, 1 lb, 2 gp]',
+                `    _acp: [-4, {armor: -2, shield: -2}]
+    swim: [-6, {str: 2, acp: -8}]`,
+              ),
+            ),
+          )
+          expect(output.character.skills._acp).toEqual([0])
+          expect(output.character.skills.swim).toEqual([2, { str: 2, acp: 0 }])
+        })
+
+        it('keeps a hand-entered ACP it cannot derive and applies it to skills', () => {
+          const output = parseYAML(
+            updateCalculatedFields(
+              withGear(
+                '      - [dagger, 1, weapon, 1 lb, 2 gp]',
+                `    _acp: [-4, breastplate: -4]
+    hide: [2, {dex: 0, acp: 0, ranks: 2}]
+    swim: [2, {str: 2, acp: 0}]`,
+              ),
+            ),
+          )
+          expect(output.character.skills._acp).toEqual([
+            -4,
+            { breastplate: -4 },
+          ])
+          expect(output.character.skills.hide).toEqual([
+            -2,
+            { dex: 0, acp: -4, ranks: 2 },
+          ])
+          expect(output.character.skills.swim[1].acp).toBe(-8)
+        })
+
+        it('moves a legacy combat.defense.acp to skills._acp', () => {
+          const output = updateCalculatedFields(`---
+character:
+  combat:
+    defense:
+      ac: [10, base: 10]
+      acp: [-3, {armor: -3}]
+  skills:
+    _points: [4, fighter: 4]
+    climb: [-3, {ranks: 0, acp: -3}]
+`)
+          const parsed = parseYAML(output)
+          expect(parsed.character.combat.defense).not.toHaveProperty('acp')
+          expect(Object.keys(parsed.character.skills)).toEqual([
+            '_points',
+            '_acp',
+            'climb',
+          ])
+          expect(output).toContain('_acp: [-3, armor: -3]')
         })
       })
       describe('magic item ability bonuses', () => {

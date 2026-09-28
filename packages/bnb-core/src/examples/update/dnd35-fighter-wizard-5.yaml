@@ -37,7 +37,6 @@ character:
       ac: [0, {base: 10, dex: 0}]
       touch-ac: [0, {base: 10, dex: 0}]
       flat-footed-ac: [0, base: 10]
-      acp: [0, none: 0]
       max-dex: [99, none: 99]
   movement:
     speed: [30, {base: 30}]
@@ -45,6 +44,7 @@ character:
     capacity: {light: 0 lbs, medium: 0 lbs, heavy: 0 lbs, lift: 0 lbs, drag: 0 lbs}
   skills:
     _ranks: [0, {fighter: 0, wizard: 0, int: 0, human: 0}]
+    _acp: [0]
     climb: [0, {str: 0, acp: 0, ranks: 4}]
     jump: [0, {str: 0, acp: 0, ranks: 4}]
     spellcraft: [0, {int: 0, ranks: 5}]
