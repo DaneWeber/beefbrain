@@ -172,16 +172,17 @@ ${EMOJI_ON}
   \multicolumn{2}{L{\dimexpr\invname+\invqty+2\tabcolsep\relax}}{\textbf{#1}} & \textbf{#2}}}
 \newcommand{\invitem}[3]{\stackbody{I}{#1 & #2 & #3}}
 
-% Magic item slots: #1 slot name, #2 1 when more than one item claims the slot,
-% #3 the \slotitem entries (empty for a free slot). No header row: the slot
-% names and what is in them need no labels.
+% Magic item slots: #1 icon, #2 slot name, #3 1 when more than one item claims
+% the slot, #4 the \slotitem entries (empty for a free slot). No header row:
+% the slot names and what is in them need no labels.
 \newcommand{\slotitem}[2]{#1\if\relax\detokenize{#2}\relax\else\ {\footnotesize(#2)}\fi}
-\newcommand{\slotcells}[3]{%
-  #1\ifnum#2=1 \ \ifsheetemoji\emoji{warning}\else\textbf{(!)}\fi\fi &
-  \if\relax\detokenize{#3}\relax\textcolor{black!40}{\textemdash}\else #3\fi}
-\newcommand{\slotrow}[3]{\stackbody{J}{\slotcells{#1}{#2}{#3}}}
-% #1 label ("Slotless", on every row), #2 the \slotitem.
-\newcommand{\slotlessrow}[2]{\stackbody{J}{\slotcells{#1}{0}{#2}}}
+\newcommand{\slotcells}[4]{%
+  \rowicon{#1}#2\ifnum#3=1 \ \ifsheetemoji\emoji{warning}\else\textbf{(!)}\fi\fi &
+  \if\relax\detokenize{#4}\relax\textcolor{black!40}{\textemdash}\else #4\fi}
+\newcommand{\slotrow}[4]{\stackbody{J}{\slotcells{#1}{#2}{#3}{#4}}}
+% #1 label ("Slotless", on every row), #2 the \slotitem. No icon, but the
+% same room for one, so the labels line up.
+\newcommand{\slotlessrow}[2]{\stackbody{J}{\slotcells{}{#1}{0}{#2}}}
 
 % Each labelled block is a single box, so a column break can land between two
 % blocks but never between a label and the table it names. \\* is not enough

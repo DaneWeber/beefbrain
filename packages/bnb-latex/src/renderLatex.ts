@@ -359,21 +359,23 @@ function buildSkillsTableRows(skills: Record<string, unknown>): string {
     .join('\n')
 }
 
-// The twelve magic item body slots, head to toe, as a printed sheet reads.
-const BODY_SLOTS = [
-  'head',
-  'face',
-  'throat',
-  'shoulders',
-  'body',
-  'torso',
-  'arms',
-  'hands',
-  'left-ring',
-  'right-ring',
-  'waist',
-  'feet',
-]
+// The twelve magic item body slots, head to toe, as a printed sheet reads,
+// each with the CLDR emoji name the sheet shows beside it.
+const BODY_SLOT_ICONS: Record<string, string> = {
+  head: 'military-helmet',
+  face: 'goggles',
+  throat: 'prayer-beads',
+  shoulders: 'coat',
+  body: 'kimono',
+  torso: 't-shirt',
+  arms: 'mechanical-arm',
+  hands: 'gloves',
+  'left-ring': 'ring',
+  'right-ring': 'ring',
+  waist: 'scarf',
+  feet: 'hiking-boot',
+}
+const BODY_SLOTS = Object.keys(BODY_SLOT_ICONS)
 
 // `<name>-slot` tags as written in the data, singular or plural, to the slot
 // they occupy.
@@ -498,8 +500,8 @@ function formatSlotItem(item: InventoryItem): string {
 }
 
 /**
- * One `\slotrow` per body slot (head to toe): label, whether the slot is
- * over-filled (1 or 0), and the items in it. Then one `\slotlessrow` per
+ * One `\slotrow` per body slot (head to toe): icon, label, whether the slot
+ * is over-filled (1 or 0), and the items in it. Then one `\slotlessrow` per
  * slotless magic item: label ("Slotless" on each) and the item.
  * Only the `equipped` container counts; a spare belt in the pack occupies no
  * slot. Templates using this field define `\slotrow`, `\slotlessrow` and
@@ -532,7 +534,7 @@ function buildSlotsTableRows(inventory: Record<string, unknown>): string {
   const slotRows = BODY_SLOTS.map((slot) => {
     const items = bySlot.get(slot) ?? []
     const conflict = items.length > 1 ? 1 : 0
-    return `\\slotrow{${formatTitleKey(slot)}}{${conflict}}{${items.map(formatSlotItem).join('\\newline ')}}`
+    return `\\slotrow{${BODY_SLOT_ICONS[slot]}}{${formatTitleKey(slot)}}{${conflict}}{${items.map(formatSlotItem).join('\\newline ')}}`
   })
   const slotlessRows = slotless.map(
     (item) => `\\slotlessrow{Slotless}{${formatSlotItem(item)}}`,

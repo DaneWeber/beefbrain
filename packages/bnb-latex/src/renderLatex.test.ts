@@ -270,32 +270,34 @@ character:
     it('fills slots head to toe from equipped items only', () => {
       const latex = renderField(yaml, 'inventory.slotsTable')
       const rows = latex.split('\n')
-      expect(rows.slice(0, 12).map((row) => row.split('}')[0])).toEqual(
+      expect(
+        rows.slice(0, 12).map((row) => row.split('}').slice(0, 2).join('}')),
+      ).toEqual(
         [
-          'Head',
-          'Face',
-          'Throat',
-          'Shoulders',
-          'Body',
-          'Torso',
-          'Arms',
-          'Hands',
-          'Left Ring',
-          'Right Ring',
-          'Waist',
-          'Feet',
-        ].map((slot) => `\\slotrow{${slot}`),
+          ['military-helmet', 'Head'],
+          ['goggles', 'Face'],
+          ['prayer-beads', 'Throat'],
+          ['coat', 'Shoulders'],
+          ['kimono', 'Body'],
+          ['t-shirt', 'Torso'],
+          ['mechanical-arm', 'Arms'],
+          ['gloves', 'Hands'],
+          ['ring', 'Left Ring'],
+          ['ring', 'Right Ring'],
+          ['scarf', 'Waist'],
+          ['hiking-boot', 'Feet'],
+        ].map(([icon, slot]) => `\\slotrow{${icon}}{${slot}`),
       )
       expect(latex).toContain(
-        '\\slotrow{Shoulders}{0}{\\slotitem{Cloak of Resistance +3}{Saves Resistance=3}}',
+        '\\slotrow{coat}{Shoulders}{0}{\\slotitem{Cloak of Resistance +3}{Saves Resistance=3}}',
       )
       // The belt in the pack is a spare, not worn.
-      expect(latex).toContain('\\slotrow{Waist}{0}{}')
+      expect(latex).toContain('\\slotrow{scarf}{Waist}{0}{}')
     })
 
     it('flags a slot claimed by more than one item', () => {
       expect(renderField(yaml, 'inventory.slotsTable')).toContain(
-        '\\slotrow{Face}{1}{\\slotitem{Pearl of Speech}{}\\newline \\slotitem{Third Eye}{}}',
+        '\\slotrow{goggles}{Face}{1}{\\slotitem{Pearl of Speech}{}\\newline \\slotitem{Third Eye}{}}',
       )
     })
 
