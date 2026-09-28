@@ -72,6 +72,31 @@ describe('renderLatex', () => {
     )
   })
 
+  it('orders the pages Stats, Actions, Build, Inventory, Spells', () => {
+    const { latex } = renderLatex({ yaml: VALID_YAML })
+    const at = (title: string) =>
+      latex.indexOf(`\\renewcommand{\\sheettitle}{${title}}`)
+    const skills = latex.indexOf('{Skills}')
+    expect(skills).toBeLessThan(at('Actions'))
+    expect(at('Actions')).toBeLessThan(at('Build'))
+    expect(at('Build')).toBeLessThan(at('Inventory'))
+    expect(at('Inventory')).toBeLessThan(at('Spells'))
+    // Description moved from page 1 to Build.
+    expect(latex.indexOf('{Description}')).toBeGreaterThan(at('Build'))
+    expect(latex.indexOf('{Languages}')).toBeLessThan(skills)
+  })
+
+  it('prints special notes as rows of their block, not as Defense Special', () => {
+    const { latex } = renderLatex({ yaml: VALID_YAML })
+    expect(latex).not.toContain('Defense Special')
+    expect(latex).toContain(
+      '\\noterow{0.30}{pushpin}{Special}{Blind Fight: no advantage to invisible melee attackers}',
+    )
+    expect(latex).toContain(
+      '\\noterow{0.30}{pushpin}{Special}{Blind Fight: 1/2 penalty when unable to see}',
+    )
+  })
+
   it('renders the detailed sheet without emoji as its own template', () => {
     const plain = renderLatex({
       yaml: VALID_YAML,

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  buildSpellLikeBlock,
   buildClassAbilityRows,
   buildFeatRows,
   buildFullAttackBlock,
@@ -76,11 +77,11 @@ describe('weapon rows', () => {
         'full-attack': [['bite', 13, '1d8+6', 'x2']],
       },
     })
-    expect(rows).toBe('\\attacknone{5}')
+    expect(rows).toBe('\\nonerow{5}')
   })
 
   it('marks an empty table', () => {
-    expect(buildRangedRows({})).toBe('\\attacknone{6}')
+    expect(buildRangedRows({})).toBe('\\nonerow{6}')
   })
 })
 
@@ -298,9 +299,51 @@ describe('class and special abilities', () => {
     ])
   })
 
+  it('closes class abilities with the proficiencies', () => {
+    const rows = buildClassAbilityRows(
+      {
+        'class-features': ['Woodland Stride'],
+        proficiencies: ['Simple Weapons', 'All Shields (including tower)'],
+      },
+      classes,
+    )
+    expect(rows.split('\n')).toEqual([
+      '\\stackopen',
+      '\\traitrow{Woodland Stride}{}',
+      '\\traitgroup{Proficiencies}',
+      '\\traitrow{Simple Weapons}{}',
+      '\\traitrow{All Shields}{including tower}',
+    ])
+  })
+
   it('marks a sheet with none', () => {
     expect(
       buildClassAbilityRows({ racial: ['Low-light Vision'] }, classes),
     ).toBe('\\traitnone')
+  })
+})
+
+describe('buildSpellLikeBlock', () => {
+  it('heads each source with its caster level and save', () => {
+    const block = buildSpellLikeBlock({
+      'storm-giant': {
+        _: { cl: 20, save: 'cha' },
+        'call-lightning': ['1/day', { dc: [15, { base: 13, cha: 2 }] }],
+        levitate: ['2/day'],
+      },
+    })
+    expect(block.split('\n')).toEqual([
+      '\\blockrule',
+      '\\fitblock{\\textheight}{%',
+      '\\begin{sheetblock}{Spell-Like Abilities}',
+      '\\traitgroup{Storm Giant (CL 20, save Cha)}',
+      '\\traitrow{Call Lightning}{1/day; DC 15}',
+      '\\traitrow{Levitate}{2/day}',
+      '\\end{sheetblock}}',
+    ])
+  })
+
+  it('leaves the block out when there are none', () => {
+    expect(buildSpellLikeBlock(undefined)).toBe('')
   })
 })

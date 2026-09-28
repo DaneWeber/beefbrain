@@ -2,6 +2,7 @@ import { escapeLatexText } from './renderTemplate'
 import { formatTitleKey } from './text'
 import {
   formatComponentKey,
+  getArrayFirst,
   formatSigned,
   isNonZeroComponent,
   sortComponentEntries,
@@ -12,7 +13,7 @@ import {
 // class abilities and special abilities. Each builder returns template macro
 // calls with every cell escaped, for a {{{...}}} token.
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+export function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
 }
 
@@ -22,7 +23,7 @@ function isStringList(value: unknown): value is string[] {
   )
 }
 
-function macro(name: string, cells: string[]): string {
+export function macro(name: string, cells: string[]): string {
   return `\\${name}{${cells.map(escapeLatexText).join('}{')}}`
 }
 
@@ -142,13 +143,13 @@ function weaponRow(
 
 /**
  * One `\meleerow` per melee weapon: name, attack, damage, crit, and the
- * sources of its attack and damage with any tags. `\attacknone` when there are
+ * sources of its attack and damage with any tags. `\nonerow` when there are
  * none.
  */
 export function buildMeleeRows(attack: Record<string, unknown>): string {
   const weapons = getWeapons(attack.melee)
   if (weapons.length === 0) {
-    return '\\attacknone{5}'
+    return '\\nonerow{5}'
   }
   return weapons
     .map((weapon) =>
@@ -161,7 +162,7 @@ export function buildMeleeRows(attack: Record<string, unknown>): string {
 export function buildRangedRows(attack: Record<string, unknown>): string {
   const weapons = getWeapons(attack.ranged)
   if (weapons.length === 0) {
-    return '\\attacknone{6}'
+    return '\\nonerow{6}'
   }
   return weapons
     .map((weapon) =>
@@ -179,7 +180,7 @@ export function buildRangedRows(attack: Record<string, unknown>): string {
  * a record as "Key value" pairs (`{main: +10/+5, helm: 7}` ->
  * "Main +10/+5, Helm +7").
  */
-function formatDetail(value: unknown): string {
+export function formatDetail(value: unknown): string {
   if (value === null || value === undefined || value === true) {
     return ''
   }
@@ -472,7 +473,7 @@ function splitTraitText(text: string): [string, string] {
  * One entry of a trait list: text, or `[name, source-or-effects...]` like
  * Runa's `[Rapid Shot, {combat-style: 2}]`.
  */
-function formatTrait(entry: unknown): [string, string] {
+export function formatTrait(entry: unknown): [string, string] {
   if (Array.isArray(entry)) {
     const [name, ...rest] = entry
     const owner = { slug: slugify(String(name ?? '')) }
@@ -547,7 +548,9 @@ const CLASS_ABILITY_KEYS = new Set(['class-abilities', 'class-features'])
 
 /**
  * The Class Abilities rows: `\\traitgroup` headers and `\\traitrow`s. Rows
- * the data groups by class are headed by the class.
+ * the data groups by class are headed by the class. Proficiencies close the
+ * block as a group of their own: most come from a class, though the data
+ * does not yet say which.
  */
 export function buildClassAbilityRows(
   special: Record<string, unknown>,
@@ -556,6 +559,12 @@ export function buildClassAbilityRows(
   const groups = Object.entries(special)
     .filter(([key]) => CLASS_ABILITY_KEYS.has(key))
     .flatMap(([, value]) => traitGroups('', value, classes))
+  if (Array.isArray(special.proficiencies)) {
+    groups.push({
+      title: 'Proficiencies',
+      rows: special.proficiencies.map(formatTrait),
+    })
+  }
   return traitRows(groups) || '\\traitnone'
 }
 
@@ -589,4 +598,75 @@ export function getClassNames(levels: Record<string, unknown>): Set<string> {
     'level-adjustment',
   ])
   return new Set(Object.keys(levels).filter((key) => !ignored.has(key)))
+}
+
+// A source's shared settings (`_: {cl: 20, save: cha}`) -> "CL 20, save Cha".
+function formatSpellLikeSettings(settings: unknown): string {
+  return Object.entries(toRecord(settings))
+    .map(([key, value]) => {
+      if (key === 'cl') {
+        return `CL ${String(value)}`
+      }
+      if (key === 'save') {
+        return `save ${formatTitleKey(String(value))}`
+      }
+      return `${formatTitleKey(key)} ${formatDetail(value)}`
+    })
+    .join(', ')
+}
+
+// One ability, `[1/day, {dc: [15, {base: 13, cha: 2}]}]` -> "1/day; DC 15".
+function formatSpellLike(value: unknown): string {
+  const parts = Array.isArray(value) ? value : [value]
+  return parts
+    .map((part) => {
+      if (!isRecord(part)) {
+        return formatDetail(part)
+      }
+      return Object.entries(part)
+        .map(([key, detail]) =>
+          key === 'dc'
+            ? `DC ${String(getArrayFirst(detail))}`
+            : `${formatTitleKey(key)} ${formatDetail(detail)}`,
+        )
+        .join(', ')
+    })
+    .filter((part) => part)
+    .join('; ')
+}
+
+/**
+ * The Spell-Like Abilities block, after a `\blockrule`: one `\traitgroup` per
+ * source, titled with its caster level and save, then a `\traitrow` per
+ * ability with its uses and DC. Nothing for a sheet without any.
+ */
+export function buildSpellLikeBlock(spellLike: unknown): string {
+  const groups: TraitGroup[] = Object.entries(toRecord(spellLike))
+    .filter(([key]) => !key.startsWith('_'))
+    .map(([source, abilities]) => {
+      const record = toRecord(abilities)
+      const settings = formatSpellLikeSettings(record._)
+      return {
+        title: settings
+          ? `${formatTitleKey(source)} (${settings})`
+          : formatTitleKey(source),
+        rows: Object.entries(record)
+          .filter(([key]) => !key.startsWith('_'))
+          .map(([name, value]): [string, string] => [
+            formatTitleKey(name),
+            formatSpellLike(value),
+          ]),
+      }
+    })
+  const rows = traitRows(groups)
+  if (!rows) {
+    return ''
+  }
+  return [
+    '\\blockrule',
+    '\\fitblock{\\textheight}{%',
+    '\\begin{sheetblock}{Spell-Like Abilities}',
+    rows,
+    '\\end{sheetblock}}',
+  ].join('\n')
 }
