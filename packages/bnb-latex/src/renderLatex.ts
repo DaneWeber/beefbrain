@@ -225,6 +225,13 @@ function formatAbilityMod(value: unknown): string {
   return mod === '' ? '' : formatSigned(mod)
 }
 
+// A total that is itself a bonus (a save), signed like its sources ("+0",
+// "-1"). A missing value stays blank rather than reading as "+0".
+function formatSignedTotal(value: unknown): string {
+  const total = getArrayFirst(value)
+  return total === '' ? '' : formatSigned(total)
+}
+
 /**
  * What an ability score is built from. Ability data is
  * `[score, {mod}, {sources}?]`, and index 1 is the modifier, not a source, so
@@ -781,13 +788,13 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'combat.initiative.sources': formatSources(combat.initiative),
     'combat.defenseSpecial': String(defense.special ?? 'None'),
 
-    'saves.fortitude': getArrayFirst(savesContainer.fortitude),
+    'saves.fortitude': formatSignedTotal(savesContainer.fortitude),
     'saves.fortitude.breakdown': formatBreakdown(savesContainer.fortitude),
     'saves.fortitude.sources': formatSources(savesContainer.fortitude),
-    'saves.reflex': getArrayFirst(savesContainer.reflex),
+    'saves.reflex': formatSignedTotal(savesContainer.reflex),
     'saves.reflex.breakdown': formatBreakdown(savesContainer.reflex),
     'saves.reflex.sources': formatSources(savesContainer.reflex),
-    'saves.will': getArrayFirst(savesContainer.will),
+    'saves.will': formatSignedTotal(savesContainer.will),
     'saves.will.breakdown': formatBreakdown(savesContainer.will),
     'saves.will.sources': formatSources(savesContainer.will),
 

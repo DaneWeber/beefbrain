@@ -202,6 +202,23 @@ character:
       )
     })
 
+    it('signs save totals, zero included', () => {
+      const savesYaml = `---
+character:
+  abilities:
+    dexterity: [8, dex: -1]
+    constitution: [14, con: 2]
+  combat:
+    saves:
+      fortitude: [2, {con: 2}]
+      reflex: [-1, {dex: -1}]
+      will: [0, {}]
+`
+      expect(renderField(savesYaml, 'saves.fortitude')).toBe('+2')
+      expect(renderField(savesYaml, 'saves.reflex')).toBe('-1')
+      expect(renderField(savesYaml, 'saves.will')).toBe('+0')
+    })
+
     it('shows nothing, not "none", for an empty breakdown', () => {
       expect(renderField(yaml, 'saves.will.sources')).toBe('')
     })
