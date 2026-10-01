@@ -317,3 +317,5 @@ character:
   notes:
     special-damage: 8
     nonlethal: 0/42
+  conditionals:
+    elven-immunities: Immune to magic sleep; +2 saves vs. enchantment

@@ -213,3 +213,5 @@ character:
     money: 1005 gp
     value: 112239.72 gp
     feats-9-and-12: Blank in spreadsheet — needs player input
+  conditionals:
+    elven-immunities: Immune to magic sleep; +2 saves vs. enchantment

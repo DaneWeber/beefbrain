@@ -201,3 +201,5 @@ character:
     domains: Good (special spells replace some domain spells), Trickery
     hd-breakdown: 9d8 + 3d4 + 24
     value: 78000 gp
+  conditionals:
+    blessing-of-the-silver-heaven: +2 AC and saves vs. evil creatures; +2 sacred saves vs. disease, poison, petrification

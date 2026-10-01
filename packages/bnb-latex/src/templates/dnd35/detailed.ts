@@ -140,8 +140,9 @@ ${EMOJI_ON}
 % Notes under a block's table, for what bears on the block but is not a
 % total of its own: a charged item, a conditional bonus. #1 the notes, each
 % parted from the next by \notesep. Set small, unshaded, across the table's
-% width and in line with its text.
-\newcommand{\notesep}{\ifsheetemoji\ \emoji{small-blue-diamond}\ \else\ \textbullet\ \fi}
+% width and in line with its text. A line may break after a \notesep but
+% not before it, so no line opens with one.
+\newcommand{\notesep}{\ifsheetemoji\nobreak\ \emoji{small-blue-diamond}\ \else\nobreak\ \textbullet\ \fi}
 \newcommand{\blocknotes}[1]{%
   \par\vspace{2pt}%
   {\footnotesize\leftskip\tabcolsep\rightskip\tabcolsep plus 1fil\noindent #1\par}}
@@ -187,9 +188,6 @@ ${EMOJI_ON}
 \newlength{\slotitems}
 \newlength{\traitname}
 \newlength{\traitdetail}
-\newlength{\featname}
-\newlength{\feateffect}
-\newlength{\featsource}
 \newcommand{\setstackwidths}{%
   \setlength{\stackindent}{\blocklabel}%
   \setlength{\stackwidth}{\dimexpr\linewidth-\blocklabel\relax}%
@@ -197,16 +195,12 @@ ${EMOJI_ON}
   \setlength{\slotname}{0.27\stackwidth}%
   \setlength{\slotitems}{\dimexpr\stackwidth-\slotname-4\tabcolsep\relax}%
   \setlength{\traitname}{0.4\stackwidth}%
-  \setlength{\traitdetail}{\dimexpr\stackwidth-\traitname-4\tabcolsep\relax}%
-  \setlength{\featname}{0.36\stackwidth}%
-  \setlength{\feateffect}{0.42\stackwidth}%
-  \setlength{\featsource}{\dimexpr\stackwidth-\featname-\feateffect-6\tabcolsep\relax}}
+  \setlength{\traitdetail}{\dimexpr\stackwidth-\traitname-4\tabcolsep\relax}}
 % Column types rather than macros: tabular does not expand a macro in its
 % column spec.
 \newcolumntype{I}{L{\invname}R{\invqty}R{\invwt}}
 \newcolumntype{J}{L{\slotname}L{\slotitems}}
 \newcolumntype{T}{L{\traitname}C{\traitdetail}}
-\newcolumntype{F}{L{\featname}C{\feateffect}Q{\featsource}}
 
 % Inventory: #1 item, #2 quantity, #3 the line's total weight in pounds.
 \newcommand{\invheader}{\stackheader{I}{\footnotesize Item & \footnotesize Qty & \footnotesize Wt (lb)}}
@@ -356,22 +350,25 @@ ${EMOJI_ON}
 \newcommand{\ammorow}[2]{\rowstrut #1 & #2 & \\}
 % A table with nothing in it: #1 its number of columns.
 \newcommand{\nonerow}[1]{\multicolumn{#1}{L{\dimexpr\linewidth-2\tabcolsep\relax}}{\rowstrut\textcolor{black!40}{None recorded}} \\}
-% Full attacks: #1 the routine, #2 its attacks.
+% Full attacks: #1 the routine, #2 its attacks. Conditionals: #1 what the
+% modifier is, #2 when it applies and what it changes.
 \newenvironment{actionblock}[1]{%
   \begin{sheetblock}{#1}%
   \begin{tabular}{L{0.30\linewidth}N{0.63\linewidth}}}
   {\end{tabular}\end{sheetblock}}
 \newcommand{\actionrow}[2]{\rowstrut #1 & #2 \\}
-% Feats, stacked so a long list can break across columns: #1 feat, #2 what
-% it does, #3 where it came from.
-\newcommand{\featheader}{\stackheader{F}{\footnotesize Feat & Effect &
-  \multicolumn{1}{L{\featsource}}{\footnotesize Source}}}
-\newcommand{\featrow}[3]{\stackbody{F}{\rowstrut #1 & #2 & \rowsources{#3}}}
-\newcommand{\featnone}{\stackbody{F}{%
-  \multicolumn{3}{L{\dimexpr\stackwidth-2\tabcolsep\relax}}{\rowstrut\textcolor{black!40}{None recorded}}}}
-% Class and special abilities, stacked so a group of them (a class, the
-% racial traits) can open with a header row as the inventory's containers do.
-% #1 the group's name.
+% The Build page's abilities and feats: #1 the group ("Ranger 6"), #2 its
+% entries, parted by \notesep and set small. The right margin stretches only
+% a little and nothing is hyphenated, so the lines run nearly full rather
+% than ragged. The spaces inside an entry are \listtie, where a line breaks
+% only when no break between entries will do, so a name stays whole.
+\newcommand{\listtie}{\nolinebreak[3]\ }
+\newcommand{\listrow}[2]{\rowstrut #1 &
+  \footnotesize\setlength{\rightskip}{0pt plus 5em}%
+  \hyphenpenalty=10000 \exhyphenpenalty=10000 #2 \\}
+% Attack options and spell-like abilities, stacked so a group of them (a
+% class, the racial traits) can open with a header row as the inventory's
+% containers do. #1 the group's name.
 \newcommand{\traitgroup}[1]{\stackheader[black!20]{T}{%
   \multicolumn{2}{L{\dimexpr\stackwidth-2\tabcolsep\relax}}{\rowstrut\textbf{#1}}}}
 % #1 the ability, #2 its detail. An ability with no detail takes the whole
@@ -522,6 +519,7 @@ ${EMOJI_ON}
 \stackopen
 {{{actions.attackOptionsTable}}}
 \end{sheetblock}}
+{{{actions.conditionalsBlock}}}
 {{{actions.spellLikeBlock}}}
 \end{multicols}
 
@@ -558,19 +556,15 @@ ${EMOJI_ON}
 \end{tabular}
 \end{sheetblock}}
 \blockrule
-% The lists can run long, so they flow across columns and pages as the
-% inventory does.
-\flowblock{Special Abilities}{%
-\stackopen
-{{{build.specialAbilitiesTable}}}}
-\blockrule
-\flowblock{Feats}{%
-\featheader
-{{{build.featsTable}}}}
-\blockrule
-\flowblock{Class Abilities}{%
-\stackopen
-{{{build.classAbilitiesTable}}}}
+% Every racial trait, class ability, feat and proficiency by name, a row per
+% source, set small and parted by diamonds as a block's notes are: what
+% each does is printed on the Stats and Actions pages, where it is used.
+\fitblock{\textheight}{%
+\begin{sheetblock}{Abilities \& Feats}
+\begin{tabular}{L{0.24\linewidth}L{0.69\linewidth}}
+{{{build.abilitiesTable}}}
+\end{tabular}
+\end{sheetblock}}
 \end{multicols}
 
 \newpage

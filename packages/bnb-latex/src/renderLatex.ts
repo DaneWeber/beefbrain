@@ -25,15 +25,15 @@ import {
 } from './components'
 import {
   buildAttackOptionRows,
-  buildClassAbilityRows,
-  buildFeatRows,
+  buildAbilitySummaryRows,
+  buildConditionalsBlock,
   buildFullAttackBlock,
   buildMeleeRows,
   buildRangedRows,
-  buildSpecialAbilityRows,
   buildSpecialAttackRows,
   buildSpellLikeBlock,
   getClassNames,
+  getConditionalKeys,
 } from './actionsSummary'
 import {
   buildAmmoRows,
@@ -666,9 +666,7 @@ function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
     ),
     'build.levelRows': buildLevelRows(hpContainer, skillsContainer),
     'build.noteRows': buildNoteRows(characterData.notes),
-    'build.featsTable': buildFeatRows(special),
-    'build.classAbilitiesTable': buildClassAbilityRows(special, hpContainer),
-    'build.specialAbilitiesTable': buildSpecialAbilityRows(special, classes),
+    'build.abilitiesTable': buildAbilitySummaryRows(special, hpContainer),
     'character.classes': getClassSummary(characterData),
     'character.level': getCharacterLevel(hpContainer),
 
@@ -760,6 +758,10 @@ function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
       special,
       classes,
       inventoryContainer,
+      getConditionalKeys(characterData.conditionals),
+    ),
+    'actions.conditionalsBlock': buildConditionalsBlock(
+      characterData.conditionals,
     ),
 
     'saves.specialRows': buildSpecialRows(

@@ -78,6 +78,12 @@
         "name": "inventory",
         "type": "Inventory",
         "optional": true
+      },
+      {
+        "name": "conditionals",
+        "type": "Conditionals",
+        "optional": true,
+        "description": "Modifiers that apply only in some situations, which no total includes (e.g. dazzled-in-sunlight: -1 attack, Spot, Search)"
       }
     ]
   },
@@ -715,6 +721,12 @@
         "optional": true,
         "description": "Effects: references to affected fields and modifiers (same shape as a feat's effects)"
       }
+    }
+  },
+  "Conditionals": {
+    "additionalChildren": {
+      "type": "string",
+      "description": "One conditional modifier as text, keyed by the slugged name of the trait, feat, ability or item it comes from (e.g. point-blank-shot: +1 ranged attack and damage within 30ft)"
     }
   },
   "SpellLikeAbilities": {

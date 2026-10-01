@@ -336,3 +336,6 @@ character:
     cloak-of-resistance: +2 resistance bonus to all saves
     value: 91500 gp
     money: 3471.8 gp
+  conditionals:
+    illusion-resistance: +2 saves vs. illusion spells and effects
+    giant-foes: +4 dodge AC vs. giants

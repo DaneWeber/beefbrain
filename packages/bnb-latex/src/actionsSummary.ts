@@ -10,8 +10,8 @@ import {
 } from './components'
 
 // The rows of the Actions page (weapons, full attacks, special attacks,
-// attack options, spell-like abilities) and of the Build page's feats, class
-// abilities and special abilities. Each builder returns template macro
+// attack options, conditionals, spell-like abilities) and of the Build
+// page's abilities and feats. Each builder returns template macro
 // calls with every cell escaped, for a {{{...}}} token.
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
@@ -255,6 +255,33 @@ export function buildFullAttackBlock(attack: Record<string, unknown>): string {
 }
 
 /**
+ * The Conditionals block: a modifier that applies only now and then, from
+ * `character.conditionals`, one row per entry, `dazzled-in-sunlight: -1
+ * attack, Spot, Search` -> "Dazzled In Sunlight" beside its text. Only what
+ * the data lists: whether a trait is conditional is not guessed from its
+ * text. Nothing for a sheet without any.
+ */
+export function buildConditionalsBlock(conditionals: unknown): string {
+  const rows = Object.entries(toRecord(conditionals))
+    .filter(([key]) => !key.startsWith('_'))
+    .map(([key, value]): [string, string] => [
+      formatTitleKey(key),
+      formatDetail(value),
+    ])
+  return actionBlock('Conditionals', rows)
+}
+
+/**
+ * The slugs `character.conditionals` is keyed by, so the Attack Options can
+ * leave out what the Conditionals print.
+ */
+export function getConditionalKeys(conditionals: unknown): Set<string> {
+  return new Set(
+    Object.keys(toRecord(conditionals)).filter((key) => !key.startsWith('_')),
+  )
+}
+
+/**
  * One `\\statrow` per special attack, for the Attack block: anything else
  * under `combat.attack` (`sneak-attack: +2d6`) and every entry of
  * `combat.special-attacks` (`line-of-force: [4d8, 60ft line, ...]`). The
@@ -427,24 +454,8 @@ function formatFeatSource(source: unknown): string {
     .join(', ')
 }
 
-/**
- * One `\featrow` per feat: name, what it does, where it came from. A feat is
- * `[name, source, effects?]`, or just a name.
- */
-export function buildFeatRows(special: Record<string, unknown>): string {
-  const feats = Array.isArray(special.feats) ? special.feats : []
-  if (feats.length === 0) {
-    return '\\featnone'
-  }
-  return feats
-    .map((feat) => {
-      const [name, effect, source] = summarizeFeat(feat)
-      return macro('featrow', [name, effect, source])
-    })
-    .join('\n')
-}
-
-// A feat's name, what it does and where it came from.
+// A feat's name, what it does and where it came from. A feat is `[name,
+// source, effects?]`, or just a name.
 function summarizeFeat(feat: unknown): [string, string, string] {
   const [name, source, ...effects] = Array.isArray(feat) ? feat : [feat]
   const owner = { slug: slugify(String(name ?? '')) }
@@ -498,14 +509,90 @@ export function formatTrait(entry: unknown): [string, string] {
   return [formatDetail(entry), '']
 }
 
+// The longest detail the Build page prints beside a name before trimming it.
+const SHORT_DETAIL_LENGTH = 40
+
+/**
+ * A detail short enough to print beside its name on the Build page: as
+ * written when it is short, otherwise without a closing parenthetical ("Humans,
+ * Giants (+4 bonus to Bluff, ...)" -> "Humans, Giants"), and failing that cut
+ * at a word with an ellipsis. The full text is printed where it is used.
+ */
+function shortDetail(detail: string): string {
+  if (detail.length <= SHORT_DETAIL_LENGTH) {
+    return detail
+  }
+  const bare = detail.replace(/\s*\([^()]*\)$/, '')
+  if (bare && bare.length <= SHORT_DETAIL_LENGTH) {
+    return bare
+  }
+  const cut = bare.slice(0, SHORT_DETAIL_LENGTH + 1)
+  const space = cut.lastIndexOf(' ')
+  return `${(space > 0 ? cut.slice(0, space) : cut).replace(/[\s,;:]+$/, '')}…`
+}
+
+// "Favored Enemy (Humans, Giants)". A detail that opens with its own
+// parenthetical ("(+3) 4/day") follows the name as it is.
+function nameWithDetail(name: string, detail: string): string {
+  const short = detail ? shortDetail(detail) : ''
+  if (!short) {
+    return name
+  }
+  return short.startsWith('(') ? `${name} ${short}` : `${name} (${short})`
+}
+
+/**
+ * One entry of a trait list as the Build page condenses it. Text keeps its
+ * name and a short detail; a `[name, effects...]` entry keeps only its name,
+ * since its effects are printed where they apply.
+ */
+function shortTrait(entry: unknown): string {
+  if (Array.isArray(entry)) {
+    return String(entry[0] ?? '')
+  }
+  if (typeof entry === 'string') {
+    return nameWithDetail(...splitTraitText(entry))
+  }
+  if (isRecord(entry)) {
+    // Don's `{Weapon Familiarity: gnome hooked hammer}`.
+    return Object.entries(entry)
+      .map(([key, value]) => nameWithDetail(key, formatDetail(value)))
+      .join(', ')
+  }
+  return formatDetail(entry)
+}
+
+/**
+ * An ability keyed by name, condensed. Text is its detail; a record lists
+ * its keys (`domains: {good: ..., trickery: ...}` -> "Domains (Good,
+ * Trickery)"); a list, or `true`, leaves the name alone.
+ */
+function shortAbility(key: string, value: unknown): string {
+  const name = formatTitleKey(key)
+  if (isRecord(value)) {
+    const keys = Object.keys(value).filter((entry) => !entry.startsWith('_'))
+    return nameWithDetail(name, keys.map(formatTitleKey).join(', '))
+  }
+  if (typeof value === 'string' || typeof value === 'number') {
+    return nameWithDetail(name, String(value))
+  }
+  return name
+}
+
+// A feat condensed is its name, which already says what it is about
+// ("Weapon Focus (Sickle)"); its effects are printed where they apply.
+function shortFeat(feat: unknown): string {
+  return String((Array.isArray(feat) ? feat[0] : feat) ?? '')
+}
+
 interface TraitGroup {
   /** '' for rows the data does not group. */
   title: string
   rows: [string, string][]
   /** Each row's data as written, to tell what the row is about. */
   entries: unknown[]
-  /** Print the header even with no rows under it: a class with no abilities. */
-  keepEmpty?: boolean
+  /** Each row as the Build page condenses it: a name and a short detail. */
+  short: string[]
 }
 
 /**
@@ -519,15 +606,23 @@ function traitGroups(
   classes: Set<string>,
 ): TraitGroup[] {
   if (Array.isArray(value)) {
-    return [{ title, rows: value.map(formatTrait), entries: value }]
+    return [
+      {
+        title,
+        rows: value.map(formatTrait),
+        entries: value,
+        short: value.map(shortTrait),
+      },
+    ]
   }
   if (!isRecord(value)) {
+    const text = formatDetail(value)
     return value
-      ? [{ title, rows: [[formatDetail(value), '']], entries: [value] }]
+      ? [{ title, rows: [[text, '']], entries: [value], short: [text] }]
       : []
   }
   const groups: TraitGroup[] = []
-  const abilities: TraitGroup = { title, rows: [], entries: [] }
+  const abilities: TraitGroup = { title, rows: [], entries: [], short: [] }
   for (const [key, entry] of Object.entries(value)) {
     if (key.startsWith('_')) {
       continue
@@ -537,10 +632,12 @@ function traitGroups(
         title: formatTitleKey(key),
         rows: entry.map(formatTrait),
         entries: entry,
+        short: entry.map(shortTrait),
       })
     } else {
       abilities.rows.push([formatTitleKey(key), formatDetail(entry)])
       abilities.entries.push([key, entry])
+      abilities.short.push(shortAbility(key, entry))
     }
   }
   return abilities.rows.length > 0 ? [abilities, ...groups] : groups
@@ -548,7 +645,7 @@ function traitGroups(
 
 function traitRows(groups: TraitGroup[]): string {
   return groups
-    .filter((group) => group.rows.length > 0 || group.keepEmpty)
+    .filter((group) => group.rows.length > 0)
     .map((group) =>
       [
         group.title ? macro('traitgroup', [group.title]) : '\\stackopen',
@@ -559,65 +656,44 @@ function traitRows(groups: TraitGroup[]): string {
 }
 
 // Keys under `special` that other blocks print, or that are not abilities.
-const NOT_ABILITY_KEYS = new Set(['feats', 'proficiencies', 'languages'])
+const NOT_ABILITY_KEYS = new Set([
+  'feats',
+  'proficiencies',
+  'languages',
+  'senses',
+])
 // The keys that hold class abilities; every other key is a source of special
 // abilities (`racial`, `were-rat-abilities`, `storm-giant`).
 const CLASS_ABILITY_KEYS = new Set(['class-abilities', 'class-features'])
 
+// An entry, escaped, its spaces `\listtie`s: a line breaks inside an entry
+// only when it must, so "Point Blank Shot" mostly stays on one line.
+function keepTogether(entry: string): string {
+  return escapeLatexText(entry).replace(/ /g, '\\listtie ')
+}
+
 /**
- * The Class Abilities rows: `\\traitgroup` headers and `\\traitrow`s. Every
- * class the character has levels in is headed by its name and level
- * ("Ranger 6"), in the order `levels` lists them, even one with no abilities
- * recorded, so the block also says what the classes are. Abilities the data
- * does not group by class come first. Proficiencies close the block as a
- * group of their own: most come from a class, though the data does not yet
- * say which.
+ * The Build page's Abilities & Feats rows: a `\\listrow` per group, its name
+ * beside its entries, each entry condensed to a name and a short detail and
+ * parted from the next by `\\notesep`, as a block's notes are. What an entry
+ * does in full is printed where it is used: in a total's sources, a block's
+ * notes, the Conditionals or the Attack Options.
+ *
+ * The groups, in order: each source of special abilities (`racial`, a
+ * template's abilities), headed by its name; every class the character has
+ * levels in, headed by its name and level ("Ranger 6") in the order `levels`
+ * lists them, even one with no abilities recorded, so the block also says
+ * what the classes are; the feats; and the proficiencies. Class abilities
+ * the data does not group by class go with the class when there is only
+ * one, and in a Class Abilities row of their own when there are more.
+ * `\\nonerow` for a sheet with none of these.
  */
-export function buildClassAbilityRows(
+export function buildAbilitySummaryRows(
   special: Record<string, unknown>,
   levels: Record<string, unknown>,
 ): string {
   const classes = getClassNames(levels)
-  const found = Object.entries(special)
-    .filter(([key]) => CLASS_ABILITY_KEYS.has(key))
-    .flatMap(([, value]) => traitGroups('', value, classes))
-  const byClass = new Map(
-    [...classes].map((key) => [formatTitleKey(key), key] as const),
-  )
-  const classGroups = [...classes].map((key): TraitGroup => {
-    const title = formatTitleKey(key)
-    const group = found.find((entry) => entry.title === title)
-    const level = getArrayFirst(levels[key])
-    return {
-      title: level === '' ? title : `${title} ${String(level)}`,
-      rows: group?.rows ?? [],
-      entries: group?.entries ?? [],
-      keepEmpty: true,
-    }
-  })
-  const groups = [
-    ...found.filter((group) => !byClass.has(group.title)),
-    ...classGroups,
-  ]
-  if (Array.isArray(special.proficiencies)) {
-    groups.push({
-      title: 'Proficiencies',
-      rows: special.proficiencies.map(formatTrait),
-      entries: special.proficiencies,
-    })
-  }
-  return traitRows(groups) || '\\traitnone'
-}
-
-/**
- * The Special Abilities rows: every other `special` key (racial traits,
- * qualities, a template's abilities), headed by its name.
- */
-export function buildSpecialAbilityRows(
-  special: Record<string, unknown>,
-  classes: Set<string>,
-): string {
-  const groups = Object.entries(special)
+  const groups: { title: string; short: string[] }[] = Object.entries(special)
     .filter(
       ([key]) =>
         !key.startsWith('_') &&
@@ -625,7 +701,57 @@ export function buildSpecialAbilityRows(
         !CLASS_ABILITY_KEYS.has(key),
     )
     .flatMap(([key, value]) => traitGroups(formatTitleKey(key), value, classes))
-  return traitRows(groups) || '\\traitnone'
+    .filter((group) => group.short.length > 0)
+
+  const found = Object.entries(special)
+    .filter(([key]) => CLASS_ABILITY_KEYS.has(key))
+    .flatMap(([, value]) => traitGroups('', value, classes))
+  const classGroups = [...classes].map((key) => {
+    const title = formatTitleKey(key)
+    const level = getArrayFirst(levels[key])
+    return {
+      title: level === '' ? title : `${title} ${String(level)}`,
+      short: found
+        .filter((group) => group.title === title)
+        .flatMap((group) => group.short),
+    }
+  })
+  const ungrouped = found
+    .filter((group) => group.title === '')
+    .flatMap((group) => group.short)
+  const [onlyClass] = classGroups
+  if (onlyClass && classGroups.length === 1) {
+    onlyClass.short.unshift(...ungrouped)
+  } else if (ungrouped.length > 0) {
+    groups.push({ title: 'Class Abilities', short: ungrouped })
+  }
+  groups.push(...classGroups)
+
+  const feats = Array.isArray(special.feats) ? special.feats : []
+  if (feats.length > 0) {
+    groups.push({ title: 'Feats', short: feats.map(shortFeat) })
+  }
+  // Most proficiencies come from a class, though the data does not yet say
+  // which.
+  if (Array.isArray(special.proficiencies)) {
+    groups.push({
+      title: 'Proficiencies',
+      short: special.proficiencies.map(shortTrait),
+    })
+  }
+
+  if (groups.length === 0) {
+    return '\\nonerow{2}'
+  }
+  return groups
+    .map((group) => {
+      const entries = group.short
+        .filter((entry) => entry)
+        .map(keepTogether)
+        .join('\\notesep ')
+      return `\\listrow{${escapeLatexText(group.title)}}{${entries}}`
+    })
+    .join('\n')
 }
 
 /** The class keys under `levels`, to tell class abilities from the rest. */
@@ -699,6 +825,7 @@ export function buildSpellLikeBlock(spellLike: unknown): string {
           formatSpellLike(value),
         ]),
         entries: abilityEntries,
+        short: [],
       }
     })
   const rows = traitRows(groups)
@@ -757,19 +884,41 @@ function isAttackItem(item: unknown[]): boolean {
  * Feats and traits count when an effect targets `combat.attack` or their
  * text is about attacking (see `ATTACK_WORDS`); items when they are tagged
  * `combat-offense` or an effect targets `combat.attack`. Weapons are in their
- * own tables. `\\traitnone` for a sheet with none.
+ * own tables.
+ *
+ * Anything the sheet's Conditionals name is left to that block, so it is not
+ * printed twice: a conditional's key is the slugged name of what it comes
+ * from (`point-blank-shot`), or the start of it (`trap-sense` for "Trap
+ * Sense +1"). The Conditionals win because the player wrote them for this,
+ * where these rows are a guess from the text. `\\traitnone` for a sheet with
+ * none.
  */
 export function buildAttackOptionRows(
   special: Record<string, unknown>,
   classes: Set<string>,
   inventory: Record<string, unknown>,
+  conditionals: Set<string> = new Set(),
 ): string {
+  // `sneak-attack` names "Sneak Attack +2d6" too.
+  const isConditional = (name: string) => {
+    const slug = slugify(name)
+    return [...conditionals].some(
+      (key) => slug === key || slug.startsWith(`${key}-`),
+    )
+  }
+  const isOption = (entry: unknown, row: [string, string]) =>
+    !isConditional(row[0]) && isAttackOption(entry, row)
   const feats = Array.isArray(special.feats) ? special.feats : []
-  const featGroup: TraitGroup = { title: 'Feats', rows: [], entries: [] }
+  const featGroup: TraitGroup = {
+    title: 'Feats',
+    rows: [],
+    entries: [],
+    short: [],
+  }
   for (const feat of feats) {
     const [name, effect] = summarizeFeat(feat)
     const row: [string, string] = [name, effect]
-    if (isAttackOption(feat, row)) {
+    if (isOption(feat, row)) {
       featGroup.rows.push(row)
       featGroup.entries.push(feat)
     }
@@ -787,23 +936,33 @@ export function buildAttackOptionRows(
     .map((group) => {
       const kept = group.rows
         .map((row, index) => [row, group.entries[index]] as const)
-        .filter(([row, entry]) => isAttackOption(entry, row))
+        .filter(([row, entry]) => isOption(entry, row))
       return {
         title: group.title,
         rows: kept.map(([row]) => row),
         entries: kept.map(([, entry]) => entry),
+        short: [],
       }
     })
 
-  const itemGroup: TraitGroup = { title: 'Items', rows: [], entries: [] }
+  const itemGroup: TraitGroup = {
+    title: 'Items',
+    rows: [],
+    entries: [],
+    short: [],
+  }
   for (const [key, items] of Object.entries(inventory)) {
     if (key.startsWith('_') || !Array.isArray(items)) {
       continue
     }
     for (const item of items) {
-      if (Array.isArray(item) && isAttackItem(item)) {
+      if (!Array.isArray(item) || !isAttackItem(item)) {
+        continue
+      }
+      const name = String(item[0] ?? '')
+      if (!isConditional(name)) {
         const props = item.slice(5).find(isRecord)
-        itemGroup.rows.push([String(item[0] ?? ''), formatDetail(props)])
+        itemGroup.rows.push([name, formatDetail(props)])
         itemGroup.entries.push(item)
       }
     }

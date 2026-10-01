@@ -161,3 +161,6 @@ character:
     devotee: Ehlonna
     favored-enemies: Magical Beasts +4, Giants +2
     animal-companion: TBD
+  conditionals:
+    point-blank-shot: +1 ranged attack and damage within 30ft
+    favored-enemy: "+4 vs. magical beasts, +2 vs. giants: Bluff, Listen, Sense Motive, Spot, Survival, weapon damage"

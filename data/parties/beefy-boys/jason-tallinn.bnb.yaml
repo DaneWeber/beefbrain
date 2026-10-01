@@ -187,3 +187,5 @@ character:
     spell-focus: School not specified
     load-note: Str 8 light capacity is 26 lbs but total load is 42.5 lbs (medium). CSV shows speed 30 — animal companion likely carries the pack.
     capacity-fix: "CSV had 100/200/300 (Str 18 values). Fixed to Str 8: 26/53/80."
+  conditionals:
+    resist-natures-lure: +4 saves vs. spell-like and supernatural abilities of fey
