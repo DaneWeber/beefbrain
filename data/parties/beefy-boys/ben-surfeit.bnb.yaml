@@ -167,3 +167,5 @@ character:
     tumble-bonus: +4 bonus to Tumble (likely synergy from Jump 5+ ranks)
     listen-spot-bonus: +2 racial bonus to Listen and Spot (dragon keen senses)
     balance-bonus: +2 bonus to Balance
+  conditionals:
+    force-resistant: +4 saves vs. force effects

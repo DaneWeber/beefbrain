@@ -16,7 +16,7 @@ describe('renderLatex', () => {
     expect(result.template.key).toBe('dnd35-detailed')
     expect(result.latex).toContain('\\setmainfont{Atkinson Hyperlegible Next}')
     expect(result.latex).toContain('Landorf the Human Fighter')
-    expect(result.latex).toContain('\\traitgroup{Fighter 1}')
+    expect(result.latex).toContain('\\listrow{Fighter 1}{}')
     expect(result.latex).toContain('\\renewcommand{\\sheettitle}{Inventory}')
     expect(result.latex).toContain('\\renewcommand{\\sheettitle}{Spells}')
   })
@@ -111,8 +111,32 @@ describe('renderLatex', () => {
       '\\meleerow{Longsword}{+4}{1d8+2 slashing}{19-20/x2}{Weapon Focus Longsword +1; Dmg Str +2}',
     )
     expect(latex).toContain(
-      '\\featrow{Weapon Focus (Longsword)}{Longsword +1}{Fighter 1}',
+      '\\traitrow{Weapon Focus (Longsword)}{Longsword +1}',
     )
+  })
+
+  it('prints the Conditionals on the Actions page, and not in the Attack Options too', () => {
+    const { latex } = renderLatex({
+      yaml: `${VALID_YAML.trimEnd()}
+  conditionals:
+    weapon-focus-longsword: +1 attack with a longsword
+    dazzled-in-sunlight: -1 attack, Spot, Search
+`,
+    })
+    const at = (title: string) =>
+      latex.indexOf(`\\renewcommand{\\sheettitle}{${title}}`)
+    const block = latex.indexOf('\\begin{actionblock}{Conditionals}')
+    expect(block).toBeGreaterThan(at('Actions'))
+    expect(block).toBeLessThan(at('Build'))
+    expect(latex).toContain(
+      '\\actionrow{Dazzled In Sunlight}{-1 attack, Spot, Search}',
+    )
+    expect(latex).not.toContain('\\traitrow{Weapon Focus (Longsword)}')
+  })
+
+  it('prints no Conditionals block for a sheet without any', () => {
+    const { latex } = renderLatex({ yaml: VALID_YAML })
+    expect(latex).not.toContain('{Conditionals}')
   })
 
   it('orders the pages Stats, Actions, Build, Inventory, Spells', () => {
@@ -130,12 +154,12 @@ describe('renderLatex', () => {
     // Actions keeps the attacks; the lists behind them are on Build.
     expect(latex.indexOf('{Ammunition}')).toBeGreaterThan(at('Actions'))
     expect(latex.indexOf('{Attack Options}')).toBeLessThan(at('Build'))
-    for (const list of ['Feats', 'Class Abilities', 'Special Abilities']) {
-      expect(latex.indexOf(`\\flowblock{${list}}`)).toBeGreaterThan(at('Build'))
-      expect(latex.indexOf(`\\flowblock{${list}}`)).toBeLessThan(
-        at('Inventory'),
-      )
-    }
+    const abilities = latex.indexOf('\\begin{sheetblock}{Abilities \\& Feats}')
+    expect(abilities).toBeGreaterThan(at('Build'))
+    expect(abilities).toBeLessThan(at('Inventory'))
+    expect(latex).toContain(
+      '\\listrow{Feats}{Weapon\\listtie Focus\\listtie (Longsword)\\notesep Blind-Fight\\notesep Improved\\listtie Initiative}',
+    )
   })
 
   it('sets languages and senses in Awareness, with its notes under them', () => {

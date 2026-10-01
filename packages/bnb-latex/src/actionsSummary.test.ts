@@ -1,13 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
+  buildAbilitySummaryRows,
   buildAttackOptionRows,
+  buildConditionalsBlock,
   buildSpellLikeBlock,
-  buildClassAbilityRows,
-  buildFeatRows,
   buildFullAttackBlock,
   buildMeleeRows,
   buildRangedRows,
-  buildSpecialAbilityRows,
   buildSpecialAttackRows,
   formatAttackNotes,
 } from './actionsSummary'
@@ -149,193 +148,140 @@ describe('formatAttackNotes', () => {
   })
 })
 
-describe('buildFeatRows', () => {
-  it('reads each shape of feat effect the data uses', () => {
-    const rows = buildFeatRows({
-      feats: [
-        ['Lightning Reflexes', { level: 1 }, ['combat.saves.reflex', 2]],
-        [
-          'Weapon Focus (Sickle)',
-          { fighter: 2 },
-          ['combat.attack.melee.sickle', { atk: 1 }],
-        ],
-        ['Hover', { hd: 1 }, ['move action to hover']],
-        ['Acrobatic', { level: 1 }, [{ jump: 2, tumble: 2 }]],
-        ['Point Blank Shot', { level: 3 }, '+1 attack within 30ft'],
-        [
-          'Improved Initiative',
-          { human: 1 },
-          [['combat.initiative', { improved: 4 }]],
-        ],
-        ['Purify Magic', { class: 'cleric' }],
-        'Awesome Blow',
-      ],
-    })
-    expect(rows.split('\n')).toEqual([
-      '\\featrow{Lightning Reflexes}{Reflex +2}{Level 1}',
-      '\\featrow{Weapon Focus (Sickle)}{Sickle: Atk +1}{Fighter 2}',
-      '\\featrow{Hover}{move action to hover}{Hd 1}',
-      '\\featrow{Acrobatic}{Jump +2, Tumble +2}{Level 1}',
-      '\\featrow{Point Blank Shot}{+1 attack within 30ft}{Level 3}',
-      '\\featrow{Improved Initiative}{Initiative +4}{Human 1}',
-      '\\featrow{Purify Magic}{}{Cleric}',
-      '\\featrow{Awesome Blow}{}{}',
-    ])
-  })
+describe('buildAbilitySummaryRows', () => {
+  // A row's entries, with the ties inside each entry read back as spaces.
+  const read = (rows: string) => rows.replaceAll('\\listtie ', ' ').split('\n')
 
-  it('drops what goes without saying from the documented effect shape', () => {
-    const rows = buildFeatRows({
-      feats: [
-        [
-          'Weapon Focus (Longsword)',
-          { fighter: 1 },
-          [
-            [
-              'combat.attack.melee.longsword[0]',
-              { 'weapon-focus-longsword': 1 },
-            ],
-          ],
-        ],
-        [
-          'Weapon Specialization (Bastard Sword)',
-          { level: 6 },
-          ['combat.attack.melee.bastard-sword', { dmg: 2 }],
-        ],
-        [
-          'Blind-Fight',
-          { level: 1 },
-          [
-            ['combat.attack.melee._', 'Blind Fight: reroll concealment misses'],
-            ['movement.special', 'Blind Fight: 1/2 penalty when unable to see'],
-          ],
-        ],
-      ],
-    })
-    // The bonus key names the feat and the notes open with it, so neither
-    // is repeated; a channel (dmg) is.
-    expect(rows.split('\n')).toEqual([
-      '\\featrow{Weapon Focus (Longsword)}{Longsword +1}{Fighter 1}',
-      '\\featrow{Weapon Specialization (Bastard Sword)}{Bastard Sword: Dmg +2}{Level 6}',
-      '\\featrow{Blind-Fight}{reroll concealment misses; 1/2 penalty when unable to see}{Level 1}',
-    ])
-  })
-
-  it('marks a sheet with no feats', () => {
-    expect(buildFeatRows({})).toBe('\\featnone')
-  })
-})
-
-describe('class and special abilities', () => {
-  const classes = new Set(['ranger', 'rogue', 'cleric'])
-
-  it('heads every class with its level, in level order, even one with no abilities', () => {
-    const rows = buildClassAbilityRows(
+  it('condenses each group to names and short details, parted by diamonds', () => {
+    const rows = buildAbilitySummaryRows(
       {
+        feats: [
+          ['Lightning Reflexes', { level: 1 }, ['combat.saves.reflex', 2]],
+          ['Point Blank Shot', { level: 3 }, '+1 attack within 30ft'],
+          'Awesome Blow',
+        ],
         'class-abilities': {
-          rogue: ['Evasion'],
-          ranger: ['Track', 'Favored Enemy: Humans, Giants'],
+          rogue: ['Sneak Attack +2d6', 'Evasion'],
+          ranger: [
+            'Track',
+            'Favored Enemy: Humans, Giants (+4 bonus to Bluff, Listen, Sense Motive, Spot, Survival, and weapon damage)',
+          ],
         },
+        racial: ['Darkvision 60 ft', 'Dazzled in Sunlight: -1 attack'],
+        proficiencies: ['Simple Weapons', 'All Shields (including tower)'],
+        languages: ['Common'],
+        senses: ['Darkvision 60 ft'],
       },
       { xp: 91417, hd: [13], ranger: [6], fighter: [3], rogue: [4] },
     )
-    expect(rows.split('\n')).toEqual([
-      '\\traitgroup{Ranger 6}',
-      '\\traitrow{Track}{}',
-      '\\traitrow{Favored Enemy}{Humans, Giants}',
-      '\\traitgroup{Fighter 3}',
-      '\\traitgroup{Rogue 4}',
-      '\\traitrow{Evasion}{}',
+    // Every class is headed by its level, in level order, even Fighter with
+    // no abilities; languages and senses are printed elsewhere.
+    expect(read(rows)).toEqual([
+      '\\listrow{Racial}{Darkvision 60 ft\\notesep Dazzled in Sunlight (-1 attack)}',
+      '\\listrow{Ranger 6}{Track\\notesep Favored Enemy (Humans, Giants)}',
+      '\\listrow{Fighter 3}{}',
+      '\\listrow{Rogue 4}{Sneak Attack +2d6\\notesep Evasion}',
+      '\\listrow{Feats}{Lightning Reflexes\\notesep Point Blank Shot\\notesep Awesome Blow}',
+      '\\listrow{Proficiencies}{Simple Weapons\\notesep All Shields (including tower)}',
     ])
   })
 
-  it('reads abilities keyed by name, with their detail', () => {
-    const rows = buildClassAbilityRows(
-      {
-        'class-abilities': {
-          'turn-undead': '(+3) 4/day, 2d6+10 HD',
-          domains: { good: '+1 Caster Level', trickery: 'Bluff' },
-          'blessing-of-the-silver-heaven': [
-            'Electricity resistance 10',
-            'Magic Circle',
-          ],
-          'celestial-spells': true,
-        },
-      },
-      {},
+  it('ties the words of an entry, so a line breaks between entries', () => {
+    expect(
+      buildAbilitySummaryRows({ feats: ['Point Blank Shot', 'Dodge'] }, {}),
+    ).toBe(
+      '\\listrow{Feats}{Point\\listtie Blank\\listtie Shot\\notesep Dodge}',
     )
-    expect(rows.split('\n')).toEqual([
-      '\\stackopen',
-      '\\traitrow{Turn Undead}{(+3) 4/day, 2d6+10 HD}',
-      '\\traitrow{Domains}{Good +1 Caster Level, Trickery Bluff}',
-      '\\traitrow{Blessing Of The Silver Heaven}{Electricity resistance 10; Magic Circle}',
-      '\\traitrow{Celestial Spells}{}',
-    ])
   })
 
-  it('splits a trait at a closing parenthetical, but keeps (Su) with its name', () => {
-    const rows = buildSpecialAbilityRows(
+  it('trims a long detail at a word when it has no parenthetical to drop', () => {
+    const rows = buildAbilitySummaryRows(
       {
-        qualities: [
-          'Keen Senses (2x normal illumination)',
+        racial: [
+          'Keen Senses: twice normal illumination, four times in shadowy places',
           'Rock Catching (Ex)',
         ],
       },
-      classes,
+      {},
     )
-    expect(rows.split('\n')).toEqual([
-      '\\traitgroup{Qualities}',
-      '\\traitrow{Keen Senses}{2x normal illumination}',
-      '\\traitrow{Rock Catching (Ex)}{}',
+    expect(read(rows)).toEqual([
+      '\\listrow{Racial}{Keen Senses (twice normal illumination, four times in…)\\notesep Rock Catching (Ex)}',
     ])
   })
 
-  it('groups every other special key, leaving out feats, proficiencies, languages and senses', () => {
-    const rows = buildSpecialAbilityRows(
+  it('names an entry with effects, and an ability keyed by name with a short detail', () => {
+    const rows = buildAbilitySummaryRows(
       {
-        feats: [['Dodge', { level: 1 }]],
-        'class-features': ['Woodland Stride'],
-        'ranger-bonus': [['Track', { ranger: 1 }]],
-        racial: ['Darkvision 60 ft'],
+        'ranger-bonus': [['Rapid Shot', { 'combat-style': 2 }]],
         'storm-giant': [
           ['Enhanced Swimming', [['skills.swim', '+8 for special actions']]],
         ],
-        proficiencies: ['Simple Weapons'],
-        languages: ['Common'],
-        senses: ['Darkvision 60ft'],
+        'class-abilities': {
+          'turn-undead': '(+3) 4/day, 2d6+10 HD',
+          domains: { good: '+1 Caster Level', trickery: 'Bluff' },
+          'blessing-of-the-silver-heaven': ['Electricity resistance 10'],
+          'celestial-spells': true,
+        },
       },
-      classes,
+      { cleric: [9] },
     )
-    expect(rows.split('\n')).toEqual([
-      '\\traitgroup{Ranger Bonus}',
-      '\\traitrow{Track}{Ranger 1}',
-      '\\traitgroup{Racial}',
-      '\\traitrow{Darkvision 60 ft}{}',
-      '\\traitgroup{Storm Giant}',
-      '\\traitrow{Enhanced Swimming}{Swim: +8 for special actions}',
+    // With one class, abilities not grouped by class are that class's.
+    expect(read(rows)).toEqual([
+      '\\listrow{Ranger Bonus}{Rapid Shot}',
+      '\\listrow{Storm Giant}{Enhanced Swimming}',
+      '\\listrow{Cleric 9}{Turn Undead (+3) 4/day, 2d6+10 HD\\notesep Domains (Good, Trickery)\\notesep Blessing Of The Silver Heaven\\notesep Celestial Spells}',
     ])
   })
 
-  it('closes class abilities with the proficiencies', () => {
-    const rows = buildClassAbilityRows(
-      {
-        'class-features': ['Woodland Stride'],
-        proficiencies: ['Simple Weapons', 'All Shields (including tower)'],
-      },
-      {},
+  it('gives abilities not grouped by class a row of their own when there are several classes', () => {
+    const rows = buildAbilitySummaryRows(
+      { 'class-features': ['Woodland Stride'] },
+      { cleric: [9], 'mystic-theurge': [3] },
     )
-    expect(rows.split('\n')).toEqual([
-      '\\stackopen',
-      '\\traitrow{Woodland Stride}{}',
-      '\\traitgroup{Proficiencies}',
-      '\\traitrow{Simple Weapons}{}',
-      '\\traitrow{All Shields}{including tower}',
+    expect(read(rows)).toEqual([
+      '\\listrow{Class Abilities}{Woodland Stride}',
+      '\\listrow{Cleric 9}{}',
+      '\\listrow{Mystic Theurge 3}{}',
     ])
+  })
+
+  it('escapes each entry', () => {
+    expect(buildAbilitySummaryRows({ racial: ['50% miss chance'] }, {})).toBe(
+      '\\listrow{Racial}{50\\%\\listtie miss\\listtie chance}',
+    )
   })
 
   it('marks a sheet with none', () => {
-    expect(buildClassAbilityRows({ racial: ['Low-light Vision'] }, {})).toBe(
-      '\\traitnone',
+    expect(buildAbilitySummaryRows({ languages: ['Common'] }, {})).toBe(
+      '\\nonerow{2}',
     )
+  })
+})
+
+describe('buildConditionalsBlock', () => {
+  it('prints each conditional under its title-cased key', () => {
+    const block = buildConditionalsBlock({
+      'dazzled-in-sunlight': '-1 attack, Spot, Search',
+      'point-blank-shot': '+1 attack and damage within 30ft',
+    })
+    expect(block.split('\n')).toEqual([
+      '\\blockrule',
+      '\\begin{actionblock}{Conditionals}',
+      '\\actionrow{Dazzled In Sunlight}{-1 attack, Spot, Search}',
+      '\\actionrow{Point Blank Shot}{+1 attack and damage within 30ft}',
+      '\\end{actionblock}',
+    ])
+  })
+
+  it('escapes the text', () => {
+    expect(buildConditionalsBlock({ blur: '20% miss chance' })).toContain(
+      '\\actionrow{Blur}{20\\% miss chance}',
+    )
+  })
+
+  it('leaves the block out when there are none', () => {
+    expect(buildConditionalsBlock(undefined)).toBe('')
+    expect(buildConditionalsBlock({})).toBe('')
   })
 })
 
@@ -418,6 +364,87 @@ describe('buildAttackOptionRows', () => {
       '\\traitrow{Dazzled in Sunlight}{-1 attack}',
       '\\traitgroup{Items}',
       '\\traitrow{Silver Sheen}{}',
+    ])
+  })
+
+  it('reads each shape of feat effect the data uses', () => {
+    const rows = buildAttackOptionRows(
+      {
+        feats: [
+          [
+            'Weapon Focus (Sickle)',
+            { fighter: 2 },
+            ['combat.attack.melee.sickle', { atk: 1 }],
+          ],
+          ['Improved Grapple', { level: 6 }, ['combat.attack.grapple', 4]],
+          ['Power Critical', { fighter: 10 }, [{ 'confirm-crit': 4 }]],
+          ['Point Blank Shot', { level: 3 }, '+1 attack within 30ft'],
+          [
+            'Weapon Focus (Longsword)',
+            { fighter: 1 },
+            [
+              [
+                'combat.attack.melee.longsword[0]',
+                { 'weapon-focus-longsword': 1 },
+              ],
+            ],
+          ],
+          [
+            'Blind-Fight',
+            { level: 1 },
+            [
+              [
+                'combat.attack.melee._',
+                'Blind Fight: reroll concealment misses',
+              ],
+            ],
+          ],
+          'Awesome Blow',
+        ],
+      },
+      classes,
+      {},
+    )
+    // A bonus key named for the feat, and a note opening with its name, are
+    // not repeated.
+    expect(rows.split('\n')).toEqual([
+      '\\traitgroup{Feats}',
+      '\\traitrow{Weapon Focus (Sickle)}{Sickle: Atk +1}',
+      '\\traitrow{Improved Grapple}{Grapple +4}',
+      '\\traitrow{Power Critical}{Confirm Crit +4}',
+      '\\traitrow{Point Blank Shot}{+1 attack within 30ft}',
+      '\\traitrow{Weapon Focus (Longsword)}{Longsword +1}',
+      '\\traitrow{Blind-Fight}{reroll concealment misses}',
+      '\\traitrow{Awesome Blow}{}',
+    ])
+  })
+
+  it('leaves what the Conditionals print to them', () => {
+    const rows = buildAttackOptionRows(
+      {
+        feats: [
+          ['Point Blank Shot', { level: 3 }, '+1 attack within 30ft'],
+          ['Power Attack', { level: 1 }],
+        ],
+        'class-abilities': { rogue: ['Sneak Attack +2d6'] },
+        racial: ['Dazzled in Sunlight: -1 attack'],
+      },
+      classes,
+      {
+        equipped: [
+          ['Silver Sheen', 1, 'supplies', '0.1 lbs', 2, {}, ['combat-offense']],
+        ],
+      },
+      new Set([
+        'point-blank-shot',
+        'dazzled-in-sunlight',
+        'sneak-attack',
+        'silver-sheen',
+      ]),
+    )
+    expect(rows.split('\n')).toEqual([
+      '\\traitgroup{Feats}',
+      '\\traitrow{Power Attack}{}',
     ])
   })
 

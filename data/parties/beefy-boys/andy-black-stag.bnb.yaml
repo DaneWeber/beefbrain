@@ -201,9 +201,19 @@ character:
       - [Heavy Warhorse named Obad-Hai, 1, mount, 0 lbs, 38]
       - [Military Saddle plus bit/bridle/saddlebags, 1, gear, 4 lbs, 39]
   view-notes:
-    combat-offense: "Favored Enemy: Humans, Giants (+4 Bluff, Listen, Sense Motive, Spot, Survival, weapon damage)"
+    combat-offense: "Favored Enemy: Humans, Giants (+4 Bluff, Listen, Sense Motive, Spot, Survival, weapon damage); Improved Grapple: no AoO to start a grapple"
     movement: "Dimension Stride Boots (5 charges: 1/20ft, 3/40ft, 5/60ft)"
-    combat-defense: Vanisher Cloak (3 charges/day invisibility); Deathward 1/day
+    combat-defense: "Vanisher Cloak (3 charges/day invisibility); Deathward 1/day; Evasion: no damage on a successful Reflex save for half; Two-Weapon Defense: Shield +1 while wielding two weapons (+2 fighting defensively)"
   notes:
     devotee: Obad-Hai, Pelor
     human-until-level-10: Was Human until level 10, then became Orc
+  spell-like-abilities:
+    spiritual-connection:
+      speak-with-animals-or-plants: [3/day]
+  conditionals:
+    dazzled-in-sunlight: -1 attack, Spot, Search in bright sunlight or daylight
+    point-blank-shot: +1 ranged attack and damage within 30ft
+    trap-sense: +1 Reflex and dodge AC vs. traps
+    trap-finding: Search for traps over DC 20; Disable Device on magic traps
+    track: Survival to find and follow tracks
+    endurance: +4 to run, swim, hold breath, and resist hunger, thirst, heat, cold, forced march; sleep in medium armor

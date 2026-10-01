@@ -106,6 +106,42 @@ not compete with it for attention.
   Inventory and spell-sheet pages keep their existing single-column structure but inherit the same
   landscape/14pt setting.
 
+#### Where a trait, ability or feat is printed
+
+Every racial trait, class ability and feat is printed in full where it is used, and only named on
+the Build page:
+
+1. In a calculated value's sources, when it changes a total (Improved Initiative under Initiative,
+   Lightning Reflexes under Reflex).
+2. In a block's notes, under its table, when it bears on the block without changing a total
+   (Improved Grapple's "no AoO" under Attack, beside the +4 in Grapple's sources). These come from
+   `view-notes`.
+3. In the Actions page's **Conditionals** block, when it is a modifier that applies only in some
+   situations. These come from `character.conditionals`, a record of slug → text written by hand;
+   nothing is guessed from a trait's text:
+
+   ```yaml
+   conditionals:
+     dazzled-in-sunlight: -1 attack, Spot, Search in bright sunlight or daylight
+     point-blank-shot: +1 ranged attack and damage within 30ft
+   ```
+
+   Each entry is a row, its title-cased key ("Dazzled In Sunlight") beside its text. The key is the
+   slugged name of the trait, feat, ability or item it comes from, or the start of that name
+   (`trap-sense` for "Trap Sense +1"). A sheet with no conditionals prints no block.
+4. In another table of the Actions page: Attack Options (feats, abilities and items that bear on an
+   attack, picked out by their effects and text), Spell-Like Abilities, the weapon tables.
+
+An entry named by a conditional is left out of Attack Options, so nothing is printed twice there:
+the conditional was written for the purpose, where Attack Options is a guess.
+
+The Build page's **Abilities & Feats** block condenses the lists to one row per group: each source
+of special abilities (`racial`, a template's abilities), each class headed by its level
+("Ranger 6", even a class with nothing recorded), the feats and the proficiencies. Each entry is
+its name and a short detail, the part after a colon or in a closing parenthetical, trimmed when
+long ("Favored Enemy (Humans, Giants)"), and entries are parted by small blue diamonds as a
+block's notes are.
+
 ### `dnd35-spellcaster`
 - Keep same final+component grammar as other variants.
 - Allocate extra space to casting-critical metrics (DC contributors, concentration-adjacent values, caster-level context).
