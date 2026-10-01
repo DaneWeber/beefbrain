@@ -87,7 +87,7 @@ ${EMOJI_ON}
   \put(\LenToUnit{0.25in},\LenToUnit{0.25in}){%
     \makebox(\LenToUnit{\spinewidth},\LenToUnit{\textheight}){%
       \rotatebox{90}{\makebox[\textheight]{\hspace{\spinepad}%
-        \rlap{\normalsize\inlineicon{game-die}{{character.player}}}\hfill
+        \rlap{\normalsize\inlineicon{dragon}{{character.player}}}\hfill
         {\large\bfseries {{character.name}}}\hfill
         \llap{\large\bfseries\sheettitle}\hspace{\spinepad}}}}}}}
 \AddToShipoutPictureBG{\sheetspine}
@@ -382,7 +382,7 @@ ${EMOJI_ON}
 \fitblock{\textheight}{%
 \begin{sheetblock}{Init}
 \begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
-\statrow{high-voltage}{Initiative}{ {{combat.initiative}} }{ {{combat.initiative.sources}} }
+\statrow{stopwatch}{Initiative}{ {{combat.initiative}} }{ {{combat.initiative.sources}} }
 {{{combat.initiativeSpecialRows}}}
 \end{tabular}
 \end{sheetblock}
@@ -400,9 +400,9 @@ ${EMOJI_ON}
 \blockrule
 \begin{sheetblock}{Saves}
 \begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
-\statrow{castle}{Fortitude}{ {{saves.fortitude}} }{ {{saves.fortitude.sources}} }
-\statrow{dashing-away}{Reflex}{ {{saves.reflex}} }{ {{saves.reflex.sources}} }
-\statrow{lion}{Will}{ {{saves.will}} }{ {{saves.will.sources}} }
+\statrow{nauseated-face}{Fortitude}{ {{saves.fortitude}} }{ {{saves.fortitude.sources}} }
+\statrow{face-with-open-mouth}{Reflex}{ {{saves.reflex}} }{ {{saves.reflex.sources}} }
+\statrow{smiling-face-with-heart-eyes}{Will}{ {{saves.will}} }{ {{saves.will.sources}} }
 {{{saves.specialRows}}}
 \end{tabular}
 \end{sheetblock}
@@ -421,9 +421,9 @@ ${EMOJI_ON}
 \begin{sheetblock}{Movement}
 \begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
 \statrow{anchor}{ACP}{ {{combat.acp}} }{ {{combat.acp.sources}} }
-\statrow{safety-vest}{Max Dex}{ {{combat.maxDex}} }{ {{combat.maxDex.sources}} }
-\statrow{person-running}{Speed}{ {{movement.speed}} }{ {{movement.speed.sources}} }
-\statrow{running-shoe}{Run}{ {{movement.run}} }{ {{movement.run.sources}} }
+\statrow{anchor}{Max Dex}{ {{combat.maxDex}} }{ {{combat.maxDex.sources}} }
+\statrow{person-walking}{Speed}{ {{movement.speed}} }{ {{movement.speed.sources}} }
+\statrow{person-running}{Run}{ {{movement.run}} }{ {{movement.run.sources}} }
 {{{movement.specialRows}}}
 \end{tabular}
 \end{sheetblock}
@@ -510,7 +510,7 @@ ${EMOJI_ON}
 \setstackwidths
 \begin{sheetblock}{Description}
 \begin{tabular}{L{0.25\linewidth}L{0.195\linewidth}L{0.25\linewidth}L{0.195\linewidth}}
-\descrow{dna}{Race}{ {{character.race}} }{yin-yang}{Alignment}{ {{character.alignment}} }
+\descrow{dna}{Race}{ {{character.race}} }{smiling-face-with-halo}{Alignment}{ {{character.alignment}} }
 \descrow{crossed-swords}{Classes}{ {{character.classes}} }{level-slider}{Level}{ {{character.level}} }
 \descrow{nesting-dolls}{Size}{ {{character.size}} }{transgender-symbol}{Sex}{ {{character.sex}} }
 \descrow{hourglass-not-done}{Age}{ {{character.age}} }{straight-ruler}{Height}{ {{character.height}} }
