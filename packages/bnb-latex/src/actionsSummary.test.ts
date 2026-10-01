@@ -215,21 +215,22 @@ describe('buildFeatRows', () => {
 describe('class and special abilities', () => {
   const classes = new Set(['ranger', 'rogue', 'cleric'])
 
-  it('heads class-keyed lists by class', () => {
+  it('heads every class with its level, in level order, even one with no abilities', () => {
     const rows = buildClassAbilityRows(
       {
         'class-abilities': {
-          ranger: ['Track', 'Favored Enemy: Humans, Giants'],
           rogue: ['Evasion'],
+          ranger: ['Track', 'Favored Enemy: Humans, Giants'],
         },
       },
-      classes,
+      { xp: 91417, hd: [13], ranger: [6], fighter: [3], rogue: [4] },
     )
     expect(rows.split('\n')).toEqual([
-      '\\traitgroup{Ranger}',
+      '\\traitgroup{Ranger 6}',
       '\\traitrow{Track}{}',
       '\\traitrow{Favored Enemy}{Humans, Giants}',
-      '\\traitgroup{Rogue}',
+      '\\traitgroup{Fighter 3}',
+      '\\traitgroup{Rogue 4}',
       '\\traitrow{Evasion}{}',
     ])
   })
@@ -247,7 +248,7 @@ describe('class and special abilities', () => {
           'celestial-spells': true,
         },
       },
-      classes,
+      {},
     )
     expect(rows.split('\n')).toEqual([
       '\\stackopen',
@@ -306,7 +307,7 @@ describe('class and special abilities', () => {
         'class-features': ['Woodland Stride'],
         proficiencies: ['Simple Weapons', 'All Shields (including tower)'],
       },
-      classes,
+      {},
     )
     expect(rows.split('\n')).toEqual([
       '\\stackopen',
@@ -318,9 +319,9 @@ describe('class and special abilities', () => {
   })
 
   it('marks a sheet with none', () => {
-    expect(
-      buildClassAbilityRows({ racial: ['Low-light Vision'] }, classes),
-    ).toBe('\\traitnone')
+    expect(buildClassAbilityRows({ racial: ['Low-light Vision'] }, {})).toBe(
+      '\\traitnone',
+    )
   })
 })
 

@@ -504,6 +504,8 @@ interface TraitGroup {
   rows: [string, string][]
   /** Each row's data as written, to tell what the row is about. */
   entries: unknown[]
+  /** Print the header even with no rows under it: a class with no abilities. */
+  keepEmpty?: boolean
 }
 
 /**
@@ -546,7 +548,7 @@ function traitGroups(
 
 function traitRows(groups: TraitGroup[]): string {
   return groups
-    .filter((group) => group.rows.length > 0)
+    .filter((group) => group.rows.length > 0 || group.keepEmpty)
     .map((group) =>
       [
         group.title ? macro('traitgroup', [group.title]) : '\\stackopen',
@@ -563,18 +565,40 @@ const NOT_ABILITY_KEYS = new Set(['feats', 'proficiencies', 'languages'])
 const CLASS_ABILITY_KEYS = new Set(['class-abilities', 'class-features'])
 
 /**
- * The Class Abilities rows: `\\traitgroup` headers and `\\traitrow`s. Rows
- * the data groups by class are headed by the class. Proficiencies close the
- * block as a group of their own: most come from a class, though the data
- * does not yet say which.
+ * The Class Abilities rows: `\\traitgroup` headers and `\\traitrow`s. Every
+ * class the character has levels in is headed by its name and level
+ * ("Ranger 6"), in the order `levels` lists them, even one with no abilities
+ * recorded, so the block also says what the classes are. Abilities the data
+ * does not group by class come first. Proficiencies close the block as a
+ * group of their own: most come from a class, though the data does not yet
+ * say which.
  */
 export function buildClassAbilityRows(
   special: Record<string, unknown>,
-  classes: Set<string>,
+  levels: Record<string, unknown>,
 ): string {
-  const groups = Object.entries(special)
+  const classes = getClassNames(levels)
+  const found = Object.entries(special)
     .filter(([key]) => CLASS_ABILITY_KEYS.has(key))
     .flatMap(([, value]) => traitGroups('', value, classes))
+  const byClass = new Map(
+    [...classes].map((key) => [formatTitleKey(key), key] as const),
+  )
+  const classGroups = [...classes].map((key): TraitGroup => {
+    const title = formatTitleKey(key)
+    const group = found.find((entry) => entry.title === title)
+    const level = getArrayFirst(levels[key])
+    return {
+      title: level === '' ? title : `${title} ${String(level)}`,
+      rows: group?.rows ?? [],
+      entries: group?.entries ?? [],
+      keepEmpty: true,
+    }
+  })
+  const groups = [
+    ...found.filter((group) => !byClass.has(group.title)),
+    ...classGroups,
+  ]
   if (Array.isArray(special.proficiencies)) {
     groups.push({
       title: 'Proficiencies',

@@ -3,6 +3,7 @@ import { resolve } from 'path'
 import { describe, expect, it } from 'vitest'
 import { renderLatex } from './renderLatex'
 import { LatexGenerationError } from './errors'
+import { BNB_LATEX_VERSION } from './version'
 
 const VALID_YAML = readFileSync(
   resolve(__dirname, '../../bnb-core/src/examples/final/dnd35-fighter-1.yaml'),
@@ -15,7 +16,7 @@ describe('renderLatex', () => {
     expect(result.template.key).toBe('dnd35-detailed')
     expect(result.latex).toContain('\\setmainfont{Atkinson Hyperlegible Next}')
     expect(result.latex).toContain('Landorf the Human Fighter')
-    expect(result.latex).toContain('fighter 1')
+    expect(result.latex).toContain('\\traitgroup{Fighter 1}')
     expect(result.latex).toContain('\\renewcommand{\\sheettitle}{Inventory}')
     expect(result.latex).toContain('\\renewcommand{\\sheettitle}{Spells}')
   })
@@ -51,6 +52,48 @@ describe('renderLatex', () => {
     expect(result.latex).toContain('Light load & up to 58 lbs')
     expect(result.latex).toContain('longsword')
     expect(result.latex).toContain('Appraise')
+  })
+
+  it('signs initiative like every other bonus', () => {
+    const { latex } = renderLatex({ yaml: VALID_YAML })
+    expect(latex).toContain('\\statrow{stopwatch}{Initiative}{ +5 }')
+  })
+
+  it('opens the skills with the armor check penalty and its sources', () => {
+    const { latex } = renderLatex({ yaml: VALID_YAML })
+    const rows = latex
+      .split('\n')
+      .filter((line) => line.startsWith('\\skillrow'))
+    expect(rows[0]).toBe('\\skillrow{anchor}{ACP}{-4}{}{Armor -2, Shield -2}')
+  })
+
+  it('leaves out the ACP row for a character with no penalty', () => {
+    const { latex } = renderLatex({
+      yaml: readFileSync(
+        resolve(
+          __dirname,
+          '../../../data/parties/beefy-boys/andy-black-stag.bnb.yaml',
+        ),
+        'utf-8',
+      ),
+    })
+    expect(latex).toContain('\\skillrow{gem-stone}{Appraise}')
+    expect(latex).not.toContain('{ACP}')
+  })
+
+  it('prints the bnb-latex version and the day it was made in the corner', () => {
+    const { latex } = renderLatex({
+      yaml: VALID_YAML,
+      generatedAt: new Date(2026, 9, 1),
+    })
+    expect(latex).toContain(`bnb-latex ${BNB_LATEX_VERSION}, 2026-10-01`)
+  })
+
+  it('keeps its version in step with package.json', () => {
+    const pkg = JSON.parse(
+      readFileSync(resolve(__dirname, '../package.json'), 'utf-8'),
+    ) as { version: string }
+    expect(BNB_LATEX_VERSION).toBe(pkg.version)
   })
 
   it('puts the Actions page between Stats and Build', () => {

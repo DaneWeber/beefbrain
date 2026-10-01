@@ -10,6 +10,7 @@ import { DEFAULT_TEMPLATE_KEY, getTemplateRecord } from './templates/registry'
 import { renderTemplate, escapeLatexText } from './renderTemplate'
 import { getSkillIcon } from './skillIcons'
 import { formatTitleKey } from './text'
+import { BNB_LATEX_VERSION } from './version'
 import {
   extractBreakdown,
   formatComponentKey,
@@ -206,7 +207,7 @@ function formatSkills(
  * using this field define `\skillrow`.
  */
 function buildSkillsTableRows(skills: Record<string, unknown>): string {
-  return Object.entries(skills)
+  const rows = Object.entries(skills)
     .filter(([key]) => !key.startsWith('_'))
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([skillName, skillValue]) => {
@@ -236,7 +237,21 @@ function buildSkillsTableRows(skills: Record<string, unknown>): string {
       const sourcesCell = escapeLatexText(sources)
       return `\\skillrow{${icon}}{${name}}{${formatSigned(total)}}{${formatSigned(preAcp)}}{${sourcesCell}}`
     })
-    .join('\n')
+  // The armor check penalty opens the list, alphabetically where it falls
+  // anyway: its own bonus, nothing to take it out of, and what it comes from.
+  // A character with none has no row for it.
+  const acp = Number(getArrayFirst(skills._acp))
+  if (Number.isFinite(acp) && acp !== 0) {
+    const sources = escapeLatexText(formatSources(skills._acp))
+    rows.unshift(`\\skillrow{anchor}{ACP}{${formatSigned(acp)}}{}{${sources}}`)
+  }
+  return rows.join('\n')
+}
+
+// The day a sheet was made, as YYYY-MM-DD in local time.
+function formatDate(date: Date): string {
+  const pad = (value: number) => String(value).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 }
 
 // The twelve magic item body slots, head to toe, as a printed sheet reads,
@@ -596,7 +611,7 @@ function getClassSummary(characterData: Record<string, unknown>): string {
   return classPairs.length > 0 ? classPairs.join(' / ') : 'Unknown'
 }
 
-function buildFieldMap(data: BeefBrainData): LatexFieldMap {
+function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
   const characterData =
     ((data.character ?? {}) as Record<string, unknown>) || {}
   const description = (characterData.description ?? {}) as Record<
@@ -629,6 +644,7 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     viewNotes[key] === undefined ? [] : [[label, viewNotes[key]]]
 
   return {
+    'sheet.generated': `bnb-latex ${BNB_LATEX_VERSION}, ${formatDate(generatedAt)}`,
     'character.name': String(description.name ?? 'Unknown'),
     'character.player': String(description.player ?? 'Unknown'),
     'character.race': String(description.race ?? 'Unknown'),
@@ -650,7 +666,7 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'build.levelRows': buildLevelRows(hpContainer, skillsContainer),
     'build.noteRows': buildNoteRows(characterData.notes),
     'build.featsTable': buildFeatRows(special),
-    'build.classAbilitiesTable': buildClassAbilityRows(special, classes),
+    'build.classAbilitiesTable': buildClassAbilityRows(special, hpContainer),
     'build.specialAbilitiesTable': buildSpecialAbilityRows(special, classes),
     'character.classes': getClassSummary(characterData),
     'character.level': getCharacterLevel(hpContainer),
@@ -697,7 +713,7 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'combat.acp.sources': formatSources(skillsContainer._acp),
     'combat.maxDex': getArrayFirst(defense['max-dex']),
     'combat.maxDex.sources': formatSources(defense['max-dex']),
-    'combat.initiative': getArrayFirst(combat.initiative),
+    'combat.initiative': formatSignedTotal(combat.initiative),
     'combat.initiative.breakdown': formatBreakdown(combat.initiative),
     'combat.initiative.sources': formatSources(combat.initiative),
     'combat.initiativeSpecialRows': buildSpecialRows(
@@ -834,7 +850,7 @@ export function renderLatex(input: RenderLatexInput): RenderLatexResult {
   const templateToRender = input.templateContent ?? templateRecord.template
   const calculatedYaml = updateCalculatedFields(input.yaml)
   const parsedData = yaml.load(calculatedYaml) as BeefBrainData
-  const fields = buildFieldMap(parsedData)
+  const fields = buildFieldMap(parsedData, input.generatedAt ?? new Date())
 
   return {
     latex: renderTemplate(templateToRender, fields),

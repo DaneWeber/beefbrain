@@ -5,7 +5,7 @@ import {
   getArrayFirst,
   toRecord,
 } from './components'
-import { formatDetail, isRecord, macro } from './actionsSummary'
+import { formatDetail, getClassNames, isRecord, macro } from './actionsSummary'
 
 // Rows for the parts of a sheet that vary most between characters: a
 // block's optional extras (Ben's fly speed, Mike's DR), languages, money,
@@ -160,8 +160,24 @@ export function formatHitDice(hd: unknown): string {
 }
 
 /**
- * The Build page's Level block: XP, ECL and level adjustment (each only when
- * the sheet has it), hit dice, max HP and skill points, each a `\statrow`.
+ * The effective character level: the sheet's `ecl` when it gives one (a
+ * template or level adjustment raises it), otherwise the class levels added
+ * up, which for most characters is the same thing.
+ */
+export function getEcl(levels: Record<string, unknown>): string {
+  if (levels.ecl !== undefined) {
+    return String(getArrayFirst(levels.ecl))
+  }
+  const total = [...getClassNames(levels)]
+    .map((key) => Number(getArrayFirst(levels[key])))
+    .filter(Number.isFinite)
+    .reduce((sum, level) => sum + level, 0)
+  return total > 0 ? String(total) : ''
+}
+
+/**
+ * The Build page's Level block: XP, ECL, level adjustment (only when the
+ * sheet has it), hit dice, max HP and skill points, each a `\statrow`.
  */
 export function buildLevelRows(
   levels: Record<string, unknown>,
@@ -169,15 +185,8 @@ export function buildLevelRows(
 ): string {
   const rows: string[][] = [
     ['glowing-star', 'XP', String(getArrayFirst(levels.xp)), ''],
+    ['chart-increasing', 'ECL', getEcl(levels), ''],
   ]
-  if (levels.ecl !== undefined) {
-    rows.push([
-      'chart-increasing',
-      'ECL',
-      String(getArrayFirst(levels.ecl)),
-      '',
-    ])
-  }
   if (levels['level-adjustment'] !== undefined) {
     rows.push([
       'heavy-plus-sign',
@@ -225,27 +234,28 @@ export function buildNoteRows(notes: unknown): string {
 }
 
 /**
- * One `\ammorow{name}{qty}{container}` per inventory item whose category is
- * `ammo`, from every container. The template leaves a column beside them
- * for marking off what is used. `\nonerow` for a sheet with none.
+ * The inventory items whose category is `ammo`, from every container: an
+ * `\ammogroup{container}` row for each container that holds any, then an
+ * `\ammorow{name}{qty}` per item in it. The template leaves a column beside
+ * them for marking off what is used. `\nonerow` for a sheet with none.
  */
 export function buildAmmoRows(inventory: unknown): string {
   const rows = Object.entries(toRecord(inventory))
     .filter(([key, value]) => !key.startsWith('_') && Array.isArray(value))
-    .flatMap(([container, items]) =>
-      (items as unknown[])
-        .filter(
-          (item): item is unknown[] =>
-            Array.isArray(item) &&
-            String(item[2] ?? '').toLowerCase() === 'ammo',
-        )
-        .map((item) =>
-          macro('ammorow', [
-            String(item[0] ?? ''),
-            String(item[1] ?? ''),
-            formatTitleKey(container),
-          ]),
+    .flatMap(([container, items]) => {
+      const ammo = (items as unknown[]).filter(
+        (item): item is unknown[] =>
+          Array.isArray(item) && String(item[2] ?? '').toLowerCase() === 'ammo',
+      )
+      if (ammo.length === 0) {
+        return []
+      }
+      return [
+        macro('ammogroup', [formatTitleKey(container)]),
+        ...ammo.map((item) =>
+          macro('ammorow', [String(item[0] ?? ''), String(item[1] ?? '')]),
         ),
-    )
-  return rows.length > 0 ? rows.join('\n') : '\\nonerow{4}'
+      ]
+    })
+  return rows.length > 0 ? rows.join('\n') : '\\nonerow{3}'
 }

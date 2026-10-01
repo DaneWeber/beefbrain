@@ -91,6 +91,10 @@ ${EMOJI_ON}
         {\large\bfseries {{character.name}}}\hfill
         \llap{\large\bfseries\sheettitle}\hspace{\spinepad}}}}}}}
 \AddToShipoutPictureBG{\sheetspine}
+% Which bnb-latex made the sheet, and when, in tiny type in the margin below
+% the spine: enough to tell an old printout from a new one.
+\AddToShipoutPictureBG{\AtPageLowerLeft{\put(\LenToUnit{0.25in},\LenToUnit{0.1in}){%
+  \fontsize{5pt}{6pt}\selectfont\textcolor{black!50}{ {{sheet.generated}} }}}}
 
 % Page 1 rows. The strut holds every row to one body line plus 3pt of
 % padding, split above and below the text. Two 6pt source lines (14pt) fit
@@ -306,15 +310,26 @@ ${EMOJI_ON}
 % A decorative break between blocks: a gray line a third of the column wide
 % with a small diamond at its middle, centred over the tables (not the
 % labels), with \blockrulepad above and below.
+% It divides two blocks in the same column and nothing else, so it is set as
+% leaders, which are glue: a column or page break discards it as it does any
+% space, rather than leaving it at the top of the next column. Nothing after
+% it is a place to break, so it never ends a column either.
 \newlength{\blockrulepad} \setlength{\blockrulepad}{6pt}
+\newsavebox{\blockrulebox}
 \newcommand{\blockrule}{%
-  \par\vspace{\blockrulepad}%
-  \noindent\hspace*{\blocklabel}%
-  \makebox[\dimexpr\linewidth-\blocklabel\relax]{\color{black!45}%
-    \rule[2pt]{\dimexpr\linewidth/6-4pt\relax}{0.6pt}%
-    \hspace{2pt}\raisebox{0.8pt}{\rotatebox[origin=c]{45}{\rule{3pt}{3pt}}}\hspace{2pt}%
-    \rule[2pt]{\dimexpr\linewidth/6-4pt\relax}{0.6pt}}%
-  \par\vspace{\blockrulepad}}
+  \par
+  \sbox{\blockrulebox}{\hspace*{\blocklabel}%
+    \makebox[\dimexpr\linewidth-\blocklabel\relax]{\color{black!45}%
+      \rule[2pt]{\dimexpr\linewidth/6-4pt\relax}{0.6pt}%
+      \hspace{2pt}\raisebox{0.8pt}{\rotatebox[origin=c]{45}{\rule{3pt}{3pt}}}\hspace{2pt}%
+      \rule[2pt]{\dimexpr\linewidth/6-4pt\relax}{0.6pt}}}%
+  % \cleaders, centred in its glue: plain \leaders aligns its box to a grid
+  % down the page, where a box exactly the glue's height rarely fits, and
+  % then draws nothing. \copy, not \usebox, which would start a paragraph.
+  \cleaders\vbox to \dimexpr\ht\blockrulebox+\dp\blockrulebox+2\blockrulepad\relax{%
+    \vss\copy\blockrulebox\vss}%
+    \vskip\dimexpr\ht\blockrulebox+\dp\blockrulebox+2\blockrulepad\relax
+  \nointerlineskip}
 
 % The actions page. Weapons: #1 name, #2 attack bonus, #3 damage, then #4
 % crit (ranged: #4 range, #5 crit), and last the sources of the attack and
@@ -324,9 +339,13 @@ ${EMOJI_ON}
 % grows to hold them.
 \newcommand{\meleerow}[5]{\rowstrut #1 & #2 & #3 & #4 & #5 \\}
 \newcommand{\rangedrow}[6]{\rowstrut #1 & #2 & #3 & #4 & #5 & #6 \\}
-% Ammunition: #1 name, #2 how many, #3 the container it is in. The last
-% column is left empty, for marking off what is used.
-\newcommand{\ammorow}[3]{\rowstrut #1 & #2 & {\footnotesize #3} & \\}
+% Ammunition, grouped by the container it is in, as the inventory is: #1
+% the container, in a darker row like the inventory's. Each piece of
+% ammunition: #1 name, #2 how many. The last column is left empty, for
+% marking off what is used.
+\newcommand{\ammogroup}[1]{\rowcolor{black!20}%
+  \multicolumn{3}{L{\dimexpr0.93\linewidth+4\tabcolsep\relax}}{\rowstrut\textbf{#1}} \\}
+\newcommand{\ammorow}[2]{\rowstrut #1 & #2 & \\}
 % A table with nothing in it: #1 its number of columns.
 \newcommand{\nonerow}[1]{\multicolumn{#1}{L{\dimexpr\linewidth-2\tabcolsep\relax}}{\rowstrut\textcolor{black!40}{None recorded}} \\}
 % Full attacks: #1 the routine, #2 its attacks.
@@ -414,14 +433,13 @@ ${EMOJI_ON}
 \statrow{shield}{AC}{ {{combat.ac}} }{ {{combat.ac.sources}} }
 \statrow{raised-hand}{Touch AC}{ {{combat.touchAc}} }{ {{combat.touchAc.sources}} }
 \statrow{astonished-face}{Flat-Footed AC}{ {{combat.flatFootedAc}} }{ {{combat.flatFootedAc.sources}} }
+\statrow{anchor}{Max Dex}{ {{combat.maxDex}} }{ {{combat.maxDex.sources}} }
 {{{combat.defenseSpecialRows}}}
 \end{tabular}
 \end{sheetblock}
 \blockrule
 \begin{sheetblock}{Movement}
 \begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
-\statrow{anchor}{ACP}{ {{combat.acp}} }{ {{combat.acp.sources}} }
-\statrow{anchor}{Max Dex}{ {{combat.maxDex}} }{ {{combat.maxDex.sources}} }
 \statrow{person-walking}{Speed}{ {{movement.speed}} }{ {{movement.speed.sources}} }
 \statrow{person-running}{Run}{ {{movement.run}} }{ {{movement.run.sources}} }
 {{{movement.specialRows}}}
@@ -484,8 +502,7 @@ ${EMOJI_ON}
 \end{sheetblock}
 \blockrule
 \begin{sheetblock}{Ammunition}
-\begin{tabular}{L{0.40\linewidth}R{0.10\linewidth}L{0.18\linewidth}L{0.25\linewidth}}
-\footnotesize Ammunition & \footnotesize Qty & \footnotesize Where & \footnotesize Used \\
+\begin{tabular}{L{0.50\linewidth}R{0.10\linewidth}L{0.33\linewidth}}
 {{{actions.ammoTable}}}
 \end{tabular}
 \end{sheetblock}
@@ -511,12 +528,11 @@ ${EMOJI_ON}
 \begin{sheetblock}{Description}
 \begin{tabular}{L{0.25\linewidth}L{0.195\linewidth}L{0.25\linewidth}L{0.195\linewidth}}
 \descrow{dna}{Race}{ {{character.race}} }{smiling-face-with-halo}{Alignment}{ {{character.alignment}} }
-\descrow{crossed-swords}{Classes}{ {{character.classes}} }{level-slider}{Level}{ {{character.level}} }
 \descrow{nesting-dolls}{Size}{ {{character.size}} }{transgender-symbol}{Sex}{ {{character.sex}} }
 \descrow{hourglass-not-done}{Age}{ {{character.age}} }{straight-ruler}{Height}{ {{character.height}} }
 \descrow{person-lifting-weights}{Weight}{ {{character.weight}} }{eye}{Eyes}{ {{character.eyes}} }
 \descrow{person-getting-haircut}{Hair}{ {{character.hair}} }{person-standing}{Build}{ {{character.build}} }
-\descrow{artist-palette}{Complexion}{ {{character.complexion}} }{performing-arts}{Template}{ {{character.template}} }
+\descrow{artist-palette}{Complexion}{ {{character.complexion}} }{}{}{}
 \end{tabular}
 \end{sheetblock}
 \blockrule

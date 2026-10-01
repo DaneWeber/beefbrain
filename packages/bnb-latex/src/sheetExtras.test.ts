@@ -128,11 +128,14 @@ describe('buildMoneyRows', () => {
 })
 
 describe('buildLevelRows', () => {
-  it('lists XP, hit dice, max HP and skill points', () => {
+  it('lists XP, ECL from the class levels, hit dice, max HP and skill points', () => {
     expect(
       buildLevelRows(
         {
           xp: 91417,
+          ranger: [6],
+          fighter: [3],
+          rogue: [4],
           hd: [13, { d8: 6, d10: 3, d6: 4 }],
           'max-hp': [89, { con: 26, rolls: 63 }],
         },
@@ -140,13 +143,14 @@ describe('buildLevelRows', () => {
       ).split('\n'),
     ).toEqual([
       '\\statrow{glowing-star}{XP}{91417}{}',
+      '\\statrow{chart-increasing}{ECL}{13}{}',
       '\\statrow{game-die}{Hit Dice}{13}{6d8, 3d10, 4d6}',
       '\\statrow{heart-with-ribbon}{Max HP}{89}{Con +26, Rolls +63}',
       '\\statrow{graduation-cap}{Skill Points}{119}{Fighter +11, Ranger +71, Rogue +37}',
     ])
   })
 
-  it('adds ECL and level adjustment only when the sheet has them', () => {
+  it("takes the sheet's ECL, and adds level adjustment only when it has one", () => {
     const rows = buildLevelRows(
       { xp: 93830, ecl: 14, hd: [10, 12], 'level-adjustment': 4 },
       {},
@@ -174,7 +178,7 @@ describe('buildNoteRows', () => {
 })
 
 describe('buildAmmoRows', () => {
-  it('lists the ammunition in every container, with where it is', () => {
+  it('lists the ammunition in every container, under the container', () => {
     expect(
       buildAmmoRows({
         _on: ['equipped', 'pack'],
@@ -187,15 +191,17 @@ describe('buildAmmoRows', () => {
       }),
     ).toBe(
       [
-        '\\ammorow{Arrows}{20}{Equipped}',
-        '\\ammorow{Arrows Cold Iron}{20}{Pack}',
+        '\\ammogroup{Equipped}',
+        '\\ammorow{Arrows}{20}',
+        '\\ammogroup{Pack}',
+        '\\ammorow{Arrows Cold Iron}{20}',
       ].join('\n'),
     )
   })
 
   it('marks a sheet with none', () => {
     expect(buildAmmoRows({ equipped: [['Dagger', 1, 'weapon']] })).toBe(
-      '\\nonerow{4}',
+      '\\nonerow{3}',
     )
   })
 })
