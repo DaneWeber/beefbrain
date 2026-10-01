@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildAmmoRows,
+  buildBlockNotes,
   buildLanguageRows,
   buildLevelRows,
   buildMoneyRows,
   buildNoteRows,
   buildSpecialRows,
+  splitNotes,
 } from './sheetExtras'
 
 describe('buildSpecialRows', () => {
@@ -203,5 +205,31 @@ describe('buildAmmoRows', () => {
     expect(buildAmmoRows({ equipped: [['Dagger', 1, 'weapon']] })).toBe(
       '\\nonerow{3}',
     )
+  })
+})
+
+describe('block notes', () => {
+  it('splits text at semicolons outside parentheses', () => {
+    expect(
+      splitNotes('Vanisher Cloak (3 charges/day; 1=4rds); Deathward 1/day'),
+    ).toEqual(['Vanisher Cloak (3 charges/day; 1=4rds)', 'Deathward 1/day'])
+  })
+
+  it('takes a list as one note per entry', () => {
+    expect(splitNotes(['Evasion', 'DR 10/silver; Improved Evasion'])).toEqual([
+      'Evasion',
+      'DR 10/silver',
+      'Improved Evasion',
+    ])
+  })
+
+  it('sets the notes under the table, parted by \\notesep', () => {
+    expect(buildBlockNotes('Deathward 1/day; 50% chance', ['Evasion'])).toBe(
+      '\\blocknotes{Deathward 1/day\\notesep 50\\% chance\\notesep Evasion}',
+    )
+  })
+
+  it('prints nothing for a block without notes', () => {
+    expect(buildBlockNotes(undefined, [])).toBe('')
   })
 })

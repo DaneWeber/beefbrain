@@ -6,6 +6,7 @@ import {
   toRecord,
 } from './components'
 import { formatDetail, getClassNames, isRecord, macro } from './actionsSummary'
+import { escapeLatexText } from './renderTemplate'
 
 // Rows for the parts of a sheet that vary most between characters: a
 // block's optional extras (Ben's fly speed, Mike's DR), languages, money,
@@ -74,6 +75,45 @@ export function buildSpecialRows(
       return macro('noterow', [width, label, text])
     })
     .join('\n')
+}
+
+/**
+ * Notes as the data writes them, one entry each: a list is one note per
+ * entry, and text is split at each semicolon outside parentheses, so
+ * "Vanisher Cloak (3 charges/day); Deathward 1/day" is two notes.
+ */
+export function splitNotes(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.flatMap(splitNotes)
+  }
+  const text = formatDetail(value)
+  const notes: string[] = []
+  let depth = 0
+  let start = 0
+  for (let index = 0; index < text.length; index++) {
+    const char = text[index]
+    if (char === '(') {
+      depth++
+    } else if (char === ')') {
+      depth = Math.max(0, depth - 1)
+    } else if (char === ';' && depth === 0) {
+      notes.push(text.slice(start, index))
+      start = index + 1
+    }
+  }
+  notes.push(text.slice(start))
+  return notes.map((note) => note.trim()).filter((note) => note)
+}
+
+/**
+ * A block's notes, set under its table as `\blocknotes{...}` with
+ * `\notesep` between them (a small blue diamond, or a bullet on the plain
+ * sheet). Each argument is anything `splitNotes` reads. Nothing at all for
+ * a block without notes.
+ */
+export function buildBlockNotes(...values: unknown[]): string {
+  const notes = values.flatMap(splitNotes).map(escapeLatexText)
+  return notes.length > 0 ? `\\blocknotes{${notes.join('\\notesep ')}}` : ''
 }
 
 /**

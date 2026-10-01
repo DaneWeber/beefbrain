@@ -137,6 +137,14 @@ ${EMOJI_ON}
 % \multicolumn has to open the row, so the strut goes inside it.
 \newcommand{\fullnoterow}[1]{%
   \multicolumn{3}{C{\dimexpr0.93\linewidth+4\tabcolsep\relax}}{\rowstrut #1} \\}
+% Notes under a block's table, for what bears on the block but is not a
+% total of its own: a charged item, a conditional bonus. #1 the notes, each
+% parted from the next by \notesep. Set small, unshaded, across the table's
+% width and in line with its text.
+\newcommand{\notesep}{\ifsheetemoji\ \emoji{small-blue-diamond}\ \else\ \textbullet\ \fi}
+\newcommand{\blocknotes}[1]{%
+  \par\vspace{2pt}%
+  {\footnotesize\leftskip\tabcolsep\rightskip\tabcolsep plus 1fil\noindent #1\par}}
 % A label and a note set small beside it, in a two-column table: the Build
 % page's notes, and the social note after the languages.
 \newcommand{\textrow}[2]{\rowstrut #1 & {\footnotesize #2} \\}
@@ -436,6 +444,7 @@ ${EMOJI_ON}
 \statrow{anchor}{Max Dex}{ {{combat.maxDex}} }{ {{combat.maxDex.sources}} }
 {{{combat.defenseSpecialRows}}}
 \end{tabular}
+{{{combat.defenseNotes}}}
 \end{sheetblock}
 \blockrule
 \begin{sheetblock}{Movement}

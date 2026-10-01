@@ -37,6 +37,7 @@ import {
 } from './actionsSummary'
 import {
   buildAmmoRows,
+  buildBlockNotes,
   buildLanguageRows,
   buildLevelRows,
   buildMoneyRows,
@@ -727,8 +728,8 @@ function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
         'acp',
         'max-dex',
       ]),
-      ...viewNote('combat-defense', 'notes'),
     ]),
+    'combat.defenseNotes': buildBlockNotes(viewNotes['combat-defense']),
 
     // The written-out iteratives (+12/+7/+2) when the sheet has them.
     'combat.bab':
