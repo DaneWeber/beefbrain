@@ -276,7 +276,7 @@ describe('class and special abilities', () => {
     ])
   })
 
-  it('groups every other special key, leaving out feats, proficiencies and languages', () => {
+  it('groups every other special key, leaving out feats, proficiencies, languages and senses', () => {
     const rows = buildSpecialAbilityRows(
       {
         feats: [['Dodge', { level: 1 }]],
@@ -288,6 +288,7 @@ describe('class and special abilities', () => {
         ],
         proficiencies: ['Simple Weapons'],
         languages: ['Common'],
+        senses: ['Darkvision 60ft'],
       },
       classes,
     )

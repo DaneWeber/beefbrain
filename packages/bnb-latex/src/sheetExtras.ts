@@ -9,7 +9,7 @@ import { formatDetail, getClassNames, isRecord, macro } from './actionsSummary'
 import { escapeLatexText } from './renderTemplate'
 
 // Rows for the parts of a sheet that vary most between characters: a
-// block's optional extras (Ben's fly speed, Mike's DR), languages, money,
+// block's optional extras (Ben's fly speed, Mike's DR), awareness, money,
 // ammunition, and the Build page's level and notes rows. Each builder returns template macro
 // calls with every cell escaped, for a {{{...}}} token.
 
@@ -117,24 +117,26 @@ export function buildBlockNotes(...values: unknown[]): string {
 }
 
 /**
- * Languages two to a row, as `\langrow{a}{b}`, then any social note as
- * `\textrow{label}{text}`. `\nonerow` for a sheet with neither.
+ * The Awareness block's two rows, as `\awarerow{icon}{label}{list}`: every
+ * language on one row, then every sense (`special.senses`, such as
+ * Darkvision 60ft) on the other. Each list is comma-joined, so a long one
+ * wraps within its cell rather than taking a row per name. A sheet with no
+ * senses (or no languages) still gets the row, which the template marks
+ * with a dash, so the block keeps its shape and leaves room to write one in.
  */
-export function buildLanguageRows(
+export function buildAwarenessRows(
   languages: unknown,
-  social?: unknown,
+  senses: unknown,
 ): string {
-  const names = (Array.isArray(languages) ? languages : [])
-    .map(formatDetail)
-    .filter((name) => name)
-  const rows: string[] = []
-  for (let i = 0; i < names.length; i += 2) {
-    rows.push(macro('langrow', [names[i] ?? '', names[i + 1] ?? '']))
-  }
-  if (social !== undefined) {
-    rows.push(macro('textrow', ['Social', formatDetail(social)]))
-  }
-  return rows.length > 0 ? rows.join('\n') : '\\nonerow{2}'
+  const list = (value: unknown) =>
+    (Array.isArray(value) ? value : [value])
+      .map(formatDetail)
+      .filter((name) => name)
+      .join(', ')
+  return [
+    macro('awarerow', ['speaking-head', 'Languages', list(languages)]),
+    macro('awarerow', ['eye', 'Senses', list(senses)]),
+  ].join('\n')
 }
 
 const COINS: [string, string][] = [

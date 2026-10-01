@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildAmmoRows,
+  buildAwarenessRows,
   buildBlockNotes,
-  buildLanguageRows,
   buildLevelRows,
   buildMoneyRows,
   buildNoteRows,
@@ -72,21 +72,37 @@ describe('buildSpecialRows', () => {
   })
 })
 
-describe('buildLanguageRows', () => {
-  it('sets languages two to a row, then the social note', () => {
+describe('buildAwarenessRows', () => {
+  it('sets all the languages on one row and all the senses on another', () => {
     expect(
-      buildLanguageRows(['Common', 'Elven', 'Orc'], 'Lycanthropic Empathy'),
+      buildAwarenessRows(
+        ['Common', 'Elven', 'Orc'],
+        ['Scent (30ft, 60ft downwind)', 'Low-light Vision'],
+      ),
     ).toBe(
       [
-        '\\langrow{Common}{Elven}',
-        '\\langrow{Orc}{}',
-        '\\textrow{Social}{Lycanthropic Empathy}',
+        '\\awarerow{speaking-head}{Languages}{Common, Elven, Orc}',
+        '\\awarerow{eye}{Senses}{Scent (30ft, 60ft downwind), Low-light Vision}',
       ].join('\n'),
     )
   })
 
-  it('marks a sheet with none', () => {
-    expect(buildLanguageRows(undefined)).toBe('\\nonerow{2}')
+  it('escapes the names', () => {
+    expect(buildAwarenessRows(['Thieves_ Cant'], 'Darkvision 60ft')).toBe(
+      [
+        '\\awarerow{speaking-head}{Languages}{Thieves\\_ Cant}',
+        '\\awarerow{eye}{Senses}{Darkvision 60ft}',
+      ].join('\n'),
+    )
+  })
+
+  it('keeps both rows, empty, for a sheet with neither', () => {
+    expect(buildAwarenessRows(undefined, [])).toBe(
+      [
+        '\\awarerow{speaking-head}{Languages}{}',
+        '\\awarerow{eye}{Senses}{}',
+      ].join('\n'),
+    )
   })
 })
 

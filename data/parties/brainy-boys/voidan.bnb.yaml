@@ -57,6 +57,7 @@ character:
       - Low-Light Vision
       - Rock Catching (Ex)
       - Water Breathing (Ex)
+    senses: [Low-light Vision]
     feats:
       - Awesome Blow
       - Cleave

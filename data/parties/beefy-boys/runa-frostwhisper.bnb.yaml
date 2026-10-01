@@ -121,6 +121,7 @@ character:
       - Martial Weapons
       - Light Armor
       - Shields (except tower shields)
+    senses: []
     languages:
       - Common
   spells:

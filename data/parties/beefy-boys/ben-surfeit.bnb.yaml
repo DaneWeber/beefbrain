@@ -124,6 +124,7 @@ character:
       - DR 5/magic
     proficiencies:
       - club, crossbow (light or heavy), dagger, handaxe, javelin, kama, nunchaku, quarterstaff, sai, shuriken, siangham, and sling
+    senses: [Blindsense 60ft, Darkvision 120ft, "Keen Senses (2x normal illumination, 4x shadowy)"]
     languages:
       - Common
       - Goblin

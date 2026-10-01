@@ -175,6 +175,7 @@ character:
       - Wild Shape (4/day) — tiny, small, medium, large
       - Wild Shape (plants)
       - Venom Immunity (all poisons)
+    senses: []
     languages:
       - Common
       - Druidic

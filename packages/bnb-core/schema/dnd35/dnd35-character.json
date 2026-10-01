@@ -678,6 +678,18 @@
         "type": "TraitList",
         "optional": true,
         "description": "Class features (e.g., a fighter's bonus feats are recorded under feats instead; a cleric's Turn Undead is a name-only entry; a paladin's Divine Grace carries an effects array targeting combat.saves.*)"
+      },
+      {
+        "name": "languages",
+        "type": "NameList",
+        "optional": true,
+        "description": "Languages the character speaks (e.g., [Common, Elven])"
+      },
+      {
+        "name": "senses",
+        "type": "NameList",
+        "optional": true,
+        "description": "The character's senses beyond normal sight and hearing, each with its range (e.g., [Darkvision 60ft, Low-light Vision, \"Scent (30ft, 60ft downwind)\"]). A sense usually comes from a racial trait or class feature that stays listed under its own source too; this list is what the sheet prints as the character's senses. Quote a sense that contains a comma."
       }
     ],
     "additionalChildren": {
@@ -688,6 +700,11 @@
   "FeatList": {
     "type": "array",
     "items": { "type": "Feat" }
+  },
+  "NameList": {
+    "type": "array",
+    "items": { "type": "string" },
+    "description": "Plain names, with no effects"
   },
   "Feat": {
     "array": {

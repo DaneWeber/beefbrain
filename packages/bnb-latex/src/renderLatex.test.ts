@@ -126,7 +126,7 @@ describe('renderLatex', () => {
     expect(at('Inventory')).toBeLessThan(at('Spells'))
     // Description moved from page 1 to Build.
     expect(latex.indexOf('{Description}')).toBeGreaterThan(at('Build'))
-    expect(latex.indexOf('{Languages}')).toBeLessThan(skills)
+    expect(latex.indexOf('{Awareness}')).toBeLessThan(skills)
     // Actions keeps the attacks; the lists behind them are on Build.
     expect(latex.indexOf('{Ammunition}')).toBeGreaterThan(at('Actions'))
     expect(latex.indexOf('{Attack Options}')).toBeLessThan(at('Build'))
@@ -136,6 +136,40 @@ describe('renderLatex', () => {
         at('Inventory'),
       )
     }
+  })
+
+  it('sets languages and senses in Awareness, with its notes under them', () => {
+    const yaml = VALID_YAML.replace(
+      '  special:\n',
+      [
+        '  view-notes:',
+        '    senses: Scent (30ft, 60ft downwind)',
+        '    social: Lycanthropic Empathy (+4 vs rats)',
+        '  special:',
+        '    languages: [Common, Elven]',
+        '    senses: ["Scent (30ft, 60ft downwind)", Low-light Vision]',
+        '',
+      ].join('\n'),
+    )
+    const { latex } = renderLatex({ yaml })
+    const block = latex.slice(
+      latex.indexOf('\\begin{sheetblock}{Awareness}'),
+      latex.indexOf('\\columnbreak'),
+    )
+    expect(block).toContain(
+      '\\awarerow{speaking-head}{Languages}{Common, Elven}',
+    )
+    expect(block).toContain(
+      '\\awarerow{eye}{Senses}{Scent (30ft, 60ft downwind), Low-light Vision}',
+    )
+    expect(block).toContain('\\blocknotes{Lycanthropic Empathy (+4 vs rats)}')
+    // Senses are no longer a row of the Init block, view note or not.
+    const init = latex.slice(
+      latex.indexOf('\\begin{sheetblock}{Init}'),
+      latex.indexOf('\\begin{sheetblock}{Abilities}'),
+    )
+    expect(init).not.toContain('Senses')
+    expect(init).not.toContain('Scent')
   })
 
   it('shows hit dice between HP and AC', () => {

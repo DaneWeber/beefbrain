@@ -37,8 +37,8 @@ import {
 } from './actionsSummary'
 import {
   buildAmmoRows,
+  buildAwarenessRows,
   buildBlockNotes,
-  buildLanguageRows,
   buildLevelRows,
   buildMoneyRows,
   buildNoteRows,
@@ -660,10 +660,13 @@ function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
     'character.complexion': String(description.complexion ?? 'Unknown'),
     'character.build': String(description.build ?? 'Unknown'),
     'character.template': String(description.template ?? 'None'),
-    'character.languagesTable': buildLanguageRows(
+    'character.awarenessTable': buildAwarenessRows(
       special.languages,
-      viewNotes.social,
+      special.senses,
     ),
+    // What bears on talking or noticing but is not a language or a sense:
+    // Mike's empathy with rats, a telepathy.
+    'character.awarenessNotes': buildBlockNotes(viewNotes.social),
     'build.levelRows': buildLevelRows(hpContainer, skillsContainer),
     'build.noteRows': buildNoteRows(characterData.notes),
     'build.featsTable': buildFeatRows(special),
@@ -717,9 +720,6 @@ function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
     'combat.initiative': formatSignedTotal(combat.initiative),
     'combat.initiative.breakdown': formatBreakdown(combat.initiative),
     'combat.initiative.sources': formatSources(combat.initiative),
-    'combat.initiativeSpecialRows': buildSpecialRows(
-      viewNote('senses', 'senses'),
-    ),
     'combat.defenseSpecialRows': buildSpecialRows([
       ...extraEntries(defense, [
         'ac',

@@ -102,6 +102,7 @@ character:
     class-abilities:
       - Summon Familiar
       - Eschew Materials (bonus feat)
+    senses: [Low-light Vision]
     languages:
       - Common
       - Elven
