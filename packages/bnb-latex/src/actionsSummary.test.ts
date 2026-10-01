@@ -9,6 +9,7 @@ import {
   buildRangedRows,
   buildSpecialAbilityRows,
   buildSpecialAttackRows,
+  formatAttackNotes,
 } from './actionsSummary'
 
 describe('weapon rows', () => {
@@ -120,7 +121,7 @@ describe('buildFullAttackBlock', () => {
 })
 
 describe('buildSpecialAttackRows', () => {
-  it('lists extra attack keys and special attacks as Attack rows', () => {
+  it('lists special attacks as Attack rows, but not extra attack keys', () => {
     const rows = buildSpecialAttackRows({
       attack: { bab: [12], 'sneak-attack': '+2d6' },
       'special-attacks': {
@@ -128,11 +129,23 @@ describe('buildSpecialAttackRows', () => {
       },
     })
     expect(rows).toBe(
-      [
-        '\\statrow{collision}{Sneak Attack}{+2d6}{}',
-        '\\statrow{collision}{Line Of Force}{4d8}{60ft line; DC 19 Reflex half}',
-      ].join('\n'),
+      '\\statrow{collision}{Line Of Force}{4d8}{60ft line; DC 19 Reflex half}',
     )
+  })
+})
+
+describe('formatAttackNotes', () => {
+  it('reads extra attack keys as notes, with any detail in parentheses', () => {
+    expect(
+      formatAttackNotes({
+        bab: [12],
+        melee: {},
+        'full-bab': '+12/+7/+2',
+        'sneak-attack': '+2d6',
+        smite: ['+4', '1/day', 'vs evil'],
+        _hidden: 1,
+      }),
+    ).toEqual(['Sneak Attack +2d6', 'Smite +4 (1/day, vs evil)'])
   })
 })
 

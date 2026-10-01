@@ -7,19 +7,17 @@ import {
   buildMoneyRows,
   buildNoteRows,
   buildSpecialRows,
+  separateConditionalSaves,
   splitNotes,
 } from './sheetExtras'
 
 describe('buildSpecialRows', () => {
   it('shows a total with its sources and notes', () => {
     expect(
-      buildSpecialRows(
-        [['will-vs-mind-affecting', [15, { will: 10, mindarmor: 5 }, '3/day']]],
-        { signed: true },
-      ),
-    ).toBe(
-      '\\statrow{}{Will vs. Mind-Affecting}{+15}{Mindarmor +5, Will +10; 3/day}',
-    )
+      buildSpecialRows([['vs-poison', [4, { periapt: 4 }, 'while worn']]], {
+        signed: true,
+      }),
+    ).toBe('\\statrow{}{Vs Poison}{+4}{Periapt +4; while worn}')
   })
 
   it('reads a speed unsigned, with its notes as sources', () => {
@@ -52,23 +50,35 @@ describe('buildSpecialRows', () => {
     )
   })
 
-  it('takes the label width of the block it is in', () => {
-    expect(
-      buildSpecialRows([['special', 'Sneak Attack +5d6']], {
-        labelWidth: '0.27',
-      }),
-    ).toBe('\\noterow{0.27}{Special}{Sneak Attack +5d6}')
-  })
-
-  it('sets notes across the whole row, with no label', () => {
-    expect(buildSpecialRows([['notes', 'Shield Ward: add shield bonus']])).toBe(
-      '\\fullnoterow{Shield Ward: add shield bonus}',
-    )
-  })
-
   it('skips hidden keys and has no rows for none', () => {
     expect(buildSpecialRows([['_total', 3]])).toBe('')
     expect(buildSpecialRows([])).toBe('')
+  })
+})
+
+describe('separateConditionalSaves', () => {
+  it('reads a save built on a base save as a bonus to it', () => {
+    expect(
+      separateConditionalSaves([
+        ['will-vs-mind-affecting', [15, { will: 10, mindarmor: 5 }, '3/day']],
+        ['reflex-vs-traps', [9, { reflex: 7, 'trap-sense': 2 }]],
+      ]),
+    ).toEqual({
+      rows: [],
+      notes: [
+        '3/day +5 Will vs. Mind-Affecting (+15 total)',
+        '+2 Reflex Vs Traps (+9 total)',
+      ],
+    })
+  })
+
+  it('keeps a save with no base save among its sources as a row', () => {
+    const poison: [string, unknown] = ['vs-poison', [4, { periapt: 4 }]]
+    const text: [string, unknown] = ['special', 'Evasion']
+    expect(separateConditionalSaves([poison, text])).toEqual({
+      rows: [poison, text],
+      notes: [],
+    })
   })
 })
 

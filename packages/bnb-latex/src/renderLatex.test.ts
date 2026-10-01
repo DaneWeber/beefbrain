@@ -157,6 +157,37 @@ describe('renderLatex', () => {
     )
   })
 
+  it('sets conditional bonuses and view notes under their block', () => {
+    const editedYaml = VALID_YAML.replace(
+      '      will: [-1, {fighter: 0, wis: -1}]\n',
+      '      will: [-1, {fighter: 0, wis: -1}]\n' +
+        '      will-vs-fear: [3, {will: -1, brave: 4}, 1/day]\n',
+    )
+      .replace(
+        '      grapple: [3, {bab: 1, str: 2}]\n',
+        '      grapple: [3, {bab: 1, str: 2}]\n      sneak-attack: +1d6\n',
+      )
+      .replace(
+        '  skills:\n',
+        '  view-notes:\n' +
+          '    movement: "Boots (3 charges); Jump 1/day"\n' +
+          '    combat-offense: "Favored Enemy: Orcs"\n' +
+          '  skills:\n',
+      )
+    const { latex } = renderLatex({ yaml: editedYaml })
+    expect(latex).toContain(
+      '\\blocknotes{1/day +4 Will Vs Fear (+3 total)}\n\\end{sheetblock}',
+    )
+    expect(latex).toContain(
+      '\\blocknotes{Boots (3 charges)\\notesep Jump 1/day}\n\\end{sheetblock}',
+    )
+    expect(latex).toContain(
+      '\\blocknotes{Sneak Attack +1d6\\notesep Favored Enemy: Orcs}',
+    )
+    expect(latex).not.toContain('{Will Vs Fear}')
+    expect(latex).not.toContain('{Sneak Attack}')
+  })
+
   it('renders the detailed sheet without emoji as its own template', () => {
     const plain = renderLatex({
       yaml: VALID_YAML,

@@ -33,6 +33,7 @@ import {
   buildSpecialAbilityRows,
   buildSpecialAttackRows,
   buildSpellLikeBlock,
+  formatAttackNotes,
   getClassNames,
 } from './actionsSummary'
 import {
@@ -44,6 +45,7 @@ import {
   buildNoteRows,
   buildSpecialRows,
   formatHitDice,
+  separateConditionalSaves,
 } from './sheetExtras'
 import {
   buildCastingTableRows,
@@ -643,6 +645,9 @@ function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
   // A view note, if the sheet has one, as a row labelled `label`.
   const viewNote = (key: string, label: string): [string, unknown][] =>
     viewNotes[key] === undefined ? [] : [[label, viewNotes[key]]]
+  const extraSaves = separateConditionalSaves(
+    extraEntries(savesContainer, ['fortitude', 'reflex', 'will']),
+  )
 
   return {
     'sheet.generated': `bnb-latex ${BNB_LATEX_VERSION}, ${formatDate(generatedAt)}`,
@@ -748,9 +753,9 @@ function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
     'actions.rangedTable': buildRangedRows(attack),
     'actions.fullAttackBlock': buildFullAttackBlock(attack),
     'actions.specialAttackRows': buildSpecialAttackRows(combat),
-    'actions.offenseNoteRows': buildSpecialRows(
-      viewNote('combat-offense', 'notes'),
-      { labelWidth: '0.27' },
+    'actions.attackNotes': buildBlockNotes(
+      formatAttackNotes(attack),
+      viewNotes['combat-offense'],
     ),
     'actions.spellLikeBlock': buildSpellLikeBlock(
       characterData['spell-like-abilities'],
@@ -762,10 +767,8 @@ function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
       inventoryContainer,
     ),
 
-    'saves.specialRows': buildSpecialRows(
-      extraEntries(savesContainer, ['fortitude', 'reflex', 'will']),
-      { signed: true },
-    ),
+    'saves.specialRows': buildSpecialRows(extraSaves.rows, { signed: true }),
+    'saves.notes': buildBlockNotes(extraSaves.notes),
     'saves.fortitude': formatSignedTotal(savesContainer.fortitude),
     'saves.fortitude.breakdown': formatBreakdown(savesContainer.fortitude),
     'saves.fortitude.sources': formatSources(savesContainer.fortitude),
@@ -776,10 +779,10 @@ function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
     'saves.will.breakdown': formatBreakdown(savesContainer.will),
     'saves.will.sources': formatSources(savesContainer.will),
 
-    'movement.specialRows': buildSpecialRows([
-      ...extraEntries(movement, ['speed', 'run', 'load', 'capacity']),
-      ...viewNote('movement', 'notes'),
-    ]),
+    'movement.specialRows': buildSpecialRows(
+      extraEntries(movement, ['speed', 'run', 'load', 'capacity']),
+    ),
+    'movement.notes': buildBlockNotes(viewNotes.movement),
     'movement.speed': getArrayFirst(movement.speed),
     'movement.speed.breakdown': formatBreakdown(movement.speed),
     'movement.speed.sources': formatSources(movement.speed),

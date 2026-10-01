@@ -132,11 +132,6 @@ ${EMOJI_ON}
 % the labels line up.
 \newcommand{\noterow}[3]{\rowstrut \rowicon{}#2 &
   \multicolumn{2}{C{\dimexpr0.93\linewidth-#1\linewidth+2\tabcolsep\relax}}{#3} \\}
-% A block's note with no label (the view notes under Defense and Movement):
-% #1 the note, set small across all three columns.
-% \multicolumn has to open the row, so the strut goes inside it.
-\newcommand{\fullnoterow}[1]{%
-  \multicolumn{3}{C{\dimexpr0.93\linewidth+4\tabcolsep\relax}}{\rowstrut #1} \\}
 % Notes under a block's table, for what bears on the block but is not a
 % total of its own: a charged item, a conditional bonus. #1 the notes, each
 % parted from the next by \notesep. Set small, unshaded, across the table's
@@ -432,6 +427,7 @@ ${EMOJI_ON}
 \statrow{smiling-face-with-heart-eyes}{Will}{ {{saves.will}} }{ {{saves.will.sources}} }
 {{{saves.specialRows}}}
 \end{tabular}
+{{{saves.notes}}}
 \end{sheetblock}
 \blockrule
 \begin{sheetblock}{Defense}
@@ -453,6 +449,7 @@ ${EMOJI_ON}
 \statrow{person-running}{Run}{ {{movement.run}} }{ {{movement.run.sources}} }
 {{{movement.specialRows}}}
 \end{tabular}
+{{{movement.notes}}}
 \end{sheetblock}
 \blockrule
 \begin{sheetblock}{Languages}
@@ -492,8 +489,8 @@ ${EMOJI_ON}
 \statrow{bow-and-arrow}{Ranged}{ {{combat.ranged}} }{ {{combat.ranged.sources}} }
 \statrow{people-wrestling}{Grapple}{ {{combat.grapple}} }{ {{combat.grapple.sources}} }
 {{{actions.specialAttackRows}}}
-{{{actions.offenseNoteRows}}}
 \end{tabular}
+{{{actions.attackNotes}}}
 \end{sheetblock}
 \blockrule
 \begin{sheetblock}{Melee}

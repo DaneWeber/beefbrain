@@ -1,5 +1,6 @@
 import { formatTitleKey } from './text'
 import {
+  extractBreakdown,
   formatSigned,
   formatSources,
   getArrayFirst,
@@ -23,11 +24,6 @@ const SPECIAL_LABELS: Record<string, string> = {
 export interface SpecialRowOptions {
   /** Sign the total, as for a save ("+15"); a speed or SR reads unsigned. */
   signed?: boolean
-  /**
-   * The label column's share of the block's width, which a note row's text
-   * spans past. Page 1's blocks use 0.30.
-   */
-  labelWidth?: string
 }
 
 function isText(value: unknown): value is string {
@@ -36,13 +32,12 @@ function isText(value: unknown): value is string {
 
 /**
  * One row per `[key, value]`, for the end of a block. A value with a total
- * (a number, or `[total, {sources}, ...notes]`) is a `\statrow`: Andy's
- * `will-vs-mind-affecting: [15, {will: 10, mindarmor: 5}, 3/day]` shows +15
- * beside "Mindarmor +5, Will +10; 3/day". Text, or a list of it, is a
+ * (a number, or `[total, {sources}, ...notes]`) is a `\statrow`: Ben's
+ * `fly: [150, poor]` shows 150 beside "poor". Text, or a list of it, is a
  * `\noterow` whose text spans the total and sources columns: Mike's
  * `dr: 10/silver`. A note row's first argument is the label column's width,
- * a number, which escaping leaves as it is. A `notes` entry has no label and
- * is a `\fullnoterow` across the whole row.
+ * a number, which escaping leaves as it is. What bears on a block without
+ * being a value of its own goes under its table instead, as block notes.
  */
 export function buildSpecialRows(
   entries: [string, unknown][],
@@ -67,14 +62,51 @@ export function buildSpecialRows(
         .map(formatDetail)
         .filter((part) => part)
         .join('; ')
-      // A block's notes need no label: the text takes the whole row.
-      if (key === 'notes') {
-        return macro('fullnoterow', [text])
-      }
-      const width = options.labelWidth ?? '0.30'
-      return macro('noterow', [width, label, text])
+      // Page 1's blocks give their label column 0.30 of the width.
+      return macro('noterow', ['0.30', label, text])
     })
     .join('\n')
+}
+
+// The saves every character has, which a conditional save builds on.
+const BASE_SAVES = ['fortitude', 'reflex', 'will']
+
+/**
+ * A block's extra saves, split into the rows of its table and the notes
+ * under it. A save is conditional, and a note, when one of its sources is a
+ * base save: Andy's `will-vs-mind-affecting: [15, {will: 10, mindarmor: 5},
+ * 3/day]` is his Will of 10 and 5 more, so it reads "3/day +5 Will vs.
+ * Mind-Affecting (+15 total)", any text leading as when it applies. A save
+ * with no base save among its sources has nothing to be a bonus to, so it
+ * stays a row.
+ */
+export function separateConditionalSaves(entries: [string, unknown][]): {
+  rows: [string, unknown][]
+  notes: string[]
+} {
+  const rows: [string, unknown][] = []
+  const notes: string[] = []
+  for (const [key, value] of entries) {
+    const parts = Array.isArray(value) ? value : [value]
+    const [total] = parts
+    const sources = extractBreakdown(value)
+    const base = BASE_SAVES.map((save) => sources[save]).find(
+      (source): source is number => typeof source === 'number',
+    )
+    if (
+      key.startsWith('_') ||
+      typeof total !== 'number' ||
+      base === undefined
+    ) {
+      rows.push([key, value])
+      continue
+    }
+    const label = SPECIAL_LABELS[key] ?? formatTitleKey(key)
+    const when = parts.slice(1).filter(isText)
+    const bonus = `${formatSigned(total - base)} ${label}`
+    notes.push(`${[...when, bonus].join(' ')} (${formatSigned(total)} total)`)
+  }
+  return { rows, notes }
 }
 
 /**

@@ -255,23 +255,17 @@ export function buildFullAttackBlock(attack: Record<string, unknown>): string {
 }
 
 /**
- * One `\\statrow` per special attack, for the Attack block: anything else
- * under `combat.attack` (`sneak-attack: +2d6`) and every entry of
- * `combat.special-attacks` (`line-of-force: [4d8, 60ft line, ...]`). The
- * first value is the attack's total, the rest its detail.
+ * One `\\statrow` per special attack, for the Attack block: every entry of
+ * `combat.special-attacks` (`line-of-force: [4d8, 60ft line, ...]`), an
+ * attack of its own with its damage. The first value is the attack's total,
+ * the rest its detail.
  */
 export function buildSpecialAttackRows(
   combat: Record<string, unknown>,
 ): string {
-  const attack = toRecord(combat.attack)
-  const entries = [
-    ...Object.entries(attack).filter(
-      ([key]) => !key.startsWith('_') && !ATTACK_KEYS.has(key),
-    ),
-    ...Object.entries(toRecord(combat['special-attacks'])).filter(
-      ([key]) => !key.startsWith('_'),
-    ),
-  ]
+  const entries = Object.entries(toRecord(combat['special-attacks'])).filter(
+    ([key]) => !key.startsWith('_'),
+  )
   return entries
     .map(([name, value]) => {
       const [total, ...detail] = Array.isArray(value) ? value : [value]
@@ -285,6 +279,28 @@ export function buildSpecialAttackRows(
       ])
     })
     .join('\n')
+}
+
+/**
+ * Anything else under `combat.attack`, as notes for under the Attack
+ * table: Andy's `sneak-attack: +2d6` adds to an attack rather than being
+ * one, so it reads "Sneak Attack +2d6". Detail after the first value goes
+ * in parentheses, as a full attack's does.
+ */
+export function formatAttackNotes(attack: Record<string, unknown>): string[] {
+  return Object.entries(attack)
+    .filter(([key]) => !key.startsWith('_') && !ATTACK_KEYS.has(key))
+    .map(([name, value]) => {
+      const [total, ...rest] = Array.isArray(value) ? value : [value]
+      const head = [formatTitleKey(name), formatDetail(total)]
+        .filter((part) => part)
+        .join(' ')
+      const details = rest
+        .map(formatDetail)
+        .filter((part) => part)
+        .join(', ')
+      return details ? `${head} (${details})` : head
+    })
 }
 
 // Effect targets whose last path segment reads badly title-cased.
