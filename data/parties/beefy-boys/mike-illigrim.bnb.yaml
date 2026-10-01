@@ -310,7 +310,7 @@ character:
           tumble: [6, dex: 6]
   view-notes:
     senses: Scent (30ft, 60ft downwind); Low-light Vision; Auto-search within 5ft
-    combat-defense: DR 10/silver; Evasion; Improved Evasion; Improved Uncanny Dodge
+    combat-defense: Evasion; Improved Evasion; Improved Uncanny Dodge
     combat-offense: "Sneak Attack +5d6; Deathstrike Bracers (swift: sneak vs targets immune to crits)"
     social: Lycanthropic Empathy (+4 vs rats)
     movement: Celestial Armor fly 1/day; Chrono Charm (1/day swift 15ft)
