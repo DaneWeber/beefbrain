@@ -123,6 +123,7 @@ character:
       - heavy crossbow
       - light crossbow
       - quarterstaff
+    senses: [Low-light Vision]
     languages:
       - Common
       - Gnome

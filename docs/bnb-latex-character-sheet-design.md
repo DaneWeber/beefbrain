@@ -97,6 +97,12 @@ not compete with it for attention.
   columns (rather than three) is deliberate here, not just a width accommodation: this variant's job is
   showing where every bonus's components come from, and a two-column layout gives each block enough
   width that a component breakdown rarely needs to wrap, which a three-column split couldn't guarantee.
+  The left column ends with **Awareness**: one row of every language the character speaks
+  (`special.languages`) and one of every sense it has (`special.senses`, e.g. Darkvision 60ft), each
+  a single comma-joined list that wraps in its cell, so a polyglot costs a line or two rather than a
+  row per language. An empty list prints a gray dash. Abilities that bear on talking or noticing but
+  are neither (Mike's Lycanthropic Empathy, a telepathy; `view-notes.social`) are notes set under the
+  table, as Defense's are. Senses are not part of the Init block.
   Inventory and spell-sheet pages keep their existing single-column structure but inherit the same
   landscape/14pt setting.
 

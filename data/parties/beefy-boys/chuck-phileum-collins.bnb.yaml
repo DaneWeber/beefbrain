@@ -118,6 +118,7 @@ character:
       celestial-spells: true
       blessing-of-the-golden-heaven:
         - Immune to death spells and magical death effects
+    senses: []
     languages:
       - Common
   inventory:

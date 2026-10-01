@@ -575,7 +575,12 @@ function traitRows(groups: TraitGroup[]): string {
 }
 
 // Keys under `special` that other blocks print, or that are not abilities.
-const NOT_ABILITY_KEYS = new Set(['feats', 'proficiencies', 'languages'])
+const NOT_ABILITY_KEYS = new Set([
+  'feats',
+  'proficiencies',
+  'languages',
+  'senses',
+])
 // The keys that hold class abilities; every other key is a source of special
 // abilities (`racial`, `were-rat-abilities`, `storm-giant`).
 const CLASS_ABILITY_KEYS = new Set(['class-abilities', 'class-features'])

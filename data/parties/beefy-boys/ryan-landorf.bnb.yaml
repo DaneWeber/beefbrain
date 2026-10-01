@@ -117,6 +117,7 @@ character:
       - Martial Weapons
       - All Armor
       - All Shields (including tower)
+    senses: []
     languages:
       - Common
   inventory:

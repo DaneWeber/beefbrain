@@ -110,6 +110,27 @@ element at all — same as a feat with no meaningful target. Quote a name that c
 (`"Turn Undead (4/day, ...)"`) since YAML's flow-sequence syntax would otherwise split it into
 several list items.
 
+A few keys under `special` hold plain names instead, with no effects, and the sheet prints them in
+blocks of their own rather than as abilities: `proficiencies`, `languages`, and `senses`. `senses`
+lists the character's real senses beyond normal sight and hearing, each with its range, on one line:
+
+```yaml
+special:
+  racial:
+    - Low-light Vision
+  were-rat-abilities:
+    - Scent (detect presence 30' or 60' downwind, pinpoint 5')
+  senses: ["Scent (30ft, 60ft downwind)", Low-light Vision]
+  languages:
+    - Common
+    - Elven
+```
+
+A sense usually comes from a racial trait or class feature, which stays under its own source as
+well: the trait records where the sense comes from, and `senses` is what the character sheet prints
+(page 1's Awareness block, beside the languages). Keep a sense in step with the trait by hand when
+one changes; nothing derives one from the other.
+
 The point of grouping traits by source is that a whole source can be added or removed as a unit: if
 an elf is cured of lycanthropy, deleting the `were-rat` key removes exactly those traits and
 effects, leaving `elven` (and `feats`, `class-features`) untouched. See "Cleanup on equip/unequip

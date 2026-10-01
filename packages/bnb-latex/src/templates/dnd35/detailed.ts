@@ -141,10 +141,13 @@ ${EMOJI_ON}
   \par\vspace{2pt}%
   {\footnotesize\leftskip\tabcolsep\rightskip\tabcolsep plus 1fil\noindent #1\par}}
 % A label and a note set small beside it, in a two-column table: the Build
-% page's notes, and the social note after the languages.
+% page's notes.
 \newcommand{\textrow}[2]{\rowstrut #1 & {\footnotesize #2} \\}
-% Languages, two to a row.
-\newcommand{\langrow}[2]{\rowstrut #1 & #2 \\}
+% Awareness: #1 icon, #2 "Languages" or "Senses", #3 all of them, one list
+% that wraps in its cell. An empty list is a gray dash, as a free magic
+% item slot is, so the row still shows there is nothing there.
+\newcommand{\awarerow}[3]{\rowstrut \rowicon{#1}#2 &
+  \if\relax\detokenize{#3}\relax\textcolor{black!40}{\textemdash}\else #3\fi \\}
 % Character description, two fields per row: icon, label, value, twice.
 \newcommand{\descrow}[6]{\rowstrut \rowicon{#1}#2 & #3 & \rowicon{#4}#5 & #6 \\}
 % Stacked tables for the inventory page. Each row is its own one-row tabular,
@@ -405,7 +408,6 @@ ${EMOJI_ON}
 \begin{sheetblock}{Init}
 \begin{tabular}{L{0.30\linewidth}R{0.12\linewidth}Q{0.51\linewidth}}
 \statrow{stopwatch}{Initiative}{ {{combat.initiative}} }{ {{combat.initiative.sources}} }
-{{{combat.initiativeSpecialRows}}}
 \end{tabular}
 \end{sheetblock}
 \blockrule
@@ -452,10 +454,11 @@ ${EMOJI_ON}
 {{{movement.notes}}}
 \end{sheetblock}
 \blockrule
-\begin{sheetblock}{Languages}
-\begin{tabular}{L{0.465\linewidth}L{0.465\linewidth}}
-{{{character.languagesTable}}}
+\begin{sheetblock}{Awareness}
+\begin{tabular}{L{0.30\linewidth}N{0.63\linewidth}}
+{{{character.awarenessTable}}}
 \end{tabular}
+{{{character.awarenessNotes}}}
 \end{sheetblock}}
 
 \columnbreak
