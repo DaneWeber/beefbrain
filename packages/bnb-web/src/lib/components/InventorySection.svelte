@@ -239,7 +239,8 @@
 											name="effects"
 											bind:value={editEffects}
 											rows="3"
-											placeholder="key: value, or target.bonus-key: value (one per line)"></textarea>
+											placeholder="key: value, or target.bonus-key: value (one per line)"
+										></textarea>
 										<div class="edit-actions">
 											<button type="submit" class="btn-save">Save</button>
 											<button type="button" class="btn-cancel" onclick={cancelEdit}>Cancel</button>
