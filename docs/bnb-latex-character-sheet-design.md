@@ -146,6 +146,31 @@ block's notes are.
 - Keep same final+component grammar as other variants.
 - Allocate extra space to casting-critical metrics (DC contributors, concentration-adjacent values, caster-level context).
 
+### `dnd35-quick-reference`
+- One portrait page meant to answer most of what a player looks up during a session, and the sheet
+  for an animal companion, familiar or mount with a `.bnb.yaml` of its own (issue #72).
+- Laid out as a stat block in the style of WotC's later 3.5 books (*Drow of the Underdark*,
+  *Monster Manual V*): entries grouped by when they are needed rather than by kind of number.
+  - **Header:** name (player at the right), sex, race, template and classes, alignment and size,
+    then Init, Senses (with Listen and Spot), Languages.
+  - **Defense:** AC, touch and flat-footed with what the AC is made of; hp with HD, then DR, SR and
+    any other `combat.defense` key; saves, with conditional saves after them.
+  - **Offense:** speed (land speed in squares too) and other movement; each melee and ranged
+    weapon, joined with "or"; full-attack routines; Base Atk and Grp; special attacks; Atk Options
+    (as the detailed sheet's Attack Options find them); Combat Gear (wands, potions, scrolls and
+    anything with charges or uses per day that the character carries); spells, highest level
+    first, a repeated spell counted ("detect magic (6)"); spell-like abilities grouped by uses.
+  - **Statistics:** ability scores; SQ (racial traits and class abilities not already in Offense);
+    feats; skills with ranks or a bonus beyond the ability's; possessions ("combat gear plus" what
+    else is carried); load.
+  - **Special Abilities:** each of `character.conditionals`, name in bold then its text.
+- Final values only: sources are left out, except AC's modifiers, as a stat block gives them.
+  The detailed sheet is where a bonus is worked out.
+- Same font as the detailed sheet, two balanced columns. A line the data has nothing for is left
+  out, and so is an empty section, so a mule is a few lines at the top of the page. A sheet too
+  long for the page is laid out wider and scaled down to fit, as the detailed sheet's blocks are,
+  so it is always one page.
+
 ## Density and legibility standards
 
 1. Keep page 1 focused on highest-frequency gameplay data.

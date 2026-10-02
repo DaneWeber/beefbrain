@@ -65,17 +65,23 @@ jobs:
 
       - name: Generate character sheet LaTeX and PDF files
         run: |
+          # Each sheet with each template, named <character>-<template>, as
+          # `make pdfs` and the web app name them.
+          templates=(dnd35-detailed dnd35-quick-reference)
           mkdir -p artifacts/latex
           while IFS= read -r -d '' character; do
             relative_path="${character#data/}"
-            output_base="artifacts/latex/${relative_path%.bnb.yaml}"
-            output_base="${output_base%.bnb.yml}"
-            mkdir -p "$(dirname "$output_base")"
-            node packages/bnb-cli/dist/index.mjs latex "$character" \
-              --template dnd35-detailed \
-              --out "${output_base}.tex" \
-              --pdf \
-              --pdf-out "${output_base}.pdf"
+            character_base="artifacts/latex/${relative_path%.bnb.yaml}"
+            character_base="${character_base%.bnb.yml}"
+            mkdir -p "$(dirname "$character_base")"
+            for template in "${templates[@]}"; do
+              output_base="${character_base}-${template}"
+              node packages/bnb-cli/dist/index.mjs latex "$character" \
+                --template "$template" \
+                --out "${output_base}.tex" \
+                --pdf \
+                --pdf-out "${output_base}.pdf"
+            done
           done < <(find data -type f \( -name '*.bnb.yaml' -o -name '*.bnb.yml' \) -print0 | sort -z)
           ls -lah artifacts/latex
 

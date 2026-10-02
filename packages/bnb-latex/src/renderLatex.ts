@@ -48,6 +48,13 @@ import {
   separateConditionalSaves,
 } from './sheetExtras'
 import {
+  buildStatBlockDefense,
+  buildStatBlockHeader,
+  buildStatBlockOffense,
+  buildStatBlockSpecial,
+  buildStatBlockStatistics,
+} from './statBlock'
+import {
   buildCastingTableRows,
   buildSpellLevelBlocks,
   summarizeSpellcasting,
@@ -642,6 +649,7 @@ function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
     fixed: string[],
   ): [string, unknown][] =>
     Object.entries(record).filter(([key]) => !fixed.includes(key))
+  const statBlockHeader = buildStatBlockHeader(characterData)
   const extraSaves = separateConditionalSaves(
     extraEntries(savesContainer, ['fortitude', 'reflex', 'will']),
   )
@@ -811,6 +819,15 @@ function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
     'spells.preparedSummary': formatPreparedSpellsSummary(casters),
     'spells.castingTable': buildCastingTableRows(casters),
     'spells.levelBlocks': buildSpellLevelBlocks(casters),
+
+    // No "Unknown" for a sheet without a player, such as a companion's.
+    'quick.player': String(description.player ?? ''),
+    'quick.identity': statBlockHeader.identity,
+    'quick.header': statBlockHeader.lines,
+    'quick.defense': buildStatBlockDefense(characterData),
+    'quick.offense': buildStatBlockOffense(characterData, casters),
+    'quick.statistics': buildStatBlockStatistics(characterData),
+    'quick.special': buildStatBlockSpecial(characterData),
   }
 }
 

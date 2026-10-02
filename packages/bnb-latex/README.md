@@ -14,8 +14,9 @@ selected template with safe token substitution.
   - isolated temp working directory
   - compile timeout
 - D&D 3.5 starter templates:
+  - `dnd35-detailed` (default) and `dnd35-detailed-plain` (no emoji)
+  - `dnd35-quick-reference`: one-page stat block, also for companions
   - `dnd35-streamlined`
-  - `dnd35-detailed`
   - `dnd35-spellcaster`
 - Input size guards for YAML and custom templates
 - Escaped text substitution for LaTeX safety
@@ -27,9 +28,9 @@ selected template with safe token substitution.
 
 ## PDF prerequisite
 
-`compilePdf` requires `lualatex` on your system `PATH`. The Detailed template
-also requires Atkinson Hyperlegible Next and Noto Color Emoji (for the skill
-icons) to be installed as system fonts.
+`compilePdf` requires `lualatex` on your system `PATH`. The Detailed and Quick
+Reference templates also require Atkinson Hyperlegible Next (and the Detailed template Noto Color
+Emoji, for its icons) to be installed as system fonts.
 
 For WSL (Ubuntu):
 

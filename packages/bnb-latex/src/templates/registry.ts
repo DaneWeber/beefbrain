@@ -2,6 +2,7 @@ import {
   DND35_DETAILED_PLAIN_TEMPLATE,
   DND35_DETAILED_TEMPLATE,
 } from './dnd35/detailed'
+import { DND35_QUICK_REFERENCE_TEMPLATE } from './dnd35/quickReference'
 import { DND35_SPELLCASTER_TEMPLATE } from './dnd35/spellcaster'
 import { DND35_STREAMLINED_TEMPLATE } from './dnd35/streamlined'
 import type { LatexTemplateKey, TemplateInfo } from '../types'
@@ -27,6 +28,15 @@ const TEMPLATE_REGISTRY: Record<LatexTemplateKey, TemplateRecord> = {
       description: 'The detailed sheet without emoji icons.',
     },
     template: DND35_DETAILED_PLAIN_TEMPLATE,
+  },
+  'dnd35-quick-reference': {
+    info: {
+      key: 'dnd35-quick-reference',
+      name: 'D&D 3.5 Quick Reference',
+      description:
+        'One-page stat block for play at the table, or for a companion.',
+    },
+    template: DND35_QUICK_REFERENCE_TEMPLATE,
   },
   'dnd35-streamlined': {
     info: {
