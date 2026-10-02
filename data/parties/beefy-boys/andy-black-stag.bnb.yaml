@@ -103,14 +103,21 @@ character:
     feats:
       - [Lightning Reflexes, level: 1, [combat.saves.reflex, 2]]
       - [Weapon Finesse, human: 1]
-      - [Point Blank Shot, level: 3, +1 attack and damage within 30ft]
+      - [Point Blank Shot, level: 3, [combat.ranged._conditional, +1 attack and damage within 30ft]]
       - [Improved Unarmed Strike, fighter: 1, no AoO on unarmed attacks]
       - [Weapon Focus (Sickle), fighter: 2, [combat.attack.melee.sickle, atk: 1]]
       - [Improved Grapple, level: 6, [combat.attack.grapple, 4]]
       - [Two-Weapon Defense, level: 9, [combat.defense.ac, shield: 1]]
       - [Greater Two-Weapon Fighting, level: 12]
     class-abilities:
-      ranger: [Track, Spiritual Connection 3/day (Speak with Animals/Plants), "Favored Enemy: Humans, Giants (+4 bonus to Bluff, Listen, Sense Motive, Spot, Survival, and weapon damage)", Two-Weapon Fighting (combat style), Endurance, Distracting Attack, Improved Two-Weapon Fighting (combat style)]
+      ranger:
+        - Track
+        - [Spiritual Connection, [spell-like-abilities.ranger.speak-with-animals-or-plants, [3/day, "Spiritual Connection as per spells"]]]
+        - "Favored Enemy: Humans, Giants (+4 bonus to Bluff, Listen, Sense Motive, Spot, Survival, and weapon damage)"
+        - Two-Weapon Fighting (combat style)
+        - Endurance
+        - Distracting Attack
+        - Improved Two-Weapon Fighting (combat style)
       rogue: [Trap-finding, Sneak Attack +2d6, Evasion, Trap Sense +1, Disruptive Attack]
     racial:
       - Darkvision 60'
