@@ -784,11 +784,12 @@ export function getClassNames(levels: Record<string, unknown>): Set<string> {
 }
 
 // A source's shared settings (`_: {cl: 20, save: cha}`) -> "CL 20, save Cha".
+// A calculated caster level (`cl: [6, {ranger: 6}]`) shows just its total.
 function formatSpellLikeSettings(settings: unknown): string {
   return Object.entries(toRecord(settings))
     .map(([key, value]) => {
       if (key === 'cl') {
-        return `CL ${String(value)}`
+        return `CL ${String(getArrayFirst(value))}`
       }
       if (key === 'save') {
         return `save ${formatTitleKey(String(value))}`

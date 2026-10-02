@@ -305,6 +305,16 @@ describe('buildSpellLikeBlock', () => {
     ])
   })
 
+  it('shows only the total of a calculated caster level', () => {
+    const block = buildSpellLikeBlock({
+      ranger: {
+        _: { cl: [6, { ranger: 6 }] },
+        'speak-with-animals': ['3/day'],
+      },
+    })
+    expect(block).toContain('\\traitgroup{Ranger (CL 6)}')
+  })
+
   it('leaves the block out when there are none', () => {
     expect(buildSpellLikeBlock(undefined)).toBe('')
   })

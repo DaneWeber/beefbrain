@@ -208,8 +208,9 @@ character:
     devotee: Obad-Hai, Pelor
     human-until-level-10: Was Human until level 10, then became Orc
   spell-like-abilities:
-    spiritual-connection:
-      speak-with-animals-or-plants: [3/day]
+    ranger:
+      _: {cl: [6, ranger: 6]}
+      speak-with-animals-or-plants: [3/day, "Spiritual Connection as per spells"]
   conditionals:
     dazzled-in-sunlight: -1 attack, Spot, Search in bright sunlight or daylight
     point-blank-shot: +1 ranged attack and damage within 30ft
