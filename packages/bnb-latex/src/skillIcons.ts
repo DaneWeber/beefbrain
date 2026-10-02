@@ -10,7 +10,7 @@
  */
 export const SKILL_ICONS: Record<string, string> = {
   appraise: 'gem-stone',
-  balance: 'balance-scale',
+  balance: 'skateboard',
   bluff: 'joker',
   climb: 'person-climbing',
   concentration: 'person-in-lotus-position',

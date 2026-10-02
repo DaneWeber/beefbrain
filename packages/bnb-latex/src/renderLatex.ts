@@ -10,6 +10,7 @@ import { DEFAULT_TEMPLATE_KEY, getTemplateRecord } from './templates/registry'
 import { renderTemplate, escapeLatexText } from './renderTemplate'
 import { getSkillIcon } from './skillIcons'
 import { formatTitleKey } from './text'
+import { BNB_LATEX_VERSION } from './version'
 import {
   extractBreakdown,
   formatComponentKey,
@@ -24,24 +25,27 @@ import {
 } from './components'
 import {
   buildAttackOptionRows,
-  buildClassAbilityRows,
-  buildFeatRows,
+  buildAbilitySummaryRows,
+  buildConditionalsBlock,
   buildFullAttackBlock,
   buildMeleeRows,
   buildRangedRows,
-  buildSpecialAbilityRows,
   buildSpecialAttackRows,
   buildSpellLikeBlock,
+  formatAttackNotes,
   getClassNames,
+  getConditionalKeys,
 } from './actionsSummary'
 import {
   buildAmmoRows,
-  buildLanguageRows,
+  buildAwarenessRows,
+  buildBlockNotes,
   buildLevelRows,
   buildMoneyRows,
   buildNoteRows,
   buildSpecialRows,
   formatHitDice,
+  separateConditionalSaves,
 } from './sheetExtras'
 import {
   buildCastingTableRows,
@@ -206,7 +210,7 @@ function formatSkills(
  * using this field define `\skillrow`.
  */
 function buildSkillsTableRows(skills: Record<string, unknown>): string {
-  return Object.entries(skills)
+  const rows = Object.entries(skills)
     .filter(([key]) => !key.startsWith('_'))
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([skillName, skillValue]) => {
@@ -236,7 +240,21 @@ function buildSkillsTableRows(skills: Record<string, unknown>): string {
       const sourcesCell = escapeLatexText(sources)
       return `\\skillrow{${icon}}{${name}}{${formatSigned(total)}}{${formatSigned(preAcp)}}{${sourcesCell}}`
     })
-    .join('\n')
+  // The armor check penalty opens the list, alphabetically where it falls
+  // anyway: its own bonus, nothing to take it out of, and what it comes from.
+  // A character with none has no row for it.
+  const acp = Number(getArrayFirst(skills._acp))
+  if (Number.isFinite(acp) && acp !== 0) {
+    const sources = escapeLatexText(formatSources(skills._acp))
+    rows.unshift(`\\skillrow{anchor}{ACP}{${formatSigned(acp)}}{}{${sources}}`)
+  }
+  return rows.join('\n')
+}
+
+// The day a sheet was made, as YYYY-MM-DD in local time.
+function formatDate(date: Date): string {
+  const pad = (value: number) => String(value).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 }
 
 // The twelve magic item body slots, head to toe, as a printed sheet reads,
@@ -596,7 +614,7 @@ function getClassSummary(characterData: Record<string, unknown>): string {
   return classPairs.length > 0 ? classPairs.join(' / ') : 'Unknown'
 }
 
-function buildFieldMap(data: BeefBrainData): LatexFieldMap {
+function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
   const characterData =
     ((data.character ?? {}) as Record<string, unknown>) || {}
   const description = (characterData.description ?? {}) as Record<
@@ -624,11 +642,12 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     fixed: string[],
   ): [string, unknown][] =>
     Object.entries(record).filter(([key]) => !fixed.includes(key))
-  // A view note, if the sheet has one, as a row labelled `label`.
-  const viewNote = (key: string, label: string): [string, unknown][] =>
-    viewNotes[key] === undefined ? [] : [[label, viewNotes[key]]]
+  const extraSaves = separateConditionalSaves(
+    extraEntries(savesContainer, ['fortitude', 'reflex', 'will']),
+  )
 
   return {
+    'sheet.generated': `bnb-latex ${BNB_LATEX_VERSION}, ${formatDate(generatedAt)}`,
     'character.name': String(description.name ?? 'Unknown'),
     'character.player': String(description.player ?? 'Unknown'),
     'character.race': String(description.race ?? 'Unknown'),
@@ -643,15 +662,16 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'character.complexion': String(description.complexion ?? 'Unknown'),
     'character.build': String(description.build ?? 'Unknown'),
     'character.template': String(description.template ?? 'None'),
-    'character.languagesTable': buildLanguageRows(
+    'character.awarenessTable': buildAwarenessRows(
       special.languages,
-      viewNotes.social,
+      special.senses,
     ),
+    // What bears on talking or noticing but is not a language or a sense:
+    // Mike's empathy with rats, a telepathy.
+    'character.awarenessNotes': buildBlockNotes(viewNotes.social),
     'build.levelRows': buildLevelRows(hpContainer, skillsContainer),
     'build.noteRows': buildNoteRows(characterData.notes),
-    'build.featsTable': buildFeatRows(special),
-    'build.classAbilitiesTable': buildClassAbilityRows(special, classes),
-    'build.specialAbilitiesTable': buildSpecialAbilityRows(special, classes),
+    'build.abilitiesTable': buildAbilitySummaryRows(special, hpContainer),
     'character.classes': getClassSummary(characterData),
     'character.level': getCharacterLevel(hpContainer),
 
@@ -697,12 +717,9 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'combat.acp.sources': formatSources(skillsContainer._acp),
     'combat.maxDex': getArrayFirst(defense['max-dex']),
     'combat.maxDex.sources': formatSources(defense['max-dex']),
-    'combat.initiative': getArrayFirst(combat.initiative),
+    'combat.initiative': formatSignedTotal(combat.initiative),
     'combat.initiative.breakdown': formatBreakdown(combat.initiative),
     'combat.initiative.sources': formatSources(combat.initiative),
-    'combat.initiativeSpecialRows': buildSpecialRows(
-      viewNote('senses', 'senses'),
-    ),
     'combat.defenseSpecialRows': buildSpecialRows([
       ...extraEntries(defense, [
         'ac',
@@ -711,8 +728,8 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
         'acp',
         'max-dex',
       ]),
-      ...viewNote('combat-defense', 'notes'),
     ]),
+    'combat.defenseNotes': buildBlockNotes(viewNotes['combat-defense']),
 
     // The written-out iteratives (+12/+7/+2) when the sheet has them.
     'combat.bab':
@@ -731,9 +748,9 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'actions.rangedTable': buildRangedRows(attack),
     'actions.fullAttackBlock': buildFullAttackBlock(attack),
     'actions.specialAttackRows': buildSpecialAttackRows(combat),
-    'actions.offenseNoteRows': buildSpecialRows(
-      viewNote('combat-offense', 'notes'),
-      { labelWidth: '0.27' },
+    'actions.attackNotes': buildBlockNotes(
+      formatAttackNotes(attack),
+      viewNotes['combat-offense'],
     ),
     'actions.spellLikeBlock': buildSpellLikeBlock(
       characterData['spell-like-abilities'],
@@ -743,12 +760,14 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
       special,
       classes,
       inventoryContainer,
+      getConditionalKeys(characterData.conditionals),
+    ),
+    'actions.conditionalsBlock': buildConditionalsBlock(
+      characterData.conditionals,
     ),
 
-    'saves.specialRows': buildSpecialRows(
-      extraEntries(savesContainer, ['fortitude', 'reflex', 'will']),
-      { signed: true },
-    ),
+    'saves.specialRows': buildSpecialRows(extraSaves.rows, { signed: true }),
+    'saves.notes': buildBlockNotes(extraSaves.notes),
     'saves.fortitude': formatSignedTotal(savesContainer.fortitude),
     'saves.fortitude.breakdown': formatBreakdown(savesContainer.fortitude),
     'saves.fortitude.sources': formatSources(savesContainer.fortitude),
@@ -759,10 +778,10 @@ function buildFieldMap(data: BeefBrainData): LatexFieldMap {
     'saves.will.breakdown': formatBreakdown(savesContainer.will),
     'saves.will.sources': formatSources(savesContainer.will),
 
-    'movement.specialRows': buildSpecialRows([
-      ...extraEntries(movement, ['speed', 'run', 'load', 'capacity']),
-      ...viewNote('movement', 'notes'),
-    ]),
+    'movement.specialRows': buildSpecialRows(
+      extraEntries(movement, ['speed', 'run', 'load', 'capacity']),
+    ),
+    'movement.notes': buildBlockNotes(viewNotes.movement),
     'movement.speed': getArrayFirst(movement.speed),
     'movement.speed.breakdown': formatBreakdown(movement.speed),
     'movement.speed.sources': formatSources(movement.speed),
@@ -834,7 +853,7 @@ export function renderLatex(input: RenderLatexInput): RenderLatexResult {
   const templateToRender = input.templateContent ?? templateRecord.template
   const calculatedYaml = updateCalculatedFields(input.yaml)
   const parsedData = yaml.load(calculatedYaml) as BeefBrainData
-  const fields = buildFieldMap(parsedData)
+  const fields = buildFieldMap(parsedData, input.generatedAt ?? new Date())
 
   return {
     latex: renderTemplate(templateToRender, fields),

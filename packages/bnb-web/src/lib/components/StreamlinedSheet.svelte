@@ -95,11 +95,16 @@
 		};
 	}
 
-	// Extract senses from racial traits
+	// The senses the data lists, or for a sheet that lists none, those
+	// picked out of its racial traits
 	const senses = $derived(
-		(special.racial ?? [])
-			.map(String)
-			.filter((t: string) => /darkvision|blinds|low-light|keen senses|tremorsense|scent/i.test(t))
+		Array.isArray(special.senses)
+			? special.senses.map(String)
+			: (special.racial ?? [])
+					.map(String)
+					.filter((t: string) =>
+						/darkvision|blinds|low-light|keen senses|tremorsense|scent/i.test(t)
+					)
 	);
 
 	const nonSenseRacial = $derived(

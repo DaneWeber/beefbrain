@@ -3,6 +3,7 @@ import { resolve } from 'path'
 import { describe, expect, it } from 'vitest'
 import { renderLatex } from './renderLatex'
 import { LatexGenerationError } from './errors'
+import { BNB_LATEX_VERSION } from './version'
 
 const VALID_YAML = readFileSync(
   resolve(__dirname, '../../bnb-core/src/examples/final/dnd35-fighter-1.yaml'),
@@ -15,7 +16,7 @@ describe('renderLatex', () => {
     expect(result.template.key).toBe('dnd35-detailed')
     expect(result.latex).toContain('\\setmainfont{Atkinson Hyperlegible Next}')
     expect(result.latex).toContain('Landorf the Human Fighter')
-    expect(result.latex).toContain('fighter 1')
+    expect(result.latex).toContain('\\listrow{Fighter 1}{}')
     expect(result.latex).toContain('\\renewcommand{\\sheettitle}{Inventory}')
     expect(result.latex).toContain('\\renewcommand{\\sheettitle}{Spells}')
   })
@@ -53,6 +54,48 @@ describe('renderLatex', () => {
     expect(result.latex).toContain('Appraise')
   })
 
+  it('signs initiative like every other bonus', () => {
+    const { latex } = renderLatex({ yaml: VALID_YAML })
+    expect(latex).toContain('\\statrow{stopwatch}{Initiative}{ +5 }')
+  })
+
+  it('opens the skills with the armor check penalty and its sources', () => {
+    const { latex } = renderLatex({ yaml: VALID_YAML })
+    const rows = latex
+      .split('\n')
+      .filter((line) => line.startsWith('\\skillrow'))
+    expect(rows[0]).toBe('\\skillrow{anchor}{ACP}{-4}{}{Armor -2, Shield -2}')
+  })
+
+  it('leaves out the ACP row for a character with no penalty', () => {
+    const { latex } = renderLatex({
+      yaml: readFileSync(
+        resolve(
+          __dirname,
+          '../../../data/parties/beefy-boys/andy-black-stag.bnb.yaml',
+        ),
+        'utf-8',
+      ),
+    })
+    expect(latex).toContain('\\skillrow{gem-stone}{Appraise}')
+    expect(latex).not.toContain('{ACP}')
+  })
+
+  it('prints the bnb-latex version and the day it was made in the corner', () => {
+    const { latex } = renderLatex({
+      yaml: VALID_YAML,
+      generatedAt: new Date(2026, 9, 1),
+    })
+    expect(latex).toContain(`bnb-latex ${BNB_LATEX_VERSION}, 2026-10-01`)
+  })
+
+  it('keeps its version in step with package.json', () => {
+    const pkg = JSON.parse(
+      readFileSync(resolve(__dirname, '../package.json'), 'utf-8'),
+    ) as { version: string }
+    expect(BNB_LATEX_VERSION).toBe(pkg.version)
+  })
+
   it('puts the Actions page between Stats and Build', () => {
     const { latex } = renderLatex({ yaml: VALID_YAML })
     const actions = latex.indexOf('\\renewcommand{\\sheettitle}{Actions}')
@@ -68,8 +111,32 @@ describe('renderLatex', () => {
       '\\meleerow{Longsword}{+4}{1d8+2 slashing}{19-20/x2}{Weapon Focus Longsword +1; Dmg Str +2}',
     )
     expect(latex).toContain(
-      '\\featrow{Weapon Focus (Longsword)}{Longsword +1}{Fighter 1}',
+      '\\traitrow{Weapon Focus (Longsword)}{Longsword +1}',
     )
+  })
+
+  it('prints the Conditionals on the Actions page, and not in the Attack Options too', () => {
+    const { latex } = renderLatex({
+      yaml: `${VALID_YAML.trimEnd()}
+  conditionals:
+    weapon-focus-longsword: +1 attack with a longsword
+    dazzled-in-sunlight: -1 attack, Spot, Search
+`,
+    })
+    const at = (title: string) =>
+      latex.indexOf(`\\renewcommand{\\sheettitle}{${title}}`)
+    const block = latex.indexOf('\\begin{actionblock}{Conditionals}')
+    expect(block).toBeGreaterThan(at('Actions'))
+    expect(block).toBeLessThan(at('Build'))
+    expect(latex).toContain(
+      '\\actionrow{Dazzled In Sunlight}{-1 attack, Spot, Search}',
+    )
+    expect(latex).not.toContain('\\traitrow{Weapon Focus (Longsword)}')
+  })
+
+  it('prints no Conditionals block for a sheet without any', () => {
+    const { latex } = renderLatex({ yaml: VALID_YAML })
+    expect(latex).not.toContain('{Conditionals}')
   })
 
   it('orders the pages Stats, Actions, Build, Inventory, Spells', () => {
@@ -83,16 +150,50 @@ describe('renderLatex', () => {
     expect(at('Inventory')).toBeLessThan(at('Spells'))
     // Description moved from page 1 to Build.
     expect(latex.indexOf('{Description}')).toBeGreaterThan(at('Build'))
-    expect(latex.indexOf('{Languages}')).toBeLessThan(skills)
+    expect(latex.indexOf('{Awareness}')).toBeLessThan(skills)
     // Actions keeps the attacks; the lists behind them are on Build.
     expect(latex.indexOf('{Ammunition}')).toBeGreaterThan(at('Actions'))
     expect(latex.indexOf('{Attack Options}')).toBeLessThan(at('Build'))
-    for (const list of ['Feats', 'Class Abilities', 'Special Abilities']) {
-      expect(latex.indexOf(`\\flowblock{${list}}`)).toBeGreaterThan(at('Build'))
-      expect(latex.indexOf(`\\flowblock{${list}}`)).toBeLessThan(
-        at('Inventory'),
-      )
-    }
+    const abilities = latex.indexOf('\\begin{sheetblock}{Abilities \\& Feats}')
+    expect(abilities).toBeGreaterThan(at('Build'))
+    expect(abilities).toBeLessThan(at('Inventory'))
+    expect(latex).toContain(
+      '\\listrow{Feats}{Weapon\\listtie Focus\\listtie (Longsword)\\notesep Blind-Fight\\notesep Improved\\listtie Initiative}',
+    )
+  })
+
+  it('sets languages and senses in Awareness, with its notes under them', () => {
+    const yaml = VALID_YAML.replace(
+      '  special:\n',
+      [
+        '  view-notes:',
+        '    senses: Scent (30ft, 60ft downwind)',
+        '    social: Lycanthropic Empathy (+4 vs rats)',
+        '  special:',
+        '    languages: [Common, Elven]',
+        '    senses: ["Scent (30ft, 60ft downwind)", Low-light Vision]',
+        '',
+      ].join('\n'),
+    )
+    const { latex } = renderLatex({ yaml })
+    const block = latex.slice(
+      latex.indexOf('\\begin{sheetblock}{Awareness}'),
+      latex.indexOf('\\columnbreak'),
+    )
+    expect(block).toContain(
+      '\\awarerow{speaking-head}{Languages}{Common, Elven}',
+    )
+    expect(block).toContain(
+      '\\awarerow{eye}{Senses}{Scent (30ft, 60ft downwind), Low-light Vision}',
+    )
+    expect(block).toContain('\\blocknotes{Lycanthropic Empathy (+4 vs rats)}')
+    // Senses are no longer a row of the Init block, view note or not.
+    const init = latex.slice(
+      latex.indexOf('\\begin{sheetblock}{Init}'),
+      latex.indexOf('\\begin{sheetblock}{Abilities}'),
+    )
+    expect(init).not.toContain('Senses')
+    expect(init).not.toContain('Scent')
   })
 
   it('shows hit dice between HP and AC', () => {
@@ -112,6 +213,37 @@ describe('renderLatex', () => {
     expect(latex).toContain(
       '\\noterow{0.30}{Special}{Blind Fight: 1/2 penalty when unable to see}',
     )
+  })
+
+  it('sets conditional bonuses and view notes under their block', () => {
+    const editedYaml = VALID_YAML.replace(
+      '      will: [-1, {fighter: 0, wis: -1}]\n',
+      '      will: [-1, {fighter: 0, wis: -1}]\n' +
+        '      will-vs-fear: [3, {will: -1, brave: 4}, 1/day]\n',
+    )
+      .replace(
+        '      grapple: [3, {bab: 1, str: 2}]\n',
+        '      grapple: [3, {bab: 1, str: 2}]\n      sneak-attack: +1d6\n',
+      )
+      .replace(
+        '  skills:\n',
+        '  view-notes:\n' +
+          '    movement: "Boots (3 charges); Jump 1/day"\n' +
+          '    combat-offense: "Favored Enemy: Orcs"\n' +
+          '  skills:\n',
+      )
+    const { latex } = renderLatex({ yaml: editedYaml })
+    expect(latex).toContain(
+      '\\blocknotes{1/day +4 Will Vs Fear (+3 total)}\n\\end{sheetblock}',
+    )
+    expect(latex).toContain(
+      '\\blocknotes{Boots (3 charges)\\notesep Jump 1/day}\n\\end{sheetblock}',
+    )
+    expect(latex).toContain(
+      '\\blocknotes{Sneak Attack +1d6\\notesep Favored Enemy: Orcs}',
+    )
+    expect(latex).not.toContain('{Will Vs Fear}')
+    expect(latex).not.toContain('{Sneak Attack}')
   })
 
   it('renders the detailed sheet without emoji as its own template', () => {

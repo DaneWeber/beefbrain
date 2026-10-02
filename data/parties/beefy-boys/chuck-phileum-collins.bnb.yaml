@@ -49,14 +49,45 @@ character:
     capacity: {light: 100 lbs, medium: 200 lbs, heavy: 300 lbs, lift: 600 lbs, drag: 1500 lbs}
   skills:
     _points: [51, {cleric: 36, mystic-theurge: 15}]
-    _acp: [-5, armor: -5]
+    _acp: [-6, heavy-load: -6]
+    appraise: [0, int: 0]
+    balance: [-7, {dex: -1, acp: -6}]
+    bluff: [1, cha: 1]
+    climb: [-8, {str: -2, acp: -6}]
     concentration: [17, {con: 2, ranks: [15, {cleric: 12, mystic-theurge: 3}]}]
+    craft: [0, int: 0]
+    decipher-script: [.nan, {int: 0, not-trained: .nan}]
     diplomacy: [6, {cha: 1, ranks: [5, {cleric: 3, mystic-theurge: 2}]}]
+    disable-device: [.nan, {int: 0, not-trained: .nan}]
+    disguise: [1, cha: 1]
+    escape-artist: [-7, {dex: -1, acp: -6}]
+    forgery: [0, int: 0]
+    gather-information: [1, cha: 1]
+    handle-animal: [.nan, {cha: 1, not-trained: .nan}]
+    heal: [4, wis: 4]
+    hide: [-7, {dex: -1, acp: -6}]
+    intimidate: [1, cha: 1]
+    jump: [-8, {str: -2, acp: -6}]
     knowledge-arcana: [5, {int: 0, ranks: [5, cleric: 5]}]
     knowledge-religion: [6, {int: 0, ranks: [6, {cleric: 4, mystic-theurge: 2}]}]
     knowledge-planes: [10, {int: 0, ranks: [10, {cleric: 7, mystic-theurge: 3}]}]
+    listen: [4, wis: 4]
+    move-silently: [-7, {dex: -1, acp: -6}]
+    open-lock: [.nan, {dex: -1, not-trained: .nan}]
+    perform: [1, cha: 1]
+    profession: [.nan, {wis: 4, not-trained: .nan}]
     ride: [1, {dex: -1, ranks: [2, {cleric: 1, mystic-theurge: 3}]}]
+    search: [0, int: 0]
+    sense-motive: [4, wis: 4]
+    sleight-of-hand: [.nan, {dex: -1, acp: -6, not-trained: .nan}]
+    speak-language: [.nan, not-trained: .nan]
     spellcraft: [8, {int: 0, ranks: [6, {cleric: 3, mystic-theurge: 3}], knowledge-arcana-synergy: 2}]
+    spot: [4, wis: 4]
+    survival: [4, wis: 4]
+    swim: [-14, {str: -2, acp: -12}]
+    tumble: [.nan, {dex: -1, acp: -6, not-trained: .nan}]
+    use-magic-device: [.nan, {cha: 1, not-trained: .nan}]
+    use-rope: [-1, dex: -1]
   special:
     feats:
       - [Purify Magic, class: cleric]
@@ -87,6 +118,7 @@ character:
       celestial-spells: true
       blessing-of-the-golden-heaven:
         - Immune to death spells and magical death effects
+    senses: []
     languages:
       - Common
   inventory:
@@ -170,3 +202,5 @@ character:
     domains: Good (special spells replace some domain spells), Trickery
     hd-breakdown: 9d8 + 3d4 + 24
     value: 78000 gp
+  conditionals:
+    blessing-of-the-silver-heaven: +2 AC and saves vs. evil creatures; +2 sacred saves vs. disease, poison, petrification

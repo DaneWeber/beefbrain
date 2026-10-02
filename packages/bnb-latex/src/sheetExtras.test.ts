@@ -1,23 +1,23 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildAmmoRows,
-  buildLanguageRows,
+  buildAwarenessRows,
+  buildBlockNotes,
   buildLevelRows,
   buildMoneyRows,
   buildNoteRows,
   buildSpecialRows,
+  separateConditionalSaves,
+  splitNotes,
 } from './sheetExtras'
 
 describe('buildSpecialRows', () => {
   it('shows a total with its sources and notes', () => {
     expect(
-      buildSpecialRows(
-        [['will-vs-mind-affecting', [15, { will: 10, mindarmor: 5 }, '3/day']]],
-        { signed: true },
-      ),
-    ).toBe(
-      '\\statrow{}{Will vs. Mind-Affecting}{+15}{Mindarmor +5, Will +10; 3/day}',
-    )
+      buildSpecialRows([['vs-poison', [4, { periapt: 4 }, 'while worn']]], {
+        signed: true,
+      }),
+    ).toBe('\\statrow{}{Vs Poison}{+4}{Periapt +4; while worn}')
   })
 
   it('reads a speed unsigned, with its notes as sources', () => {
@@ -50,41 +50,69 @@ describe('buildSpecialRows', () => {
     )
   })
 
-  it('takes the label width of the block it is in', () => {
-    expect(
-      buildSpecialRows([['special', 'Sneak Attack +5d6']], {
-        labelWidth: '0.27',
-      }),
-    ).toBe('\\noterow{0.27}{Special}{Sneak Attack +5d6}')
-  })
-
-  it('sets notes across the whole row, with no label', () => {
-    expect(buildSpecialRows([['notes', 'Shield Ward: add shield bonus']])).toBe(
-      '\\fullnoterow{Shield Ward: add shield bonus}',
-    )
-  })
-
   it('skips hidden keys and has no rows for none', () => {
     expect(buildSpecialRows([['_total', 3]])).toBe('')
     expect(buildSpecialRows([])).toBe('')
   })
 })
 
-describe('buildLanguageRows', () => {
-  it('sets languages two to a row, then the social note', () => {
+describe('separateConditionalSaves', () => {
+  it('reads a save built on a base save as a bonus to it', () => {
     expect(
-      buildLanguageRows(['Common', 'Elven', 'Orc'], 'Lycanthropic Empathy'),
+      separateConditionalSaves([
+        ['will-vs-mind-affecting', [15, { will: 10, mindarmor: 5 }, '3/day']],
+        ['reflex-vs-traps', [9, { reflex: 7, 'trap-sense': 2 }]],
+      ]),
+    ).toEqual({
+      rows: [],
+      notes: [
+        '3/day +5 Will vs. Mind-Affecting (+15 total)',
+        '+2 Reflex Vs Traps (+9 total)',
+      ],
+    })
+  })
+
+  it('keeps a save with no base save among its sources as a row', () => {
+    const poison: [string, unknown] = ['vs-poison', [4, { periapt: 4 }]]
+    const text: [string, unknown] = ['special', 'Evasion']
+    expect(separateConditionalSaves([poison, text])).toEqual({
+      rows: [poison, text],
+      notes: [],
+    })
+  })
+})
+
+describe('buildAwarenessRows', () => {
+  it('sets all the languages on one row and all the senses on another', () => {
+    expect(
+      buildAwarenessRows(
+        ['Common', 'Elven', 'Orc'],
+        ['Scent (30ft, 60ft downwind)', 'Low-light Vision'],
+      ),
     ).toBe(
       [
-        '\\langrow{Common}{Elven}',
-        '\\langrow{Orc}{}',
-        '\\textrow{Social}{Lycanthropic Empathy}',
+        '\\awarerow{speaking-head}{Languages}{Common, Elven, Orc}',
+        '\\awarerow{eye}{Senses}{Scent (30ft, 60ft downwind), Low-light Vision}',
       ].join('\n'),
     )
   })
 
-  it('marks a sheet with none', () => {
-    expect(buildLanguageRows(undefined)).toBe('\\nonerow{2}')
+  it('escapes the names', () => {
+    expect(buildAwarenessRows(['Thieves_ Cant'], 'Darkvision 60ft')).toBe(
+      [
+        '\\awarerow{speaking-head}{Languages}{Thieves\\_ Cant}',
+        '\\awarerow{eye}{Senses}{Darkvision 60ft}',
+      ].join('\n'),
+    )
+  })
+
+  it('keeps both rows, empty, for a sheet with neither', () => {
+    expect(buildAwarenessRows(undefined, [])).toBe(
+      [
+        '\\awarerow{speaking-head}{Languages}{}',
+        '\\awarerow{eye}{Senses}{}',
+      ].join('\n'),
+    )
   })
 })
 
@@ -128,11 +156,14 @@ describe('buildMoneyRows', () => {
 })
 
 describe('buildLevelRows', () => {
-  it('lists XP, hit dice, max HP and skill points', () => {
+  it('lists XP, ECL from the class levels, hit dice, max HP and skill points', () => {
     expect(
       buildLevelRows(
         {
           xp: 91417,
+          ranger: [6],
+          fighter: [3],
+          rogue: [4],
           hd: [13, { d8: 6, d10: 3, d6: 4 }],
           'max-hp': [89, { con: 26, rolls: 63 }],
         },
@@ -140,13 +171,14 @@ describe('buildLevelRows', () => {
       ).split('\n'),
     ).toEqual([
       '\\statrow{glowing-star}{XP}{91417}{}',
+      '\\statrow{chart-increasing}{ECL}{13}{}',
       '\\statrow{game-die}{Hit Dice}{13}{6d8, 3d10, 4d6}',
       '\\statrow{heart-with-ribbon}{Max HP}{89}{Con +26, Rolls +63}',
       '\\statrow{graduation-cap}{Skill Points}{119}{Fighter +11, Ranger +71, Rogue +37}',
     ])
   })
 
-  it('adds ECL and level adjustment only when the sheet has them', () => {
+  it("takes the sheet's ECL, and adds level adjustment only when it has one", () => {
     const rows = buildLevelRows(
       { xp: 93830, ecl: 14, hd: [10, 12], 'level-adjustment': 4 },
       {},
@@ -174,7 +206,7 @@ describe('buildNoteRows', () => {
 })
 
 describe('buildAmmoRows', () => {
-  it('lists the ammunition in every container, with where it is', () => {
+  it('lists the ammunition in every container, under the container', () => {
     expect(
       buildAmmoRows({
         _on: ['equipped', 'pack'],
@@ -187,15 +219,43 @@ describe('buildAmmoRows', () => {
       }),
     ).toBe(
       [
-        '\\ammorow{Arrows}{20}{Equipped}',
-        '\\ammorow{Arrows Cold Iron}{20}{Pack}',
+        '\\ammogroup{Equipped}',
+        '\\ammorow{Arrows}{20}',
+        '\\ammogroup{Pack}',
+        '\\ammorow{Arrows Cold Iron}{20}',
       ].join('\n'),
     )
   })
 
   it('marks a sheet with none', () => {
     expect(buildAmmoRows({ equipped: [['Dagger', 1, 'weapon']] })).toBe(
-      '\\nonerow{4}',
+      '\\nonerow{3}',
     )
+  })
+})
+
+describe('block notes', () => {
+  it('splits text at semicolons outside parentheses', () => {
+    expect(
+      splitNotes('Vanisher Cloak (3 charges/day; 1=4rds); Deathward 1/day'),
+    ).toEqual(['Vanisher Cloak (3 charges/day; 1=4rds)', 'Deathward 1/day'])
+  })
+
+  it('takes a list as one note per entry', () => {
+    expect(splitNotes(['Evasion', 'DR 10/silver; Improved Evasion'])).toEqual([
+      'Evasion',
+      'DR 10/silver',
+      'Improved Evasion',
+    ])
+  })
+
+  it('sets the notes under the table, parted by \\notesep', () => {
+    expect(buildBlockNotes('Deathward 1/day; 50% chance', ['Evasion'])).toBe(
+      '\\blocknotes{Deathward 1/day\\notesep 50\\% chance\\notesep Evasion}',
+    )
+  })
+
+  it('prints nothing for a block without notes', () => {
+    expect(buildBlockNotes(undefined, [])).toBe('')
   })
 })

@@ -58,14 +58,42 @@ character:
   skills:
     _points: [48, {fighter: 26, human: 13, first-level: 9}]
     _acp: [-4, {armor: -2, shield: -2}]
+    appraise: [0, int: 0]
+    balance: [-3, {dex: 1, acp: -4}]
+    bluff: [-1, cha: -1]
     climb: [15, {str: 6, ranks: [13, fighter: 13], acp: -4}]
+    concentration: [2, con: 2]
+    craft: [0, int: 0]
+    decipher-script: [.nan, {int: 0, not-trained: .nan}]
+    diplomacy: [-1, cha: -1]
+    disable-device: [.nan, {int: 0, not-trained: .nan}]
+    disguise: [-1, cha: -1]
+    escape-artist: [-3, {dex: 1, acp: -4}]
+    forgery: [0, int: 0]
+    gather-information: [-1, cha: -1]
+    handle-animal: [.nan, {cha: -1, not-trained: .nan}]
     heal: [1, {wis: -1, healer-kit: 2}]
+    hide: [-3, {dex: 1, acp: -4}]
     intimidate: [4, {cha: -1, ranks: [5, fighter: 5]}]
     jump: [12, {str: 6, ranks: [12, fighter: 12], acrobatic: 2, tumble-synergy: 2, speed: -6, acp: -4}]
-    listen: [0, {wis: -1, ranks: [1.5, fighter: 3]}]
-    spot: [0, {wis: -1, ranks: [1.5, fighter: 3]}]
+    knowledge: [.nan, {int: 0, not-trained: .nan}]
+    listen: [0.5, {wis: -1, ranks: [1.5, fighter: 3]}]
+    move-silently: [-3, {dex: 1, acp: -4}]
+    open-lock: [.nan, {dex: 1, not-trained: .nan}]
+    perform: [-1, cha: -1]
+    profession: [.nan, {wis: -1, not-trained: .nan}]
+    ride: [1, dex: 1]
+    search: [0, int: 0]
+    sense-motive: [-1, wis: -1]
+    sleight-of-hand: [.nan, {dex: 1, acp: -4, not-trained: .nan}]
+    speak-language: [.nan, not-trained: .nan]
+    spellcraft: [.nan, {int: 0, not-trained: .nan}]
+    spot: [0.5, {wis: -1, ranks: [1.5, fighter: 3]}]
+    survival: [-1, wis: -1]
     swim: [-2, {str: 6, acp: -8}]
     tumble: [7, {dex: 1, ranks: [6, fighter: 12], acrobatic: 2, jump-synergy: 2, acp: -4}]
+    use-magic-device: [.nan, {cha: -1, not-trained: .nan}]
+    use-rope: [1, dex: 1]
   special:
     feats:
       - [Acrobatic, level: 1, [{jump: 2, tumble: 2}]]
@@ -89,6 +117,7 @@ character:
       - Martial Weapons
       - All Armor
       - All Shields (including tower)
+    senses: []
     languages:
       - Common
   inventory:

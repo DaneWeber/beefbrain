@@ -16,6 +16,8 @@ export interface RenderLatexInput {
   templateContent?: string
   maxYamlBytes?: number
   maxTemplateBytes?: number
+  /** When the sheet was made, for its footer. Defaults to now. */
+  generatedAt?: Date
 }
 
 export interface RenderLatexResult {

@@ -50,23 +50,23 @@ character:
     _points: [87, {wizard: 75, first-level: 12}]
     _acp: [0]
     appraise: [5, int: 5]
-    balance: [2, dex: 2]
+    balance: [2, {dex: 2, acp: 0}]
     bluff: [-2, cha: -2]
-    climb: [0, str: 0]
+    climb: [0, {str: 0, acp: 0}]
     concentration: [16, {con: 1, ranks: [15, wizard: 15]}]
     craft: [5, int: 5]
     decipher-script: [15, {int: 5, ranks: [10, wizard: 10]}]
     diplomacy: [-2, cha: -2]
-    disable-device: [5, int: 5]
+    disable-device: [.nan, {int: 5, not-trained: .nan}]
     disguise: [-2, cha: -2]
-    escape-artist: [2, dex: 2]
+    escape-artist: [2, {dex: 2, acp: 0}]
     forgery: [5, int: 5]
     gather-information: [-2, cha: -2]
     handle-animal: [.nan, {cha: -2, not-trained: .nan}]
     heal: [3, {wis: 1, healer-kit: 2}]
-    hide: [2, dex: 2]
+    hide: [2, {dex: 2, acp: 0}]
     intimidate: [-2, cha: -2]
-    jump: [0, str: 0]
+    jump: [0, {str: 0, acp: 0}]
     know-arcana: [13, {int: 5, ranks: [8, wizard: 8]}]
     know-arch-eng: [6, {int: 5, ranks: [1, wizard: 1]}]
     know-dungeoneering: [15, {int: 5, ranks: [10, wizard: 10]}]
@@ -78,20 +78,20 @@ character:
     know-religion: [6, {int: 5, ranks: [1, wizard: 1]}]
     know-planes: [20, {int: 5, ranks: [15, wizard: 15]}]
     listen: [1, wis: 1]
-    move-silently: [2, dex: 2]
+    move-silently: [2, {dex: 2, acp: 0}]
     open-lock: [.nan, {dex: 2, not-trained: .nan}]
     perform: [-2, cha: -2]
     profession: [.nan, {wis: 1, not-trained: .nan}]
     ride: [2, dex: 2]
     search: [7, {int: 5, racial: 2}]
     sense-motive: [1, wis: 1]
-    sleight-of-hand: [.nan, {dex: 2, not-trained: .nan}]
+    sleight-of-hand: [.nan, {dex: 2, not-trained: .nan, acp: 0}]
     speak-language: [.nan, not-trained: .nan]
     spellcraft: [22, {int: 5, ranks: [15, wizard: 15], knowledge-arcana-synergy: 2}]
     spot: [1, wis: 1]
     survival: [1, wis: 1]
-    swim: [0, str: 0]
-    tumble: [.nan, {dex: 2, not-trained: .nan}]
+    swim: [0, {str: 0, acp: 0}]
+    tumble: [.nan, {dex: 2, not-trained: .nan, acp: 0}]
     use-magic-device: [.nan, {cha: -2, not-trained: .nan}]
     use-rope: [2, dex: 2]
   special:
@@ -116,13 +116,14 @@ character:
       - Speak with burrowing mammals 1/day (1 minute)
       - "Spell-Like Abilities (Cha 10+ required): 1/day dancing lights, ghost sound, prestidigitation. CL 1st, DC 10 + Cha mod + spell level."
       - Low-light vision
-      - Weapon Familiarity: gnome hooked hammer
+      - {Weapon Familiarity: gnome hooked hammer}
     proficiencies:
       - club
       - dagger
       - heavy crossbow
       - light crossbow
       - quarterstaff
+    senses: [Low-light Vision]
     languages:
       - Common
       - Gnome
@@ -336,3 +337,6 @@ character:
     cloak-of-resistance: +2 resistance bonus to all saves
     value: 91500 gp
     money: 3471.8 gp
+  conditionals:
+    illusion-resistance: +2 saves vs. illusion spells and effects
+    giant-foes: +4 dodge AC vs. giants
