@@ -148,24 +148,30 @@ block's notes are.
 
 ### `dnd35-quick-reference`
 - One landscape page meant to answer most of what a player looks up during a session (issue #72),
-  in the detailed sheet's look: the same preamble (font, spine, rotated block labels, zebra rows,
+  in the detailed sheet's look: the same preamble (font, spine, rotated block labels, striped rows,
   emoji, `\blockrule`s), shared through `templates/dnd35/sheetPreamble.ts`.
-- **Three columns** rather than two, with **final values only**: no sources column anywhere.
-  Where a bonus comes from is the detailed sheet's job.
-  - **Stats:** Init; Abilities (score and modifier); Saves, conditional saves as notes; Defense
+- It repeats the detailed sheet, so it is **tan rather than gray** (striping, group rows, rules
+  and spine) to tell the two apart at a glance. The preamble names those colors (`zebra`,
+  `zebradark`, `blockrulecolor`) so a sheet can redefine them.
+- **Final values only**: no sources anywhere. Where a bonus comes from is the detailed sheet's
+  job.
+- **Three columns, narrow, wide, narrow.** The outer columns hold short labels with a number or
+  two; the middle one takes what wraps.
+  - **Left:** Init; Abilities (score and modifier); Saves, conditional saves as notes; Defense
     (HP, AC, Touch, Flat-Footed, then DR, SR and other `combat.defense` keys) with its notes;
-    Movement (Speed, Run when given, other modes) with its notes; Awareness.
-  - **Actions:** Attack (BAB, Melee, Ranged, Grapple) with offense notes; Melee and Ranged
-    weapons (attack, damage, crit only when not x2, and range); Full Attack; Options (special
-    attacks, attack options, carried combat gear, as `\listrow`s); Conditionals.
-  - **Skills and magic:** only skills with ranks, a bonus beyond the ability's, or a note
-    ("Any other skill: its ability's modifier" under the table); spell-like abilities grouped by
-    uses; a table per caster, highest spell level first, a repeated spell counted.
+    Movement (Speed, Run when given, other modes) with its notes; Attack (BAB, Melee, Ranged,
+    Grapple) with offense notes.
+  - **Middle:** Melee and Ranged weapons (attack, damage, crit only when not x2, and range);
+    Full Attack; Options (special attacks, attack options, carried combat gear, as
+    `\listrow`s); Conditionals; spell-like abilities grouped by uses; a table per caster,
+    highest spell level first, a repeated spell counted.
+  - **Right:** Skills, only those with ranks or a bonus beyond the ability's, bonus only: a
+    skill's conditional bonuses are in the Conditionals; Awareness.
 - What to leave out is decided as for `dnd35-stat-block` (`statBlock.ts` does the picking for
   both sheets). Lines and blocks the data has nothing for are left out.
-- Each column is one `\fitblock`, so a character with more than a column holds gets that column
-  scaled down to fit, as page 1 of the detailed sheet does. Cells are padded 3pt (not 4pt), and
-  every table's widths fit the narrower column.
+- Each column is one `\fitblock`, so a column with more than the page holds is scaled down to
+  fit, as page 1 of the detailed sheet's are. Cells are padded 3pt (not 4pt), and every table's
+  widths fit its column.
 
 ### `dnd35-stat-block`
 - One portrait page in the style of a WotC stat block, and the sheet for an animal companion,

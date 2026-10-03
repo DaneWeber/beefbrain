@@ -275,22 +275,22 @@ export function buildQuickConditionalsBlock(
 }
 
 /**
- * One `\qskillrow{icon}{name}{bonus}{notes}` per skill with ranks or a bonus
- * beyond its ability's: the rest are their ability's modifier, which the
- * Abilities block gives.
+ * One `\qskillrow{icon}{name}{bonus}` per skill with ranks or a bonus
+ * beyond its ability's. What a skill's notes say ("+4 vs. favored enemies")
+ * is in the Conditionals.
  */
 export function buildQuickSkillRows(
   character: Record<string, unknown>,
 ): string {
   const skills = getNotableSkills(toRecord(character.skills))
   if (skills.length === 0) {
-    return '\\nonerow{3}'
+    return '\\nonerow{2}'
   }
   return skills
-    .map(({ key, total, notes }) => {
+    .map(({ key, total }) => {
       // The icon is a CLDR emoji name from our own table, never user text.
       const icon = getSkillIcon(key)
-      const cells = [formatTitleKey(key), formatSigned(total), notes.join('; ')]
+      const cells = [formatTitleKey(key), formatSigned(total)]
       return `\\qskillrow{${icon}}{${cells.map(escapeLatexText).join('}{')}}`
     })
     .join('\n')

@@ -71,6 +71,11 @@ ${EMOJI_ON}
 % Alternate rows of every table are shaded, starting with the first row;
 % light enough to stay legible in grayscale.
 \colorlet{zebra}{black!10}
+% Group rows (an inventory container, a class's attack options) shade
+% darker, and the rule between blocks is darker still. A sheet that wants
+% its own look (the quick reference's tan) redefines these three.
+\colorlet{zebradark}{black!20}
+\colorlet{blockrulecolor}{black!45}
 \rowcolors{1}{zebra}{}
 \setlength{\parskip}{2pt}
 \setlength{\columnsep}{14pt}
@@ -206,7 +211,7 @@ ${EMOJI_ON}
 % Inventory: #1 item, #2 quantity, #3 the line's total weight in pounds.
 \newcommand{\invheader}{\stackheader{I}{\footnotesize Item & \footnotesize Qty & \footnotesize Wt (lb)}}
 % A container row spans Item and Qty: #1 container, #2 its subtotal weight.
-\newcommand{\invcontainer}[2]{\stackheader[black!20]{I}{%
+\newcommand{\invcontainer}[2]{\stackheader[zebradark]{I}{%
   \multicolumn{2}{L{\dimexpr\invname+\invqty+2\tabcolsep\relax}}{\textbf{#1}} & \textbf{#2}}}
 \newcommand{\invitem}[3]{\stackbody{I}{#1 & #2 & #3}}
 
@@ -322,7 +327,7 @@ ${EMOJI_ON}
 \newcommand{\blockrule}{%
   \par
   \sbox{\blockrulebox}{\hspace*{\blocklabel}%
-    \makebox[\dimexpr\linewidth-\blocklabel\relax]{\color{black!45}%
+    \makebox[\dimexpr\linewidth-\blocklabel\relax]{\color{blockrulecolor}%
       \rule[2pt]{\dimexpr\linewidth/6-4pt\relax}{0.6pt}%
       \hspace{2pt}\raisebox{0.8pt}{\rotatebox[origin=c]{45}{\rule{3pt}{3pt}}}\hspace{2pt}%
       \rule[2pt]{\dimexpr\linewidth/6-4pt\relax}{0.6pt}}}%
@@ -346,7 +351,7 @@ ${EMOJI_ON}
 % the container, in a darker row like the inventory's. Each piece of
 % ammunition: #1 name, #2 how many. The last column is left empty, for
 % marking off what is used.
-\newcommand{\ammogroup}[1]{\rowcolor{black!20}%
+\newcommand{\ammogroup}[1]{\rowcolor{zebradark}%
   \multicolumn{3}{L{\dimexpr0.93\linewidth+4\tabcolsep\relax}}{\rowstrut\textbf{#1}} \\}
 \newcommand{\ammorow}[2]{\rowstrut #1 & #2 & \\}
 % A table with nothing in it: #1 its number of columns.
@@ -370,7 +375,7 @@ ${EMOJI_ON}
 % Attack options and spell-like abilities, stacked so a group of them (a
 % class, the racial traits) can open with a header row as the inventory's
 % containers do. #1 the group's name.
-\newcommand{\traitgroup}[1]{\stackheader[black!20]{T}{%
+\newcommand{\traitgroup}[1]{\stackheader[zebradark]{T}{%
   \multicolumn{2}{L{\dimexpr\stackwidth-2\tabcolsep\relax}}{\rowstrut\textbf{#1}}}}
 % #1 the ability, #2 its detail. An ability with no detail takes the whole
 % row, so a long one wraps less.

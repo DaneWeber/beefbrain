@@ -25,11 +25,16 @@ describe('dnd35-quick-reference', () => {
     templateKey: 'dnd35-quick-reference',
   })
 
-  it('is the detailed sheet’s look, in three columns', () => {
+  it('is the detailed sheet’s look, in tan, in three columns', () => {
     expect(latex).toContain('\\setmainfont{Atkinson Hyperlegible Next}')
     expect(latex).toContain('\\renewcommand{\\sheettitle}{Quick Reference}')
-    expect(latex).toContain('\\begin{multicols*}{3}')
-    expect(latex.match(/\\columnbreak/g)).toHaveLength(2)
+    expect(latex).toContain('\\definecolor{zebra}{HTML}{F4E8C6}')
+    const body = latex.slice(latex.indexOf('\\begin{document}'))
+    expect(body.match(/\\qcolumn\{/g)).toHaveLength(3)
+  })
+
+  it('leaves out skills that are only their ability modifier, without saying so', () => {
+    expect(latex).not.toContain('Any other skill')
   })
 
   it('gives final values without their sources', () => {
@@ -101,7 +106,7 @@ describe('buildQuickMovementRows', () => {
 })
 
 describe('buildQuickSkillRows', () => {
-  it('lists trained skills with their icon and notes', () => {
+  it('lists trained skills with their icon, leaving notes to the Conditionals', () => {
     expect(
       buildQuickSkillRows({
         skills: {
@@ -109,7 +114,7 @@ describe('buildQuickSkillRows', () => {
           spot: [15, { wis: 4, ranks: [11] }, 'favored-enemy: +4'],
         },
       }),
-    ).toBe('\\qskillrow{eyes}{Spot}{+15}{favored-enemy: +4}')
+    ).toBe('\\qskillrow{eyes}{Spot}{+15}')
   })
 })
 
