@@ -7,8 +7,8 @@ character:
     type: Animal
     size: M
   abilities:
-    strength: [15, str: 2]
-    dexterity: [15, dex: 2]
+    strength: [16, str: 3, {base: 15, animal-companion: 1}]
+    dexterity: [16, dex: 3, {base: 15, animal-companion: 1}]
     constitution: [15, con: 2]
     intelligence: [2, int: -4]
     wisdom: [12, wis: 1]
@@ -20,20 +20,20 @@ character:
     animal: [2, hp: [5, 4], {hd: 8, bab: average, fort: good, ref: good, will: poor}]
     cr: 1
   combat:
-    initiative: [2, dex: 2]
+    initiative: [3, dex: 3]
     saves:
       fortitude: [5, {animal: 3, con: 2}]
-      reflex: [5, {animal: 3, dex: 2}]
+      reflex: [6, {animal: 3, dex: 3}]
       will: [1, {animal: 0, wis: 1}]
     attack:
       bab: [1, animal: 1]
       melee:
-        _: [3, {bab: 1, str: 2}]
-        bite: [3, 1d6+3, x2, _: 3, str-half-again: 3, [natural, bite, primary, 1.5x-str, trip]]
-      grapple: [3, {bab: 1, str: 2}]
+        _: [4, {bab: 1, str: 3}]
+        bite: [4, 1d6+3, x2, _: 4, str-half-again: 3, [natural, bite, primary, 1.5x-str, trip]]
+      grapple: [4, {bab: 1, str: 3}]
     defense:
-      ac: [16, {base: 10, natural: 4, dex: 2}]
-      touch-ac: [12, {base: 10, dex: 2}]
+      ac: [17, {base: 10, natural: 4, dex: 3}]
+      touch-ac: [13, {base: 10, dex: 3}]
       flat-footed-ac: [14, {base: 10, natural: 4}]
       special: ["Evasion: no damage on successful Reflex save"]
     special-attacks:
@@ -45,10 +45,10 @@ character:
   movement:
     speed: [40, base: 40]
   skills:
-    jump: [10, {str: 2, speed-bonus: 4, dwarven-mastiff-racial: 4}]
+    jump: [11, {str: 3, speed-bonus: 4, dwarven-mastiff-racial: 4}]
     listen: [5, {wis: 1, ranks: 2, alertness: 2}]
     spot: [5, {wis: 1, ranks: 2, alertness: 2}]
-    swim: [3, {str: 2, ranks: 1}]
+    swim: [4, {str: 3, ranks: 1}]
     survival: [1, wis: 1]
   special:
     feats:
