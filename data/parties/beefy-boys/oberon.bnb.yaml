@@ -58,6 +58,15 @@ character:
       - [Low-light Vision]
       - [Scent]
       - [Leaper, [[skills.jump, dwarven-mastiff-racial: 4]]]
+    animal-tricks:
+      - [Attack, "Attack humanoid, monstrous humanoid, giant, or animal"]
+      - [Attack Any, Attack creature regardless of type]
+      - [Down, Break off from combat or back down]
+      - [Fetch, "Retrieve object, specific one if pointed out"]
+      - [Heel, Follow closely regardless]
+      - [Seek, Move into area and look for living/animate creatures]
+      - [Stay, Await return without challenge]
+      - [Track, Track scent presented]
     animal-companion:
       - [Bonus HD +2]
       - [Natural Armor +2]
