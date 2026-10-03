@@ -3,12 +3,15 @@ import { resolve } from 'path'
 import { describe, expect, it } from 'vitest'
 import { renderLatex } from './renderLatex'
 import {
+  buildQuickDefenseNotes,
+  buildQuickDefenseRows,
   buildQuickMovementRows,
   buildQuickOptionsBlock,
   buildQuickRangedBlock,
   buildQuickRangedRow,
   buildQuickSkillRows,
   buildQuickSpellBlocks,
+  buildQuickTricksBlock,
   buildQuickWeaponRows,
 } from './quickSheet'
 import { summarizeSpellcasting } from './spellSummary'
@@ -149,6 +152,17 @@ describe('buildQuickOptionsBlock', () => {
   it('leaves the block out when there is nothing in it', () => {
     expect(buildQuickOptionsBlock({})).toBe('')
   })
+
+  it('leaves animal tricks to their own block', () => {
+    const block = buildQuickOptionsBlock({
+      special: {
+        'animal-tricks': [
+          ['Attack', 'Attack humanoid, monstrous humanoid, giant, or animal'],
+        ],
+      },
+    })
+    expect(block).toBe('')
+  })
 })
 
 describe('buildQuickSpellBlocks', () => {
@@ -173,5 +187,55 @@ describe('buildQuickSpellBlocks', () => {
       '\\qspellrow{0}{4}{15}{Daze (2)}',
       '\\end{qspells}',
     ])
+  })
+})
+
+describe('quick defense', () => {
+  const character = {
+    combat: {
+      defense: {
+        ac: [17, { base: 10 }],
+        dr: '10/silver',
+        special: ['Evasion: no damage on successful Reflex save'],
+      },
+    },
+  }
+
+  it('prints special defenses as notes under the table, not rows', () => {
+    expect(buildQuickDefenseRows(character)).toBe('\\qvalrow{}{DR}{10/silver}')
+    expect(buildQuickDefenseNotes(character, undefined)).toBe(
+      '\\blocknotes{Evasion: no damage on successful Reflex save}',
+    )
+  })
+
+  it('leaves the notes out when there are none', () => {
+    expect(buildQuickDefenseNotes({}, undefined)).toBe('')
+  })
+})
+
+describe('buildQuickTricksBlock', () => {
+  it('lists each trick beside what it does', () => {
+    expect(
+      buildQuickTricksBlock({
+        special: {
+          'animal-tricks': [
+            ['Heel', 'Follow closely regardless'],
+            ['Seek', 'Move into area and look for living/animate creatures'],
+          ],
+        },
+      }),
+    ).toBe(
+      [
+        '\\blockrule',
+        '\\begin{actionblock}{Tricks}',
+        '\\actionrow{Heel}{Follow closely regardless}',
+        '\\actionrow{Seek}{Move into area and look for living/animate creatures}',
+        '\\end{actionblock}',
+      ].join('\n'),
+    )
+  })
+
+  it('leaves the block out for a character without tricks', () => {
+    expect(buildQuickTricksBlock({})).toBe('')
   })
 })

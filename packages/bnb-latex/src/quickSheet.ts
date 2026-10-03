@@ -11,10 +11,12 @@ import {
   breakableCell,
   formatDetail,
   formatFullAttackEntry,
+  formatTrait,
   getWeapons,
   macro,
+  TRICKS_KEY,
 } from './actionsSummary'
-import { separateConditionalSaves } from './sheetExtras'
+import { buildBlockNotes, separateConditionalSaves } from './sheetExtras'
 import {
   countSpells,
   formatExtra,
@@ -36,8 +38,16 @@ import type { CasterSummary } from './spellSummary'
 // as rows for the template's macros, every cell escaped, for {{{...}}}
 // tokens.
 
-// Defense keys the fixed rows print, or that are only for working AC out.
-const AC_KEYS = new Set(['ac', 'touch-ac', 'flat-footed-ac', 'acp', 'max-dex'])
+// Defense keys the fixed rows print, that are only for working AC out, or
+// (`special`) that are notes under the table.
+const AC_KEYS = new Set([
+  'ac',
+  'touch-ac',
+  'flat-footed-ac',
+  'acp',
+  'max-dex',
+  'special',
+])
 
 const DEFENSE_LABELS: Record<string, string> = {
   dr: 'DR',
@@ -63,6 +73,18 @@ export function buildQuickDefenseRows(
       ]),
     )
     .join('\n')
+}
+
+/**
+ * The notes under the Defense table: `combat.defense.special` (Evasion, Blind
+ * Fight), then the sheet's own defense view notes.
+ */
+export function buildQuickDefenseNotes(
+  character: Record<string, unknown>,
+  viewNotes: unknown,
+): string {
+  const defense = toRecord(toRecord(character.combat).defense)
+  return buildBlockNotes(defense.special, viewNotes)
 }
 
 /**
@@ -309,6 +331,28 @@ export function buildQuickConditionalsBlock(
   return [
     '\\blockrule',
     '\\begin{actionblock}{Conditionals}',
+    ...rows,
+    '\\end{actionblock}',
+  ].join('\n')
+}
+
+/**
+ * The Tricks block: each of `special.animal-tricks`, its name beside what
+ * the command does, after a `\blockrule`; nothing for a sheet without.
+ */
+export function buildQuickTricksBlock(
+  character: Record<string, unknown>,
+): string {
+  const tricks = toRecord(character.special)[TRICKS_KEY]
+  const rows = (Array.isArray(tricks) ? tricks : [])
+    .map(formatTrait)
+    .map((row) => macro('actionrow', row))
+  if (rows.length === 0) {
+    return ''
+  }
+  return [
+    '\\blockrule',
+    '\\begin{actionblock}{Tricks}',
     ...rows,
     '\\end{actionblock}',
   ].join('\n')

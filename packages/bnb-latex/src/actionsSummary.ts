@@ -719,6 +719,9 @@ export const NOT_ABILITY_KEYS = new Set([
 // The keys that hold class abilities; every other key is a source of special
 // abilities (`racial`, `were-rat-abilities`, `storm-giant`).
 export const CLASS_ABILITY_KEYS = new Set(['class-abilities', 'class-features'])
+// An animal's tricks (`[Attack, Attack humanoid ...]`): commands its handler
+// gives, not options it chooses when attacking.
+export const TRICKS_KEY = 'animal-tricks'
 
 // An entry, escaped, its spaces `\listtie`s: a line breaks inside an entry
 // only when it must, so "Point Blank Shot" mostly stays on one line.
@@ -997,7 +1000,12 @@ export function collectAttackOptions(
   }
 
   const traitGroupsFound = Object.entries(special)
-    .filter(([key]) => !key.startsWith('_') && !NOT_ABILITY_KEYS.has(key))
+    .filter(
+      ([key]) =>
+        !key.startsWith('_') &&
+        !NOT_ABILITY_KEYS.has(key) &&
+        key !== TRICKS_KEY,
+    )
     .flatMap(([key, value]) =>
       traitGroups(
         CLASS_ABILITY_KEYS.has(key) ? 'Class Abilities' : formatTitleKey(key),

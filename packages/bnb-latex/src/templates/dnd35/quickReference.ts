@@ -104,7 +104,7 @@ export const DND35_QUICK_REFERENCE_TEMPLATE =
 \qvalrow{astonished-face}{Flat-Footed}{ {{combat.flatFootedAc}} }
 {{{quickRef.defenseRows}}}
 \end{tabular}
-{{{combat.defenseNotes}}}
+{{{quickRef.defenseNotes}}}
 \end{sheetblock}
 \blockrule
 \begin{sheetblock}{Movement}
@@ -125,7 +125,7 @@ export const DND35_QUICK_REFERENCE_TEMPLATE =
 \end{sheetblock}}%
 \hspace{\qgap}%
 % Actions: weapons, what to bring to an attack, what applies only now and
-% then, and magic.
+% then, an animal's tricks, and magic.
 \qcolumn{\qwide}{%
 \begin{sheetblock}{Melee}
 \begin{tabular}{L{0.42\linewidth}R{0.14\linewidth}L{0.22\linewidth}C{0.12\linewidth}}
@@ -137,6 +137,7 @@ export const DND35_QUICK_REFERENCE_TEMPLATE =
 {{{quickRef.fullAttackBlock}}}
 {{{quickRef.optionsBlock}}}
 {{{quickRef.conditionalsBlock}}}
+{{{quickRef.tricksBlock}}}
 {{{quickRef.spellLikeBlock}}}
 {{{quickRef.spellBlocks}}}}%
 \hspace{\qgap}%

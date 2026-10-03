@@ -50,6 +50,7 @@ import {
 } from './sheetExtras'
 import {
   buildQuickConditionalsBlock,
+  buildQuickDefenseNotes,
   buildQuickDefenseRows,
   buildQuickFullAttackBlock,
   buildQuickMovementRows,
@@ -60,6 +61,7 @@ import {
   buildQuickSkillRows,
   buildQuickSpellBlocks,
   buildQuickSpellLikeBlock,
+  buildQuickTricksBlock,
   buildQuickWeaponRows,
 } from './quickSheet'
 import {
@@ -840,6 +842,10 @@ function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
     'quickRef.saveRows': quickSaves.rows,
     'quickRef.saveNotes': buildBlockNotes(quickSaves.notes),
     'quickRef.defenseRows': buildQuickDefenseRows(characterData),
+    'quickRef.defenseNotes': buildQuickDefenseNotes(
+      characterData,
+      viewNotes['combat-defense'],
+    ),
     'quickRef.movementRows': buildQuickMovementRows(characterData),
     'quickRef.attackNotes': buildBlockNotes(viewNotes['combat-offense']),
     'quickRef.meleeTable': buildQuickWeaponRows(characterData, 'melee'),
@@ -848,6 +854,7 @@ function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
     'quickRef.fullAttackBlock': buildQuickFullAttackBlock(characterData),
     'quickRef.optionsBlock': buildQuickOptionsBlock(characterData),
     'quickRef.conditionalsBlock': buildQuickConditionalsBlock(characterData),
+    'quickRef.tricksBlock': buildQuickTricksBlock(characterData),
     'quickRef.skillsTable': buildQuickSkillRows(characterData),
     'quickRef.spellLikeBlock': buildQuickSpellLikeBlock(characterData),
     'quickRef.spellBlocks': buildQuickSpellBlocks(casters),
