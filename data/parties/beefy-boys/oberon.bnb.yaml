@@ -30,7 +30,6 @@ character:
       melee:
         _: [3, {bab: 1, str: 2}]
         bite: [3, 1d6+3, x2, _: 3, str-half-again: 3, [natural, bite, primary, 1.5x-str, trip]]
-        full-attack: [[bite, 3, 1d6+3, x2]]
       grapple: [3, {bab: 1, str: 2}]
     defense:
       ac: [16, {base: 10, natural: 4, dex: 2}]
@@ -45,7 +44,7 @@ character:
   movement:
     speed: [40, base: 40]
   skills:
-    jump: [10, {str: 2, racial: 4, speed-bonus: 4}]
+    jump: [10, {str: 2, dwarven-mastiff: 4, speed-bonus: 4}]
     listen: [5, {wis: 1, ranks: 2, alertness: 2}]
     spot: [5, {wis: 1, ranks: 2, alertness: 2}]
     swim: [3, {str: 2, ranks: 1}]
@@ -54,9 +53,18 @@ character:
     feats:
       - [Alertness, hd: 1, [+2 Listen and Spot]]
       - [Track, bonus, [use Survival to follow tracks]]
-    racial:
+    dwarven-mastiff:
       - Low-light vision
       - Scent
+    animal-companion:
+      bonus-hd: 2
+      natural-armor-adjustment: 2
+      str-dex-adjustment: 1
+      bonus-tricks: 2
+      benefits:
+        - link: handle as a free action, push as a move action, +4 circumstance bonus on wild empathy and Handle Animal checks
+        - share-spells: self-targeted spells also affect companion w/i 5 ft 
+        - evasion: no damage on successful Reflex save
     senses: [Low-light vision, Scent]
   notes:
     jump-bonus: +4 racial bonus on Jump checks
