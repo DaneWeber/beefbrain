@@ -3,6 +3,7 @@ export type LatexTemplateKey =
   | 'dnd35-detailed'
   | 'dnd35-detailed-plain'
   | 'dnd35-spellcaster'
+  | 'dnd35-stat-block'
   | 'dnd35-quick-reference'
 
 export interface TemplateInfo {

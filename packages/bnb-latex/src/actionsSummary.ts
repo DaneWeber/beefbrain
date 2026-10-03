@@ -32,7 +32,7 @@ export function macro(name: string, cells: string[]): string {
 // may add more dice ("2d6+12+1d6 cold"); a break after each slash, and after
 // a plus that adds dice, lets either wrap in its narrow cell without
 // parting a sign from its number.
-function breakableCell(text: string): string {
+export function breakableCell(text: string): string {
   return escapeLatexText(text).replace(/\/|\+(?=\d+d\d)/g, '$&\\allowbreak ')
 }
 

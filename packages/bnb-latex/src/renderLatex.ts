@@ -48,6 +48,18 @@ import {
   separateConditionalSaves,
 } from './sheetExtras'
 import {
+  buildQuickConditionalsBlock,
+  buildQuickDefenseRows,
+  buildQuickFullAttackBlock,
+  buildQuickMovementRows,
+  buildQuickOptionsBlock,
+  buildQuickSaves,
+  buildQuickSkillRows,
+  buildQuickSpellBlocks,
+  buildQuickSpellLikeBlock,
+  buildQuickWeaponRows,
+} from './quickSheet'
+import {
   buildStatBlockDefense,
   buildStatBlockHeader,
   buildStatBlockOffense,
@@ -650,6 +662,7 @@ function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
   ): [string, unknown][] =>
     Object.entries(record).filter(([key]) => !fixed.includes(key))
   const statBlockHeader = buildStatBlockHeader(characterData)
+  const quickSaves = buildQuickSaves(characterData)
   const extraSaves = separateConditionalSaves(
     extraEntries(savesContainer, ['fortitude', 'reflex', 'will']),
   )
@@ -819,6 +832,20 @@ function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
     'spells.preparedSummary': formatPreparedSpellsSummary(casters),
     'spells.castingTable': buildCastingTableRows(casters),
     'spells.levelBlocks': buildSpellLevelBlocks(casters),
+
+    'quickRef.saveRows': quickSaves.rows,
+    'quickRef.saveNotes': buildBlockNotes(quickSaves.notes),
+    'quickRef.defenseRows': buildQuickDefenseRows(characterData),
+    'quickRef.movementRows': buildQuickMovementRows(characterData),
+    'quickRef.attackNotes': buildBlockNotes(viewNotes['combat-offense']),
+    'quickRef.meleeTable': buildQuickWeaponRows(characterData, 'melee'),
+    'quickRef.rangedTable': buildQuickWeaponRows(characterData, 'ranged'),
+    'quickRef.fullAttackBlock': buildQuickFullAttackBlock(characterData),
+    'quickRef.optionsBlock': buildQuickOptionsBlock(characterData),
+    'quickRef.conditionalsBlock': buildQuickConditionalsBlock(characterData),
+    'quickRef.skillsTable': buildQuickSkillRows(characterData),
+    'quickRef.spellLikeBlock': buildQuickSpellLikeBlock(characterData),
+    'quickRef.spellBlocks': buildQuickSpellBlocks(casters),
 
     // No "Unknown" for a sheet without a player, such as a companion's.
     'quick.player': String(description.player ?? ''),

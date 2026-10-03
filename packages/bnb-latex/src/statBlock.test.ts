@@ -21,7 +21,7 @@ function readSheet(path: string): string {
 function render(path: string): string {
   return renderLatex({
     yaml: readSheet(path),
-    templateKey: 'dnd35-quick-reference',
+    templateKey: 'dnd35-stat-block',
   }).latex
 }
 
@@ -67,7 +67,7 @@ character:
     senses: [Low-light vision, Scent]
 `
 
-describe('dnd35-quick-reference', () => {
+describe('dnd35-stat-block', () => {
   it('prints Black Stag as a stat block, section by section', () => {
     const latex = render('beefy-boys/andy-black-stag.bnb.yaml')
     expect(latex).toContain('\\sbname{ Black Stag }{ Andy O }')
@@ -86,7 +86,7 @@ describe('dnd35-quick-reference', () => {
   it('leaves out what a companion has no data for', () => {
     const { latex } = renderLatex({
       yaml: MULE,
-      templateKey: 'dnd35-quick-reference',
+      templateKey: 'dnd35-stat-block',
     })
     expect(latex).toContain('\\sbname{ Grimshank }{  }')
     // bnb-core works the attack out again from the levels.
@@ -101,7 +101,7 @@ describe('dnd35-quick-reference', () => {
   it('is listed among the templates', async () => {
     const { listTemplates } = await import('./templates/registry')
     expect(listTemplates().map((template) => template.key)).toContain(
-      'dnd35-quick-reference',
+      'dnd35-stat-block',
     )
   })
 })

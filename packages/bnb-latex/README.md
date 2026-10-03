@@ -15,7 +15,8 @@ selected template with safe token substitution.
   - compile timeout
 - D&D 3.5 starter templates:
   - `dnd35-detailed` (default) and `dnd35-detailed-plain` (no emoji)
-  - `dnd35-quick-reference`: one-page stat block, also for companions
+  - `dnd35-quick-reference`: one landscape page, three columns, final values only
+  - `dnd35-stat-block`: one-page stat block in the style of the later 3.5 books, also for companions
   - `dnd35-streamlined`
   - `dnd35-spellcaster`
 - Input size guards for YAML and custom templates
@@ -28,9 +29,10 @@ selected template with safe token substitution.
 
 ## PDF prerequisite
 
-`compilePdf` requires `lualatex` on your system `PATH`. The Detailed and Quick
-Reference templates also require Atkinson Hyperlegible Next (and the Detailed template Noto Color
-Emoji, for its icons) to be installed as system fonts.
+`compilePdf` requires `lualatex` on your system `PATH`. The Detailed, Quick
+Reference and Stat Block templates need Atkinson Hyperlegible Next installed as a
+system font, and the Detailed and Quick Reference templates Noto Color Emoji too,
+for their icons.
 
 For WSL (Ubuntu):
 

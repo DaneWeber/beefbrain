@@ -147,8 +147,29 @@ block's notes are.
 - Allocate extra space to casting-critical metrics (DC contributors, concentration-adjacent values, caster-level context).
 
 ### `dnd35-quick-reference`
-- One portrait page meant to answer most of what a player looks up during a session, and the sheet
-  for an animal companion, familiar or mount with a `.bnb.yaml` of its own (issue #72).
+- One landscape page meant to answer most of what a player looks up during a session (issue #72),
+  in the detailed sheet's look: the same preamble (font, spine, rotated block labels, zebra rows,
+  emoji, `\blockrule`s), shared through `templates/dnd35/sheetPreamble.ts`.
+- **Three columns** rather than two, with **final values only**: no sources column anywhere.
+  Where a bonus comes from is the detailed sheet's job.
+  - **Stats:** Init; Abilities (score and modifier); Saves, conditional saves as notes; Defense
+    (HP, AC, Touch, Flat-Footed, then DR, SR and other `combat.defense` keys) with its notes;
+    Movement (Speed, Run when given, other modes) with its notes; Awareness.
+  - **Actions:** Attack (BAB, Melee, Ranged, Grapple) with offense notes; Melee and Ranged
+    weapons (attack, damage, crit only when not x2, and range); Full Attack; Options (special
+    attacks, attack options, carried combat gear, as `\listrow`s); Conditionals.
+  - **Skills and magic:** only skills with ranks, a bonus beyond the ability's, or a note
+    ("Any other skill: its ability's modifier" under the table); spell-like abilities grouped by
+    uses; a table per caster, highest spell level first, a repeated spell counted.
+- What to leave out is decided as for `dnd35-stat-block` (`statBlock.ts` does the picking for
+  both sheets). Lines and blocks the data has nothing for are left out.
+- Each column is one `\fitblock`, so a character with more than a column holds gets that column
+  scaled down to fit, as page 1 of the detailed sheet does. Cells are padded 3pt (not 4pt), and
+  every table's widths fit the narrower column.
+
+### `dnd35-stat-block`
+- One portrait page in the style of a WotC stat block, and the sheet for an animal companion,
+  familiar or mount with a `.bnb.yaml` of its own. Not built by `make pdfs` or the PR workflow.
 - Laid out as a stat block in the style of WotC's later 3.5 books (*Drow of the Underdark*,
   *Monster Manual V*): entries grouped by when they are needed rather than by kind of number.
   - **Header:** name (player at the right), sex, race, template and classes, alignment and size,

@@ -30,7 +30,7 @@ import {
 import { separateConditionalSaves, splitNotes } from './sheetExtras'
 import type { CasterSummary } from './spellSummary'
 
-// The Quick Reference sheet: the character as a stat block in the style of
+// The Stat Block sheet: the character as a stat block in the style of
 // WotC's later 3.5 books (Drow of the Underdark, Monster Manual V), grouped
 // by when a player looks: who and what it is, then Defense, Offense,
 // Statistics and Special Abilities. Each builder returns the lines of one
@@ -192,7 +192,7 @@ const DEFENSE_LABELS: Record<string, string> = {
 
 // An extra defense or speed: `dr: 10/silver`, `spell-resistance: 18`,
 // `fly: [150, poor]` as "150 (poor)".
-function formatExtra(value: unknown): string {
+export function formatExtra(value: unknown): string {
   const parts = Array.isArray(value) ? value : [value]
   const [first, ...rest] = parts
   const head = formatDetail(first)
@@ -278,7 +278,7 @@ export function buildStatBlockDefense(
 
 // A plain number is a speed in feet. The land speed is given in squares
 // too, as stat blocks do: "30 ft. (6 squares)", but "fly 150 ft. (poor)".
-function formatSpeed(value: unknown, inSquares = false): string {
+export function formatSpeed(value: unknown, inSquares = false): string {
   const speed = getArrayFirst(value)
   if (typeof speed !== 'number') {
     return formatExtra(value)
@@ -298,7 +298,7 @@ const NOT_SPEED_KEYS = new Set(['speed', 'run', 'load', 'capacity'])
 
 // "x2" is every weapon's crit unless it says otherwise, so it goes unsaid.
 // "19-20/x2" is "19-20", and "x3" stays.
-function formatCrit(crit: string): string {
+export function formatCrit(crit: string): string {
   const text = crit.trim()
   if (!text || /^x2$/i.test(text)) {
     return ''
@@ -316,7 +316,7 @@ function formatWeapon(weapon: WeaponSummary): string {
 
 // One spell list's entries, a spell listed more than once counted rather
 // than repeated: "detect magic (6)".
-function countSpells(spells: string[]): string {
+export function countSpells(spells: string[]): string {
   const counts = new Map<string, number>()
   for (const spell of spells) {
     counts.set(spell, (counts.get(spell) ?? 0) + 1)
@@ -326,7 +326,7 @@ function countSpells(spells: string[]): string {
     .join(', ')
 }
 
-function ordinal(level: string): string {
+export function ordinal(level: string): string {
   const number = Number(level)
   if (!Number.isInteger(number)) {
     return level
@@ -387,7 +387,20 @@ function buildCasterLines(caster: CasterSummary): string[] {
  * CL 6):", then a `\sbspell` per number of uses ("3/day"), its abilities
  * after it with any further detail in parentheses.
  */
-function buildSpellLikeLines(spellLike: unknown): string[] {
+export interface SpellLikeSource {
+  /** "Ranger; CL 6": the source, then its shared settings. */
+  settings: string
+  /** Each number of uses ("3/day") with its abilities, in data order. */
+  byUses: [string, string[]][]
+}
+
+/**
+ * Each source of spell-like abilities, its abilities grouped by uses: an
+ * ability's first detail is its uses when it reads like one ("3/day", "at
+ * will"), and any further detail follows its name in parentheses. Sources
+ * with no abilities are left out.
+ */
+export function groupSpellLike(spellLike: unknown): SpellLikeSource[] {
   return Object.entries(toRecord(spellLike))
     .filter(([key]) => !key.startsWith('_'))
     .flatMap(([source, abilities]) => {
@@ -413,17 +426,18 @@ function buildSpellLikeLines(spellLike: unknown): string[] {
         const key = usesLabel || 'Uses'
         byUses.set(key, [...(byUses.get(key) ?? []), entry])
       }
-      if (byUses.size === 0) {
-        return []
-      }
-      return [
-        `\\sbline{\\sbl{Spell-Like Abilities} (${escapeLatexText(settings)}):}`,
-        ...[...byUses].map(
-          ([uses, entries]) =>
-            `\\sbspell{${escapeLatexText(uses)}}{${escapeLatexText(entries.join(', '))}}`,
-        ),
-      ]
+      return byUses.size === 0 ? [] : [{ settings, byUses: [...byUses] }]
     })
+}
+
+function buildSpellLikeLines(spellLike: unknown): string[] {
+  return groupSpellLike(spellLike).flatMap(({ settings, byUses }) => [
+    `\\sbline{\\sbl{Spell-Like Abilities} (${escapeLatexText(settings)}):}`,
+    ...byUses.map(
+      ([uses, entries]) =>
+        `\\sbspell{${escapeLatexText(uses)}}{${escapeLatexText(entries.join(', '))}}`,
+    ),
+  ])
 }
 
 // Items to reach for in a fight: what is used up or runs on charges.
@@ -436,7 +450,7 @@ const COMBAT_GEAR_CATEGORIES = new Set([
 ])
 const COMBAT_GEAR_TEXT = /\bcharges?\b|\/day\b|\bpotion\b|\bscroll\b|\bwand\b/i
 
-type Item = unknown[]
+export type Item = unknown[]
 
 // An item tagged `used` is spent, and no longer something the character has.
 function isUsedUp(item: Item): boolean {
@@ -467,7 +481,7 @@ function getItems(inventory: Record<string, unknown>, container?: string) {
  * `[equipped, pack]`), or else the `equipped` container, or else every
  * container. A horse's saddlebags are not to hand in a fight.
  */
-function getCarriedItems(inventory: Record<string, unknown>): Item[] {
+export function getCarriedItems(inventory: Record<string, unknown>): Item[] {
   const carried = Array.isArray(inventory._on)
     ? inventory._on.map(String)
     : Array.isArray(inventory.equipped)
@@ -478,7 +492,7 @@ function getCarriedItems(inventory: Record<string, unknown>): Item[] {
     : getItems(inventory)
 }
 
-function isCombatGear(item: Item): boolean {
+export function isCombatGear(item: Item): boolean {
   const category = String(item[2] ?? '').toLowerCase()
   return (
     category !== 'weapon' &&
@@ -491,7 +505,7 @@ function isCombatGear(item: Item): boolean {
 
 // "Arrows (31)", or just the name for one of a thing. A name with a colon
 // in it reads as a record (`USED: Diamond dust`), so it is read back as text.
-function formatItem(item: Item): string {
+export function formatItem(item: Item): string {
   const name = formatDetail(item[0])
   const qty = Number(item[1] ?? 1)
   return Number.isFinite(qty) && qty !== 1 ? `${name} (${qty})` : name
@@ -502,7 +516,7 @@ function formatItem(item: Item): string {
  * `combat.special-attacks` ("Line Of Force 4d8 (60ft line, ...)") and
  * anything else under `combat.attack` ("Sneak Attack +2d6").
  */
-function getSpecialAttacks(
+export function getSpecialAttacks(
   character: Record<string, unknown>,
 ): [string, string][] {
   const combat = toRecord(character.combat)
@@ -529,7 +543,9 @@ function getSpecialAttacks(
 // The feats and abilities to choose from when attacking, by name, as the
 // detailed sheet's Attack Options find them. Items on that list print as
 // combat gear instead.
-function getAttackOptionNames(character: Record<string, unknown>): string[] {
+export function getAttackOptionNames(
+  character: Record<string, unknown>,
+): string[] {
   const names = collectAttackOptions(
     toRecord(character.special),
     getClassNames(toRecord(character.levels)),
@@ -642,12 +658,21 @@ const ABILITIES: [string, string][] = [
 // and a stat block leaves it out.
 const ABILITY_KEYS = new Set(['str', 'dex', 'con', 'int', 'wis', 'cha', 'acp'])
 
+export interface NotableSkill {
+  key: string
+  total: number
+  /** What the data notes beside the total ("favored-enemy: +4"). */
+  notes: string[]
+}
+
 /**
- * A stat block's skills: those with ranks or another bonus beyond the
+ * The skills a stat block lists: those with ranks or another bonus beyond the
  * ability's, and any the data adds a note to ("Survival +13 (favored-enemy:
  * +4)"). A skill that cannot be used untrained (`.nan`) is left out.
  */
-function formatStatBlockSkills(skills: Record<string, unknown>): string {
+export function getNotableSkills(
+  skills: Record<string, unknown>,
+): NotableSkill[] {
   return Object.entries(skills)
     .filter(([key]) => !key.startsWith('_'))
     .sort(([a], [b]) => a.localeCompare(b))
@@ -665,13 +690,51 @@ function formatStatBlockSkills(skills: Record<string, unknown>): string {
       const notes = (Array.isArray(value) ? value.slice(1) : [])
         .filter((part) => typeof part === 'string')
         .map(String)
-      if (sources.length === 0 && notes.length === 0) {
-        return []
-      }
+      return sources.length === 0 && notes.length === 0
+        ? []
+        : [{ key, total, notes }]
+    })
+}
+
+function formatStatBlockSkills(skills: Record<string, unknown>): string {
+  return getNotableSkills(skills)
+    .map(({ key, total, notes }) => {
       const name = `${formatTitleKey(key)} ${formatSigned(total)}`
-      return [notes.length > 0 ? `${name} (${notes.join('; ')})` : name]
+      return notes.length > 0 ? `${name} (${notes.join('; ')})` : name
     })
     .join(', ')
+}
+
+/**
+ * The special qualities: every racial trait, class ability and other
+ * special, condensed as the Build page has them, except what Offense
+ * already names: "Favored Enemy (Humans, Giants)" is an Atk Option, "Sneak
+ * Attack +2d6" a special attack.
+ */
+export function getQualities(character: Record<string, unknown>): string[] {
+  const special = toRecord(character.special)
+  const classes = getClassNames(toRecord(character.levels))
+  const qualities = Object.entries(special)
+    .filter(([key]) => !key.startsWith('_') && !NOT_ABILITY_KEYS.has(key))
+    .flatMap(([key, value]) =>
+      traitGroups(
+        CLASS_ABILITY_KEYS.has(key) ? '' : formatTitleKey(key),
+        value,
+        classes,
+      ),
+    )
+    .flatMap((group) => group.short)
+    .filter((entry) => entry)
+  const offense = [
+    ...getAttackOptionNames(character),
+    ...getSpecialAttacks(character).map(([name]) => name),
+  ]
+    .map(slugify)
+    .filter((slug) => slug)
+  return qualities.filter((quality) => {
+    const slug = slugify(quality)
+    return !offense.some((name) => slug === name || slug.startsWith(`${name}-`))
+  })
 }
 
 /**
@@ -696,29 +759,7 @@ export function buildStatBlockStatistics(
     })
     .join(', ')
 
-  const qualities = Object.entries(special)
-    .filter(([key]) => !key.startsWith('_') && !NOT_ABILITY_KEYS.has(key))
-    .flatMap(([key, value]) =>
-      traitGroups(
-        CLASS_ABILITY_KEYS.has(key) ? '' : formatTitleKey(key),
-        value,
-        classes,
-      ),
-    )
-    .flatMap((group) => group.short)
-    .filter((entry) => entry)
-  // What Offense already names is not a quality too: "Favored Enemy (Humans,
-  // Giants)" is an Atk Option, "Sneak Attack +2d6" a special attack.
-  const offense = [
-    ...getAttackOptionNames(character),
-    ...getSpecialAttacks(character).map(([name]) => name),
-  ]
-    .map(slugify)
-    .filter((slug) => slug)
-  const shownQualities = qualities.filter((quality) => {
-    const slug = slugify(quality)
-    return !offense.some((name) => slug === name || slug.startsWith(`${name}-`))
-  })
+  const shownQualities = getQualities(character)
 
   const feats = (Array.isArray(special.feats) ? special.feats : [])
     .map(shortFeat)

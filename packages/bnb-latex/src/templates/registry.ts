@@ -3,6 +3,7 @@ import {
   DND35_DETAILED_TEMPLATE,
 } from './dnd35/detailed'
 import { DND35_QUICK_REFERENCE_TEMPLATE } from './dnd35/quickReference'
+import { DND35_STAT_BLOCK_TEMPLATE } from './dnd35/statBlock'
 import { DND35_SPELLCASTER_TEMPLATE } from './dnd35/spellcaster'
 import { DND35_STREAMLINED_TEMPLATE } from './dnd35/streamlined'
 import type { LatexTemplateKey, TemplateInfo } from '../types'
@@ -34,9 +35,18 @@ const TEMPLATE_REGISTRY: Record<LatexTemplateKey, TemplateRecord> = {
       key: 'dnd35-quick-reference',
       name: 'D&D 3.5 Quick Reference',
       description:
-        'One-page stat block for play at the table, or for a companion.',
+        'One page, three columns: what a player looks up during a session.',
     },
     template: DND35_QUICK_REFERENCE_TEMPLATE,
+  },
+  'dnd35-stat-block': {
+    info: {
+      key: 'dnd35-stat-block',
+      name: 'D&D 3.5 Stat Block',
+      description:
+        'One-page stat block in the style of the later 3.5 books, or for a companion.',
+    },
+    template: DND35_STAT_BLOCK_TEMPLATE,
   },
   'dnd35-streamlined': {
     info: {
