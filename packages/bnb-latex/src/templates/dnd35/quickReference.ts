@@ -29,7 +29,7 @@ export const DND35_QUICK_REFERENCE_TEMPLATE =
 \newcommand{\qvalrow}[3]{\rowstrut \rowicon{#1}#2 & #3 \\}
 % #1 icon, #2 ability, #3 score, #4 modifier.
 \newcommand{\qabilityrow}[4]{\rowstrut \rowicon{#1}#2 & #3 & #4 \\}
-% Weapons: #1 name, #2 attack, #3 damage, #4 crit (empty for x2); a ranged
+% Weapons: #1 name, #2 attack, #3 damage, #4 crit; a ranged
 % weapon's #4 is its crit and range together, which share a column.
 \newcommand{\qmeleerow}[4]{\rowstrut #1 & #2 & #3 & #4 \\}
 \newcommand{\qrangedrow}[4]{\rowstrut #1 & #2 & #3 & #4 \\}

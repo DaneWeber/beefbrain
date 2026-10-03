@@ -72,16 +72,16 @@ describe('buildQuickWeaponRows', () => {
     },
   }
 
-  it('leaves out the usual x2 crit', () => {
+  it('shows the usual x2 crit', () => {
     expect(buildQuickWeaponRows(character, 'melee')).toBe(
-      '\\qmeleerow{Sickle}{+20}{1d6+6}{}',
+      '\\qmeleerow{Sickle}{+20}{1d6+6}{\\mbox{x2}}',
     )
   })
 
   it('shares one cell for crit and range, each kept whole', () => {
     expect(buildQuickWeaponRows(character, 'ranged').split('\n')).toEqual([
       '\\qrangedrow{Rapid Shot}{+10/\\allowbreak +10/\\allowbreak +5}{1d6+1}{\\mbox{x3}, \\mbox{60ft}}',
-      '\\qrangedrow{Manyshot}{+8/\\allowbreak +8}{2x\\allowbreak (1d6+1)}{\\mbox{60ft}}',
+      '\\qrangedrow{Manyshot}{+8/\\allowbreak +8}{2x\\allowbreak (1d6+1)}{\\mbox{x2}, \\mbox{60ft}}',
     ])
   })
 

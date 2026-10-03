@@ -17,7 +17,6 @@ import {
 import { separateConditionalSaves } from './sheetExtras'
 import {
   countSpells,
-  formatCrit,
   formatExtra,
   formatItem,
   formatSpeed,
@@ -124,9 +123,10 @@ export function buildQuickMovementRows(
 }
 
 // A weapon's attack and damage, breakable at their slashes and added dice,
-// and its crit when that is not the usual x2, kept whole.
+// and its crit kept whole. The crit column shows x2 too, so a weapon with
+// the usual crit doesn't read as one missing it.
 function weaponCells(attack: string, damage: string, crit: string): string[] {
-  const shownCrit = formatCrit(crit)
+  const shownCrit = crit.trim()
   return [
     breakableCell(attack),
     // "2x(1d6+1)", Manyshot's two arrows, may break after the "2x" too.
@@ -137,9 +137,8 @@ function weaponCells(attack: string, damage: string, crit: string): string[] {
 
 /**
  * `\qmeleerow{name}{atk}{damage}{crit}` per melee weapon and
- * `\qrangedrow{name}{atk}{damage}{crit, range}` per ranged one; the crit
- * is left out for an x2, and each part of the last cell is kept whole, so
- * the cell breaks only between them. `\nonerow` when there are none.
+ * `\qrangedrow{name}{atk}{damage}{crit, range}` per ranged one; each part
+ * of the last cell is kept whole, so the cell breaks only between them. `\nonerow` when there are none.
  */
 export function buildQuickWeaponRows(
   character: Record<string, unknown>,
