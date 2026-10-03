@@ -742,7 +742,8 @@ function propagateToMeleeWeaponDetails(
       const isTwoHanded =
         tags.includes('two-handed') ||
         tags.includes('2h') ||
-        tags.includes('2-hand')
+        tags.includes('2-hand') ||
+        tags.includes('1.5x-str')
       const isOffHand = tags.includes('off-hand') || tags.includes('oh')
       const isSecondary = tags.includes('secondary')
 
@@ -754,6 +755,22 @@ function propagateToMeleeWeaponDetails(
         strDamageMod = Math.floor(strMod * 0.5)
       } else if (isSecondary) {
         strDamageMod = Math.floor(strMod * 0.5)
+      }
+
+      // A str-half-again component carries the whole 1.5x Str bonus (a
+      // two-handed weapon or a lone primary natural attack), whatever the tags
+      if (
+        weaponArr[4] &&
+        typeof weaponArr[4] === 'object' &&
+        !Array.isArray(weaponArr[4]) &&
+        'str-half-again' in weaponArr[4]
+      ) {
+        const damageMods = weaponArr[4] as Record<string, number>
+        const halfAgain = Math.floor(strMod * 1.5)
+        if (damageMods['str-half-again'] !== halfAgain) {
+          damageMods['str-half-again'] = halfAgain
+          hasChanges = true
+        }
       }
 
       // Update str in the damage breakdown (position 4)
