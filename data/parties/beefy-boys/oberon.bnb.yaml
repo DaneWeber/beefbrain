@@ -14,23 +14,23 @@ character:
     wisdom: [12, wis: 1]
     charisma: [6, cha: -2]
   levels:
-    hd: [2, 8]
-    hp: [13, max-hp: 13]
-    max-hp: [13, {con: 4, rolls: 9}]
-    animal: [2, hp: [5, 4], {hd: 8, bab: average, fort: good, ref: good, will: poor}]
+    hd: [4, 8]
+    hp: [26, max-hp: 26]
+    max-hp: [26, {con: 8, rolls: 18}]
+    animal: [4, hp: [5, 4, 8, 1], {hd: 8, bab: average, fort: good, ref: good, will: poor}]
     cr: 1
   combat:
     initiative: [3, dex: 3]
     saves:
-      fortitude: [5, {animal: 3, con: 2}]
-      reflex: [6, {animal: 3, dex: 3}]
-      will: [1, {animal: 0, wis: 1}]
+      fortitude: [6, {animal: 4, con: 2}]
+      reflex: [7, {animal: 4, dex: 3}]
+      will: [2, {animal: 1, wis: 1}]
     attack:
-      bab: [1, animal: 1]
+      bab: [3, animal: 3]
       melee:
-        _: [4, {bab: 1, str: 3}]
-        bite: [4, 1d6+3, x2, _: 4, str-half-again: 3, [natural, bite, primary, 1.5x-str, trip]]
-      grapple: [4, {bab: 1, str: 3}]
+        _: [6, {bab: 3, str: 3}]
+        bite: [6, 1d6+3, x2, _: 6, str-half-again: 3, [natural, bite, primary, 1.5x-str, trip]]
+      grapple: [6, {bab: 3, str: 3}]
     defense:
       ac: [21, {base: 10, natural: 4, dex: 3, companion-natural-adjustment: 4}]
       touch-ac: [13, {base: 10, dex: 3}]
@@ -48,8 +48,8 @@ character:
     jump: [11, {str: 3, speed-bonus: 4, dwarven-mastiff-racial: 4}]
     listen: [5, {wis: 1, ranks: 2, alertness: 2}]
     spot: [5, {wis: 1, ranks: 2, alertness: 2}]
-    swim: [4, {str: 3, ranks: 1}]
-    survival: [1, wis: 1]
+    swim: [5, {str: 3, ranks: 2}]
+    survival: [2, {wis: 1, ranks: 1}]
   special:
     feats:
       - [Alertness, hd: 1, [[skills.listen, alertness: 2], [skills.spot, alertness: 2]]]
