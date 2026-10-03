@@ -35,6 +35,7 @@ character:
       ac: [16, {base: 10, natural: 4, dex: 2}]
       touch-ac: [12, {base: 10, dex: 2}]
       flat-footed-ac: [14, {base: 10, natural: 4}]
+      special: ["Evasion: no damage on successful Reflex save"]
     special-attacks:
       trip:
         - Ex
@@ -44,27 +45,27 @@ character:
   movement:
     speed: [40, base: 40]
   skills:
-    jump: [10, {str: 2, dwarven-mastiff: 4, speed-bonus: 4}]
+    jump: [10, {str: 2, speed-bonus: 4, dwarven-mastiff-racial: 4}]
     listen: [5, {wis: 1, ranks: 2, alertness: 2}]
     spot: [5, {wis: 1, ranks: 2, alertness: 2}]
     swim: [3, {str: 2, ranks: 1}]
     survival: [1, wis: 1]
   special:
     feats:
-      - [Alertness, hd: 1, [+2 Listen and Spot]]
-      - [Track, bonus, [use Survival to follow tracks]]
+      - [Alertness, hd: 1, [[skills.listen, alertness: 2], [skills.spot, alertness: 2]]]
+      - [Track, bonus]
     dwarven-mastiff:
-      - Low-light vision
-      - Scent
+      - [Low-light Vision]
+      - [Scent]
+      - [Leaper, [[skills.jump, dwarven-mastiff-racial: 4]]]
     animal-companion:
-      bonus-hd: 2
-      natural-armor-adjustment: 2
-      str-dex-adjustment: 1
-      bonus-tricks: 2
-      benefits:
-        - link: handle as a free action, push as a move action, +4 circumstance bonus on wild empathy and Handle Animal checks
-        - share-spells: self-targeted spells also affect companion w/i 5 ft 
-        - evasion: no damage on successful Reflex save
+      - [Bonus HD +2]
+      - [Natural Armor +2]
+      - [Str/Dex +1]
+      - [Bonus Tricks 2]
+      - [Link, handle as a free action, push as a move action, +4 on wild empathy and Handle Animal]
+      - [Share Spells, self-targeted spells also affect companion within 5 ft]
+      - [Evasion, [[combat.defense.special, "Evasion: no damage on successful Reflex save"]]]
     senses: [Low-light vision, Scent]
   notes:
     jump-bonus: +4 racial bonus on Jump checks
