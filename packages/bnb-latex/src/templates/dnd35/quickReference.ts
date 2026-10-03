@@ -118,7 +118,7 @@ export const DND35_QUICK_REFERENCE_TEMPLATE =
 \begin{tabular}{L{0.50\linewidth}R{0.43\linewidth}}
 \qvalrow{bullseye}{BAB}{ {{combat.bab}} }
 \qvalrow{dagger}{Melee}{ {{combat.melee}} }
-\qvalrow{bow-and-arrow}{Ranged}{ {{combat.ranged}} }
+{{{quickRef.rangedRow}}}
 \qvalrow{people-wrestling}{Grapple}{ {{combat.grapple}} }
 \end{tabular}
 {{{quickRef.attackNotes}}}
@@ -133,13 +133,7 @@ export const DND35_QUICK_REFERENCE_TEMPLATE =
 {{{quickRef.meleeTable}}}
 \end{tabular}
 \end{sheetblock}
-\blockrule
-\begin{sheetblock}{Ranged}
-\begin{tabular}{L{0.38\linewidth}R{0.14\linewidth}L{0.20\linewidth}C{0.18\linewidth}}
-\footnotesize Weapon & \footnotesize Atk & \footnotesize Damage & Crit, Range \\
-{{{quickRef.rangedTable}}}
-\end{tabular}
-\end{sheetblock}
+{{{quickRef.rangedBlock}}}
 {{{quickRef.fullAttackBlock}}}
 {{{quickRef.optionsBlock}}}
 {{{quickRef.conditionalsBlock}}}

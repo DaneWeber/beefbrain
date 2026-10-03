@@ -4,6 +4,8 @@ import {
   formatComponentKey,
   getArrayFirst,
   formatSigned,
+  formatSignedTotal,
+  formatSources,
   isNonZeroComponent,
   sortComponentEntries,
   toRecord,
@@ -174,6 +176,42 @@ export function buildRangedRows(attack: Record<string, unknown>): string {
       ]),
     )
     .join('\n')
+}
+
+/**
+ * The Attack block's Ranged `\statrow`, or nothing for a character without
+ * a ranged attack bonus.
+ */
+export function buildRangedAttackRow(attack: Record<string, unknown>): string {
+  const ranged = toRecord(attack.ranged)._
+  if (ranged === undefined) {
+    return ''
+  }
+  return macro('statrow', [
+    'bow-and-arrow',
+    'Ranged',
+    formatSignedTotal(ranged),
+    formatSources(ranged),
+  ])
+}
+
+/**
+ * The Ranged block (weapon table after a `\blockrule`), or nothing for a
+ * character without ranged weapons.
+ */
+export function buildRangedBlock(attack: Record<string, unknown>): string {
+  if (getWeapons(attack.ranged).length === 0) {
+    return ''
+  }
+  return [
+    '\\blockrule',
+    '\\begin{sheetblock}{Ranged}',
+    '\\begin{tabular}{L{0.22\\linewidth}R{0.10\\linewidth}L{0.13\\linewidth}C{0.12\\linewidth}C{0.12\\linewidth}Q{0.16\\linewidth}}',
+    '\\footnotesize Weapon & \\footnotesize Atk & \\footnotesize Damage & Range & Crit & \\multicolumn{1}{L{0.16\\linewidth}}{\\footnotesize Sources} \\\\',
+    buildRangedRows(attack),
+    '\\end{tabular}',
+    '\\end{sheetblock}',
+  ].join('\n')
 }
 
 /**

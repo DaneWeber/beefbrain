@@ -44,8 +44,6 @@ character:
         - if it fails, opponent cannot react to trip Oberon
   movement:
     speed: [40, base: 40]
-    space: 5ft
-    reach: 5ft
   skills:
     jump: [10, {str: 2, racial: 4, speed-bonus: 4}]
     listen: [5, {wis: 1, ranks: 2, alertness: 2}]

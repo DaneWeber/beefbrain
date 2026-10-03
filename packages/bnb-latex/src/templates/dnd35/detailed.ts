@@ -95,7 +95,7 @@ export const DND35_DETAILED_TEMPLATE =
 \begin{tabular}{L{0.27\linewidth}R{0.18\linewidth}Q{0.48\linewidth}}
 \statrow{bullseye}{BAB}{ {{combat.bab}} }{ {{combat.bab.sources}} }
 \statrow{dagger}{Melee}{ {{combat.melee}} }{ {{combat.melee.sources}} }
-\statrow{bow-and-arrow}{Ranged}{ {{combat.ranged}} }{ {{combat.ranged.sources}} }
+{{{combat.rangedRow}}}
 \statrow{people-wrestling}{Grapple}{ {{combat.grapple}} }{ {{combat.grapple.sources}} }
 {{{actions.specialAttackRows}}}
 \end{tabular}
@@ -108,13 +108,7 @@ export const DND35_DETAILED_TEMPLATE =
 {{{actions.meleeTable}}}
 \end{tabular}
 \end{sheetblock}
-\blockrule
-\begin{sheetblock}{Ranged}
-\begin{tabular}{L{0.22\linewidth}R{0.10\linewidth}L{0.13\linewidth}C{0.12\linewidth}C{0.12\linewidth}Q{0.16\linewidth}}
-\footnotesize Weapon & \footnotesize Atk & \footnotesize Damage & Range & Crit & \multicolumn{1}{L{0.16\linewidth}}{\footnotesize Sources} \\
-{{{actions.rangedTable}}}
-\end{tabular}
-\end{sheetblock}
+{{{actions.rangedBlock}}}
 \blockrule
 \begin{sheetblock}{Ammunition}
 \begin{tabular}{L{0.50\linewidth}R{0.10\linewidth}L{0.33\linewidth}}

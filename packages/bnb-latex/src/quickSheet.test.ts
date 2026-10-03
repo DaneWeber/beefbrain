@@ -5,6 +5,8 @@ import { renderLatex } from './renderLatex'
 import {
   buildQuickMovementRows,
   buildQuickOptionsBlock,
+  buildQuickRangedBlock,
+  buildQuickRangedRow,
   buildQuickSkillRows,
   buildQuickSpellBlocks,
   buildQuickWeaponRows,
@@ -85,6 +87,31 @@ describe('buildQuickWeaponRows', () => {
 
   it('marks a table with no weapons', () => {
     expect(buildQuickWeaponRows({}, 'ranged')).toBe('\\nonerow{4}')
+  })
+})
+
+describe('quick ranged row and block', () => {
+  const character = {
+    combat: {
+      attack: {
+        ranged: {
+          _: [12, { bab: 10, dex: 2 }],
+          longbow: [12, '1d8', 'x3', {}, {}, ['110ft']],
+        },
+      },
+    },
+  }
+
+  it('shows the Ranged row and block when there are ranged attacks', () => {
+    expect(buildQuickRangedRow(character)).toBe(
+      '\\qvalrow{bow-and-arrow}{Ranged}{+12}',
+    )
+    expect(buildQuickRangedBlock(character)).toContain('\\qrangedrow{Longbow}')
+  })
+
+  it('leaves both out for a character without ranged attacks', () => {
+    expect(buildQuickRangedRow({})).toBe('')
+    expect(buildQuickRangedBlock({})).toBe('')
   })
 })
 

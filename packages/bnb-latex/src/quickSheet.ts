@@ -173,6 +173,47 @@ export function buildQuickWeaponRows(
 }
 
 /**
+ * The Attack block's Ranged `\qvalrow`, or nothing for a character without
+ * a ranged attack bonus.
+ */
+export function buildQuickRangedRow(
+  character: Record<string, unknown>,
+): string {
+  const attack = toRecord(toRecord(character.combat).attack)
+  const ranged = toRecord(attack.ranged)._
+  if (ranged === undefined) {
+    return ''
+  }
+  return macro('qvalrow', [
+    'bow-and-arrow',
+    'Ranged',
+    formatSignedTotal(ranged),
+  ])
+}
+
+/**
+ * The Ranged block (weapon table after a `\blockrule`), or nothing for a
+ * character without ranged weapons.
+ */
+export function buildQuickRangedBlock(
+  character: Record<string, unknown>,
+): string {
+  const attack = toRecord(toRecord(character.combat).attack)
+  if (getWeapons(attack.ranged).length === 0) {
+    return ''
+  }
+  return [
+    '\\blockrule',
+    '\\begin{sheetblock}{Ranged}',
+    '\\begin{tabular}{L{0.38\\linewidth}R{0.14\\linewidth}L{0.20\\linewidth}C{0.18\\linewidth}}',
+    '\\footnotesize Weapon & \\footnotesize Atk & \\footnotesize Damage & Crit, Range \\\\',
+    buildQuickWeaponRows(character, 'ranged'),
+    '\\end{tabular}',
+    '\\end{sheetblock}',
+  ].join('\n')
+}
+
+/**
  * The Full Attack block (`\actionrow`s in an `actionblock`, after a
  * `\blockrule`), or nothing for a character without routines.
  */
