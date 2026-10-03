@@ -1,0 +1,66 @@
+---
+character:
+  description:
+    name: Oberon
+    player: NPC
+    race: Dwarven Mastiff (Riding Dog)
+    type: Animal
+    size: M
+  abilities:
+    strength: [15, str: 2]
+    dexterity: [15, dex: 2]
+    constitution: [15, con: 2]
+    intelligence: [2, int: -4]
+    wisdom: [12, wis: 1]
+    charisma: [6, cha: -2]
+  levels:
+    hd: [2, 8]
+    hp: [13, max-hp: 13]
+    max-hp: [13, {con: 4, rolls: 9}]
+    animal: [2, hp: [5, 4], {hd: 8, bab: average, fort: good, ref: good, will: poor}]
+    cr: 1
+  combat:
+    initiative: [2, dex: 2]
+    saves:
+      fortitude: [5, {animal: 3, con: 2}]
+      reflex: [5, {animal: 3, dex: 2}]
+      will: [1, {animal: 0, wis: 1}]
+    attack:
+      bab: [1, animal: 1]
+      melee:
+        _: [3, {bab: 1, str: 2}]
+        bite: [3, 1d6+3, x2, _: 3, str-half-again: 3, [natural, bite, primary, 1.5x-str, trip]]
+        full-attack: [[bite, 3, 1d6+3, x2]]
+      grapple: [3, {bab: 1, str: 2}]
+    defense:
+      ac: [16, {base: 10, natural: 4, dex: 2}]
+      touch-ac: [12, {base: 10, dex: 2}]
+      flat-footed-ac: [14, {base: 10, natural: 4}]
+    special-attacks:
+      trip:
+        - Ex
+        - on bite hit, free trip attempt (+2 check)
+        - no touch attack, no attack of opportunity
+        - if it fails, opponent cannot react to trip Oberon
+  movement:
+    speed: [40, base: 40]
+    space: 5ft
+    reach: 5ft
+  skills:
+    jump: [10, {str: 2, racial: 4, speed-bonus: 4}]
+    listen: [5, {wis: 1, ranks: 2, alertness: 2}]
+    spot: [5, {wis: 1, ranks: 2, alertness: 2}]
+    swim: [3, {str: 2, ranks: 1}]
+    survival: [1, wis: 1]
+  special:
+    feats:
+      - [Alertness, hd: 1, [+2 Listen and Spot]]
+      - [Track, bonus, [use Survival to follow tracks]]
+    racial:
+      - Low-light vision
+      - Scent
+    senses: [Low-light vision, Scent]
+  notes:
+    jump-bonus: +4 racial bonus on Jump checks
+  conditionals:
+    survival-scent: +4 racial bonus on Survival when tracking by scent
