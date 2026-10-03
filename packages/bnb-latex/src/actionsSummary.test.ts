@@ -6,6 +6,8 @@ import {
   buildSpellLikeBlock,
   buildFullAttackBlock,
   buildMeleeRows,
+  buildRangedAttackRow,
+  buildRangedBlock,
   buildRangedRows,
   buildSpecialAttackRows,
   formatAttackNotes,
@@ -83,6 +85,33 @@ describe('weapon rows', () => {
 
   it('marks an empty table', () => {
     expect(buildRangedRows({})).toBe('\\nonerow{6}')
+  })
+})
+
+describe('ranged row and block', () => {
+  const attack = {
+    ranged: {
+      _: [15, { bab: 10, dex: 5 }],
+      sling: [15, '1d4+6', 'x2', { _: 15 }, { str: 6 }, ['sling', '50ft']],
+    },
+  }
+
+  it('shows the Ranged row and block when there are ranged attacks', () => {
+    expect(buildRangedAttackRow(attack)).toBe(
+      '\\statrow{bow-and-arrow}{Ranged}{+15}{Dex +5, BAB +10}',
+    )
+    expect(buildRangedBlock(attack)).toContain(
+      '\\rangedrow{Sling}{+15}{1d4+6}{50ft}{x2}',
+    )
+    expect(buildRangedBlock(attack)).toMatch(/^\\blockrule\n/)
+  })
+
+  it('leaves both out for a character without ranged attacks', () => {
+    expect(buildRangedAttackRow({})).toBe('')
+    expect(buildRangedBlock({})).toBe('')
+    expect(buildRangedBlock({ ranged: { _: [3, { bab: 1, dex: 2 }] } })).toBe(
+      '',
+    )
   })
 })
 

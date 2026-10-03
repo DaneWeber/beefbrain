@@ -38,7 +38,7 @@ character:
       full-bab: +13/+8/+3
       melee:
         _: [19, {bab: 13, str: 6}]
-        frost-brand-greatsword+3: [22, 2d6+12+1d6 cold, 19-20/x2, {_: 19, enhancement: 3}, {slashing: 2d6, cold: 1d6, str: 6, two-handed-str: 3, enhancement: 3}, [greatsword, 2-hand, frost]]
+        frost-brand-greatsword+3: [22, 2d6+12+1d6 cold, 19-20/x2, {_: 19, enhancement: 3}, {slashing: 2d6, cold: 1d6, str-half-again: 9, enhancement: 3}, [greatsword, 2-hand, frost]]
         dagger: [19, 1d4+6, 19-20/x2, _: 19, {piercing: 1d4, str: 6}, [dagger]]
         lion-shield: [13, 2d6, x2, bab: 13, biting-piercing-slashing: 2d6, [shield, 3/day]]
       ranged:

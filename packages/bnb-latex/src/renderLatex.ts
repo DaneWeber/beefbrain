@@ -29,7 +29,8 @@ import {
   buildConditionalsBlock,
   buildFullAttackBlock,
   buildMeleeRows,
-  buildRangedRows,
+  buildRangedAttackRow,
+  buildRangedBlock,
   buildSpecialAttackRows,
   buildSpellLikeBlock,
   formatAttackNotes,
@@ -47,6 +48,29 @@ import {
   formatHitDice,
   separateConditionalSaves,
 } from './sheetExtras'
+import {
+  buildQuickConditionalsBlock,
+  buildQuickDefenseNotes,
+  buildQuickDefenseRows,
+  buildQuickFullAttackBlock,
+  buildQuickMovementRows,
+  buildQuickOptionsBlock,
+  buildQuickRangedBlock,
+  buildQuickRangedRow,
+  buildQuickSaves,
+  buildQuickSkillRows,
+  buildQuickSpellBlocks,
+  buildQuickSpellLikeBlock,
+  buildQuickTricksBlock,
+  buildQuickWeaponRows,
+} from './quickSheet'
+import {
+  buildStatBlockDefense,
+  buildStatBlockHeader,
+  buildStatBlockOffense,
+  buildStatBlockSpecial,
+  buildStatBlockStatistics,
+} from './statBlock'
 import {
   buildCastingTableRows,
   buildSpellLevelBlocks,
@@ -642,6 +666,8 @@ function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
     fixed: string[],
   ): [string, unknown][] =>
     Object.entries(record).filter(([key]) => !fixed.includes(key))
+  const statBlockHeader = buildStatBlockHeader(characterData)
+  const quickSaves = buildQuickSaves(characterData)
   const extraSaves = separateConditionalSaves(
     extraEntries(savesContainer, ['fortitude', 'reflex', 'will']),
   )
@@ -741,11 +767,12 @@ function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
     'combat.melee.sources': formatSources(toRecord(attack.melee)._),
     'combat.ranged': formatSignedTotal(toRecord(attack.ranged)._),
     'combat.ranged.sources': formatSources(toRecord(attack.ranged)._),
+    'combat.rangedRow': buildRangedAttackRow(attack),
     'combat.grapple': formatSignedTotal(attack.grapple),
     'combat.grapple.sources': formatSources(attack.grapple),
 
     'actions.meleeTable': buildMeleeRows(attack),
-    'actions.rangedTable': buildRangedRows(attack),
+    'actions.rangedBlock': buildRangedBlock(attack),
     'actions.fullAttackBlock': buildFullAttackBlock(attack),
     'actions.specialAttackRows': buildSpecialAttackRows(combat),
     'actions.attackNotes': buildBlockNotes(
@@ -811,6 +838,35 @@ function buildFieldMap(data: BeefBrainData, generatedAt: Date): LatexFieldMap {
     'spells.preparedSummary': formatPreparedSpellsSummary(casters),
     'spells.castingTable': buildCastingTableRows(casters),
     'spells.levelBlocks': buildSpellLevelBlocks(casters),
+
+    'quickRef.saveRows': quickSaves.rows,
+    'quickRef.saveNotes': buildBlockNotes(quickSaves.notes),
+    'quickRef.defenseRows': buildQuickDefenseRows(characterData),
+    'quickRef.defenseNotes': buildQuickDefenseNotes(
+      characterData,
+      viewNotes['combat-defense'],
+    ),
+    'quickRef.movementRows': buildQuickMovementRows(characterData),
+    'quickRef.attackNotes': buildBlockNotes(viewNotes['combat-offense']),
+    'quickRef.meleeTable': buildQuickWeaponRows(characterData, 'melee'),
+    'quickRef.rangedRow': buildQuickRangedRow(characterData),
+    'quickRef.rangedBlock': buildQuickRangedBlock(characterData),
+    'quickRef.fullAttackBlock': buildQuickFullAttackBlock(characterData),
+    'quickRef.optionsBlock': buildQuickOptionsBlock(characterData),
+    'quickRef.conditionalsBlock': buildQuickConditionalsBlock(characterData),
+    'quickRef.tricksBlock': buildQuickTricksBlock(characterData),
+    'quickRef.skillsTable': buildQuickSkillRows(characterData),
+    'quickRef.spellLikeBlock': buildQuickSpellLikeBlock(characterData),
+    'quickRef.spellBlocks': buildQuickSpellBlocks(casters),
+
+    // No "Unknown" for a sheet without a player, such as a companion's.
+    'quick.player': String(description.player ?? ''),
+    'quick.identity': statBlockHeader.identity,
+    'quick.header': statBlockHeader.lines,
+    'quick.defense': buildStatBlockDefense(characterData),
+    'quick.offense': buildStatBlockOffense(characterData, casters),
+    'quick.statistics': buildStatBlockStatistics(characterData),
+    'quick.special': buildStatBlockSpecial(characterData),
   }
 }
 

@@ -6,7 +6,9 @@ check:
 	pnpm lint
 	pnpm test
 
-TEMPLATE ?= dnd35-detailed
+# Every sheet is made with each template, named <character>-<template>.pdf
+# as the web app names its downloads. One template: make pdfs TEMPLATES=dnd35-detailed
+TEMPLATES ?= dnd35-detailed dnd35-quick-reference
 PDF_DIR ?= out/pdfs
 
 pdfs:
@@ -16,8 +18,11 @@ pdfs:
 		party=$$(basename $$(dirname "$$f")); \
 		name=$$(basename "$$f" .bnb.yaml); \
 		mkdir -p "$(PDF_DIR)/$$party"; \
-		node packages/bnb-cli/dist/index.mjs latex "$$f" --template $(TEMPLATE) \
-			--out "$(PDF_DIR)/$$party/$$name.tex" --pdf || { echo "FAILED: $$f"; failed=1; }; \
+		for template in $(TEMPLATES); do \
+			node packages/bnb-cli/dist/index.mjs latex "$$f" --template $$template \
+				--out "$(PDF_DIR)/$$party/$$name-$$template.tex" --pdf \
+				|| { echo "FAILED: $$f ($$template)"; failed=1; }; \
+		done; \
 	done; \
 	echo "PDFs written to $(PDF_DIR)/"; \
 	exit $$failed

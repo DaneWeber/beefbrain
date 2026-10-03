@@ -146,6 +146,58 @@ block's notes are.
 - Keep same final+component grammar as other variants.
 - Allocate extra space to casting-critical metrics (DC contributors, concentration-adjacent values, caster-level context).
 
+### `dnd35-quick-reference`
+- One landscape page meant to answer most of what a player looks up during a session (issue #72),
+  in the detailed sheet's look: the same preamble (font, spine, rotated block labels, striped rows,
+  emoji, `\blockrule`s), shared through `templates/dnd35/sheetPreamble.ts`.
+- It repeats the detailed sheet, so it is **tan rather than gray** (striping, group rows, rules
+  and spine) to tell the two apart at a glance. The preamble names those colors (`zebra`,
+  `zebradark`, `blockrulecolor`) so a sheet can redefine them.
+- **Final values only**: no sources anywhere. Where a bonus comes from is the detailed sheet's
+  job.
+- **Three columns, narrow, wide, narrow.** The outer columns hold short labels with a number or
+  two; the middle one takes what wraps.
+  - **Left:** Init; Abilities (score and modifier); Saves, conditional saves as notes; Defense
+    (HP, AC, Touch, Flat-Footed, then DR, SR and other `combat.defense` keys) with its notes;
+    Movement (Speed, Run when given, other modes) with its notes; Attack (BAB, Melee, Ranged,
+    Grapple) with offense notes.
+  - **Middle:** Melee and Ranged weapons (attack, damage, crit only when not x2, and range);
+    Full Attack; Options (special attacks, attack options, carried combat gear, as
+    `\listrow`s); Conditionals; spell-like abilities grouped by uses; a table per caster,
+    highest spell level first, a repeated spell counted.
+  - **Right:** Skills, only those with ranks or a bonus beyond the ability's, bonus only: a
+    skill's conditional bonuses are in the Conditionals; Awareness.
+- What to leave out is decided as for `dnd35-stat-block` (`statBlock.ts` does the picking for
+  both sheets). Lines and blocks the data has nothing for are left out.
+- Each column is one `\fitblock`, so a column with more than the page holds is scaled down to
+  fit, as page 1 of the detailed sheet's are. Cells are padded 3pt (not 4pt), and every table's
+  widths fit its column.
+
+### `dnd35-stat-block`
+- One portrait page in the style of a WotC stat block, and the sheet for an animal companion,
+  familiar or mount with a `.bnb.yaml` of its own. Not built by `make pdfs` or the PR workflow.
+- Laid out as a stat block in the style of WotC's later 3.5 books (*Drow of the Underdark*,
+  *Monster Manual V*): entries grouped by when they are needed rather than by kind of number.
+  - **Header:** name (player at the right), sex, race, template and classes, alignment and size,
+    then Init, Senses (with Listen and Spot), Languages.
+  - **Defense:** AC, touch and flat-footed with what the AC is made of; hp with HD, then DR, SR and
+    any other `combat.defense` key; saves, with conditional saves after them.
+  - **Offense:** speed (land speed in squares too) and other movement; each melee and ranged
+    weapon, joined with "or"; full-attack routines; Base Atk and Grp; special attacks; Atk Options
+    (as the detailed sheet's Attack Options find them); Combat Gear (wands, potions, scrolls and
+    anything with charges or uses per day that the character carries); spells, highest level
+    first, a repeated spell counted ("detect magic (6)"); spell-like abilities grouped by uses.
+  - **Statistics:** ability scores; SQ (racial traits and class abilities not already in Offense);
+    feats; skills with ranks or a bonus beyond the ability's; possessions ("combat gear plus" what
+    else is carried); load.
+  - **Special Abilities:** each of `character.conditionals`, name in bold then its text.
+- Final values only: sources are left out, except AC's modifiers, as a stat block gives them.
+  The detailed sheet is where a bonus is worked out.
+- Same font as the detailed sheet, two balanced columns. A line the data has nothing for is left
+  out, and so is an empty section, so a mule is a few lines at the top of the page. A sheet too
+  long for the page is laid out wider and scaled down to fit, as the detailed sheet's blocks are,
+  so it is always one page.
+
 ## Density and legibility standards
 
 1. Keep page 1 focused on highest-frequency gameplay data.

@@ -4,6 +4,8 @@ import {
   formatComponentKey,
   getArrayFirst,
   formatSigned,
+  formatSignedTotal,
+  formatSources,
   isNonZeroComponent,
   sortComponentEntries,
   toRecord,
@@ -32,7 +34,7 @@ export function macro(name: string, cells: string[]): string {
 // may add more dice ("2d6+12+1d6 cold"); a break after each slash, and after
 // a plus that adds dice, lets either wrap in its narrow cell without
 // parting a sign from its number.
-function breakableCell(text: string): string {
+export function breakableCell(text: string): string {
   return escapeLatexText(text).replace(/\/|\+(?=\d+d\d)/g, '$&\\allowbreak ')
 }
 
@@ -51,7 +53,7 @@ const ATTACK_KEYS = new Set([
 const RANGE_TAG = /^\d+\s*ft(?:\s*\/\s*\d+\s*ft)?$/i
 
 // `+12`, or `+12/+7` for a weapon listing an attack bonus per attack.
-function formatAttackBonus(value: unknown): string {
+export function formatAttackBonus(value: unknown): string {
   const bonuses = Array.isArray(value) ? value : [value]
   return bonuses.map(formatSigned).join('/')
 }
@@ -70,7 +72,7 @@ function words(text: string): string[] {
  * A weapon is `[attack, damage, crit, {attack sources}, {damage sources},
  * ..., [tags]]`.
  */
-interface WeaponSummary {
+export interface WeaponSummary {
   name: string
   attack: string
   damage: string
@@ -123,7 +125,7 @@ function summarizeWeapon(key: string, weapon: unknown[]): WeaponSummary {
   }
 }
 
-function getWeapons(group: unknown): WeaponSummary[] {
+export function getWeapons(group: unknown): WeaponSummary[] {
   return Object.entries(toRecord(group))
     .filter(
       ([key, value]) =>
@@ -177,6 +179,42 @@ export function buildRangedRows(attack: Record<string, unknown>): string {
 }
 
 /**
+ * The Attack block's Ranged `\statrow`, or nothing for a character without
+ * a ranged attack bonus.
+ */
+export function buildRangedAttackRow(attack: Record<string, unknown>): string {
+  const ranged = toRecord(attack.ranged)._
+  if (ranged === undefined) {
+    return ''
+  }
+  return macro('statrow', [
+    'bow-and-arrow',
+    'Ranged',
+    formatSignedTotal(ranged),
+    formatSources(ranged),
+  ])
+}
+
+/**
+ * The Ranged block (weapon table after a `\blockrule`), or nothing for a
+ * character without ranged weapons.
+ */
+export function buildRangedBlock(attack: Record<string, unknown>): string {
+  if (getWeapons(attack.ranged).length === 0) {
+    return ''
+  }
+  return [
+    '\\blockrule',
+    '\\begin{sheetblock}{Ranged}',
+    '\\begin{tabular}{L{0.22\\linewidth}R{0.10\\linewidth}L{0.13\\linewidth}C{0.12\\linewidth}C{0.12\\linewidth}Q{0.16\\linewidth}}',
+    '\\footnotesize Weapon & \\footnotesize Atk & \\footnotesize Damage & Range & Crit & \\multicolumn{1}{L{0.16\\linewidth}}{\\footnotesize Sources} \\\\',
+    buildRangedRows(attack),
+    '\\end{tabular}',
+    '\\end{sheetblock}',
+  ].join('\n')
+}
+
+/**
  * Free-form detail as one line of text: a string as written, a list joined,
  * a record as "Key value" pairs (`{main: +10/+5, helm: 7}` ->
  * "Main +10/+5, Helm +7").
@@ -205,7 +243,7 @@ export function formatDetail(value: unknown): string {
 }
 
 // One attack of a full-attack list: `[bite, 13, 1d8+6, x2]`.
-function formatFullAttackEntry(entry: unknown): string {
+export function formatFullAttackEntry(entry: unknown): string {
   if (!Array.isArray(entry)) {
     return formatDetail(entry)
   }
@@ -562,7 +600,7 @@ function nameWithDetail(name: string, detail: string): string {
  * name and a short detail; a `[name, effects...]` entry keeps only its name,
  * since its effects are printed where they apply.
  */
-function shortTrait(entry: unknown): string {
+export function shortTrait(entry: unknown): string {
   if (Array.isArray(entry)) {
     return String(entry[0] ?? '')
   }
@@ -583,7 +621,7 @@ function shortTrait(entry: unknown): string {
  * its keys (`domains: {good: ..., trickery: ...}` -> "Domains (Good,
  * Trickery)"); a list, or `true`, leaves the name alone.
  */
-function shortAbility(key: string, value: unknown): string {
+export function shortAbility(key: string, value: unknown): string {
   const name = formatTitleKey(key)
   if (isRecord(value)) {
     const keys = Object.keys(value).filter((entry) => !entry.startsWith('_'))
@@ -597,11 +635,11 @@ function shortAbility(key: string, value: unknown): string {
 
 // A feat condensed is its name, which already says what it is about
 // ("Weapon Focus (Sickle)"); its effects are printed where they apply.
-function shortFeat(feat: unknown): string {
+export function shortFeat(feat: unknown): string {
   return String((Array.isArray(feat) ? feat[0] : feat) ?? '')
 }
 
-interface TraitGroup {
+export interface TraitGroup {
   /** '' for rows the data does not group. */
   title: string
   rows: [string, string][]
@@ -616,7 +654,7 @@ interface TraitGroup {
  * either keyed by class (`ranger: [Track, ...]`), each class a group of its
  * own, or keyed by ability (`turn-undead: (+3) 4/day`), each an ability.
  */
-function traitGroups(
+export function traitGroups(
   title: string,
   value: unknown,
   classes: Set<string>,
@@ -672,7 +710,7 @@ function traitRows(groups: TraitGroup[]): string {
 }
 
 // Keys under `special` that other blocks print, or that are not abilities.
-const NOT_ABILITY_KEYS = new Set([
+export const NOT_ABILITY_KEYS = new Set([
   'feats',
   'proficiencies',
   'languages',
@@ -680,7 +718,10 @@ const NOT_ABILITY_KEYS = new Set([
 ])
 // The keys that hold class abilities; every other key is a source of special
 // abilities (`racial`, `were-rat-abilities`, `storm-giant`).
-const CLASS_ABILITY_KEYS = new Set(['class-abilities', 'class-features'])
+export const CLASS_ABILITY_KEYS = new Set(['class-abilities', 'class-features'])
+// An animal's tricks (`[Attack, Attack humanoid ...]`): commands its handler
+// gives, not options it chooses when attacking.
+export const TRICKS_KEY = 'animal-tricks'
 
 // An entry, escaped, its spaces `\listtie`s: a line breaks inside an entry
 // only when it must, so "Point Blank Shot" mostly stays on one line.
@@ -785,7 +826,7 @@ export function getClassNames(levels: Record<string, unknown>): Set<string> {
 
 // A source's shared settings (`_: {cl: 20, save: cha}`) -> "CL 20, save Cha".
 // A calculated caster level (`cl: [6, {ranger: 6}]`) shows just its total.
-function formatSpellLikeSettings(settings: unknown): string {
+export function formatSpellLikeSettings(settings: unknown): string {
   return Object.entries(toRecord(settings))
     .map(([key, value]) => {
       if (key === 'cl') {
@@ -800,7 +841,7 @@ function formatSpellLikeSettings(settings: unknown): string {
 }
 
 // One ability, `[1/day, {dc: [15, {base: 13, cha: 2}]}]` -> "1/day; DC 15".
-function formatSpellLike(value: unknown): string {
+export function formatSpellLike(value: unknown): string {
   const parts = Array.isArray(value) ? value : [value]
   return parts
     .map((part) => {
@@ -916,6 +957,23 @@ export function buildAttackOptionRows(
   inventory: Record<string, unknown>,
   conditionals: Set<string> = new Set(),
 ): string {
+  return (
+    traitRows(
+      collectAttackOptions(special, classes, inventory, conditionals),
+    ) || '\\traitnone'
+  )
+}
+
+/**
+ * The groups behind the Attack Options rows (see buildAttackOptionRows):
+ * the feats, each source of traits and the items, each possibly empty.
+ */
+export function collectAttackOptions(
+  special: Record<string, unknown>,
+  classes: Set<string>,
+  inventory: Record<string, unknown>,
+  conditionals: Set<string> = new Set(),
+): TraitGroup[] {
   // `sneak-attack` names "Sneak Attack +2d6" too.
   const isConditional = (name: string) => {
     const slug = slugify(name)
@@ -942,7 +1000,12 @@ export function buildAttackOptionRows(
   }
 
   const traitGroupsFound = Object.entries(special)
-    .filter(([key]) => !key.startsWith('_') && !NOT_ABILITY_KEYS.has(key))
+    .filter(
+      ([key]) =>
+        !key.startsWith('_') &&
+        !NOT_ABILITY_KEYS.has(key) &&
+        key !== TRICKS_KEY,
+    )
     .flatMap(([key, value]) =>
       traitGroups(
         CLASS_ABILITY_KEYS.has(key) ? 'Class Abilities' : formatTitleKey(key),
@@ -985,5 +1048,5 @@ export function buildAttackOptionRows(
     }
   }
 
-  return traitRows([featGroup, ...traitGroupsFound, itemGroup]) || '\\traitnone'
+  return [featGroup, ...traitGroupsFound, itemGroup]
 }

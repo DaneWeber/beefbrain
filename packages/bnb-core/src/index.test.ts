@@ -135,6 +135,41 @@ character:
           expect(maul[4]['two-handed']).toBe(3)
           expect(maul[1]).toBe('2d6+10')
         })
+        it('should keep a str-half-again component at 1.5x str', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [16, str: 3]
+  combat:
+    attack:
+      melee:
+        _: [6, {bab: 3, str: 3}]
+        bite: [6, 1d6+3, x2, _: 6, str-half-again: 3, [natural, bite, primary, 1.5x-str, trip]]
+        greatsword: [9, 2d6+12+1d6 cold, 19-20/x2, {_: 6, enhancement: 3}, {slashing: 2d6, cold: 1d6, str-half-again: 9, enhancement: 3}, [greatsword]]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          const { bite, greatsword } = output.character.combat.attack.melee
+          // floor(1.5 * 3) = 4
+          expect(bite[4]['str-half-again']).toBe(4)
+          expect(bite[1]).toBe('1d6+4')
+          expect(greatsword[4]['str-half-again']).toBe(4)
+          expect(greatsword[1]).toBe('2d6+7+1d6 cold')
+        })
+        it('should apply 1.5x str to a str component tagged 1.5x-str', () => {
+          const yamlContent = `---
+character:
+  abilities:
+    strength: [18, str: 4]
+  combat:
+    attack:
+      melee:
+        _: [5, {bab: 1, str: 4}]
+        bite: [5, 1d6+4, x2, _: 5, str: 4, [natural, bite, primary, 1.5x-str]]
+`
+          const output = parseYAML(updateCalculatedFields(yamlContent))
+          expect(output.character.combat.attack.melee.bite[4].str).toBe(6)
+          expect(output.character.combat.attack.melee.bite[1]).toBe('1d6+6')
+        })
         it('should recalculate skill totals with array-style rank components', () => {
           const yamlContent = `---
 character:

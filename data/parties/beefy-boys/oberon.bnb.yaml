@@ -1,0 +1,82 @@
+---
+character:
+  description:
+    name: Oberon
+    player: NPC
+    race: Dwarven Mastiff (Riding Dog)
+    type: Animal
+    size: M
+  abilities:
+    strength: [16, str: 3, {base: 15, animal-companion: 1}]
+    dexterity: [16, dex: 3, {base: 15, animal-companion: 1}]
+    constitution: [16, con: 3, {base: 15, hd: 1}]
+    intelligence: [2, int: -4]
+    wisdom: [12, wis: 1]
+    charisma: [6, cha: -2]
+  levels:
+    hd: [4, 8]
+    hp: [30, max-hp: 30]
+    max-hp: [30, {con: 12, rolls: 18}]
+    animal: [4, hp: [5, 4, 8, 1], {hd: 8, bab: average, fort: good, ref: good, will: poor}]
+    cr: 1
+  combat:
+    initiative: [3, dex: 3]
+    saves:
+      fortitude: [7, {animal: 4, con: 3}]
+      reflex: [7, {animal: 4, dex: 3}]
+      will: [2, {animal: 1, wis: 1}]
+    attack:
+      bab: [3, animal: 3]
+      melee:
+        _: [6, {bab: 3, str: 3}]
+        bite: [6, 1d6+4, x2, _: 6, str-half-again: 4, [natural, bite, primary, trip]]
+      grapple: [6, {bab: 3, str: 3}]
+    defense:
+      ac: [21, {base: 10, natural: 4, dex: 3, companion-natural-adjustment: 4}]
+      touch-ac: [13, {base: 10, dex: 3}]
+      flat-footed-ac: [18, {base: 10, natural: 4, companion-natural-adjustment: 4}]
+      special: ["Evasion: no damage on successful Reflex save"]
+    special-attacks:
+      trip:
+        - Ex
+        - on bite hit, free trip attempt (+2 check)
+        - no touch attack, no attack of opportunity
+        - if it fails, opponent cannot react to trip Oberon
+  movement:
+    speed: [40, base: 40]
+  skills:
+    jump: [11, {str: 3, speed-bonus: 4, dwarven-mastiff-racial: 4}]
+    listen: [5, {wis: 1, ranks: 2, alertness: 2}]
+    spot: [5, {wis: 1, ranks: 2, alertness: 2}]
+    swim: [5, {str: 3, ranks: 2}]
+    survival: [2, {wis: 1, ranks: 1}]
+  special:
+    feats:
+      - [Alertness, hd: 1, [[skills.listen, alertness: 2], [skills.spot, alertness: 2]]]
+      - [Track, bonus]
+    dwarven-mastiff:
+      - [Low-light Vision]
+      - [Scent]
+      - [Leaper, [[skills.jump, dwarven-mastiff-racial: 4]]]
+    animal-tricks:
+      - [Attack, "Attack humanoid, monstrous humanoid, giant, or animal"]
+      - [Attack Any, Attack creature regardless of type]
+      - [Down, Break off from combat or back down]
+      - [Fetch, "Retrieve object, specific one if pointed out"]
+      - [Heel, Follow closely regardless]
+      - [Seek, Move into area and look for living/animate creatures]
+      - [Stay, Await return without challenge]
+      - [Track, Track scent presented]
+    animal-companion:
+      - [Bonus HD +2]
+      - [Natural Armor +2, [[combat.defense.ac, companion-natural-adjustment: 4], [combat.defense.flat-footed-ac, companion-natural-adjustment: 4]]]
+      - [Str/Dex +1, [[abilities.strength, animal-companion: 1], [abilities.dexterity, animal-companion: 1]]]
+      - [Bonus Tricks 2]
+      - [Link, handle as a free action, push as a move action, +4 on wild empathy and Handle Animal]
+      - [Share Spells, self-targeted spells also affect companion within 5 ft]
+      - [Evasion, [[combat.defense.special, "Evasion: no damage on successful Reflex save"]]]
+    senses: [Low-light vision, Scent]
+  notes:
+    jump-bonus: +4 racial bonus on Jump checks
+  conditionals:
+    survival-scent: +4 racial bonus on Survival when tracking by scent
