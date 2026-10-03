@@ -61,7 +61,7 @@ character:
     animal-companion:
       - [Bonus HD +2]
       - [Natural Armor +2]
-      - [Str/Dex +1]
+      - [Str/Dex +1, [[abilities.strength, animal-companion: 1], [abilities.dexterity, animal-companion: 1]]]
       - [Bonus Tricks 2]
       - [Link, handle as a free action, push as a move action, +4 on wild empathy and Handle Animal]
       - [Share Spells, self-targeted spells also affect companion within 5 ft]
